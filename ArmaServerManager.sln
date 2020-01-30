@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29326.143
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArmaServerManager", "ArmaServerManager\ArmaServerManager.csproj", "{C9056683-85D1-4DD1-B1EC-21DD23DBF2D2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArmaServerManagerTests", "ArmaServerManagerTests\ArmaServerManagerTests.csproj", "{08EBE0BE-DA40-4DB3-BAEA-BBEC693F2EAC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9056683-85D1-4DD1-B1EC-21DD23DBF2D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9056683-85D1-4DD1-B1EC-21DD23DBF2D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9056683-85D1-4DD1-B1EC-21DD23DBF2D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9056683-85D1-4DD1-B1EC-21DD23DBF2D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08EBE0BE-DA40-4DB3-BAEA-BBEC693F2EAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08EBE0BE-DA40-4DB3-BAEA-BBEC693F2EAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08EBE0BE-DA40-4DB3-BAEA-BBEC693F2EAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08EBE0BE-DA40-4DB3-BAEA-BBEC693F2EAC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9070EE35-E4E9-4A03-9C74-83DCAD073551}
+	EndGlobalSection
+EndGlobal
