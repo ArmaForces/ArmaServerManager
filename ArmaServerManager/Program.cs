@@ -29,7 +29,7 @@ namespace ArmaServerManager
             };
         }
 
-        public string GetServerPath() => _serverPath + "\\" + _executable;
+        public string GetServerExe() => _serverPath + "\\" + _executable;
     }
 
     internal class Program
@@ -38,7 +38,7 @@ namespace ArmaServerManager
             var serverSettings = new Settings();
             Console.WriteLine("Starting Arma 3 Server");
             var server =
-                Process.Start(serverSettings.GetServerPath());
+                Process.Start(serverSettings.GetServerExe());
             server.WaitForInputIdle();
             Console.WriteLine(server.ProcessName);
             string serverMainWindowTitle = server.MainWindowTitle;
