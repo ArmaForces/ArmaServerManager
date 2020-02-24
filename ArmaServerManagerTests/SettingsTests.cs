@@ -4,7 +4,7 @@ using Xunit;
 
 namespace ArmaServerManagerTests
 {
-    public class UnitTest1
+    public class SettingsTests
     {
         [Fact]
         public void Settings_ServerExePath_NotNull()
