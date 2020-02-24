@@ -13,4 +13,13 @@ namespace ArmaServerManagerTests
             Assert.NotNull(serverSettings.GetServerExePath());
         }
     }
+
+    public class ServerTests {
+        [Fact]
+        public void Server_IsRunning_Success() {
+            Server server = new Server();
+            server.Start();
+            Assert.True(server.IsServerRunning());
+        }
+    }
 }

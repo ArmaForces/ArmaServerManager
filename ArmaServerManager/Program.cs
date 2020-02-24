@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +6,37 @@ using Microsoft.Win32;
 
 namespace ArmaServerManager
 {
+    public class Server {
+        private Settings _settings;
+        private Process _serverProcess;
+        public Server() {
+            _settings = new Settings();
+        }
+
+        public bool IsServerRunning() {
+            return _serverProcess != null ? true : false;
+        }
+
+        public bool Start() {
+            try {
+                _serverProcess = Process.Start(_settings.GetServerExePath());
+            } catch (NullReferenceException e) {
+                Console.WriteLine(e);
+                return false;
+            }
+            return true;
+        }
+
+        public void WaitUntilStarted() {
+            _serverProcess.WaitForInputIdle();
+        }
+
+        public void Shutdown() {
+            _serverProcess.Kill();
+            _serverProcess = null;
+        }
+    }
+
     public class Settings {
         private static IConfigurationRoot _config;
         private readonly string _executable = "arma3server.exe";
@@ -39,15 +70,11 @@ namespace ArmaServerManager
     internal class Program
     {
         static void Main(string[] args) {
-            var serverSettings = new Settings();
+            var server = new Server();
             Console.WriteLine("Starting Arma 3 Server");
-            var server =
-                Process.Start(serverSettings.GetServerExePath());
-            server.WaitForInputIdle();
-            Console.WriteLine(server.ProcessName);
-            string serverMainWindowTitle = server.MainWindowTitle;
-            Console.WriteLine(serverMainWindowTitle);
-            server.Kill();
+            server.Start();
+            server.WaitUntilStarted();
+            server.Shutdown();
         }
     }
 }
