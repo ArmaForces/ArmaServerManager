@@ -13,23 +13,30 @@ namespace ArmaServerManager
             .AddEnvironmentVariables()
             .Build();
 
-        public string executable = "arma3server.exe";
-        public string RegistryPath = Registry.LocalMachine
-            .OpenSubKey("SOFTWARE\\WOW6432Node\\bohemia interactive\\arma 3")
-            ?.GetValue("main")
-            .ToString();
-        public string ServerPath = Config["serverPath"];
+        private readonly string _executable = "arma3server.exe";
+        
+        private readonly string _serverPath = SetServerPath();
 
-        public string GetServerPath() {
-            return RegistryPath + "\\" + executable;
+        private static string SetServerPath()
+        {
+            try {
+                return Config["serverPath"];
+            } catch (NullReferenceException) {
+                return Registry.LocalMachine
+                .OpenSubKey("SOFTWARE\\WOW6432Node\\bohemia interactive\\arma 3")
+                ?.GetValue("main")
+                .ToString();
+            };
         }
+
+        public string GetServerPath() => _serverPath + "\\" + _executable;
     }
 
     internal class Program
     {
         static void Main(string[] args) {
             var serverSettings = new Settings();
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Starting Arma 3 Server");
             var server =
                 Process.Start(serverSettings.GetServerPath());
             server.WaitForInputIdle();
