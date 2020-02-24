@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Configuration;
@@ -7,26 +7,26 @@ using Microsoft.Win32;
 namespace ArmaServerManager
 {
     public class Settings {
-        private static readonly IConfigurationRoot Config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("settings.json")
-            .AddEnvironmentVariables()
-            .Build();
-
+        private static IConfigurationRoot _config;
         private readonly string _executable = "arma3server.exe";
-        
-        private readonly string _serverPath = SetServerPath();
+        private readonly string _serverPath;
 
-        private static string SetServerPath()
-        {
+        public Settings() {
+            // Load config
+            _config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("settings.json")
+                .AddEnvironmentVariables()
+                .Build();
+            // Load serverPath
             try {
-                return Config["serverPath"];
+                _serverPath = _config["serverPath"];
             } catch (NullReferenceException) {
-                return Registry.LocalMachine
-                .OpenSubKey("SOFTWARE\\WOW6432Node\\bohemia interactive\\arma 3")
-                ?.GetValue("main")
-                .ToString();
-            };
+                _serverPath = Registry.LocalMachine
+                    .OpenSubKey("SOFTWARE\\WOW6432Node\\bohemia interactive\\arma 3")
+                    ?.GetValue("main")
+                    .ToString();
+            }
         }
 
         public string GetServerExePath()
