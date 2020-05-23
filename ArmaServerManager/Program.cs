@@ -6,37 +6,75 @@ using Microsoft.Win32;
 
 namespace ArmaServerManager
 {
+    public class Server {
+        private Settings _settings;
+        private Process _serverProcess;
+        public Server() {
+            _settings = new Settings();
+        }
+
+        public bool IsServerRunning() {
+            return _serverProcess != null ? true : false;
+        }
+
+        public bool Start() {
+            try {
+                _serverProcess = Process.Start(_settings.GetServerExePath());
+            } catch (NullReferenceException e) {
+                Console.WriteLine(e);
+                return false;
+            }
+            return true;
+        }
+
+        public void WaitUntilStarted() {
+            _serverProcess.WaitForInputIdle();
+        }
+
+        public void Shutdown() {
+            _serverProcess.Kill();
+            _serverProcess = null;
+        }
+    }
+
     public class Settings {
-        private static readonly IConfigurationRoot Config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("settings.json")
-            .AddEnvironmentVariables()
-            .Build();
+        private static IConfigurationRoot _config;
+        private readonly string _executable = "arma3server.exe";
+        private readonly string _serverPath;
 
-        public string executable = "arma3server.exe";
-        public string RegistryPath = Registry.LocalMachine
-            .OpenSubKey("SOFTWARE\\WOW6432Node\\bohemia interactive\\arma 3")
-            ?.GetValue("main")
-            .ToString();
-        public string ServerPath = Config["serverPath"];
+        public Settings() {
+            // Load config
+            _config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("settings.json")
+                .AddEnvironmentVariables()
+                .Build();
+            // Load serverPath
+            try {
+                _serverPath = _config["serverPath"];
+            } catch (NullReferenceException) {
+                _serverPath = Registry.LocalMachine
+                    .OpenSubKey("SOFTWARE\\WOW6432Node\\bohemia interactive\\arma 3")
+                    ?.GetValue("main")
+                    .ToString();
+            }
+        }
 
-        public string GetServerPath() {
-            return RegistryPath + "\\" + executable;
+        public string GetServerExePath()
+        {
+            if (_serverPath != null) return $"{_serverPath}\\{_executable}";
+            return null;
         }
     }
 
     internal class Program
     {
         static void Main(string[] args) {
-            var serverSettings = new Settings();
-            Console.WriteLine("Hello World!");
-            var server =
-                Process.Start(serverSettings.GetServerPath());
-            server.WaitForInputIdle();
-            Console.WriteLine(server.ProcessName);
-            string serverMainWindowTitle = server.MainWindowTitle;
-            Console.WriteLine(serverMainWindowTitle);
-            server.Kill();
+            var server = new Server();
+            Console.WriteLine("Starting Arma 3 Server");
+            server.Start();
+            server.WaitUntilStarted();
+            server.Shutdown();
         }
     }
 }
