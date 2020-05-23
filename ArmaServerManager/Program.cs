@@ -11,6 +11,7 @@ namespace ArmaServerManager
         private ServerConfig _armaConfig;
         private Process _serverProcess;
         public Server() {
+            Console.WriteLine("Initializing Server");
             _settings = new Settings();
             _armaConfig = new ServerConfig(_settings);
         }
@@ -20,20 +21,24 @@ namespace ArmaServerManager
         }
 
         public bool Start() {
+            Console.WriteLine("Starting Arma 3 Server");
             try {
                 _serverProcess = Process.Start(_settings.GetServerExePath());
             } catch (NullReferenceException e) {
                 Console.WriteLine(e);
+                Console.WriteLine("Arma 3 Server could not be started. Path missing.");
                 return false;
             }
             return true;
         }
 
         public void WaitUntilStarted() {
+            Console.WriteLine($"Waiting for {_serverProcess} to finish startup.");
             _serverProcess.WaitForInputIdle();
         }
 
         public void Shutdown() {
+            Console.WriteLine($"Shutting down the {_serverProcess}.");
             _serverProcess.Kill();
             _serverProcess = null;
         }
@@ -45,6 +50,7 @@ namespace ArmaServerManager
         private readonly string _serverPath;
 
         public Settings() {
+            Console.WriteLine("Loading Manager Settings.");
             // Load config
             _config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -85,6 +91,7 @@ namespace ArmaServerManager
         private readonly Settings _settings;
         private string _serverConfigDir;
         public ServerConfig(Settings settings) {
+            Console.WriteLine("Loading ServerConfig.");
             _settings = settings;
             // Load config directory and create if it not exists
             string _serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
@@ -93,6 +100,7 @@ namespace ArmaServerManager
                 Console.WriteLine($"Config directory {_serverConfigDirName} does not exists, creating.");
                 Directory.CreateDirectory(_serverConfigDir);
             }
+            Console.WriteLine("ServerConfig loaded.");
         }
     }
 
@@ -100,7 +108,6 @@ namespace ArmaServerManager
     {
         static void Main(string[] args) {
             var server = new Server();
-            Console.WriteLine("Starting Arma 3 Server");
             server.Start();
             server.WaitUntilStarted();
             server.Shutdown();
