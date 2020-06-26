@@ -90,6 +90,19 @@ namespace ArmaServerManager {
                 .AddInMemoryCollection(_commonConfig.AsEnumerable())
                 .AddJsonFile("config.json")
                 .Build();
+            var cfgFile = FillCfg(File.ReadAllText($"{_serverConfigDir}\\server.cfg"), _modsetConfig.GetSection("server"));
+            File.WriteAllText($"{modsetConfigDir}\\server.cfg", cfgFile);
+        }
+
+        /// <summary>
+        /// In given cfgFile string replaces values for keys present in given config. Returns filled string.
+        /// </summary>
+        private string FillCfg(string cfgFile, IConfigurationSection config) {
+            foreach (var section in config.GetChildren()) {
+                var key = section.Key;
+                var value = section.Value;
+            }
+            return cfgFile;
         }
     }
 
