@@ -7,14 +7,22 @@ using Microsoft.Win32;
 
 namespace ArmaServerManager
 {
+    public class Modset {
+        private string _modsetName = "default";
+
+        public string GetName() => _modsetName;
+    }
+
     public class Server {
         private Settings _settings;
+        private Modset _modset;
         private ServerConfig _armaConfig;
         private Process _serverProcess;
         public Server() {
             Console.WriteLine("Initializing Server");
             _settings = new Settings();
-            _armaConfig = new ServerConfig(_settings);
+            _modset = new Modset();
+            _armaConfig = new ServerConfig(_settings, _modset);
         }
 
         public bool IsServerRunning() {
@@ -90,10 +98,13 @@ namespace ArmaServerManager
 
     public class ServerConfig {
         private readonly Settings _settings;
+        private readonly Modset _modset;
         private string _serverConfigDir;
         public ServerConfig(Settings settings) {
+        public ServerConfig(Settings settings, Modset modset) {
             Console.WriteLine("Loading ServerConfig.");
             _settings = settings;
+            _modset = modset;
             // Load config directory and create if it not exists
             var serverPath = settings.GetServerPath();
             var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
