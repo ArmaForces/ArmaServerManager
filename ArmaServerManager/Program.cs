@@ -7,12 +7,6 @@ using Microsoft.Win32;
 
 namespace ArmaServerManager
 {
-    public class Modset {
-        private string _modsetName = "default";
-
-        public string GetName() => _modsetName;
-    }
-
     public class Server {
         private Settings _settings;
         private Modset _modset;
