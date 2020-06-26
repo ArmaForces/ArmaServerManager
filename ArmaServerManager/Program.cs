@@ -47,7 +47,7 @@ namespace ArmaServerManager
 
     public class Settings {
         private static IConfigurationRoot _config;
-        private readonly string _executable = "arma3server.exe";
+        private readonly string _executable = "arma3server_x64.exe";
         private readonly string _serverPath;
 
         public Settings() {
