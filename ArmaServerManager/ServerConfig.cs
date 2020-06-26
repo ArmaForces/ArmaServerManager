@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 
@@ -101,8 +102,47 @@ namespace ArmaServerManager {
             foreach (var section in config.GetChildren()) {
                 var key = section.Key;
                 var value = section.Value;
+                cfgFile = ReplaceValue(cfgFile, key, value);
             }
             return cfgFile;
+        }
+
+        private string ReplaceValue(string config, string key, string value) {
+            // Build regex expression with new line before key to prevent mid-line replacements
+            var expression = $"\n{key}";
+            if (key == "template") {
+                expression = $"\t\t{key}";
+            }
+            // Check if $key contains '[]' eg. 'admins[]' as then it's value should be an array
+            if (Regex.IsMatch(key, @"[[\]]")) {
+                // Make some magic to replace [] in expression to \[\]
+                expression = Regex.Replace(key, @"\[\]", @"\[\]");
+            }
+
+            expression = $"{expression} = .*;";
+            // If expression is not found, return unchanged config
+            if (!Regex.IsMatch(config, expression)) {
+                return config;
+            }
+
+            // Check character after "key = "
+            // eg. for key = 'lobbyTimeout' and config entry:
+            // lobbyTimeout = 1234
+            // returns 1
+            // Used to determine if there are quotation marks needed
+            var quote = "";
+            var match = Regex.Match(config, expression);
+            if (match.Value.Substring(key.Length + 4, 1) == "\"") {
+                quote = "\"";
+            }
+
+            if (Regex.IsMatch(key, @"[[\]]")) {
+                config = Regex.Replace(config, expression, $"{key} = {value};");
+            } else {
+                config = Regex.Replace(config, expression, $"\n{key} = {quote}{value}{quote};");
+            }
+
+            return config;
         }
     }
 
