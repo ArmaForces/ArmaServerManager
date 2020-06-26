@@ -103,8 +103,9 @@ namespace ArmaServerManager {
             foreach (var section in config.GetChildren()) {
                 var key = section.Key;
                 var value = config.GetSection(key).GetChildren().ToList();
-                // If value is array, it needs changing to string
+                // Replace default value in cfg with value from loaded configs
                 if (value.Count != 0) {
+                    // If value is array, it needs changing to string
                     var stringValue = String.Join(", ", value.Select(p => p.Value.ToString()));
                     cfgFile = ReplaceValue(cfgFile, key, stringValue);
                 } else {
@@ -114,6 +115,9 @@ namespace ArmaServerManager {
             return cfgFile;
         }
 
+        /// <summary>
+        /// Performs replacement of a value for correspoinding key in given config file (as string)
+        /// </summary>
         private string ReplaceValue(string config, string key, string value) {
             // Build regex expression with new line before key to prevent mid-line replacements
             var expression = $"\n{key}";
