@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace ArmaServerManager {
     public class ServerConfig
@@ -8,6 +9,7 @@ namespace ArmaServerManager {
         private readonly Settings _settings;
         private readonly Modset _modset;
         private string _serverConfigDir;
+        private IConfigurationRoot _commonConfig;
 
         /// <summary>
         /// Class prepares server configuration for given modset
@@ -20,6 +22,7 @@ namespace ArmaServerManager {
             _settings = settings;
             _modset = modset;
             // Load config directory and create if it not exists
+            PrepareServerConfig();
             PrepareModsetConfig();
 
             Console.WriteLine("ServerConfig loaded.");
@@ -28,7 +31,7 @@ namespace ArmaServerManager {
         /// <summary>
         /// Prepares common serverConfig directory and files
         /// </summary>
-        private string PrepareServerConfig()
+        private void PrepareServerConfig()
         {
             var serverPath = _settings.GetServerPath();
             var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
@@ -46,7 +49,11 @@ namespace ArmaServerManager {
                 Console.WriteLine($"{fileName} not found, copying.");
                 File.Copy($"{Directory.GetCurrentDirectory()}\\example_{fileName}", filePath);
             }
-            return _serverConfigDir;
+            // Load common config from JSON
+            _commonConfig = new ConfigurationBuilder()
+                .SetBasePath(_serverConfigDir)
+                .AddJsonFile("common.json")
+                .Build();
         }
 
         /// <summary>
