@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 
 namespace ArmaServerManager {
     public class ServerConfig
@@ -101,8 +102,14 @@ namespace ArmaServerManager {
         private string FillCfg(string cfgFile, IConfigurationSection config) {
             foreach (var section in config.GetChildren()) {
                 var key = section.Key;
-                var value = section.Value;
-                cfgFile = ReplaceValue(cfgFile, key, value);
+                var value = config.GetSection(key).GetChildren().ToList();
+                // If value is array, it needs changing to string
+                if (value.Count != 0) {
+                    var stringValue = String.Join(", ", value.Select(p => p.Value.ToString()));
+                    cfgFile = ReplaceValue(cfgFile, key, stringValue);
+                } else {
+                    cfgFile = ReplaceValue(cfgFile, key, config[key]);
+                }
             }
             return cfgFile;
         }
@@ -137,7 +144,7 @@ namespace ArmaServerManager {
             }
 
             if (Regex.IsMatch(key, @"[[\]]")) {
-                config = Regex.Replace(config, expression, $"{key} = {value};");
+                config = Regex.Replace(config, expression, $"{key} = {{{value}}};");
             } else {
                 config = Regex.Replace(config, expression, $"\n{key} = {quote}{value}{quote};");
             }
