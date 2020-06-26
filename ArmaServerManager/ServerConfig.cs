@@ -10,6 +10,7 @@ namespace ArmaServerManager {
         private readonly Modset _modset;
         private string _serverConfigDir;
         private IConfigurationRoot _commonConfig;
+        private IConfigurationRoot _modsetConfig;
 
         /// <summary>
         /// Class prepares server configuration for given modset
@@ -62,8 +63,14 @@ namespace ArmaServerManager {
         private void PrepareModsetConfig()
         {
             // Get modset config directory based on serverConfig
-            var modsetConfigDir = PrepareServerConfig() + $"modsetConfigs\\{_modset.GetName()}";
+            var modsetConfigDir = _serverConfigDir + $"\\modsetConfigs\\{_modset.GetName()}";
 
+            // Load modset specific config from JSON
+            _modsetConfig = new ConfigurationBuilder()
+                .SetBasePath(modsetConfigDir)
+                .AddInMemoryCollection(_commonConfig.AsEnumerable())
+                .AddJsonFile("config.json")
+                .Build();
         }
     }
 
