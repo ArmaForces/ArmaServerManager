@@ -116,7 +116,7 @@ namespace ArmaServerManager {
         }
 
         /// <summary>
-        /// Performs replacement of a value for correspoinding key in given config file (as string)
+        /// Performs replacement of a value for corresponding key in given config file (as string)
         /// </summary>
         private string ReplaceValue(string config, string key, string value) {
             // Build regex expression with new line before key to prevent mid-line replacements
@@ -127,7 +127,7 @@ namespace ArmaServerManager {
             // Check if $key contains '[]' eg. 'admins[]' as then it's value should be an array
             if (Regex.IsMatch(key, @"[[\]]")) {
                 // Make some magic to replace [] in expression to \[\]
-                expression = Regex.Replace(key, @"\[\]", @"\[\]");
+                expression = Regex.Replace(expression, @"\[\]", @"\[\]");
             }
 
             expression = $"{expression} = .*;";
@@ -147,11 +147,9 @@ namespace ArmaServerManager {
                 quote = "\"";
             }
 
-            if (Regex.IsMatch(key, @"[[\]]")) {
-                config = Regex.Replace(config, expression, $"{key} = {{{value}}};");
-            } else {
-                config = Regex.Replace(config, expression, $"\n{key} = {quote}{value}{quote};");
-            }
+            var replacement = Regex.IsMatch(key, @"[[\]]") ? $"\n{key} = {{{value}}};" : $"\n{key} = {quote}{value}{quote};";
+            config = Regex.Replace(config, expression, replacement);
+            Console.WriteLine($"\"{match.ToString().Substring(1)}\" => \"{replacement.Substring(1)}\"");
 
             return config;
         }
