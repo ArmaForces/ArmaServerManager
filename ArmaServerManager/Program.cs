@@ -89,10 +89,8 @@ namespace ArmaServerManager
             return _serverPath;
         }
 
-        public string GetServerExePath()
-        {
-            if (_serverPath != null) return $"{_serverPath}\\{_executable}";
-            return null;
+        public string GetServerExePath() {
+            return _serverPath != null ? $"{_serverPath}\\{_executable}" : null;
         }
     }
 
