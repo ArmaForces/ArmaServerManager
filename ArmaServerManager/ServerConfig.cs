@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 
 namespace ArmaServerManager {
@@ -64,6 +65,24 @@ namespace ArmaServerManager {
         {
             // Get modset config directory based on serverConfig
             var modsetConfigDir = _serverConfigDir + $"\\modsetConfigs\\{_modset.GetName()}";
+
+            // Check for directory and files present
+            if (!Directory.Exists(modsetConfigDir)) {
+                Directory.CreateDirectory(modsetConfigDir);
+            }
+            if (!File.Exists($"{modsetConfigDir}\\config.json")) {
+                // Set hostName according to pattern
+                var sampleServer = new Dictionary<string, string>();
+                sampleServer.Add("hostName", string.Format(Environment.GetEnvironmentVariable("hostNamePattern"), _modset.GetName()));
+                var sampleJSON = new Dictionary<string, Dictionary<string, string>>();
+                sampleJSON.Add("server", sampleServer);
+                // Write to file
+                using (StreamWriter file = File.CreateText($"{modsetConfigDir}\\config.json")) {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Formatting = Formatting.Indented;
+                    serializer.Serialize(file, sampleJSON);
+                }
+            }
 
             // Load modset specific config from JSON
             _modsetConfig = new ConfigurationBuilder()
