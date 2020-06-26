@@ -33,9 +33,10 @@ namespace ArmaServerManager {
             var serverPath = _settings.GetServerPath();
             var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
             _serverConfigDir = $"{serverPath}\\{serverConfigDirName}";
-            if (Directory.Exists(_serverConfigDir)) return _serverConfigDir;
-            Console.WriteLine($"Config directory {serverConfigDirName} does not exists, creating.");
-            Directory.CreateDirectory(_serverConfigDir);
+            if (!Directory.Exists(_serverConfigDir)) {
+                Console.WriteLine($"Config directory {serverConfigDirName} does not exists, creating.");
+                Directory.CreateDirectory(_serverConfigDir);
+            }
             // Check if common server configs are in place
             var filesList = new List<string>() { "basic.cfg", "server.cfg", "common.Arma3Profile", "common.json" };
             foreach (var fileName in filesList)
