@@ -92,8 +92,13 @@ namespace ArmaServerManager {
                 .AddInMemoryCollection(_commonConfig.AsEnumerable())
                 .AddJsonFile("config.json")
                 .Build();
-            var cfgFile = FillCfg(File.ReadAllText($"{_serverConfigDir}\\server.cfg"), _modsetConfig.GetSection("server"));
-            File.WriteAllText($"{modsetConfigDir}\\server.cfg", cfgFile);
+            var configs = new List<string> {"server", "basic"};
+            foreach (var config in configs) {
+                Console.WriteLine($"Loading {config}.cfg for {_modset.GetName()} modset.");
+                var cfgFile = FillCfg(File.ReadAllText($"{_serverConfigDir}\\{config}.cfg"), _modsetConfig.GetSection(config));
+                File.WriteAllText($"{modsetConfigDir}\\{config}.cfg", cfgFile);
+                Console.WriteLine($"{config}.cfg successfully exported to {modsetConfigDir}");
+            }
         }
 
         /// <summary>
