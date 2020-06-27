@@ -104,7 +104,7 @@ namespace ArmaServerManager {
         /// <summary>
         /// In given cfgFile string replaces values for keys present in given config. Returns filled string.
         /// </summary>
-        private string FillCfg(string cfgFile, IConfigurationSection config) {
+        public static string FillCfg(string cfgFile, IConfigurationSection config) {
             foreach (var section in config.GetChildren()) {
                 var key = section.Key;
                 var value = config.GetSection(key).GetChildren().ToList();
@@ -123,7 +123,7 @@ namespace ArmaServerManager {
         /// <summary>
         /// Performs replacement of a value for corresponding key in given config file (as string)
         /// </summary>
-        private string ReplaceValue(string config, string key, string value) {
+        public static string ReplaceValue(string config, string key, string value) {
             // Build regex expression with new line before key to prevent mid-line replacements
             var expression = $"\n{key}";
             if (key == "template") {
