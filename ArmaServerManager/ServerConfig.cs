@@ -7,8 +7,7 @@ using Microsoft.Extensions.Configuration;
 using System.Linq;
 
 namespace ArmaServerManager {
-    public class ServerConfig
-    {
+    public class ServerConfig {
         private readonly Settings _settings;
         private readonly Modset _modset;
         private string _serverConfigDir;
@@ -20,8 +19,7 @@ namespace ArmaServerManager {
         /// </summary>
         /// <param name="settings">Server Settings Object</param>
         /// <param name="modset">Modset object</param>
-        public ServerConfig(Settings settings, Modset modset)
-        {
+        public ServerConfig(Settings settings, Modset modset) {
             Console.WriteLine("Loading ServerConfig.");
             _settings = settings;
             _modset = modset;
@@ -35,8 +33,7 @@ namespace ArmaServerManager {
         /// <summary>
         /// Prepares common serverConfig directory and files
         /// </summary>
-        private void PrepareServerConfig()
-        {
+        private void PrepareServerConfig() {
             var serverPath = _settings.GetServerPath();
             var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
             _serverConfigDir = $"{serverPath}\\{serverConfigDirName}";
@@ -44,15 +41,16 @@ namespace ArmaServerManager {
                 Console.WriteLine($"Config directory {serverConfigDirName} does not exists, creating.");
                 Directory.CreateDirectory(_serverConfigDir);
             }
+
             // Check if common server configs are in place
-            var filesList = new List<string>() { "basic.cfg", "server.cfg", "common.Arma3Profile", "common.json" };
-            foreach (var fileName in filesList)
-            {
+            var filesList = new List<string>() {"basic.cfg", "server.cfg", "common.Arma3Profile", "common.json"};
+            foreach (var fileName in filesList) {
                 var filePath = $"{_serverConfigDir}\\{fileName}";
                 if (File.Exists(filePath)) continue;
                 Console.WriteLine($"{fileName} not found, copying.");
                 File.Copy($"{Directory.GetCurrentDirectory()}\\example_{fileName}", filePath);
             }
+
             // Load common config from JSON
             _commonConfig = new ConfigurationBuilder()
                 .SetBasePath(_serverConfigDir)
@@ -63,8 +61,7 @@ namespace ArmaServerManager {
         /// <summary>
         /// Prepares modset specific config directory and files.
         /// </summary>
-        private void PrepareModsetConfig()
-        {
+        private void PrepareModsetConfig() {
             // Get modset config directory based on serverConfig
             var modsetConfigDir = _serverConfigDir + $"\\modsetConfigs\\{_modset.GetName()}";
 
@@ -72,10 +69,12 @@ namespace ArmaServerManager {
             if (!Directory.Exists(modsetConfigDir)) {
                 Directory.CreateDirectory(modsetConfigDir);
             }
+
             if (!File.Exists($"{modsetConfigDir}\\config.json")) {
                 // Set hostName according to pattern
                 var sampleServer = new Dictionary<string, string>();
-                sampleServer.Add("hostName", string.Format(Environment.GetEnvironmentVariable("hostNamePattern"), _modset.GetName()));
+                sampleServer.Add("hostName",
+                    string.Format(Environment.GetEnvironmentVariable("hostNamePattern"), _modset.GetName()));
                 var sampleJSON = new Dictionary<string, Dictionary<string, string>>();
                 sampleJSON.Add("server", sampleServer);
                 // Write to file
@@ -95,7 +94,8 @@ namespace ArmaServerManager {
             var configs = new List<string> {"server", "basic"};
             foreach (var config in configs) {
                 Console.WriteLine($"Loading {config}.cfg for {_modset.GetName()} modset.");
-                var cfgFile = FillCfg(File.ReadAllText($"{_serverConfigDir}\\{config}.cfg"), _modsetConfig.GetSection(config));
+                var cfgFile = FillCfg(File.ReadAllText($"{_serverConfigDir}\\{config}.cfg"),
+                    _modsetConfig.GetSection(config));
                 File.WriteAllText($"{modsetConfigDir}\\{config}.cfg", cfgFile);
                 Console.WriteLine($"{config}.cfg successfully exported to {modsetConfigDir}");
             }
@@ -117,6 +117,7 @@ namespace ArmaServerManager {
                     cfgFile = ReplaceValue(cfgFile, key, config[key]);
                 }
             }
+
             return cfgFile;
         }
 
@@ -129,6 +130,7 @@ namespace ArmaServerManager {
             if (key == "template") {
                 expression = $"\t\t{key}";
             }
+
             // Check if $key contains '[]' eg. 'admins[]' as then it's value should be an array
             if (Regex.IsMatch(key, @"[[\]]")) {
                 // Make some magic to replace [] in expression to \[\]
@@ -152,12 +154,13 @@ namespace ArmaServerManager {
                 quote = "\"";
             }
 
-            var replacement = Regex.IsMatch(key, @"[[\]]") ? $"\n{key} = {{{value}}};" : $"\n{key} = {quote}{value}{quote};";
+            var replacement = Regex.IsMatch(key, @"[[\]]")
+                ? $"\n{key} = {{{value}}};"
+                : $"\n{key} = {quote}{value}{quote};";
             config = Regex.Replace(config, expression, replacement);
             Console.WriteLine($"\"{match.ToString().Substring(1)}\" => \"{replacement.Substring(1)}\"");
 
             return config;
         }
     }
-
 }

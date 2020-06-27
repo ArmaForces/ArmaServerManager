@@ -2,8 +2,7 @@
 using Xunit;
 
 namespace ArmaServerManagerTests {
-    public class ServerTests
-    {
+    public class ServerTests {
         [Fact]
         public void Server_IsRunningBeforeStart_Success() {
             Server server = new Server();
