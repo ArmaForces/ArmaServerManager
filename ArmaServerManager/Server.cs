@@ -16,7 +16,7 @@ namespace ArmaServerManager {
         }
 
         public bool IsServerRunning() {
-            return _serverProcess != null ? true : false;
+            return _serverProcess != null;
         }
 
         public bool Start() {

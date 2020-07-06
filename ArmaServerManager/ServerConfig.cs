@@ -24,51 +24,58 @@ namespace ArmaServerManager {
             _settings = settings;
             _modset = modset;
             // Load config directory and create if it not exists
-            PrepareServerConfig();
+            PrepareCommonFiles();
             PrepareModsetConfig();
 
             Console.WriteLine("ServerConfig loaded.");
         }
 
-        /// <summary>
-        /// Prepares common serverConfig directory and files
-        /// </summary>
-        private void PrepareServerConfig() {
+        public void PrepareCommonFiles()
+        {
+            var serverConfigDir = GetOrCreateServerConfigDir();
+            PrepareCommonConfig();
+            CreateServerFilesIfDontExists(serverConfigDir);
+        }
+
+        private string GetOrCreateServerConfigDir()
+        {
             var serverPath = _settings.GetServerPath();
             var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
-            _serverConfigDir = $"{serverPath}\\{serverConfigDirName}";
-            if (!Directory.Exists(_serverConfigDir)) {
+            var serverConfigDir = $"{serverPath}\\{serverConfigDirName}";
+            if (!Directory.Exists(_serverConfigDir))
+            {
                 Console.WriteLine($"Config directory {serverConfigDirName} does not exists, creating.");
                 Directory.CreateDirectory(_serverConfigDir);
             }
 
-            // Check if common server configs are in place
-            var filesList = new List<string>() {"basic.cfg", "server.cfg", "common.Arma3Profile", "common.json"};
-            foreach (var fileName in filesList) {
-                var filePath = $"{_serverConfigDir}\\{fileName}";
-                if (File.Exists(filePath)) continue;
-                Console.WriteLine($"{fileName} not found, copying.");
-                File.Copy($"{Directory.GetCurrentDirectory()}\\example_{fileName}", filePath);
-            }
+            return serverConfigDir;
+        }
 
-            // Load common config from JSON
+        private void PrepareCommonConfig()
+        {
             _commonConfig = new ConfigurationBuilder()
                 .SetBasePath(_serverConfigDir)
                 .AddJsonFile("common.json")
                 .Build();
         }
 
+        private void CreateServerFilesIfDontExists(string path)
+        {
+            var filesList = new List<string>() {"basic.cfg", "server.cfg", "common.Arma3Profile", "common.json"};
+            foreach (var fileName in filesList)
+            {
+                var destFileName = path + $"\\{fileName}";
+                if (File.Exists(destFileName)) continue;
+                Console.WriteLine($"{fileName} not found, copying.");
+                File.Copy($"{Directory.GetCurrentDirectory()}\\example_{fileName}", destFileName);
+            }
+        }
+
         /// <summary>
         /// Prepares modset specific config directory and files.
         /// </summary>
         private void PrepareModsetConfig() {
-            // Get modset config directory based on serverConfig
-            var modsetConfigDir = _serverConfigDir + $"\\modsetConfigs\\{_modset.GetName()}";
-
-            // Check for directory and files present
-            if (!Directory.Exists(modsetConfigDir)) {
-                Directory.CreateDirectory(modsetConfigDir);
-            }
+            var modsetConfigDir = PrepareModsetConfigDir();
 
             if (!File.Exists($"{modsetConfigDir}\\config.json")) {
                 // Set hostName according to pattern
@@ -99,6 +106,20 @@ namespace ArmaServerManager {
                 File.WriteAllText($"{modsetConfigDir}\\{config}.cfg", cfgFile);
                 Console.WriteLine($"{config}.cfg successfully exported to {modsetConfigDir}");
             }
+        }
+
+        private string PrepareModsetConfigDir()
+        {
+            // Get modset config directory based on serverConfig
+            var modsetConfigDir = _serverConfigDir + $"\\modsetConfigs\\{_modset.GetName()}";
+
+            // Check for directory and files present
+            if (!Directory.Exists(modsetConfigDir))
+            {
+                Directory.CreateDirectory(modsetConfigDir);
+            }
+
+            return modsetConfigDir;
         }
 
         /// <summary>
