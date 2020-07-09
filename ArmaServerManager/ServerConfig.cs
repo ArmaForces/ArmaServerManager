@@ -11,8 +11,7 @@ namespace ArmaServerManager {
         private readonly Settings _settings;
         private readonly Modset _modset;
         private string _serverConfigDir;
-        private IConfigurationRoot _commonConfig;
-        private IConfigurationRoot _modsetConfig;
+        private string _modsetConfigDir;
 
         /// <summary>
         /// Class prepares server configuration for given modset
@@ -30,35 +29,56 @@ namespace ArmaServerManager {
             Console.WriteLine("ServerConfig loaded.");
         }
 
+        /// <summary>
+        /// Prepares all config directories for server and modset.
+        /// </summary>
         public void PrepareCommonFiles() {
-            var serverConfigDir = GetOrCreateServerConfigDir();
-            PrepareCommonConfig();
-            CreateServerFilesIfDontExists(serverConfigDir);
+            _serverConfigDir = GetOrCreateServerConfigDir();
+            _modsetConfigDir = GetOrCreateModsetConfigDir();
+            CreateServerConfigIfDontExists();
+            CreateModsetConfigIfDontExists();
         }
 
+        /// <summary>
+        /// Prepares serverConfig directory.
+        /// </summary>
+        /// <returns>path to serverConfig</returns>
         private string GetOrCreateServerConfigDir() {
             var serverPath = _settings.GetServerPath();
             var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
             var serverConfigDir = Path.Join(serverPath, serverConfigDirName);
-            if (!Directory.Exists(_serverConfigDir)) {
+            if (!Directory.Exists(serverConfigDir)) {
                 Console.WriteLine($"Config directory {serverConfigDirName} does not exists, creating.");
-                Directory.CreateDirectory(_serverConfigDir);
+                Directory.CreateDirectory(serverConfigDir);
             }
 
             return serverConfigDir;
         }
 
-        private void PrepareCommonConfig() {
-            _commonConfig = new ConfigurationBuilder()
-                .SetBasePath(_serverConfigDir)
-                .AddJsonFile("common.json")
-                .Build();
+        /// <summary>
+        /// Prepares config directory and files for current modset
+        /// </summary>
+        /// <returns>path to modsetConfig</returns>
+        private string GetOrCreateModsetConfigDir() {
+            // Get modset config directory based on serverConfig
+            var modsetConfigDir = Path.Join(_serverConfigDir, "modsetConfigs", _modset.GetName());
+
+            // Check for directory if present
+            if (!Directory.Exists(modsetConfigDir)) {
+                Directory.CreateDirectory(modsetConfigDir);
+            }
+            
+            return modsetConfigDir;
         }
 
-        private void CreateServerFilesIfDontExists(string path) {
+        /// <summary>
+        /// Checks if default configuration files exists and copies them from example files if they don't exist.
+        /// </summary>
+        /// <param name="serverConfigDir"></param>
+        private void CreateServerConfigIfDontExists() {
             var filesList = new List<string>() {"basic.cfg", "server.cfg", "common.Arma3Profile", "common.json"};
             foreach (var fileName in filesList) {
-                var destFileName = Path.Join(path, fileName);
+                var destFileName = Path.Join(_serverConfigDir, fileName);
                 if (File.Exists(destFileName)) continue;
                 Console.WriteLine($"{fileName} not found, copying.");
                 File.Copy(Path.Join(Directory.GetCurrentDirectory(), $"example_{fileName}"), destFileName);
@@ -66,12 +86,10 @@ namespace ArmaServerManager {
         }
 
         /// <summary>
-        /// Prepares modset specific config directory and files.
+        /// If modset config.json is not present, create one with hostNamePattern.
         /// </summary>
-        private void PrepareModsetConfig() {
-            var modsetConfigDir = PrepareModsetConfigDir();
-
-            if (!File.Exists(Path.Join(modsetConfigDir, "config.json"))) {
+        private void CreateModsetConfigIfDontExists() {
+            if (!File.Exists(Path.Join(_modsetConfigDir, "config.json"))) {
                 // Set hostName according to pattern
                 var sampleServer = new Dictionary<string, string>();
                 sampleServer.Add("hostName",
@@ -79,39 +97,33 @@ namespace ArmaServerManager {
                 var sampleJSON = new Dictionary<string, Dictionary<string, string>>();
                 sampleJSON.Add("server", sampleServer);
                 // Write to file
-                using (StreamWriter file = File.CreateText(Path.Join(modsetConfigDir, "config.json"))) {
+                using (StreamWriter file = File.CreateText(Path.Join(_modsetConfigDir, "config.json"))) {
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Formatting = Formatting.Indented;
                     serializer.Serialize(file, sampleJSON);
                 }
             }
+        }
 
-            // Load modset specific config from JSON
-            _modsetConfig = new ConfigurationBuilder()
-                .SetBasePath(modsetConfigDir)
-                .AddInMemoryCollection(_commonConfig.AsEnumerable())
-                .AddJsonFile("config.json")
+        /// <summary>
+        /// Prepares modset cfg files for server to load.
+        /// </summary>
+        private void PrepareModsetConfig() {
+            // Apply modset config on top of default config
+            var modsetConfig = new ConfigurationBuilder()
+                .AddJsonFile(Path.Join(_serverConfigDir, "config.json"))
+                .AddJsonFile(Path.Join(_modsetConfigDir, "config.json"))
                 .Build();
+
+            // Process configuration files for modset
             var configs = new List<string> {"server", "basic"};
             foreach (var config in configs) {
                 Console.WriteLine($"Loading {config}.cfg for {_modset.GetName()} modset.");
                 var cfgFile = FillCfg(File.ReadAllText($"{_serverConfigDir}\\{config}.cfg"),
-                    _modsetConfig.GetSection(config));
-                File.WriteAllText(Path.Join(modsetConfigDir, $"{config}.cfg"), cfgFile);
-                Console.WriteLine($"{config}.cfg successfully exported to {modsetConfigDir}");
+                    modsetConfig.GetSection(config));
+                File.WriteAllText(Path.Join(_modsetConfigDir, $"{config}.cfg"), cfgFile);
+                Console.WriteLine($"{config}.cfg successfully exported to {_modsetConfigDir}");
             }
-        }
-
-        private string PrepareModsetConfigDir() {
-            // Get modset config directory based on serverConfig
-            var modsetConfigDir = Path.Join(_serverConfigDir, "modsetConfigs", _modset.GetName());
-
-            // Check for directory and files present
-            if (!Directory.Exists(modsetConfigDir)) {
-                Directory.CreateDirectory(modsetConfigDir);
-            }
-
-            return modsetConfigDir;
         }
 
         /// <summary>
