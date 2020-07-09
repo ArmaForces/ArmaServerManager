@@ -111,7 +111,7 @@ namespace ArmaServerManager {
         private void PrepareModsetConfig() {
             // Apply modset config on top of default config
             var modsetConfig = new ConfigurationBuilder()
-                .AddJsonFile(Path.Join(_serverConfigDir, "config.json"))
+                .AddJsonFile(Path.Join(_serverConfigDir, "common.json"))
                 .AddJsonFile(Path.Join(_modsetConfigDir, "config.json"))
                 .Build();
 
