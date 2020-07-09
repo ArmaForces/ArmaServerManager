@@ -41,7 +41,7 @@ namespace ArmaServerManager {
         {
             var serverPath = _settings.GetServerPath();
             var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
-            var serverConfigDir = $"{serverPath}\\{serverConfigDirName}";
+            var serverConfigDir = Path.Join(serverPath, serverConfigDirName);
             if (!Directory.Exists(_serverConfigDir))
             {
                 Console.WriteLine($"Config directory {serverConfigDirName} does not exists, creating.");
@@ -63,11 +63,10 @@ namespace ArmaServerManager {
         {
             var filesList = new List<string>() {"basic.cfg", "server.cfg", "common.Arma3Profile", "common.json"};
             foreach (var fileName in filesList)
-            {
-                var destFileName = path + $"\\{fileName}";
+                var destFileName = Path.Join(path, fileName);
                 if (File.Exists(destFileName)) continue;
                 Console.WriteLine($"{fileName} not found, copying.");
-                File.Copy($"{Directory.GetCurrentDirectory()}\\example_{fileName}", destFileName);
+                File.Copy(Path.Join(Directory.GetCurrentDirectory(), $"example_{fileName}"), destFileName);
             }
         }
 
@@ -77,7 +76,7 @@ namespace ArmaServerManager {
         private void PrepareModsetConfig() {
             var modsetConfigDir = PrepareModsetConfigDir();
 
-            if (!File.Exists($"{modsetConfigDir}\\config.json")) {
+            if (!File.Exists(Path.Join(modsetConfigDir, "config.json"))) {
                 // Set hostName according to pattern
                 var sampleServer = new Dictionary<string, string>();
                 sampleServer.Add("hostName",
@@ -85,7 +84,7 @@ namespace ArmaServerManager {
                 var sampleJSON = new Dictionary<string, Dictionary<string, string>>();
                 sampleJSON.Add("server", sampleServer);
                 // Write to file
-                using (StreamWriter file = File.CreateText($"{modsetConfigDir}\\config.json")) {
+                using (StreamWriter file = File.CreateText(Path.Join(modsetConfigDir, "config.json"))) {
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Formatting = Formatting.Indented;
                     serializer.Serialize(file, sampleJSON);
@@ -103,7 +102,7 @@ namespace ArmaServerManager {
                 Console.WriteLine($"Loading {config}.cfg for {_modset.GetName()} modset.");
                 var cfgFile = FillCfg(File.ReadAllText($"{_serverConfigDir}\\{config}.cfg"),
                     _modsetConfig.GetSection(config));
-                File.WriteAllText($"{modsetConfigDir}\\{config}.cfg", cfgFile);
+                File.WriteAllText(Path.Join(modsetConfigDir, $"{config}.cfg"), cfgFile);
                 Console.WriteLine($"{config}.cfg successfully exported to {modsetConfigDir}");
             }
         }
@@ -111,7 +110,7 @@ namespace ArmaServerManager {
         private string PrepareModsetConfigDir()
         {
             // Get modset config directory based on serverConfig
-            var modsetConfigDir = _serverConfigDir + $"\\modsetConfigs\\{_modset.GetName()}";
+            var modsetConfigDir = Path.Join(_serverConfigDir, "modsetConfigs", _modset.GetName());
 
             // Check for directory and files present
             if (!Directory.Exists(modsetConfigDir))
