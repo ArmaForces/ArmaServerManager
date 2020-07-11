@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
@@ -35,12 +34,10 @@ namespace ArmaServerManager {
         public void PrepareCommonFiles() {
             _serverConfigDir = GetOrCreateServerConfigDir();
             _modsetConfigDir = GetOrCreateModsetConfigDir();
-            CreateServerConfigIfDontExists();
-            CreateModsetConfigIfDontExists();
         }
 
         /// <summary>
-        /// Prepares serverConfig directory.
+        /// Prepares serverConfig directory with files.
         /// </summary>
         /// <returns>path to serverConfig</returns>
         private string GetOrCreateServerConfigDir() {
@@ -50,6 +47,15 @@ namespace ArmaServerManager {
             if (!Directory.Exists(serverConfigDir)) {
                 Console.WriteLine($"Config directory {serverConfigDirName} does not exists, creating.");
                 Directory.CreateDirectory(serverConfigDir);
+            }
+
+            // Prepare files
+            var filesList = new List<string>() { "basic.cfg", "server.cfg", "common.Arma3Profile", "common.json" };
+            foreach (var fileName in filesList) {
+                var destFileName = Path.Join(_serverConfigDir, fileName);
+                if (File.Exists(destFileName)) continue;
+                Console.WriteLine($"{fileName} not found, copying.");
+                File.Copy(Path.Join(Directory.GetCurrentDirectory(), $"example_{fileName}"), destFileName);
             }
 
             return serverConfigDir;
@@ -67,28 +73,8 @@ namespace ArmaServerManager {
             if (!Directory.Exists(modsetConfigDir)) {
                 Directory.CreateDirectory(modsetConfigDir);
             }
-            
-            return modsetConfigDir;
-        }
 
-        /// <summary>
-        /// Checks if default configuration files exists and copies them from example files if they don't exist.
-        /// </summary>
-        /// <param name="serverConfigDir"></param>
-        private void CreateServerConfigIfDontExists() {
-            var filesList = new List<string>() {"basic.cfg", "server.cfg", "common.Arma3Profile", "common.json"};
-            foreach (var fileName in filesList) {
-                var destFileName = Path.Join(_serverConfigDir, fileName);
-                if (File.Exists(destFileName)) continue;
-                Console.WriteLine($"{fileName} not found, copying.");
-                File.Copy(Path.Join(Directory.GetCurrentDirectory(), $"example_{fileName}"), destFileName);
-            }
-        }
-
-        /// <summary>
-        /// If modset config.json is not present, create one with hostNamePattern.
-        /// </summary>
-        private void CreateModsetConfigIfDontExists() {
+            // Prepare modset specific config.json if not exists
             if (!File.Exists(Path.Join(_modsetConfigDir, "config.json"))) {
                 // Set hostName according to pattern
                 var sampleServer = new Dictionary<string, string>();
@@ -103,6 +89,8 @@ namespace ArmaServerManager {
                     serializer.Serialize(file, sampleJSON);
                 }
             }
+
+            return modsetConfigDir;
         }
 
         /// <summary>
