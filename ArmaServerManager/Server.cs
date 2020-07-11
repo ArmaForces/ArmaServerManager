@@ -12,7 +12,7 @@ namespace ArmaServerManager {
             Console.WriteLine("Initializing Server");
             _settings = new Settings();
             _modset = new Modset();
-            _armaConfig = new ServerConfig(_settings, _modset);
+            _armaConfig = new ServerConfig(_settings, _modset.GetName());
         }
 
         public bool IsServerRunning() {
