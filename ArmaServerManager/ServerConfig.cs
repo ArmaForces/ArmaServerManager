@@ -22,10 +22,14 @@ namespace ArmaServerManager {
             _modsetName = modsetName;
         }
 
+        /// <summary>
+        /// Handles preparation of all config files.
+        /// </summary>
+        /// <returns></returns>
         public Result LoadConfig() {
             Console.WriteLine("Loading ServerConfig.");
             var configLoaded = GetOrCreateServerConfigDir()
-                .Tap(serverConfigDir => { _serverConfigDir = serverConfigDir; })
+                .Tap(serverConfigDir => _serverConfigDir = serverConfigDir)
                 .Bind(serverConfigDir => GetOrCreateModsetConfigDir(serverConfigDir, _modsetName))
                 .Bind(modsetConfigDir => PrepareModsetConfig(_serverConfigDir, modsetConfigDir, _modsetName))
                 .Tap(() => Console.WriteLine("ServerConfig loaded."))
@@ -47,7 +51,7 @@ namespace ArmaServerManager {
             }
 
             // Prepare files
-            var filesList = new List<string>() { "basic.cfg", "server.cfg", "common.Arma3Profile", "common.json" };
+            var filesList = new List<string>() {"basic.cfg", "server.cfg", "common.Arma3Profile", "common.json"};
             foreach (var fileName in filesList) {
                 var destFileName = Path.Join(_serverConfigDir, fileName);
                 if (File.Exists(destFileName)) continue;
