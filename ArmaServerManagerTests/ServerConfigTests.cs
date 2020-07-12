@@ -5,8 +5,13 @@ namespace ArmaServerManagerTests {
     public class ServerConfigTests {
         [Fact]
         public void ServerConfig_Init_Success() {
-            var serverConfig = new ServerConfig(new Settings(), new Modset().GetName());
-            Assert.True(true);
+            var modsetName = new Modset().GetName();
+            var settings = new Settings();
+            var serverConfig = new ServerConfig(settings, modsetName);
+            
+            var configLoaded = serverConfig.LoadConfig();
+
+            Assert.True(configLoaded.IsSuccess);
         }
     }
 }

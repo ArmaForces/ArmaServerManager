@@ -10,6 +10,7 @@ namespace ArmaServerManager {
     public class ServerConfig {
         private readonly Settings _settings;
         private string _serverConfigDir;
+        private readonly string _modsetName;
 
         /// <summary>
         /// Class prepares server configuration for given modset
@@ -17,13 +18,19 @@ namespace ArmaServerManager {
         /// <param name="settings">Server Settings Object</param>
         /// <param name="modset">Modset object</param>
         public ServerConfig(Settings settings, string modsetName) {
-            Console.WriteLine("Loading ServerConfig.");
             _settings = settings;
-            GetOrCreateServerConfigDir()
+            _modsetName = modsetName;
+        }
+
+        public Result LoadConfig() {
+            Console.WriteLine("Loading ServerConfig.");
+            var configLoaded = GetOrCreateServerConfigDir()
                 .Tap(serverConfigDir => { _serverConfigDir = serverConfigDir; })
-                .Bind(serverConfigDir => GetOrCreateModsetConfigDir(serverConfigDir, modsetName))
-                .Bind(modsetConfigDir=> PrepareModsetConfig(_serverConfigDir, modsetConfigDir, modsetName))
-                .Match(() => Console.WriteLine("ServerConfig loaded."), e => Console.WriteLine("ServerConfig could not be loaded with {e}.", e));
+                .Bind(serverConfigDir => GetOrCreateModsetConfigDir(serverConfigDir, _modsetName))
+                .Bind(modsetConfigDir => PrepareModsetConfig(_serverConfigDir, modsetConfigDir, _modsetName))
+                .Tap(() => Console.WriteLine("ServerConfig loaded."))
+                .OnFailure(e => Console.WriteLine("ServerConfig could not be loaded with {e}.", e));
+            return configLoaded;
         }
 
         /// <summary>

@@ -13,6 +13,7 @@ namespace ArmaServerManager {
             _settings = new Settings();
             _modset = new Modset();
             _armaConfig = new ServerConfig(_settings, _modset.GetName());
+            _armaConfig.LoadConfig();
         }
 
         public bool IsServerRunning() {
