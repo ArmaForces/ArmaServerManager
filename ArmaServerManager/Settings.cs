@@ -1,23 +1,24 @@
 ﻿using System;
-using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Win32;
 
 namespace ArmaServerManager {
-    public class Settings {
+    public interface ISettings
+    {
+        object GetSettingsValue(string key);
+        string GetServerPath();
+        string GetServerExePath();
+    }
+
+    public class Settings : ISettings
+    {
         private static IConfigurationRoot _config;
         private readonly string _executable = "arma3server_x64.exe";
         private readonly string _serverPath;
 
-        public Settings() {
+        public Settings(IConfigurationRoot config) {
             Console.WriteLine("Loading Manager Settings.");
-            // Load config
-            _config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("settings.json")
-                .AddEnvironmentVariables()
-                .Build();
-            // Load serverPath
+            _config = config;
             try {
                 _serverPath = _config["serverPath"];
             } catch (NullReferenceException) {

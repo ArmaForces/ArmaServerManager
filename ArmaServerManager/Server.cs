@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace ArmaServerManager {
     public class Server {
@@ -10,7 +12,12 @@ namespace ArmaServerManager {
 
         public Server() {
             Console.WriteLine("Initializing Server");
-            _settings = new Settings();
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("settings.json")
+                .AddEnvironmentVariables()
+                .Build();
+            _settings = new Settings(config);
             _modset = new Modset();
             _armaConfig = new ServerConfig(_settings, _modset.GetName());
             _armaConfig.LoadConfig();

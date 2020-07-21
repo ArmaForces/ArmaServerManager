@@ -8,7 +8,7 @@ using CSharpFunctionalExtensions;
 
 namespace ArmaServerManager {
     public class ServerConfig {
-        private readonly Settings _settings;
+        private readonly ISettings _settings;
         private string _serverConfigDir;
         private readonly string _modsetName;
 
@@ -17,7 +17,7 @@ namespace ArmaServerManager {
         /// </summary>
         /// <param name="settings">Server Settings Object</param>
         /// <param name="modset">Modset object</param>
-        public ServerConfig(Settings settings, string modsetName) {
+        public ServerConfig(ISettings settings, string modsetName) {
             _settings = settings;
             _modsetName = modsetName;
         }
@@ -30,7 +30,7 @@ namespace ArmaServerManager {
             Console.WriteLine("Loading ServerConfig.");
             var configLoaded = GetOrCreateServerConfigDir()
                 .Tap(serverConfigDir => _serverConfigDir = serverConfigDir)
-                .Bind(serverConfigDir => GetOrCreateModsetConfigDir(serverConfigDir, _modsetName))
+                .Bind(serverConfigDir => GetOrCreateModsetConfigDir(_serverConfigDir, _modsetName))
                 .Bind(modsetConfigDir => PrepareModsetConfig(_serverConfigDir, modsetConfigDir, _modsetName))
                 .Tap(() => Console.WriteLine("ServerConfig loaded."))
                 .OnFailure(e => Console.WriteLine("ServerConfig could not be loaded with {e}.", e));
@@ -53,7 +53,7 @@ namespace ArmaServerManager {
             // Prepare files
             var filesList = new List<string>() {"basic.cfg", "server.cfg", "common.Arma3Profile", "common.json"};
             foreach (var fileName in filesList) {
-                var destFileName = Path.Join(_serverConfigDir, fileName);
+                var destFileName = Path.Join(serverConfigDir, fileName);
                 if (File.Exists(destFileName)) continue;
                 Console.WriteLine($"{fileName} not found, copying.");
                 File.Copy(Path.Join(Directory.GetCurrentDirectory(), $"example_{fileName}"), destFileName);
@@ -79,8 +79,7 @@ namespace ArmaServerManager {
             if (!File.Exists(Path.Join(modsetConfigDir, "config.json"))) {
                 // Set hostName according to pattern
                 var sampleServer = new Dictionary<string, string>();
-                sampleServer.Add("hostName",
-                    string.Format(Environment.GetEnvironmentVariable("hostNamePattern"), modsetName));
+                sampleServer.Add("hostName", $"ArmaForces {modsetName} edition");
                 var sampleJSON = new Dictionary<string, Dictionary<string, string>>();
                 sampleJSON.Add("server", sampleServer);
                 // Write to file
