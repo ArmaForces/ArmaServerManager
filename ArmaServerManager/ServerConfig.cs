@@ -29,9 +29,8 @@ namespace ArmaServerManager {
         public Result LoadConfig() {
             Console.WriteLine("Loading ServerConfig.");
             var configLoaded = GetOrCreateServerConfigDir()
-                .Tap(serverConfigDir => _serverConfigDir = serverConfigDir)
-                .Bind(serverConfigDir => GetOrCreateModsetConfigDir(_serverConfigDir, _modsetName))
-                .Bind(modsetConfigDir => PrepareModsetConfig(_serverConfigDir, modsetConfigDir, _modsetName))
+                .Bind(serverConfigDir => GetOrCreateModsetConfigDir(serverConfigDir, _modsetName))
+                .Bind(modsetConfigDir => PrepareModsetConfig(modsetConfigDir, _modsetName))
                 .Tap(() => Console.WriteLine("ServerConfig loaded."))
                 .OnFailure(e => Console.WriteLine("ServerConfig could not be loaded with {e}.", e));
             return configLoaded;
@@ -96,8 +95,9 @@ namespace ArmaServerManager {
         /// <summary>
         /// Prepares modset cfg files for server to load.
         /// </summary>
-        private Result PrepareModsetConfig(string serverConfigDir, string modsetConfigDir, string modsetName) {
+        private Result PrepareModsetConfig(string modsetConfigDir, string modsetName) {
             // Apply modset config on top of default config
+            var serverConfigDir = Path.GetFullPath(Path.Join("..", ".."), modsetConfigDir);
             var modsetConfig = new ConfigurationBuilder()
                 .AddJsonFile(Path.Join(serverConfigDir, "common.json"))
                 .AddJsonFile(Path.Join(modsetConfigDir, "config.json"))
