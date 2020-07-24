@@ -9,7 +9,6 @@ using CSharpFunctionalExtensions;
 namespace ArmaServerManager {
     public class ServerConfig {
         private readonly ISettings _settings;
-        private string _serverConfigDir;
         private readonly string _modsetName;
 
         /// <summary>
