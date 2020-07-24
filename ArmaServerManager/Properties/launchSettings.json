@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ArmaServerManager": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "hostNamePattern": "ArmaForces {0} edition"
+      }
+    }
+  }
+}

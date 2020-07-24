@@ -1,0 +1,22 @@
+{
+	"basic": {
+		"MinBandwidth": 131072,
+		"MaxBandwidth": 52428800,
+        
+		"MaxMsgSend": 128,
+		"MaxSizeGuaranteed": 512,
+		"MaxSizeNonguaranteed": 256,
+
+		"MinErrorToSend": 0.001,
+		"MinErrorToSendNear": 0.01,
+		"MaxCustomFileSize": 1310720
+	},
+
+	"server": {
+		"hostName": "My fun server",
+		"password": "nopassword",
+		"passwordAdmin": "noadminpassword",
+		"serverCommandPassword": "nocommandpassword",
+		"admins[]": ["\"123\"","\"456\""]
+	}
+}
