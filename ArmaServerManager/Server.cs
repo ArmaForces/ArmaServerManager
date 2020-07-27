@@ -7,8 +7,8 @@ namespace ArmaServerManager {
     public class Server {
         private Settings _settings;
         private Modset _modset;
-        private ServerConfig _serverConfig;
         private Process _serverProcess;
+        private ModsetConfig _modsetConfig;
 
         public Server() {
             Console.WriteLine("Initializing Server");
@@ -19,8 +19,8 @@ namespace ArmaServerManager {
                 .Build();
             _settings = new Settings(config);
             _modset = new Modset();
-            _serverConfig = new ServerConfig(_settings, _modset.GetName());
-            _serverConfig.LoadConfig();
+            _modsetConfig = new ModsetConfig(_settings, _modset.GetName());
+            _modsetConfig.LoadConfig();
         }
 
         public bool IsServerRunning() {
