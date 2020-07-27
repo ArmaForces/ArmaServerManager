@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Configuration;
@@ -7,7 +7,7 @@ namespace ArmaServerManager {
     public class Server {
         private Settings _settings;
         private Modset _modset;
-        private ServerConfig _armaConfig;
+        private ServerConfig _serverConfig;
         private Process _serverProcess;
 
         public Server() {
@@ -19,8 +19,8 @@ namespace ArmaServerManager {
                 .Build();
             _settings = new Settings(config);
             _modset = new Modset();
-            _armaConfig = new ServerConfig(_settings, _modset.GetName());
-            _armaConfig.LoadConfig();
+            _serverConfig = new ServerConfig(_settings, _modset.GetName());
+            _serverConfig.LoadConfig();
         }
 
         public bool IsServerRunning() {
