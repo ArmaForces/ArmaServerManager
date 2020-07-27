@@ -10,6 +10,8 @@ namespace ArmaServerManager {
     public class ServerConfig {
         private readonly ISettings _settings;
         private readonly string _modsetName;
+        private readonly string _serverConfigDirPath;
+        private readonly string _modsetConfigDirPath;
 
         /// <summary>
         /// Class prepares server configuration for given modset
@@ -19,27 +21,65 @@ namespace ArmaServerManager {
         public ServerConfig(ISettings settings, string modsetName) {
             _settings = settings;
             _modsetName = modsetName;
+
+            // Initialize paths
+            _serverConfigDirPath = CreateServerConfigDirPath();
+            _modsetConfigDirPath = CreateModsetConfigDirPath();
         }
 
+        public string GetServerConfigDir() {
+            return _serverConfigDirPath;
+        }
+
+        public string GetModsetConfigDir() {
+            return _modsetConfigDirPath;
+        }
+
+        public string GetServerCfgPath() {
+            return Path.Join(_serverConfigDirPath, "server.cfg");
+        }
+
+        public string GetBasicCfgPath() {
+            return Path.Join(_serverConfigDirPath, "basic.cfg");
+        }
+
+        public string GetServerProfileDir() {
+            return Path.Join(_modsetConfigDirPath, "profiles", "server");
+        }
+        
+        public string GetHCProfileDir() {
+            return Path.Join(_modsetConfigDirPath, "profiles", "HC");
+        }
+
+        private string CreateServerConfigDirPath()
+        {
+            var serverPath = _settings.GetServerPath();
+            var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
+            return Path.Join(serverPath, serverConfigDirName);
+        }
+
+        private string CreateModsetConfigDirPath() {
+            return Path.Join(_serverConfigDirPath, "modsetConfigs", _modsetName);
+        }
+        
         /// <summary>
         /// Handles preparation of all config files.
         /// </summary>
         /// <returns></returns>
         public Result LoadConfig() {
             Console.WriteLine("Loading ServerConfig.");
-            var configLoaded = GetOrCreateServerConfigDir()
-                .Bind(serverConfigDir => GetOrCreateModsetConfigDir(serverConfigDir, _modsetName))
-                .Bind(modsetConfigDir => PrepareModsetConfig(modsetConfigDir, _modsetName))
+            return GetOrCreateServerConfigDir()
+                .Bind(() => GetOrCreateModsetConfigDir(_serverConfigDirPath, _modsetName))
+                .Bind(() => PrepareModsetConfig(_modsetConfigDirPath, _modsetName))
                 .Tap(() => Console.WriteLine("ServerConfig loaded."))
                 .OnFailure(e => Console.WriteLine("ServerConfig could not be loaded with {e}.", e));
-            return configLoaded;
         }
 
         /// <summary>
         /// Prepares serverConfig directory with files.
         /// </summary>
         /// <returns>path to serverConfig</returns>
-        private Result<string> GetOrCreateServerConfigDir() {
+        private Result GetOrCreateServerConfigDir() {
             var serverPath = _settings.GetServerPath();
             var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
             var serverConfigDir = Path.Join(serverPath, serverConfigDirName);
@@ -57,14 +97,14 @@ namespace ArmaServerManager {
                 File.Copy(Path.Join(Directory.GetCurrentDirectory(), $"example_{fileName}"), destFileName);
             }
 
-            return Result.Success(serverConfigDir);
+            return Result.Success();
         }
 
         /// <summary>
         /// Prepares config directory and files for current modset
         /// </summary>
         /// <returns>path to modsetConfig</returns>
-        private Result<string> GetOrCreateModsetConfigDir(string serverConfigDir, string modsetName) {
+        private Result GetOrCreateModsetConfigDir(string serverConfigDir, string modsetName) {
             // Get modset config directory based on serverConfig
             var modsetConfigDir = Path.Join(serverConfigDir, "modsetConfigs", modsetName);
 
@@ -88,7 +128,7 @@ namespace ArmaServerManager {
                 }
             }
 
-            return Result.Success(modsetConfigDir);
+            return Result.Success();
         }
 
         /// <summary>
