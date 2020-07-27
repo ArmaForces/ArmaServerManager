@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +30,7 @@ namespace ArmaServerManager {
         public bool Start() {
             Console.WriteLine("Starting Arma 3 Server");
             try {
-                _serverProcess = Process.Start(_settings.GetServerExePath());
+                _serverProcess = Process.Start(_settings.GetServerExePath(), GetServerStartupParams());
             } catch (NullReferenceException e) {
                 Console.WriteLine(e);
                 Console.WriteLine("Arma 3 Server could not be started. Path missing.");
@@ -49,6 +49,19 @@ namespace ArmaServerManager {
             Console.WriteLine($"Shutting down the {_serverProcess}.");
             _serverProcess.Kill();
             _serverProcess = null;
+        }
+
+        private string GetServerStartupParams() {
+            return String.Join(' ',
+                "-port=2302",
+                $"\"-config={_modsetConfig.GetServerCfgPath()}\"",
+                $"\"-cfg={_modsetConfig.GetBasicCfgPath()}\"",
+                $"-profiles=\"{_modsetConfig.GetServerProfileDir()}\"",
+                "-name=server",
+                "-filePatching",
+                "-netlog",
+                "-limitFPS=100",
+                "-loadMissionToMemory");
         }
     }
 }
