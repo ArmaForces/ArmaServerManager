@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace ArmaServerManager {
     public class ModsetConfig: IConfig {
@@ -80,9 +80,10 @@ namespace ArmaServerManager {
                 // Write to file
                 using (StreamWriter file = File.CreateText(Path.Join(modsetConfigDir, "config.json")))
                 {
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.Formatting = Formatting.Indented;
-                    serializer.Serialize(file, sampleJSON);
+                    var serializerOptions = new JsonSerializerOptions();
+                    serializerOptions.WriteIndented = true;
+                    var serializedJson = JsonSerializer.Serialize(sampleJSON, serializerOptions);
+                    file.Write(serializedJson);
                 }
             }
 
