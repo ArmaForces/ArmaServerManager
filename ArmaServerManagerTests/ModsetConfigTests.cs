@@ -9,8 +9,8 @@ namespace ArmaServerManagerTests {
         private const string ServerConfigDirName = "TestDir";
 
         [Fact]
-        public void ServerConfig_LoadConfig_Success() {
-            var modsetConfigDirPath = Path.Join("modsetConfigs", "default");
+        public void ModsetConfig_LoadConfig_Success() {
+            var modsetConfigDirPath = Path.Join(Directory.GetCurrentDirectory(), ServerConfigDirName, "modsetConfigs", "default");
             var settingsMock = new Mock<ISettings>();
             settingsMock.Setup(settings => settings.GetServerPath()).Returns(Directory.GetCurrentDirectory());
             settingsMock.Setup(settings => settings.GetSettingsValue("serverConfigDirName")).Returns(ServerConfigDirName);

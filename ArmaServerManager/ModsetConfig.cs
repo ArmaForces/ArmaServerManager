@@ -14,7 +14,8 @@ namespace ArmaServerManager {
 
         public ModsetConfig(ISettings settings, string modsetName) {
             _settings = settings;
-            _serverConfig = new ServerConfig(_settings); ;
+            _serverConfig = new ServerConfig(_settings);
+            _serverConfig.LoadConfig();
             _modsetName = modsetName;
             _modsetConfigDirPath = CreateModsetConfigDirPath();
         }
