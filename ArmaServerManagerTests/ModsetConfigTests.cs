@@ -3,38 +3,38 @@ using System.IO;
 using ArmaServerManager;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ArmaServerManagerTests {
-    public class ServerConfigTests: IDisposable {
+    public class ModsetConfigTests: IDisposable {
         private const string ModsetName = "default";
         private const string ServerConfigDirName = "TestDir";
         private readonly string ServerConfigDirPath;
+        private readonly string ModsetConfigDirPath;
 
-        public ServerConfigTests()
-        {
+        public ModsetConfigTests() {
             ServerConfigDirPath = Path.Join(Directory.GetCurrentDirectory(), ServerConfigDirName);
+            ModsetConfigDirPath = Path.Join(ServerConfigDirPath, "modsetConfigs", "default");
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             Directory.Delete(ServerConfigDirPath, true);
         }
 
         [Fact]
-        public void ServerConfig_LoadConfig_Success() {
+        public void ModsetConfig_LoadConfig_Success() {
             var settingsMock = new Mock<ISettings>();
             settingsMock.Setup(settings => settings.GetServerPath()).Returns(Directory.GetCurrentDirectory());
             settingsMock.Setup(settings => settings.GetSettingsValue("serverConfigDirName")).Returns(ServerConfigDirName);
-            
-            var serverConfig = new ServerConfig(settingsMock.Object);
-            var configLoaded = serverConfig.LoadConfig();
+
+            var modsetConfig = new ModsetConfig(settingsMock.Object, ModsetName);
+            var configLoaded = modsetConfig.LoadConfig();
             
             Assert.True(configLoaded.IsSuccess);
-            Assert.True(Directory.Exists(ServerConfigDirPath));
-            Assert.True(File.Exists(Path.Join(ServerConfigDirPath, "server.cfg")));
-            Assert.True(File.Exists(Path.Join(ServerConfigDirPath, "basic.cfg")));
-            Assert.True(File.Exists(Path.Join(ServerConfigDirPath, "common.json")));
-            Assert.True(File.Exists(Path.Join(ServerConfigDirPath, "common.Arma3Profile")));
+            Assert.True(Directory.Exists(ModsetConfigDirPath));
+            Assert.True(File.Exists(Path.Join(ModsetConfigDirPath, "server.cfg")));
+            Assert.True(File.Exists(Path.Join(ModsetConfigDirPath, "basic.cfg")));
+            Assert.True(File.Exists(Path.Join(ModsetConfigDirPath, "config.json")));
         }
     }
 }
