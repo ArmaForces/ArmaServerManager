@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Arma.Server.Config;
 
-namespace Arma.Server.Manager {
+namespace Arma.Server {
     public class Server {
         private ISettings _settings;
         private Process _serverProcess;

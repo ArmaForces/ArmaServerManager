@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server.Config.Test", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server.Config", "Arma.Server.Config\Arma.Server.Config.csproj", "{42527A1E-D8AD-4B6C-A69D-7E728E9DF28C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server", "Arma.Server\Arma.Server.csproj", "{4271212F-F601-4C64-8128-AA9EC2F01CD1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server.Test", "Arma.Server.Test\Arma.Server.Test.csproj", "{133F10D8-E2BA-479F-AEEC-5365698BA7F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{42527A1E-D8AD-4B6C-A69D-7E728E9DF28C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42527A1E-D8AD-4B6C-A69D-7E728E9DF28C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42527A1E-D8AD-4B6C-A69D-7E728E9DF28C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4271212F-F601-4C64-8128-AA9EC2F01CD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4271212F-F601-4C64-8128-AA9EC2F01CD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4271212F-F601-4C64-8128-AA9EC2F01CD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4271212F-F601-4C64-8128-AA9EC2F01CD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,9 +1,10 @@
 ﻿using System.IO;
+using Arma.Server.Config;
 using AutoFixture;
 using Moq;
 using Xunit;
 
-namespace Arma.Server.Config.Test {
+namespace Arma.Server.Test {
     public class ServerTests
     {
 
@@ -23,14 +24,14 @@ namespace Arma.Server.Config.Test {
         [Fact]
         public void Server_IsRunningBeforeStart_Success()
         {
-            Manager.Server server = new Manager.Server(settingsMock.Object, modsetConfigMock.Object);
+            Server server = new Server(settingsMock.Object, modsetConfigMock.Object);
             Assert.False(server.IsServerRunning());
         }
 
         [Fact]
         public void Server_IsRunningAfterStart_Success()
         {
-            Manager.Server server = new Manager.Server(settingsMock.Object, modsetConfigMock.Object);
+            Server server = new Server(settingsMock.Object, modsetConfigMock.Object);
             server.Start();
             Assert.True(server.IsServerRunning());
             server.Shutdown();
@@ -39,7 +40,7 @@ namespace Arma.Server.Config.Test {
         [Fact]
         public void Server_Shutdown_Success()
         {
-            Manager.Server server = new Manager.Server(settingsMock.Object, modsetConfigMock.Object);
+            Server server = new Server(settingsMock.Object, modsetConfigMock.Object);
             server.Start();
             server.WaitUntilStarted();
             server.Shutdown();
