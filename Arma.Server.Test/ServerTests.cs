@@ -1,14 +1,17 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Arma.Server.Config;
 using AutoFixture;
+using FluentAssertions;
 using Moq;
 using Xunit;
 
 namespace Arma.Server.Test {
-    public class ServerTests {
+    public class ServerTests : IDisposable {
         private readonly Mock<ISettings> settingsMock;
         private readonly Mock<ModsetConfig> modsetConfigMock;
         private readonly Fixture _fixture = new Fixture();
+        private readonly Server server;
 
         public ServerTests() {
             settingsMock = new Mock<ISettings>();
@@ -16,29 +19,39 @@ namespace Arma.Server.Test {
             settingsMock.Setup(x => x.GetSettingsValue("serverConfigDirName")).Returns(_fixture.Create<string>());
             settingsMock.Setup(x => x.GetServerExePath()).Returns(Directory.GetCurrentDirectory());
             modsetConfigMock = new Mock<ModsetConfig>(settingsMock.Object, _fixture.Create<string>());
+
+            // Create server
+            server = new Server(settingsMock.Object, modsetConfigMock.Object);
         }
 
         [Fact]
-        public void Server_IsRunningBeforeStart_Success() {
-            Server server = new Server(settingsMock.Object, modsetConfigMock.Object);
-            Assert.False(server.IsServerRunning());
+        public void Server_IsRunningBeforeStart_False() {
+            // Assert
+            server.IsServerRunning().Should().BeFalse();
         }
 
         [Fact]
-        public void Server_IsRunningAfterStart_Success() {
-            Server server = new Server(settingsMock.Object, modsetConfigMock.Object);
+        public void Server_IsRunningAfterStart_True() {
+            // Act
             server.Start();
-            Assert.True(server.IsServerRunning());
-            server.Shutdown();
+            
+            // Assert
+            server.IsServerRunning().Should().BeTrue();
         }
 
         [Fact]
-        public void Server_Shutdown_Success() {
-            Server server = new Server(settingsMock.Object, modsetConfigMock.Object);
+        public void Server_IsRunningAfterShutdown_False() {
+            // Act
             server.Start();
             server.WaitUntilStarted();
             server.Shutdown();
-            Assert.False(server.IsServerRunning());
+
+            // Assert
+            server.IsServerRunning().Should().BeFalse();
+        }
+
+        public void Dispose() {
+            server.Shutdown();
         }
     }
 }

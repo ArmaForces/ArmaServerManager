@@ -37,6 +37,8 @@ namespace Arma.Server {
         }
 
         public void Shutdown() {
+            if (_serverProcess == null)
+                return;
             Console.WriteLine($"Shutting down the {_serverProcess}.");
             _serverProcess.Kill();
             _serverProcess = null;

@@ -20,14 +20,17 @@ namespace Arma.Server.Config.Test {
 
         [Fact]
         public void ServerConfig_LoadConfig_Success() {
+            // Arrange
             var settingsMock = new Mock<ISettings>();
             settingsMock.Setup(settings => settings.GetServerPath()).Returns(Directory.GetCurrentDirectory());
             settingsMock.Setup(settings => settings.GetSettingsValue("serverConfigDirName"))
                 .Returns(_serverConfigDirName);
 
+            // Act
             var serverConfig = new ServerConfig(settingsMock.Object);
             var configLoaded = serverConfig.LoadConfig();
 
+            // Assert
             Assert.True(configLoaded.IsSuccess);
             Assert.True(Directory.Exists(_serverConfigDirPath));
             Assert.True(File.Exists(Path.Join(_serverConfigDirPath, "server.cfg")));
