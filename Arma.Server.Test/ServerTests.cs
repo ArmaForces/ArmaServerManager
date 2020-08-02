@@ -5,15 +5,12 @@ using Moq;
 using Xunit;
 
 namespace Arma.Server.Test {
-    public class ServerTests
-    {
-
+    public class ServerTests {
         private readonly Mock<ISettings> settingsMock;
         private readonly Mock<ModsetConfig> modsetConfigMock;
         private readonly Fixture _fixture = new Fixture();
 
-        public ServerTests()
-        {
+        public ServerTests() {
             settingsMock = new Mock<ISettings>();
             settingsMock.Setup(x => x.GetServerPath()).Returns(Directory.GetCurrentDirectory());
             settingsMock.Setup(x => x.GetSettingsValue("serverConfigDirName")).Returns(_fixture.Create<string>());
@@ -22,15 +19,13 @@ namespace Arma.Server.Test {
         }
 
         [Fact]
-        public void Server_IsRunningBeforeStart_Success()
-        {
+        public void Server_IsRunningBeforeStart_Success() {
             Server server = new Server(settingsMock.Object, modsetConfigMock.Object);
             Assert.False(server.IsServerRunning());
         }
 
         [Fact]
-        public void Server_IsRunningAfterStart_Success()
-        {
+        public void Server_IsRunningAfterStart_Success() {
             Server server = new Server(settingsMock.Object, modsetConfigMock.Object);
             server.Start();
             Assert.True(server.IsServerRunning());
@@ -38,8 +33,7 @@ namespace Arma.Server.Test {
         }
 
         [Fact]
-        public void Server_Shutdown_Success()
-        {
+        public void Server_Shutdown_Success() {
             Server server = new Server(settingsMock.Object, modsetConfigMock.Object);
             server.Start();
             server.WaitUntilStarted();

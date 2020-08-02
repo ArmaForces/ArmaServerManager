@@ -6,7 +6,7 @@ using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
 
 namespace Arma.Server.Config {
-    public class ServerConfig: IConfig {
+    public class ServerConfig : IConfig {
         private readonly ISettings _settings;
         private readonly string _serverConfigDirPath;
 
@@ -20,18 +20,16 @@ namespace Arma.Server.Config {
             _serverConfigDirPath = CreateServerConfigDirPath();
         }
 
-        public string GetConfigDir()
-        {
+        public string GetConfigDir() {
             return _serverConfigDirPath;
         }
 
-        private string CreateServerConfigDirPath()
-        {
+        private string CreateServerConfigDirPath() {
             var serverPath = _settings.GetServerPath();
             var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
             return Path.Join(serverPath, serverConfigDirName);
         }
-        
+
         /// <summary>
         /// Handles preparation of all config files.
         /// </summary>

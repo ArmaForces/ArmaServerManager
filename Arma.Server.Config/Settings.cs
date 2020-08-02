@@ -5,8 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Win32;
 
 namespace Arma.Server.Config {
-  public class Settings : ISettings
-    {
+    public class Settings : ISettings {
         private static IConfigurationRoot _config;
         private readonly string _executable = "arma3server_x64.exe";
         private readonly string _serverPath;
@@ -23,6 +22,7 @@ namespace Arma.Server.Config {
             if (serverPathLoaded.IsFaulted) {
                 throw serverPathLoaded.Exception.GetBaseException();
             }
+
             _serverPath = serverPath;
         }
 
@@ -52,7 +52,9 @@ namespace Arma.Server.Config {
 
         private Result<string> GetServerPathFromConfig() {
             var serverPath = _config["serverPath"];
-            return Directory.Exists(serverPath) ? Result.Success(serverPath) : Result.Failure<string>("Server path could not be loaded from config.");
+            return Directory.Exists(serverPath)
+                ? Result.Success(serverPath)
+                : Result.Failure<string>("Server path could not be loaded from config.");
         }
 
         private Result<string> GetServerPathFromRegistry() {
@@ -60,7 +62,9 @@ namespace Arma.Server.Config {
                 .OpenSubKey("SOFTWARE\\WOW6432Node\\bohemia interactive\\arma 3")
                 ?.GetValue("main")
                 .ToString();
-            return Directory.Exists(serverPath) ? Result.Success(serverPath) : Result.Failure<string>("Server path could not be loaded from registry.");
+            return Directory.Exists(serverPath)
+                ? Result.Success(serverPath)
+                : Result.Failure<string>("Server path could not be loaded from registry.");
         }
     }
 }

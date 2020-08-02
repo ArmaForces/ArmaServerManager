@@ -19,23 +19,23 @@ namespace Arma.Server.Config.Test {
             "admins[] = {\"\"}; //e.g. {\"1234\",\"5678\"} whitelisted client can use #login w/o password (since Arma 3 1.69+).",
             "verifySignatures = 0; // Enables or disables the signature verification for addons. Default = 2, disabled = 0"
         );
-        
+
         private const string JsonFile = "{\r\n\t\"basic\": {" +
-                                            "\r\n\t\t\"MinBandwidth\": 131072," +
-                                            "\r\n\t\t\"MaxBandwidth\": 52428800," +
-                                            "\r\n        \r\n\t\t\"MaxMsgSend\": 128," +
-                                            "\r\n\t\t\"MaxSizeGuaranteed\": 512," +
-                                            "\r\n\t\t\"MaxSizeNonguaranteed\": 256," +
-                                            "\r\n\r\n\t\t\"MinErrorToSend\": 0.001," +
-                                            "\r\n\t\t\"MinErrorToSendNear\": 0.01," +
-                                            "\r\n\t\t\"MaxCustomFileSize\": 1310720\r\n\t}," +
+                                        "\r\n\t\t\"MinBandwidth\": 131072," +
+                                        "\r\n\t\t\"MaxBandwidth\": 52428800," +
+                                        "\r\n        \r\n\t\t\"MaxMsgSend\": 128," +
+                                        "\r\n\t\t\"MaxSizeGuaranteed\": 512," +
+                                        "\r\n\t\t\"MaxSizeNonguaranteed\": 256," +
+                                        "\r\n\r\n\t\t\"MinErrorToSend\": 0.001," +
+                                        "\r\n\t\t\"MinErrorToSendNear\": 0.01," +
+                                        "\r\n\t\t\"MaxCustomFileSize\": 1310720\r\n\t}," +
                                         "\r\n\r\n\t\"server\": {" +
-                                            "\r\n\t\t\"hostName\": \"My fun server\"," +
-                                            "\r\n\t\t\"password\": \"nopassword\"," +
-                                            "\r\n\t\t\"passwordAdmin\": \"noadminpassword\"," +
-                                            "\r\n\t\t\"serverCommandPassword\": \"nocommandpassword\"," +
-                                            "\r\n\t\t\"admins[]\": [\"\\\"123\\\"\",\"\\\"456\\\"\"]\r\n" +
-                                            "\t}\r\n" +
+                                        "\r\n\t\t\"hostName\": \"My fun server\"," +
+                                        "\r\n\t\t\"password\": \"nopassword\"," +
+                                        "\r\n\t\t\"passwordAdmin\": \"noadminpassword\"," +
+                                        "\r\n\t\t\"serverCommandPassword\": \"nocommandpassword\"," +
+                                        "\r\n\t\t\"admins[]\": [\"\\\"123\\\"\",\"\\\"456\\\"\"]\r\n" +
+                                        "\t}\r\n" +
                                         "}";
 
         private readonly IConfigurationRoot _modsetConfig;
@@ -51,8 +51,7 @@ namespace Arma.Server.Config.Test {
         }
 
         [Fact]
-        public void ReplaceValue_StringFromConfiuration_Match()
-        {
+        public void ReplaceValue_StringFromConfiuration_Match() {
             var key = "hostName"; // It has array value with {} as array brackets
             var value = _modsetConfig.GetSection("server")[key];
             var expectedMatch = $"{key} = \"{value}\";";
@@ -74,8 +73,7 @@ namespace Arma.Server.Config.Test {
         }
 
         [Fact]
-        public void ReplaceValue_NoQuotesFromConfiuration_Match()
-        {
+        public void ReplaceValue_NoQuotesFromConfiuration_Match() {
             var key = "verifySignatures"; // It has array value with {} as array brackets
             var value = _modsetConfig.GetSection("server")[key];
             var expectedMatch = $"{key} = {value};";
@@ -97,8 +95,7 @@ namespace Arma.Server.Config.Test {
         }
 
         [Fact]
-        public void ReplaceValue_ArrayFromConfiuration_Match()
-        {
+        public void ReplaceValue_ArrayFromConfiuration_Match() {
             var key = "admins[]"; // It has array value with {} as array brackets
             var value = _modsetConfig.GetSection("server").GetSection(key).GetChildren().ToList();
             var stringValue = String.Join(", ", value.Select(p => p.Value.ToString()));
