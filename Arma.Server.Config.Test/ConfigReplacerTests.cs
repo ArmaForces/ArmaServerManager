@@ -11,7 +11,7 @@ using Moq;
 using Xunit;
 
 namespace Arma.Server.Config.Test {
-    public class ServerConfigReplacerTests {
+    public class ConfigReplacerTests {
         private readonly string _cfgFile = String.Join("\r\n",
                                         "", // Necessary that first line is not any param
                                         "hostName = \"\"; // Servername visible in the game browser. Default: hostName = \"\"",
@@ -41,7 +41,7 @@ namespace Arma.Server.Config.Test {
 
         private readonly IConfigurationRoot _modsetConfig;
 
-        public ServerConfigReplacerTests() {
+        public ConfigReplacerTests() {
             // Create configuration from JsonFile string
             var jsonStreamConfigurationSource = new JsonStreamConfigurationSource();
             var configurationBuilder = new ConfigurationBuilder();
@@ -53,14 +53,14 @@ namespace Arma.Server.Config.Test {
         }
 
         [Fact]
-        public void ReplaceValue_StringFromConfiuration_Match() {
+        public void ReplaceValue_StringFromConfiguration_Match() {
             // Arrange
             var key = "hostName"; // It has array value with {} as array brackets
             var value = _modsetConfig.GetSection("server")[key];
             var expectedMatch = $"{key} = \"{value}\";";
 
             // Act
-            var newCfgFile = ServerConfigReplacer.ReplaceValue(_cfgFile, key, value);
+            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, value);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
@@ -74,21 +74,21 @@ namespace Arma.Server.Config.Test {
             var expectedMatch = $"{key} = \"{value}\";";
 
             // Act
-            var newCfgFile = ServerConfigReplacer.ReplaceValue(_cfgFile, key, value);
+            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, value);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
         }
 
         [Fact]
-        public void ReplaceValue_NoQuotesFromConfiuration_Match() {
+        public void ReplaceValue_NoQuotesFromConfiguration_Match() {
             // Arrange
             var key = "verifySignatures"; // It has array value with {} as array brackets
             var value = _modsetConfig.GetSection("server")[key];
             var expectedMatch = $"{key} = {value};";
 
             // Act
-            var newCfgFile = ServerConfigReplacer.ReplaceValue(_cfgFile, key, value);
+            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, value);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
@@ -102,14 +102,14 @@ namespace Arma.Server.Config.Test {
             var expectedMatch = $"{key} = {value};";
 
             // Act
-            var newCfgFile = ServerConfigReplacer.ReplaceValue(_cfgFile, key, value);
+            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, value);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
         }
 
         [Fact]
-        public void ReplaceValue_ArrayFromConfiuration_Match() {
+        public void ReplaceValue_ArrayFromConfiguration_Match() {
             // Arrange
             var key = "admins[]"; // It has array value with {} as array brackets
             var value = _modsetConfig.GetSection("server").GetSection(key).GetChildren().ToList();
@@ -117,7 +117,7 @@ namespace Arma.Server.Config.Test {
             var expectedMatch = $"{key} = {{{stringValue}}};";
 
             // Act
-            var newCfgFile = ServerConfigReplacer.ReplaceValue(_cfgFile, key, stringValue);
+            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, stringValue);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
@@ -131,7 +131,7 @@ namespace Arma.Server.Config.Test {
             var expectedMatch = $"{key} = {{{stringValue}}};";
 
             // Act
-            var newCfgFile = ServerConfigReplacer.ReplaceValue(_cfgFile, key, stringValue);
+            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, stringValue);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);

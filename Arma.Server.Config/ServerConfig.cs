@@ -77,9 +77,9 @@ namespace Arma.Server.Config {
                 if (value.Count != 0) {
                     // If value is array, it needs changing to string
                     var stringValue = String.Join(", ", value.Select(p => p.Value.ToString()));
-                    cfgFile = ServerConfigReplacer.ReplaceValue(cfgFile, key, stringValue);
+                    cfgFile = ConfigReplacer.ReplaceValue(cfgFile, key, stringValue);
                 } else {
-                    cfgFile = ServerConfigReplacer.ReplaceValue(cfgFile, key, config[key]);
+                    cfgFile = ConfigReplacer.ReplaceValue(cfgFile, key, config[key]);
                 }
             }
 
