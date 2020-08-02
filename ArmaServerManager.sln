@@ -15,6 +15,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server", "Arma.Server\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server.Test", "Arma.Server.Test\Arma.Server.Test.csproj", "{133F10D8-E2BA-479F-AEEC-5365698BA7F5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Modset", "Arma.Modset\Arma.Modset.csproj", "{CD91C214-DEBB-4FC0-8076-9C81C0DE5D27}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Modset.Test", "Arma.Modset.Test\Arma.Modset.Test.csproj", "{E3BC3487-1DCE-4CDE-BDDF-815614B4EA55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,14 @@ Global
 		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD91C214-DEBB-4FC0-8076-9C81C0DE5D27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD91C214-DEBB-4FC0-8076-9C81C0DE5D27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD91C214-DEBB-4FC0-8076-9C81C0DE5D27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD91C214-DEBB-4FC0-8076-9C81C0DE5D27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3BC3487-1DCE-4CDE-BDDF-815614B4EA55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3BC3487-1DCE-4CDE-BDDF-815614B4EA55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3BC3487-1DCE-4CDE-BDDF-815614B4EA55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3BC3487-1DCE-4CDE-BDDF-815614B4EA55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

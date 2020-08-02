@@ -1,4 +1,4 @@
-﻿namespace Arma.Server.Config {
+﻿namespace Arma.Modset {
     public interface IModset {
         string GetName();
     }

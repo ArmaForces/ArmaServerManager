@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Arma.Modset\Arma.Modset.csproj" />
     <ProjectReference Include="..\Arma.Server.Config\Arma.Server.Config.csproj" />
     <ProjectReference Include="..\Arma.Server\Arma.Server.csproj" />
   </ItemGroup>
