@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 
-namespace ArmaServerManager {
+namespace Arma.Server.Config {
     public interface IConfig {
         string GetConfigDir();
 

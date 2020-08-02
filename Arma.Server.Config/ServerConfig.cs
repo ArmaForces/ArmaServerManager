@@ -1,16 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Configuration;
 using System.Linq;
 using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Configuration;
 
-namespace ArmaServerManager {
+namespace Arma.Server.Config {
     public class ServerConfig: IConfig {
         private readonly ISettings _settings;
         private readonly string _serverConfigDirPath;
-        private readonly string _modsetConfigDirPath;
 
         /// <summary>
         /// Class prepares server configuration for given modset

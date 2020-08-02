@@ -1,11 +1,11 @@
+using CSharpFunctionalExtensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using CSharpFunctionalExtensions;
-using Microsoft.Extensions.Configuration;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 
-namespace ArmaServerManager {
+namespace Arma.Server.Config {
     public class ModsetConfig: IConfig {
         private readonly IConfig _serverConfig;
         private readonly string _modsetConfigDirPath;
