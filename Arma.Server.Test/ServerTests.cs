@@ -30,6 +30,7 @@ namespace Arma.Server.Test {
             server.IsServerRunning().Should().BeFalse();
         }
 
+        /* These are more like integration tests and cannot be supported properly yet
         [Fact]
         public void Server_IsRunningAfterStart_True() {
             // Act
@@ -48,7 +49,7 @@ namespace Arma.Server.Test {
 
             // Assert
             server.IsServerRunning().Should().BeFalse();
-        }
+        }*/
 
         public void Dispose() {
             server.Shutdown();
