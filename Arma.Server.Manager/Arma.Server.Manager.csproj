@@ -1,16 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="CSharpFunctionalExtensions" Version="2.11.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.6" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Arma.Modset\Arma.Modset.csproj" />
