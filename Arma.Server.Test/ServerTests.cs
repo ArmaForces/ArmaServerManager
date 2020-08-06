@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Arma.Server.Config;
 using AutoFixture;
@@ -29,27 +29,6 @@ namespace Arma.Server.Test {
             // Assert
             server.IsServerRunning().Should().BeFalse();
         }
-
-        /* These are more like integration tests and cannot be supported properly yet
-        [Fact]
-        public void Server_IsRunningAfterStart_True() {
-            // Act
-            server.Start();
-            
-            // Assert
-            server.IsServerRunning().Should().BeTrue();
-        }
-
-        [Fact]
-        public void Server_IsRunningAfterShutdown_False() {
-            // Act
-            server.Start();
-            server.WaitUntilStarted();
-            server.Shutdown();
-
-            // Assert
-            server.IsServerRunning().Should().BeFalse();
-        }*/
 
         public void Dispose() {
             server.Shutdown();
