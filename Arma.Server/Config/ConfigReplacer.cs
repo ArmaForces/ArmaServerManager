@@ -1,8 +1,8 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace ArmaServerManager {
-    public class ServerConfigReplacer {
+namespace Arma.Server.Config {
+    public class ConfigReplacer {
         /// <summary>
         /// Performs replacement of a value for corresponding key in given config file (as string)
         /// </summary>

@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArmaServerManager", "ArmaServerManager\ArmaServerManager.csproj", "{C9056683-85D1-4DD1-B1EC-21DD23DBF2D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server.Manager", "Arma.Server.Manager\Arma.Server.Manager.csproj", "{C9056683-85D1-4DD1-B1EC-21DD23DBF2D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArmaServerManagerTests", "ArmaServerManagerTests\ArmaServerManagerTests.csproj", "{08EBE0BE-DA40-4DB3-BAEA-BBEC693F2EAC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server.Manager.Test", "Arma.Server.Manager.Test\Arma.Server.Manager.Test.csproj", "{08EBE0BE-DA40-4DB3-BAEA-BBEC693F2EAC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server", "Arma.Server\Arma.Server.csproj", "{4271212F-F601-4C64-8128-AA9EC2F01CD1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server.Test", "Arma.Server.Test\Arma.Server.Test.csproj", "{133F10D8-E2BA-479F-AEEC-5365698BA7F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{08EBE0BE-DA40-4DB3-BAEA-BBEC693F2EAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08EBE0BE-DA40-4DB3-BAEA-BBEC693F2EAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08EBE0BE-DA40-4DB3-BAEA-BBEC693F2EAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4271212F-F601-4C64-8128-AA9EC2F01CD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4271212F-F601-4C64-8128-AA9EC2F01CD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4271212F-F601-4C64-8128-AA9EC2F01CD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4271212F-F601-4C64-8128-AA9EC2F01CD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

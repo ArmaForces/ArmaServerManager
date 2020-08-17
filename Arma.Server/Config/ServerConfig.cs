@@ -1,16 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Configuration;
 using System.Linq;
 using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Configuration;
 
-namespace ArmaServerManager {
-    public class ServerConfig: IConfig {
+namespace Arma.Server.Config {
+    public class ServerConfig : IConfig {
         private readonly ISettings _settings;
         private readonly string _serverConfigDirPath;
-        private readonly string _modsetConfigDirPath;
 
         /// <summary>
         /// Class prepares server configuration for given modset
@@ -22,18 +20,16 @@ namespace ArmaServerManager {
             _serverConfigDirPath = CreateServerConfigDirPath();
         }
 
-        public string GetConfigDir()
-        {
+        public string GetConfigDir() {
             return _serverConfigDirPath;
         }
 
-        private string CreateServerConfigDirPath()
-        {
+        private string CreateServerConfigDirPath() {
             var serverPath = _settings.GetServerPath();
             var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
             return Path.Join(serverPath, serverConfigDirName);
         }
-        
+
         /// <summary>
         /// Handles preparation of all config files.
         /// </summary>
@@ -81,9 +77,9 @@ namespace ArmaServerManager {
                 if (value.Count != 0) {
                     // If value is array, it needs changing to string
                     var stringValue = String.Join(", ", value.Select(p => p.Value.ToString()));
-                    cfgFile = ServerConfigReplacer.ReplaceValue(cfgFile, key, stringValue);
+                    cfgFile = ConfigReplacer.ReplaceValue(cfgFile, key, stringValue);
                 } else {
-                    cfgFile = ServerConfigReplacer.ReplaceValue(cfgFile, key, config[key]);
+                    cfgFile = ConfigReplacer.ReplaceValue(cfgFile, key, config[key]);
                 }
             }
 

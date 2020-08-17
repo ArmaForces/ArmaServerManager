@@ -1,26 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
-using Microsoft.Extensions.Configuration;
+using Arma.Server.Config;
 
-namespace ArmaServerManager {
+namespace Arma.Server {
     public class Server {
-        private Settings _settings;
-        private Modset _modset;
+        private ISettings _settings;
         private Process _serverProcess;
         private ModsetConfig _modsetConfig;
 
-        public Server() {
+        public Server(ISettings settings, ModsetConfig modsetConfig) {
+            _settings = settings;
+            _modsetConfig = modsetConfig;
             Console.WriteLine("Initializing Server");
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("settings.json")
-                .AddEnvironmentVariables()
-                .Build();
-            _settings = new Settings(config);
-            _modset = new Modset();
-            _modsetConfig = new ModsetConfig(_settings, _modset.GetName());
-            _modsetConfig.LoadConfig();
         }
 
         public bool IsServerRunning() {
@@ -46,6 +37,8 @@ namespace ArmaServerManager {
         }
 
         public void Shutdown() {
+            if (_serverProcess == null)
+                return;
             Console.WriteLine($"Shutting down the {_serverProcess}.");
             _serverProcess.Kill();
             _serverProcess = null;
