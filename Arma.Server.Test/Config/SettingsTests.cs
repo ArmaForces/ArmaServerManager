@@ -1,12 +1,7 @@
-using System;
-using System.IO;
-using FluentAssertions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Win32;
-using Moq;
+using Arma.Server.Config;
 using Xunit;
 
-namespace Arma.Server.Config.Test {
+namespace Arma.Server.Test.Config {
     public class SettingsTests {
 
         [Fact]

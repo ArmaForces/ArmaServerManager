@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
+using Arma.Server.Config;
 using AutoFixture;
 using Moq;
 using Xunit;
 
-namespace Arma.Server.Config.Test {
+namespace Arma.Server.Test.Config {
     public class ServerConfigTests : IDisposable {
         private static readonly Fixture Fixture = new Fixture();
         private readonly string _serverConfigDirName = Fixture.Create<string>();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using Arma.Server.Config;
 using AutoFixture;
@@ -8,30 +8,30 @@ using Xunit;
 
 namespace Arma.Server.Test {
     public class ServerTests : IDisposable {
-        private readonly Mock<ISettings> settingsMock;
-        private readonly Mock<ModsetConfig> modsetConfigMock;
+        private readonly Mock<ISettings> _settingsMock;
+        private readonly Mock<ModsetConfig> _modsetConfigMock;
         private readonly Fixture _fixture = new Fixture();
-        private readonly Server server;
+        private readonly Server _server;
 
         public ServerTests() {
-            settingsMock = new Mock<ISettings>();
-            settingsMock.Setup(x => x.GetServerPath()).Returns(Directory.GetCurrentDirectory());
-            settingsMock.Setup(x => x.GetSettingsValue("serverConfigDirName")).Returns(_fixture.Create<string>());
-            settingsMock.Setup(x => x.GetServerExePath()).Returns(Directory.GetCurrentDirectory());
-            modsetConfigMock = new Mock<ModsetConfig>(settingsMock.Object, _fixture.Create<string>());
+            _settingsMock = new Mock<ISettings>();
+            _settingsMock.Setup(x => x.GetServerPath()).Returns(Directory.GetCurrentDirectory());
+            _settingsMock.Setup(x => x.GetSettingsValue("serverConfigDirName")).Returns(_fixture.Create<string>());
+            _settingsMock.Setup(x => x.GetServerExePath()).Returns(Directory.GetCurrentDirectory());
+            _modsetConfigMock = new Mock<ModsetConfig>(_settingsMock.Object, _fixture.Create<string>());
 
             // Create server
-            server = new Server(settingsMock.Object, modsetConfigMock.Object);
+            _server = new Server(_settingsMock.Object, _modsetConfigMock.Object);
         }
 
         [Fact]
         public void Server_IsRunningBeforeStart_False() {
             // Assert
-            server.IsServerRunning().Should().BeFalse();
+            _server.IsServerRunning().Should().BeFalse();
         }
 
         public void Dispose() {
-            server.Shutdown();
+            _server.Shutdown();
         }
     }
 }

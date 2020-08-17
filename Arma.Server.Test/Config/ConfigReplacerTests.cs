@@ -1,16 +1,13 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.RegularExpressions;
+using Arma.Server.Config;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
-using Moq;
 using Xunit;
 
-namespace Arma.Server.Config.Test {
+namespace Arma.Server.Test.Config {
     public class ConfigReplacerTests {
         private readonly string _cfgFile = File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "test_server.cfg"));
 
@@ -22,6 +19,9 @@ namespace Arma.Server.Config.Test {
             _modsetConfig = new ConfigurationBuilder()
                 .AddJsonFile(Path.Join(Directory.GetCurrentDirectory(),"test_common.json"))
                 .Build();
+
+            var jsonString = File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "test_common.json"));
+            var JSON = JsonSerializer.Deserialize<Object>(jsonString);
         }
 
         [Fact]

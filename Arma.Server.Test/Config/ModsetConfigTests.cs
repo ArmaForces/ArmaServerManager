@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
+using Arma.Server.Config;
+using AutoFixture;
 using Moq;
 using Xunit;
-using AutoFixture;
 
-namespace Arma.Server.Config.Test {
+namespace Arma.Server.Test.Config {
     public class ModsetConfigTests : IDisposable {
         private static readonly Fixture Fixture = new Fixture();
         private readonly string _modsetName = Fixture.Create<string>();

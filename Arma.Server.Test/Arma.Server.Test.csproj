@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -18,6 +18,20 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Arma.Server.Manager\Arma.Server.Manager.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="test_common.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="test_server.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Modset\" />
+    <Folder Include="Server\" />
   </ItemGroup>
 
 </Project>
