@@ -29,9 +29,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Modset\" />
-    <Folder Include="Server\" />
-  </ItemGroup>
-
 </Project>
