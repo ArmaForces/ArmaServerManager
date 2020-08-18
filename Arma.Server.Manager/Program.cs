@@ -4,10 +4,10 @@ namespace Arma.Server.Manager {
     internal class Program {
         static void Main(string[] args) {
             var _settings = new Settings();
-            var modset = new Modset.Modset();
-            var modsetConfig = new ModsetConfig(_settings, modset.GetName());
-            modsetConfig.LoadConfig();
-            var server = new Server(_settings, modsetConfig);
+            var modlist = new Modlist.Modlist();
+            var modlistConfig = new ModlistConfig(_settings, modlist.GetName());
+            modlistConfig.LoadConfig();
+            var server = new Server(_settings, modlistConfig);
             server.Start();
             server.WaitUntilStarted();
             server.Shutdown();

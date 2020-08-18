@@ -9,7 +9,7 @@ using Xunit;
 namespace Arma.Server.Test {
     public class ServerTests : IDisposable {
         private readonly Mock<ISettings> _settingsMock;
-        private readonly Mock<ModsetConfig> _modsetConfigMock;
+        private readonly Mock<ModlistConfig> _modlistConfigMock;
         private readonly Fixture _fixture = new Fixture();
         private readonly Server _server;
 
@@ -18,10 +18,10 @@ namespace Arma.Server.Test {
             _settingsMock.Setup(x => x.GetServerPath()).Returns(Directory.GetCurrentDirectory());
             _settingsMock.Setup(x => x.GetSettingsValue("serverConfigDirName")).Returns(_fixture.Create<string>());
             _settingsMock.Setup(x => x.GetServerExePath()).Returns(Directory.GetCurrentDirectory());
-            _modsetConfigMock = new Mock<ModsetConfig>(_settingsMock.Object, _fixture.Create<string>());
+            _modlistConfigMock = new Mock<ModlistConfig>(_settingsMock.Object, _fixture.Create<string>());
 
             // Create server
-            _server = new Server(_settingsMock.Object, _modsetConfigMock.Object);
+            _server = new Server(_settingsMock.Object, _modlistConfigMock.Object);
         }
 
         [Fact]
