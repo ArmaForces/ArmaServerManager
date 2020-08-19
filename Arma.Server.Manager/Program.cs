@@ -5,9 +5,9 @@ namespace Arma.Server.Manager {
     internal class Program {
         static void Main(string[] args) {
             var _settings = new Settings();
-            var blabla = new Bla();
-            var modlists = blabla.GetModlists();
-            var modlist = blabla.GetModlistData(modlists[1]);
+            var apiService = new ApiModlistDataService();
+            var modlists = apiService.GetModlists();
+            var modlist = apiService.GetModlistData(modlists[1]);
             var modlistConfig = new ModlistConfig(_settings, modlist.GetName());
             modlistConfig.LoadConfig();
             var server = new Server(_settings, modlistConfig);

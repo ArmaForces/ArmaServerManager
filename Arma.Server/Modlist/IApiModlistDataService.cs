@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 namespace Arma.Server.Modlist {
-    public interface IBla {
+    public interface IApiModlistDataService {
         List<Modlist> GetModlists();
 
         Modlist GetModlistData(Modlist modlist);

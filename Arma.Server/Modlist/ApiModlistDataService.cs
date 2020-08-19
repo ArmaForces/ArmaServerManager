@@ -4,7 +4,7 @@ using System.Net.Http;
 using Newtonsoft.Json;
 
 namespace Arma.Server.Modlist {
-    public class Bla : IBla {
+    public class ApiModlistDataService : IApiModlistDataService {
         public HttpClient HttpClient = new HttpClient();
         
         private HttpResponseMessage GetHttpResponseMessage(string requestUri) {
