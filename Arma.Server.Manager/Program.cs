@@ -6,8 +6,7 @@ namespace Arma.Server.Manager {
         static void Main(string[] args) {
             var _settings = new Settings();
             var apiService = new ApiModlistDataService();
-            var modlists = apiService.GetModlists();
-            var modlist = apiService.GetModlistData(modlists[1]);
+            var modlist = apiService.GetModlistDataByName("default-test");
             var modlistConfig = new ModlistConfig(_settings, modlist.GetName());
             modlistConfig.LoadConfig();
             var server = new Server(_settings, modlistConfig);

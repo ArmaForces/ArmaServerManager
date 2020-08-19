@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using Newtonsoft.Json;
@@ -13,12 +13,12 @@ namespace Arma.Server.Modlist {
             return response;
         }
 
-        private string ApiModlistsId(string id) {
+        private string ApiModlistById(string id) {
             var requestUri = String.Join("", "https://dev.armaforces.com/api/mod-lists/", id);
             return GetHttpResponseMessage(requestUri).Content.ReadAsStringAsync().Result;
         }
 
-        private string ApiModlistsName(string name) {
+        private string ApiModlistByName(string name) {
             var requestUri = String.Join("", "https://dev.armaforces.com/api/mod-lists/by-name/", name);
             return GetHttpResponseMessage(requestUri).Content.ReadAsStringAsync().Result;
         }
@@ -31,10 +31,13 @@ namespace Arma.Server.Modlist {
         public List<Modlist> GetModlists()
             => JsonConvert.DeserializeObject<List<Modlist>>(ApiModlists());
 
-        public Modlist GetModlistData(Modlist modlist)
-            => GetModlistData(modlist.Id);
+        public Modlist GetModlistDataByName(string name)
+            => JsonConvert.DeserializeObject<Modlist>(ApiModlistByName(name));
 
-        public Modlist GetModlistData(string modlistId)
-            => JsonConvert.DeserializeObject<Modlist>(ApiModlistsId(modlistId));
+        public Modlist GetModlistDataByModlist(Modlist modlist)
+            => GetModlistDataById(modlist.Id);
+
+        public Modlist GetModlistDataById(string id)
+            => JsonConvert.DeserializeObject<Modlist>(ApiModlistById(id));
     }
 }

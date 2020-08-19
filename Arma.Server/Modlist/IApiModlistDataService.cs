@@ -4,8 +4,10 @@ namespace Arma.Server.Modlist {
     public interface IApiModlistDataService {
         List<Modlist> GetModlists();
 
-        Modlist GetModlistData(Modlist modlist);
+        Modlist GetModlistDataByName(string name);
 
-        Modlist GetModlistData(string modlistId);
+        Modlist GetModlistDataByModlist(Modlist modlist);
+
+        Modlist GetModlistDataById(string id);
     }
 }
