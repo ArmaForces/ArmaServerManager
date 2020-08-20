@@ -1,5 +1,4 @@
 ﻿using System.Runtime.Serialization;
-using Newtonsoft.Json;
 
 namespace Arma.Server.Mod {
     public enum ModType {
