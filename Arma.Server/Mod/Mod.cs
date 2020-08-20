@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 
 namespace Arma.Server.Mod {
@@ -21,7 +21,7 @@ namespace Arma.Server.Mod {
         public string Source { get; protected set; }
 
         [JsonProperty]
-        public string Type { get; protected set; }
+        public ModType Type { get; protected set; }
 
         [JsonProperty]
         public int ItemId { get; protected set; }
