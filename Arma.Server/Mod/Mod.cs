@@ -18,7 +18,7 @@ namespace Arma.Server.Mod {
         public DateTime? LastUpdatedAt { get; protected set; }
 
         [JsonProperty]
-        public string Source { get; protected set; }
+        public ModSource Source { get; protected set; }
 
         [JsonProperty]
         public ModType Type { get; protected set; }
