@@ -3,34 +3,28 @@ using Newtonsoft.Json;
 
 namespace Arma.Server.Mod {
     public class Mod : IMod {
-        public string GetName() => Name;
-        public ModSource GetModSource() => Source;
-        public ModType GetModType() => Type;
-        public int GetItemId() => ItemId;
-        public string GetDirectory() => Directory;
+        [JsonProperty]
+        public string Id { get; set; }
 
         [JsonProperty]
-        public string Id { get; protected set; }
+        public string Name { get; set; }
 
         [JsonProperty]
-        public string Name { get; protected set; }
+        public DateTime CreatedAt { get; set; }
 
         [JsonProperty]
-        public DateTime CreatedAt { get; protected set; }
+        public DateTime? LastUpdatedAt { get; set; }
 
         [JsonProperty]
-        public DateTime? LastUpdatedAt { get; protected set; }
+        public ModSource Source { get; set; }
 
         [JsonProperty]
-        public ModSource Source { get; protected set; }
+        public ModType Type { get; set; }
 
         [JsonProperty]
-        public ModType Type { get; protected set; }
+        public int ItemId { get; set; }
 
         [JsonProperty]
-        public int ItemId { get; protected set; }
-
-        [JsonProperty]
-        public string Directory { get; protected set; }
+        public string Directory { get; set; }
     }
 }

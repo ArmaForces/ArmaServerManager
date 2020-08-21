@@ -5,23 +5,19 @@ using Newtonsoft.Json;
 
 namespace Arma.Server.Modlist {
     public class Modlist : IModlist {
-        public string GetId() => Id;
-        public string GetName() => Name;
-        public List<Mod.Mod> GetModsList() => Mods;
+        [JsonProperty]
+        public string Id { get; set; }
 
         [JsonProperty]
-        public string Id { get; protected set; }
+        public string Name { get; set; }
 
         [JsonProperty]
-        public string Name { get; protected set; }
+        public DateTime CreatedAt { get; set; }
 
         [JsonProperty]
-        public DateTime CreatedAt { get; protected set; }
+        public DateTime? LastUpdatedAt { get; set; }
 
         [JsonProperty]
-        public DateTime? LastUpdatedAt { get; protected set; }
-
-        [JsonProperty]
-        public List<Mod.Mod> Mods { get; protected set; }
+        public List<Mod.Mod> Mods { get; set; }
     }
 }

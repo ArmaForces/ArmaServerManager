@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
-using Arma.Server.Mod;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Arma.Server.Modlist {
     public interface IModlist {
-        string GetId();
-        string GetName();
-        List<Mod.Mod> GetModsList();
+        string Id { get; }
+        string Name { get; }
+        DateTime CreatedAt { get; }
+        DateTime? LastUpdatedAt { get; }
+        List<Mod.Mod> Mods { get; }
     }
 }

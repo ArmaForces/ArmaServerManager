@@ -8,7 +8,7 @@ namespace Arma.Server.Manager {
             var baseUrl = "https://dev.armaforces.com/";
             var apiService = new ApiModlistDataService(baseUrl);
             var modlist = apiService.GetModlistDataByName("default-test");
-            var modlistConfig = new ModlistConfig(_settings, modlist.GetName());
+            var modlistConfig = new ModlistConfig(settings, modlist.Name);
             modlistConfig.LoadConfig();
             var server = new Server(_settings, modlistConfig);
             server.Start();
