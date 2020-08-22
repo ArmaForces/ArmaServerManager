@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using Arma.Server.Mod;
 using Newtonsoft.Json;
 
-namespace Arma.Server.Modlist {
-    public class Modlist : IModlist {
+namespace Arma.Server.Mod {
+    public class Mod : IMod {
         [JsonProperty]
         public string Id { get; set; }
 
@@ -18,6 +16,15 @@ namespace Arma.Server.Modlist {
         public DateTime? LastUpdatedAt { get; set; }
 
         [JsonProperty]
-        public List<Mod.Mod> Mods { get; set; }
+        public ModSource Source { get; set; }
+
+        [JsonProperty]
+        public ModType Type { get; set; }
+
+        [JsonProperty]
+        public int ItemId { get; set; }
+
+        [JsonProperty]
+        public string Directory { get; set; }
     }
 }

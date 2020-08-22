@@ -1,11 +1,14 @@
 using Arma.Server.Config;
+using Arma.Server.Modlist;
 
 namespace Arma.Server.Manager {
     internal class Program {
         static void Main(string[] args) {
             var _settings = new Settings();
-            var modlist = new Modlist.Modlist();
-            var modlistConfig = new ModlistConfig(_settings, modlist.GetName());
+            var baseUrl = "https://dev.armaforces.com/";
+            var apiService = new ApiModlistDataService(baseUrl);
+            var modlist = apiService.GetModlistDataByName("default-test");
+            var modlistConfig = new ModlistConfig(settings, modlist.Name);
             modlistConfig.LoadConfig();
             var server = new Server(_settings, modlistConfig);
             server.Start();
