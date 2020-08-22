@@ -15,28 +15,35 @@ namespace Arma.Server.Config {
 
         private static IConfigurationRoot _config;
 
-        public Settings() {
+        public Result LoadSettings() {
             Console.WriteLine("Loading Manager Settings.");
-            _config = LoadConfigFile();
+            return LoadConfigFile()
+                .Bind(GetServerPath);
+        }
+
+        private Result GetServerPath() {
             string serverPath = null;
             var serverPathLoaded = GetServerPathFromConfig()
                 .Tap(x => serverPath = x)
                 .OnFailure(x => GetServerPathFromRegistry())
                 .Tap(x => serverPath = x)
                 .OnFailure(e => throw new ServerNotFoundException(e));
-            if (serverPathLoaded.IsFaulted) {
+            if (serverPathLoaded.IsFaulted)
+            {
                 throw serverPathLoaded.Exception.GetBaseException();
             }
 
             ServerDirectory = serverPath;
+            return Result.Success();
         }
 
-        private IConfigurationRoot LoadConfigFile() {
-            return new ConfigurationBuilder()
+        private Result LoadConfigFile() {
+            _config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("settings.json")
                 .AddEnvironmentVariables()
                 .Build();
+            return Result.Success();
         }
 
         private Result<string> GetServerPathFromConfig() {

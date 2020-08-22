@@ -1,4 +1,6 @@
 using Arma.Server.Config;
+using CSharpFunctionalExtensions;
+using FluentAssertions;
 using Xunit;
 
 namespace Arma.Server.Test.Config {
@@ -8,9 +10,11 @@ namespace Arma.Server.Test.Config {
         public void Settings_ServerPath_FoundOrThrewException() {
             try {
                 // Act
-                Settings serverSettings = new Settings();
+                ISettings serverSettings = new Settings();
+                var loaded = serverSettings.LoadSettings();
                 // Assert
-                Assert.NotNull(serverSettings.GetServerExePath());
+                loaded.Should().BeEquivalentTo(Result.Success());
+                serverSettings.ServerDirectory.Should().NotBeNullOrEmpty();
             } catch (ServerNotFoundException e) {
                 // Assert if exception
                 Assert.Contains(@"Server path could not be loaded", e.Message);

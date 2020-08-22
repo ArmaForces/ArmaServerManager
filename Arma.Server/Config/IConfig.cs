@@ -21,5 +21,11 @@ namespace Arma.Server.Config {
         /// Path to config server.cfg file.
         /// </summary>
         string ServerCfg { get; }
+
+        /// <summary>
+        /// Performs config loading.
+        /// </summary>
+        /// <returns>Result</returns>
+        Result LoadConfig();
     }
 }

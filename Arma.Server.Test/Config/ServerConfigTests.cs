@@ -23,12 +23,12 @@ namespace Arma.Server.Test.Config {
         public void ServerConfig_LoadConfig_Success() {
             // Arrange
             var settingsMock = new Mock<ISettings>();
-            settingsMock.Setup(settings => settings.GetServerPath()).Returns(Directory.GetCurrentDirectory());
-            settingsMock.Setup(settings => settings.GetSettingsValue("serverConfigDirName"))
+            settingsMock.Setup(settings => settings.ServerExecutable).Returns(Directory.GetCurrentDirectory());
+            settingsMock.Setup(settings => settings.ServerConfigDirectoryName)
                 .Returns(_serverConfigDirName);
 
             // Act
-            var serverConfig = new ServerConfig(settingsMock.Object);
+            IConfig serverConfig = new ServerConfig(settingsMock.Object);
             var configLoaded = serverConfig.LoadConfig();
 
             // Assert

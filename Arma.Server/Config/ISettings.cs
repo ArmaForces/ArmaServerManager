@@ -1,4 +1,6 @@
-﻿namespace Arma.Server.Config {
+﻿using CSharpFunctionalExtensions;
+
+namespace Arma.Server.Config {
     public interface ISettings {
 
         /// <summary>
@@ -31,5 +33,11 @@
         /// Server executable file name, eg. "arma3server_x64.exe".
         /// </summary>
         string ServerExecutableName { get; }
+
+        /// <summary>
+        /// Loads settings from configuration.
+        /// </summary>
+        /// <returns>Result</returns>
+        Result LoadSettings();
     }
 }

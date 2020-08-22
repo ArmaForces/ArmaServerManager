@@ -22,23 +22,25 @@ namespace Arma.Server.Config {
             _settings = settings;
             _serverConfig = new ServerConfig(_settings);
             ModlistName = modlistName;
-            LoadConfig();
         }
 
-        private Result LoadConfig() {
-            DirectoryPath = CreateModlistConfigDirPath();
+        public Result LoadConfig() {
+            return _serverConfig.LoadConfig()
+                .OnFailure(e => {})
+                .Tap(() => SetProperties())
+                .Bind(GetOrCreateModlistConfigDir)
+                .Bind(PrepareModlistConfig);
+        }
+
+        private Result SetProperties() {
+            DirectoryPath = Path.Join(_serverConfig.DirectoryPath, _settings.ModlistConfigDirectoryName, ModlistName);
             ConfigJson = Path.Join(DirectoryPath, "config.json");
             BasicCfg = Path.Join(DirectoryPath, "basic.cfg");
             ServerCfg = Path.Join(DirectoryPath, "server.cfg");
             HCProfileDirectory = Path.Join(DirectoryPath, "profiles", "HC");
             ServerProfileDirectory = Path.Join(DirectoryPath, "profiles", "Server");
-            return GetOrCreateModlistConfigDir()
-                .OnFailure(() => CreateConfigJson())
-                .Bind(PrepareModlistConfig);
+            return Result.Success();
         }
-
-        private string CreateModlistConfigDirPath()
-            => Path.Join(_serverConfig.DirectoryPath, _settings.ModlistConfigDirectoryName, ModlistName);
 
         /// <summary>
         /// Prepares config directory and files for current modlist
@@ -52,7 +54,7 @@ namespace Arma.Server.Config {
 
             return File.Exists(ConfigJson)
                 ? Result.Success()
-                : Result.Failure("No config.json found.");
+                : CreateConfigJson();
         }
 
         private Result CreateConfigJson() {

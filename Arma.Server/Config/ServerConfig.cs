@@ -20,25 +20,27 @@ namespace Arma.Server.Config {
         /// <param name="settings">Server Settings Object</param>
         public ServerConfig(ISettings settings) {
             _settings = settings;
-            LoadConfig();
         }
-
-        private string CreateServerConfigDirPath()
-            =>  Path.Join(_settings.ServerDirectory, _settings.ServerConfigDirectoryName);
 
         /// <summary>
         /// Handles preparation of all config files.
         /// </summary>
         /// <returns></returns>
-        private Result LoadConfig() {
+        public Result LoadConfig() {
             Console.WriteLine("Loading ServerConfig.");
-            DirectoryPath = CreateServerConfigDirPath();
+            
+            return SetProperties()
+                .Bind(GetOrCreateServerConfigDir)
+                .Tap(() => Console.WriteLine("ServerConfig loaded."))
+                .OnFailure(e => Console.WriteLine("ServerConfig could not be loaded with {e}.", e));
+        }
+
+        private Result SetProperties() {
+            DirectoryPath = Path.Join(_settings.ServerDirectory, _settings.ServerConfigDirectoryName);
             ConfigJson = Path.Join(DirectoryPath, "common.json");
             BasicCfg = Path.Join(DirectoryPath, "basic.cfg");
             ServerCfg = Path.Join(DirectoryPath, "server.cfg");
-            return GetOrCreateServerConfigDir()
-                .Tap(() => Console.WriteLine("ServerConfig loaded."))
-                .OnFailure(e => Console.WriteLine("ServerConfig could not be loaded with {e}.", e));
+            return Result.Success();
         }
 
         /// <summary>
