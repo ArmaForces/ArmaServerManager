@@ -15,7 +15,7 @@ namespace Arma.Server.Test {
 
         public ServerTests() {
             _settingsMock = new Mock<ISettings>();
-            _settingsMock.Setup(x => x.ServerExecutable).Returns(Directory.GetCurrentDirectory());
+            _settingsMock.Setup(x => x.ServerDirectory).Returns(Directory.GetCurrentDirectory());
             _settingsMock.Setup(x => x.ServerConfigDirectoryName).Returns(_fixture.Create<string>());
             _settingsMock.Setup(x => x.ServerExecutable).Returns(Directory.GetCurrentDirectory());
             _modlistConfigMock = new Mock<ModlistConfig>(_settingsMock.Object, _fixture.Create<string>());
