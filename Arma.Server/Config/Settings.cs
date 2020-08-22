@@ -6,9 +6,14 @@ using Microsoft.Win32;
 
 namespace Arma.Server.Config {
     public class Settings : ISettings {
+        public string ModlistConfigDirectoryName { get; protected set; } = "modlistConfig";
+        public string ModsDirectory { get; protected set; }
+        public string ServerConfigDirectoryName { get; protected set; } = "serverConfig";
+        public string ServerDirectory { get; protected set; }
+        public string ServerExecutable { get; protected set; }
+        public string ServerExecutableName { get; protected set; } = "arma3server_64.exe";
+
         private static IConfigurationRoot _config;
-        private readonly string _executable = "arma3server_x64.exe";
-        private readonly string _serverPath;
 
         public Settings() {
             Console.WriteLine("Loading Manager Settings.");
@@ -23,23 +28,7 @@ namespace Arma.Server.Config {
                 throw serverPathLoaded.Exception.GetBaseException();
             }
 
-            _serverPath = serverPath;
-        }
-
-        public object GetSettingsValue(string key) {
-            try {
-                return _config[key];
-            } catch (NullReferenceException) {
-                return null;
-            }
-        }
-
-        public string GetServerPath() {
-            return _serverPath;
-        }
-
-        public string GetServerExePath() {
-            return _serverPath != null ? $"{_serverPath}\\{_executable}" : null;
+            ServerDirectory = serverPath;
         }
 
         private IConfigurationRoot LoadConfigFile() {

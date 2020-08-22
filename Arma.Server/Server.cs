@@ -6,9 +6,9 @@ namespace Arma.Server {
     public class Server {
         private ISettings _settings;
         private Process _serverProcess;
-        private ModlistConfig _modlistConfig;
+        private IModlistConfig _modlistConfig;
 
-        public Server(ISettings settings, ModlistConfig modlistConfig) {
+        public Server(ISettings settings, IModlistConfig modlistConfig) {
             _settings = settings;
             _modlistConfig = modlistConfig;
             Console.WriteLine("Initializing Server");
@@ -21,7 +21,7 @@ namespace Arma.Server {
         public bool Start() {
             Console.WriteLine("Starting Arma 3 Server");
             try {
-                _serverProcess = Process.Start(_settings.GetServerExePath(), GetServerStartupParams());
+                _serverProcess = Process.Start(_settings.ServerExecutable, GetServerStartupParams());
             } catch (NullReferenceException e) {
                 Console.WriteLine(e);
                 Console.WriteLine("Arma 3 Server could not be started. Path missing.");
@@ -47,9 +47,9 @@ namespace Arma.Server {
         private string GetServerStartupParams() {
             return String.Join(' ',
                 "-port=2302",
-                $"\"-config={_modlistConfig.GetServerCfgPath()}\"",
-                $"\"-cfg={_modlistConfig.GetBasicCfgPath()}\"",
-                $"-profiles=\"{_modlistConfig.GetServerProfileDir()}\"",
+                $"\"-config={_modlistConfig.ServerCfg}\"",
+                $"\"-cfg={_modlistConfig.BasicCfg}\"",
+                $"-profiles=\"{_modlistConfig.ServerProfileDirectory}\"",
                 "-name=server",
                 "-filePatching",
                 "-netlog",
