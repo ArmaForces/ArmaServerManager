@@ -2,5 +2,6 @@
 	"modlistConfigDirName":  "modlistConfig",
 	"modsDirectory":  "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\!Workshop",
 	"serverConfigDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\serverConfig",
-	"serverDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3"
+	"serverDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3",
+	"serverExecutableName":  "arma3server_x64.exe"
 }
