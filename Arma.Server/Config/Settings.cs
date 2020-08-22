@@ -18,7 +18,19 @@ namespace Arma.Server.Config {
         public Result LoadSettings() {
             Console.WriteLine("Loading Manager Settings.");
             return LoadConfigFile()
-                .Bind(GetServerPath);
+                .Bind(GetServerPath)
+                .Tap((() => ServerExecutable = Path.Join(ServerDirectory, ServerExecutableName)))
+                .Tap(ObtainModsDirectory);
+        }
+
+        private Result LoadConfigFile()
+        {
+            _config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("settings.json")
+                .AddEnvironmentVariables()
+                .Build();
+            return Result.Success();
         }
 
         private Result GetServerPath() {
@@ -37,14 +49,8 @@ namespace Arma.Server.Config {
             return Result.Success();
         }
 
-        private Result LoadConfigFile() {
-            _config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("settings.json")
-                .AddEnvironmentVariables()
-                .Build();
-            return Result.Success();
-        }
+        private void ObtainModsDirectory()
+            => ModsDirectory = _config["modsDirectory"] ?? Path.Join(ServerDirectory, "mods");
 
         private Result<string> GetServerPathFromConfig() {
             var serverPath = _config["serverPath"];
