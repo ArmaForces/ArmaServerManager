@@ -24,8 +24,8 @@ namespace Arma.Server.Test.Config {
             // Arrange
             var settingsMock = new Mock<ISettings>();
             settingsMock.Setup(settings => settings.ServerExecutable).Returns(Directory.GetCurrentDirectory());
-            settingsMock.Setup(settings => settings.ServerConfigDirectoryName)
-                .Returns(_serverConfigDirName);
+            settingsMock.Setup(settings => settings.ServerConfigDirectory)
+                .Returns(_serverConfigDirPath);
 
             // Act
             IConfig serverConfig = new ServerConfig(settingsMock.Object);

@@ -1,4 +1,6 @@
 {
-	"serverConfigDirName": "serverConfig",
-	"serverPath": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3"
+	"modlistConfigDirName":  "modlistConfig",
+	"modsDirectory":  "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\!Workshop",
+	"serverConfigDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\serverConfig",
+	"serverDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3"
 }

@@ -14,9 +14,9 @@ namespace Arma.Server.Config {
         string ModsDirectory { get; }
         
         /// <summary>
-        /// Name of server configuration files directory.
+        /// Path to server configuration files directory.
         /// </summary>
-        string ServerConfigDirectoryName { get; }
+        string ServerConfigDirectory { get; }
 
         /// <summary>
         /// Path pointing to server root folder.

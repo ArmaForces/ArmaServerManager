@@ -36,7 +36,7 @@ namespace Arma.Server.Config {
         }
 
         private Result SetProperties() {
-            DirectoryPath = Path.Join(_settings.ServerDirectory, _settings.ServerConfigDirectoryName);
+            DirectoryPath = _settings.ServerConfigDirectory;
             ConfigJson = Path.Join(DirectoryPath, "common.json");
             BasicCfg = Path.Join(DirectoryPath, "basic.cfg");
             ServerCfg = Path.Join(DirectoryPath, "server.cfg");
@@ -49,7 +49,7 @@ namespace Arma.Server.Config {
         /// <returns>path to serverConfig</returns>
         private Result GetOrCreateServerConfigDir() {
             if (!Directory.Exists(DirectoryPath)) {
-                Console.WriteLine($"Config directory {_settings.ServerConfigDirectoryName} does not exists, creating.");
+                Console.WriteLine($"Config directory {_settings.ServerConfigDirectory} does not exists, creating.");
                 Directory.CreateDirectory(DirectoryPath);
             }
 

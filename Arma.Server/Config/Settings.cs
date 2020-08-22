@@ -8,7 +8,7 @@ namespace Arma.Server.Config {
     public class Settings : ISettings {
         public string ModlistConfigDirectoryName { get; protected set; } = "modlistConfig";
         public string ModsDirectory { get; protected set; }
-        public string ServerConfigDirectoryName { get; protected set; } = "serverConfig";
+        public string ServerConfigDirectory { get; protected set; }
         public string ServerDirectory { get; protected set; }
         public string ServerExecutable { get; protected set; }
         public string ServerExecutableName { get; protected set; } = "arma3server_64.exe";
@@ -49,11 +49,14 @@ namespace Arma.Server.Config {
             return Result.Success();
         }
 
+        private void ObtainServerConfigDirectory()
+            => ServerConfigDirectory = _config["serverConfigDirectory"] ?? Path.Join(ServerDirectory, "serverConfig");
+
         private void ObtainModsDirectory()
             => ModsDirectory = _config["modsDirectory"] ?? Path.Join(ServerDirectory, "mods");
 
         private Result<string> GetServerPathFromConfig() {
-            var serverPath = _config["serverPath"];
+            var serverPath = _config["serverDirectory"];
             return Directory.Exists(serverPath)
                 ? Result.Success(serverPath)
                 : Result.Failure<string>("Server path could not be loaded from config.");

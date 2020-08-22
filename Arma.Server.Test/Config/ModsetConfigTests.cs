@@ -30,8 +30,8 @@ namespace Arma.Server.Test.Config {
             // Arrange
             var settingsMock = new Mock<ISettings>();
             settingsMock.Setup(settings => settings.ServerDirectory).Returns(Directory.GetCurrentDirectory());
-            settingsMock.Setup(settings => settings.ServerConfigDirectoryName)
-                .Returns(_serverConfigDirName);
+            settingsMock.Setup(settings => settings.ServerConfigDirectory)
+                .Returns(_serverConfigDirPath);
             settingsMock.Setup(settings => settings.ModlistConfigDirectoryName)
                 .Returns(_modlistConfigDirName);
 
