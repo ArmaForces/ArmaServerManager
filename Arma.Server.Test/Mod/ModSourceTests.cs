@@ -10,7 +10,7 @@ namespace Arma.Server.Test.Mod {
         {
             var _modSource = "steam_workshop";
             var modSource = EnumConvert.ToEnum<ModSource>(_modSource);
-            modSource.Should().BeEquivalentTo(ModSource.SteamWorkshop);
+            modSource.Should().Be(ModSource.SteamWorkshop);
         }
 
         [Fact]
@@ -18,7 +18,7 @@ namespace Arma.Server.Test.Mod {
         {
             var _modSource = "directory";
             var modSource = EnumConvert.ToEnum<ModSource>(_modSource);
-            modSource.Should().BeEquivalentTo(ModSource.Directory);
+            modSource.Should().Be(ModSource.Directory);
         }
     }
 }

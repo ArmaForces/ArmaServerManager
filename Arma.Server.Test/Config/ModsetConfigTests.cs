@@ -40,7 +40,7 @@ namespace Arma.Server.Test.Config {
             var configLoaded = modlistConfig.LoadConfig();
 
             // Assert
-            configLoaded.Should().BeEquivalentTo(Result.Success());
+            configLoaded.IsSuccess.Should().BeTrue();
             Assert.True(Directory.Exists(_modlistConfigDirPath));
             Assert.True(File.Exists(Path.Join(_modlistConfigDirPath, "server.cfg")));
             Assert.True(File.Exists(Path.Join(_modlistConfigDirPath, "basic.cfg")));

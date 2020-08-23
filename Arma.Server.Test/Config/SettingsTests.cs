@@ -30,7 +30,7 @@ namespace Arma.Server.Test.Config {
 
             var loaded = settings.LoadSettings();
 
-            loaded.Should().BeEquivalentTo(Result.Success());
+            loaded.IsSuccess.Should().BeTrue();
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace Arma.Server.Test.Config {
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
 
-            settings.ModsDirectory.Should().BeEquivalentTo(expectedModsDirectory);
+            settings.ModsDirectory.Should().Be(expectedModsDirectory);
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace Arma.Server.Test.Config {
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
 
-            settings.ModsDirectory.Should().BeEquivalentTo(expectedModsDirectory);
+            settings.ModsDirectory.Should().Be(expectedModsDirectory);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace Arma.Server.Test.Config {
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
 
-            settings.ServerConfigDirectory.Should().BeEquivalentTo(expectedServerConfigDirectory);
+            settings.ServerConfigDirectory.Should().Be(expectedServerConfigDirectory);
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace Arma.Server.Test.Config {
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
 
-            settings.ServerConfigDirectory.Should().BeEquivalentTo(expectedServerConfigDirectory);
+            settings.ServerConfigDirectory.Should().Be(expectedServerConfigDirectory);
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace Arma.Server.Test.Config {
             var expectedServerDirectory = _workingDirectory;
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
 
-            settings.ServerDirectory.Should().BeEquivalentTo(expectedServerDirectory);
+            settings.ServerDirectory.Should().Be(expectedServerDirectory);
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace Arma.Server.Test.Config {
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock, registryReaderMock);
 
-            settings.ServerDirectory.Should().BeEquivalentTo(expectedServerDirectory);
+            settings.ServerDirectory.Should().Be(expectedServerDirectory);
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace Arma.Server.Test.Config {
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
 
-            settings.ServerExecutable.Should().BeEquivalentTo(expectedServerExecutable);
+            settings.ServerExecutable.Should().Be(expectedServerExecutable);
         }
 
         [Fact]
@@ -132,7 +132,7 @@ namespace Arma.Server.Test.Config {
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
 
-            settings.ServerExecutable.Should().BeEquivalentTo(expectedServerExecutable);
+            settings.ServerExecutable.Should().Be(expectedServerExecutable);
         }
 
         [Fact]
@@ -143,7 +143,7 @@ namespace Arma.Server.Test.Config {
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
 
-            settings.ServerExecutable.Should().BeEquivalentTo(expectedServerExecutable);
+            settings.ServerExecutable.Should().Be(expectedServerExecutable);
         }
 
         private ISettings PrepareSettings(

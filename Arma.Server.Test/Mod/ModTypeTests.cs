@@ -10,7 +10,7 @@ namespace Arma.Server.Test.Mod {
         {
             var _modSource = "server_side";
             var modSource = EnumConvert.ToEnum<ModType>(_modSource);
-            modSource.Should().BeEquivalentTo(ModType.ServerSide);
+            modSource.Should().Be(ModType.ServerSide);
         }
 
         [Fact]
@@ -18,7 +18,7 @@ namespace Arma.Server.Test.Mod {
         {
             var _modSource = "required";
             var modSource = EnumConvert.ToEnum<ModType>(_modSource);
-            modSource.Should().BeEquivalentTo(ModType.Required);
+            modSource.Should().Be(ModType.Required);
         }
 
         [Fact]
@@ -26,7 +26,7 @@ namespace Arma.Server.Test.Mod {
         {
             var _modSource = "optional";
             var modSource = EnumConvert.ToEnum<ModType>(_modSource);
-            modSource.Should().BeEquivalentTo(ModType.Optional);
+            modSource.Should().Be(ModType.Optional);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace Arma.Server.Test.Mod {
         {
             var _modSource = "client_side";
             var modSource = EnumConvert.ToEnum<ModType>(_modSource);
-            modSource.Should().BeEquivalentTo(ModType.ClientSide);
+            modSource.Should().Be(ModType.ClientSide);
         }
     }
 }

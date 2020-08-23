@@ -2,6 +2,7 @@
 using System.IO;
 using Arma.Server.Config;
 using AutoFixture;
+using FluentAssertions;
 using Moq;
 using Xunit;
 
@@ -32,7 +33,7 @@ namespace Arma.Server.Test.Config {
             var configLoaded = serverConfig.LoadConfig();
 
             // Assert
-            Assert.True(configLoaded.IsSuccess);
+            configLoaded.IsSuccess.Should().BeTrue();
             Assert.True(Directory.Exists(_serverConfigDirPath));
             Assert.True(File.Exists(Path.Join(_serverConfigDirPath, "server.cfg")));
             Assert.True(File.Exists(Path.Join(_serverConfigDirPath, "basic.cfg")));

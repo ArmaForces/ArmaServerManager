@@ -35,8 +35,8 @@ namespace Arma.Server.Test.Modlist {
 
             var modlist = JsonConvert.DeserializeObject<Arma.Server.Modlist.Modlist>(json);
 
-            modlist.Id.Should().BeEquivalentTo(_modlistId);
-            modlist.Name.Should().BeEquivalentTo(_modlistName);
+            modlist.Id.Should().Be(_modlistId);
+            modlist.Name.Should().Be(_modlistName);
             modlist.CreatedAt.GetType().Should().Be<DateTime>();
             modlist.CreatedAt.Should().BeCloseTo(_modlistCreatedAt, TimeSpan.FromSeconds(1));
             modlist.LastUpdatedAt.GetType().Should().Be<DateTime>();
