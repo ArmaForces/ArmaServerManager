@@ -1,5 +1,6 @@
 using Arma.Server.Config;
-using Arma.Server.Modlist;
+using Arma.Server.Manager.Modset;
+using Arma.Server.Modset;
 
 namespace Arma.Server.Manager {
     internal class Program {
@@ -7,11 +8,11 @@ namespace Arma.Server.Manager {
             ISettings settings = new Settings();
             settings.LoadSettings();
             var baseUrl = "https://dev.armaforces.com/";
-            var apiService = new ApiModlistDataService(baseUrl);
-            var modlist = apiService.GetModlistDataByName("default-test");
-            IModlistConfig modlistConfig = new ModlistConfig(settings, modlist.Name);
-            modlistConfig.LoadConfig();
-            var server = new Server(settings, modlistConfig);
+            var apiService = new ApiModsetClient(baseUrl);
+            IModset modset = apiService.GetModsetDataByName("default-test");
+            IModsetConfig modsetConfig = new ModsetConfig(settings, modset.Name);
+            modsetConfig.LoadConfig();
+            var server = new Server(settings, modsetConfig, modset);
             server.Start();
             server.WaitUntilStarted();
             server.Shutdown();

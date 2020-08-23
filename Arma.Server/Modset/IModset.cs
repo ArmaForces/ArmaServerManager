@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Arma.Server.Modlist {
-    public interface IModlist {
+namespace Arma.Server.Modset {
+    public interface IModset {
         string Id { get; }
         string Name { get; }
         DateTime CreatedAt { get; }

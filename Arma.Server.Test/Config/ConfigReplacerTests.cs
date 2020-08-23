@@ -11,12 +11,12 @@ namespace Arma.Server.Test.Config {
     public class ConfigReplacerTests {
         private readonly string _cfgFile = File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "test_server.cfg"));
 
-        private readonly IConfigurationRoot _modlistConfig;
+        private readonly IConfigurationRoot _modsetConfig;
 
         public ConfigReplacerTests() {
             // Create configuration from JsonFile string
             //var jsonStreamConfigurationSource = new JsonStreamConfigurationSource();
-            _modlistConfig = new ConfigurationBuilder()
+            _modsetConfig = new ConfigurationBuilder()
                 .AddJsonFile(Path.Join(Directory.GetCurrentDirectory(),"test_common.json"))
                 .Build();
 
@@ -27,7 +27,7 @@ namespace Arma.Server.Test.Config {
         public void ReplaceValue_StringFromConfiguration_Match() {
             // Arrange
             var key = "hostName"; // It has it's value as string with quotes
-            var value = _modlistConfig.GetSection("server")[key];
+            var value = _modsetConfig.GetSection("server")[key];
             var expectedMatch = $"{key} = \"{value}\";";
 
             // Act
@@ -55,7 +55,7 @@ namespace Arma.Server.Test.Config {
         public void ReplaceValue_NoQuotesFromConfiguration_Match() {
             // Arrange
             var key = "verifySignatures"; // It has it's value as number with no quotes
-            var value = _modlistConfig.GetSection("server")[key];
+            var value = _modsetConfig.GetSection("server")[key];
             var expectedMatch = $"{key} = {value};";
 
             // Act
@@ -83,7 +83,7 @@ namespace Arma.Server.Test.Config {
         public void ReplaceValue_ArrayFromConfiguration_Match() {
             // Arrange
             var key = "admins[]"; // It has array value with {} as array brackets
-            var value = _modlistConfig.GetSection("server").GetSection(key).GetChildren().ToList();
+            var value = _modsetConfig.GetSection("server").GetSection(key).GetChildren().ToList();
             var stringValue = String.Join(", ", value.Select(p => p.Value.ToString()));
             var expectedMatch = $"{key} = {{{stringValue}}};";
 

@@ -6,34 +6,34 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 
 namespace Arma.Server.Config {
-    public class ModlistConfig : IModlistConfig {
+    public class ModsetConfig : IModsetConfig {
         public string BasicCfg { get; protected set; }
         public string ConfigJson { get; protected set; }
         public string DirectoryPath { get; protected set; }
         public string HCProfileDirectory { get; protected set; }
-        public string ModlistName { get; protected set; }
+        public string ModsetName { get; protected set; }
         public string ServerCfg { get; protected set; }
         public string ServerProfileDirectory { get; protected set; }
 
         private readonly IConfig _serverConfig;
         private readonly ISettings _settings;
 
-        public ModlistConfig(ISettings settings, string modlistName) {
+        public ModsetConfig(ISettings settings, string modsetName) {
             _settings = settings;
             _serverConfig = new ServerConfig(_settings);
-            ModlistName = modlistName;
+            ModsetName = modsetName;
         }
 
         public Result LoadConfig() {
             return _serverConfig.LoadConfig()
                 .OnFailure(e => {})
                 .Tap(() => SetProperties())
-                .Bind(GetOrCreateModlistConfigDir)
-                .Bind(PrepareModlistConfig);
+                .Bind(GetOrCreateModsetConfigDir)
+                .Bind(PrepareModsetConfig);
         }
 
         private Result SetProperties() {
-            DirectoryPath = Path.Join(_serverConfig.DirectoryPath, _settings.ModlistConfigDirectoryName, ModlistName);
+            DirectoryPath = Path.Join(_serverConfig.DirectoryPath, _settings.ModsetConfigDirectoryName, ModsetName);
             ConfigJson = Path.Join(DirectoryPath, "config.json");
             BasicCfg = Path.Join(DirectoryPath, "basic.cfg");
             ServerCfg = Path.Join(DirectoryPath, "server.cfg");
@@ -43,10 +43,10 @@ namespace Arma.Server.Config {
         }
 
         /// <summary>
-        /// Prepares config directory and files for current modlist
+        /// Prepares config directory and files for current modset
         /// </summary>
-        /// <returns>path to modlistConfig</returns>
-        private Result GetOrCreateModlistConfigDir() {
+        /// <returns>path to modsetConfig</returns>
+        private Result GetOrCreateModsetConfigDir() {
             // Check for directory if present
             if (!Directory.Exists(DirectoryPath)) {
                 Directory.CreateDirectory(DirectoryPath);
@@ -60,7 +60,7 @@ namespace Arma.Server.Config {
         private Result CreateConfigJson() {
             // Set hostName according to pattern
             var sampleServer = new Dictionary<string, string>();
-            sampleServer.Add("hostName", $"ArmaForces {ModlistName} edition");
+            sampleServer.Add("hostName", $"ArmaForces {ModsetName} edition");
             var sampleJSON = new Dictionary<string, Dictionary<string, string>>();
             sampleJSON.Add("server", sampleServer);
             // Write to file
@@ -75,22 +75,22 @@ namespace Arma.Server.Config {
         }
 
         /// <summary>
-        /// Prepares modlist cfg files for server to load.
+        /// Prepares modset cfg files for server to load.
         /// </summary>
-        private Result PrepareModlistConfig() {
-            // Apply modlist config on top of default config
-            var modlistConfig = new ConfigurationBuilder()
+        private Result PrepareModsetConfig() {
+            // Apply modset config on top of default config
+            var modsetConfig = new ConfigurationBuilder()
                 .AddJsonFile(_serverConfig.ConfigJson)
                 .AddJsonFile(ConfigJson)
                 .Build();
 
-            // Process configuration files for modlist
+            // Process configuration files for modset
             var configs = new List<string> {"server", "basic"};
             foreach (var config in configs) {
-                Console.WriteLine($"Loading {config}.cfg for {ModlistName} modlist.");
+                Console.WriteLine($"Loading {config}.cfg for {ModsetName} modset.");
                 var cfgFile = ServerConfig.FillCfg(
                     File.ReadAllText($"{_serverConfig.DirectoryPath}\\{config}.cfg"),
-                    modlistConfig.GetSection(config));
+                    modsetConfig.GetSection(config));
                 File.WriteAllText(Path.Join(DirectoryPath, $"{config}.cfg"), cfgFile);
                 Console.WriteLine($"{config}.cfg successfully exported to {DirectoryPath}");
             }

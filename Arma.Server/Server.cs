@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using Arma.Server.Config;
 
@@ -6,11 +6,11 @@ namespace Arma.Server {
     public class Server {
         private ISettings _settings;
         private Process _serverProcess;
-        private IModlistConfig _modlistConfig;
+        private IModsetConfig _modsetConfig;
 
-        public Server(ISettings settings, IModlistConfig modlistConfig) {
+        public Server(ISettings settings, IModsetConfig modsetConfig) {
             _settings = settings;
-            _modlistConfig = modlistConfig;
+            _modsetConfig = modsetConfig;
             Console.WriteLine("Initializing Server");
         }
 
@@ -47,9 +47,9 @@ namespace Arma.Server {
         private string GetServerStartupParams() {
             return String.Join(' ',
                 "-port=2302",
-                $"\"-config={_modlistConfig.ServerCfg}\"",
-                $"\"-cfg={_modlistConfig.BasicCfg}\"",
-                $"-profiles=\"{_modlistConfig.ServerProfileDirectory}\"",
+                $"\"-config={_modsetConfig.ServerCfg}\"",
+                $"\"-cfg={_modsetConfig.BasicCfg}\"",
+                $"-profiles=\"{_modsetConfig.ServerProfileDirectory}\"",
                 "-name=server",
                 "-filePatching",
                 "-netlog",

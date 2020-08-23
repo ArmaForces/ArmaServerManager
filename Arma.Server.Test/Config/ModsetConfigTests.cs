@@ -8,17 +8,17 @@ using Moq;
 using Xunit;
 
 namespace Arma.Server.Test.Config {
-    public class ModlistConfigTests : IDisposable {
+    public class ModsetConfigTests : IDisposable {
         private static readonly Fixture Fixture = new Fixture();
-        private readonly string _modlistName = Fixture.Create<string>();
+        private readonly string _modsetName = Fixture.Create<string>();
         private readonly string _serverConfigDirName = Fixture.Create<string>();
-        private readonly string _modlistConfigDirName = Fixture.Create<string>();
+        private readonly string _modsetConfigDirName = Fixture.Create<string>();
         private readonly string _serverConfigDirPath;
-        private readonly string _modlistConfigDirPath;
+        private readonly string _modsetConfigDirPath;
 
-        public ModlistConfigTests() {
+        public ModsetConfigTests() {
             _serverConfigDirPath = Path.Join(Directory.GetCurrentDirectory(), _serverConfigDirName);
-            _modlistConfigDirPath = Path.Join(_serverConfigDirPath, _modlistConfigDirName, _modlistName);
+            _modsetConfigDirPath = Path.Join(_serverConfigDirPath, _modsetConfigDirName, _modsetName);
         }
 
         public void Dispose() {
@@ -26,25 +26,25 @@ namespace Arma.Server.Test.Config {
         }
 
         [Fact]
-        public void ModlistConfig_LoadConfig_Success() {
+        public void ModsetConfig_LoadConfig_Success() {
             // Arrange
             var settingsMock = new Mock<ISettings>();
             settingsMock.Setup(settings => settings.ServerDirectory).Returns(Directory.GetCurrentDirectory());
             settingsMock.Setup(settings => settings.ServerConfigDirectory)
                 .Returns(_serverConfigDirPath);
-            settingsMock.Setup(settings => settings.ModlistConfigDirectoryName)
-                .Returns(_modlistConfigDirName);
+            settingsMock.Setup(settings => settings.ModsetConfigDirectoryName)
+                .Returns(_modsetConfigDirName);
 
             // Act
-            IModlistConfig modlistConfig = new ModlistConfig(settingsMock.Object, _modlistName);
-            var configLoaded = modlistConfig.LoadConfig();
+            IModsetConfig modsetConfig = new ModsetConfig(settingsMock.Object, _modsetName);
+            var configLoaded = modsetConfig.LoadConfig();
 
             // Assert
             configLoaded.IsSuccess.Should().BeTrue();
-            Assert.True(Directory.Exists(_modlistConfigDirPath));
-            Assert.True(File.Exists(Path.Join(_modlistConfigDirPath, "server.cfg")));
-            Assert.True(File.Exists(Path.Join(_modlistConfigDirPath, "basic.cfg")));
-            Assert.True(File.Exists(Path.Join(_modlistConfigDirPath, "config.json")));
+            Assert.True(Directory.Exists(_modsetConfigDirPath));
+            Assert.True(File.Exists(Path.Join(_modsetConfigDirPath, "server.cfg")));
+            Assert.True(File.Exists(Path.Join(_modsetConfigDirPath, "basic.cfg")));
+            Assert.True(File.Exists(Path.Join(_modsetConfigDirPath, "config.json")));
         }
     }
 }

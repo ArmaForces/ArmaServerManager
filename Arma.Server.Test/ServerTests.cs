@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 using Arma.Server.Config;
+using Arma.Server.Modset;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
@@ -9,7 +10,7 @@ using Xunit;
 namespace Arma.Server.Test {
     public class ServerTests : IDisposable {
         private readonly Mock<ISettings> _settingsMock;
-        private readonly Mock<ModlistConfig> _modlistConfigMock;
+        private readonly Mock<ModsetConfig> _modsetConfigMock;
         private readonly Fixture _fixture = new Fixture();
         private readonly Server _server;
 

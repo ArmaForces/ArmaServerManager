@@ -7,7 +7,7 @@ using Microsoft.Win32;
 
 namespace Arma.Server.Config {
     public class Settings : ISettings {
-        public string ModlistConfigDirectoryName { get; protected set; } = "modlistConfig";
+        public string ModsetConfigDirectoryName { get; protected set; } = "modsetConfig";
         public string ModsDirectory { get; protected set; }
         public string ServerConfigDirectory { get; protected set; }
         public string ServerDirectory { get; protected set; }

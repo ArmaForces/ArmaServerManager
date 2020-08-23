@@ -4,13 +4,13 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 
-namespace Arma.Server.Modlist {
-    public class ApiModlistDataService : IApiModlistDataService {
+namespace Arma.Server.Manager.Modset {
+    public class ApiModsetClient : IApiModsetClient {
         public HttpClient HttpClient = new HttpClient();
 
-        public ApiModlistDataService(string baseUrl) : this(new Uri(baseUrl)) {}
+        public ApiModsetClient(string baseUrl) : this(new Uri(baseUrl)) {}
 
-        public ApiModlistDataService(Uri baseUri) {
+        public ApiModsetClient(Uri baseUri) {
             HttpClient.BaseAddress = baseUri;
             HttpClient.DefaultRequestHeaders
                 .Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -22,31 +22,31 @@ namespace Arma.Server.Modlist {
             return response;
         }
 
-        private string ApiModlistById(string id) {
+        private string ApiModsetById(string id) {
             var requestUri = $"api/mod-lists/{id}";
             return GetHttpResponseMessage(requestUri).Content.ReadAsStringAsync().Result;
         }
 
-        private string ApiModlistByName(string name) {
+        private string ApiModsetByName(string name) {
             var requestUri = $"api/mod-lists/by-name/{name}";
             return GetHttpResponseMessage(requestUri).Content.ReadAsStringAsync().Result;
         }
 
-        private string ApiModlists() {
+        private string ApiModsets() {
             var requestUri = "api/mod-lists";
             return GetHttpResponseMessage(requestUri).Content.ReadAsStringAsync().Result;
         }
 
-        public List<Modlist> GetModlists()
-            => JsonConvert.DeserializeObject<List<Modlist>>(ApiModlists());
+        public List<Modset> GetModsets()
+            => JsonConvert.DeserializeObject<List<Modset>>(ApiModsets());
 
-        public Modlist GetModlistDataByName(string name)
-            => JsonConvert.DeserializeObject<Modlist>(ApiModlistByName(name));
+        public Modset GetModsetDataByName(string name)
+            => JsonConvert.DeserializeObject<Modset>(ApiModsetByName(name));
 
-        public Modlist GetModlistDataByModlist(Modlist modlist)
-            => GetModlistDataById(modlist.Id);
+        public Modset GetModsetDataByModset(Modset modset)
+            => GetModsetDataById(modset.Id);
 
-        public Modlist GetModlistDataById(string id)
-            => JsonConvert.DeserializeObject<Modlist>(ApiModlistById(id));
+        public Modset GetModsetDataById(string id)
+            => JsonConvert.DeserializeObject<Modset>(ApiModsetById(id));
     }
 }
