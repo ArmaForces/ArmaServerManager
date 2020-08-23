@@ -7,8 +7,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace Arma.Server.Config {
     public class ServerConfig : IConfig {
+        public string BasicCfg { get; protected set; }
+        public string ConfigJson { get; protected set; }
+        public string DirectoryPath { get; protected set; }
+        public string ServerCfg { get; protected set; }
+
         private readonly ISettings _settings;
-        private readonly string _serverConfigDirPath;
 
         /// <summary>
         /// Class prepares server configuration for given modlist
@@ -16,18 +20,6 @@ namespace Arma.Server.Config {
         /// <param name="settings">Server Settings Object</param>
         public ServerConfig(ISettings settings) {
             _settings = settings;
-
-            _serverConfigDirPath = CreateServerConfigDirPath();
-        }
-
-        public string GetConfigDir() {
-            return _serverConfigDirPath;
-        }
-
-        private string CreateServerConfigDirPath() {
-            var serverPath = _settings.GetServerPath();
-            var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
-            return Path.Join(serverPath, serverConfigDirName);
         }
 
         /// <summary>
@@ -36,9 +28,19 @@ namespace Arma.Server.Config {
         /// <returns></returns>
         public Result LoadConfig() {
             Console.WriteLine("Loading ServerConfig.");
-            return GetOrCreateServerConfigDir()
+            
+            return SetProperties()
+                .Bind(GetOrCreateServerConfigDir)
                 .Tap(() => Console.WriteLine("ServerConfig loaded."))
                 .OnFailure(e => Console.WriteLine("ServerConfig could not be loaded with {e}.", e));
+        }
+
+        private Result SetProperties() {
+            DirectoryPath = _settings.ServerConfigDirectory;
+            ConfigJson = Path.Join(DirectoryPath, "common.json");
+            BasicCfg = Path.Join(DirectoryPath, "basic.cfg");
+            ServerCfg = Path.Join(DirectoryPath, "server.cfg");
+            return Result.Success();
         }
 
         /// <summary>
@@ -46,18 +48,15 @@ namespace Arma.Server.Config {
         /// </summary>
         /// <returns>path to serverConfig</returns>
         private Result GetOrCreateServerConfigDir() {
-            var serverPath = _settings.GetServerPath();
-            var serverConfigDirName = _settings.GetSettingsValue("serverConfigDirName").ToString();
-            var serverConfigDir = Path.Join(serverPath, serverConfigDirName);
-            if (!Directory.Exists(serverConfigDir)) {
-                Console.WriteLine($"Config directory {serverConfigDirName} does not exists, creating.");
-                Directory.CreateDirectory(serverConfigDir);
+            if (!Directory.Exists(DirectoryPath)) {
+                Console.WriteLine($"Config directory {_settings.ServerConfigDirectory} does not exists, creating.");
+                Directory.CreateDirectory(DirectoryPath);
             }
 
             // Prepare files
             var filesList = new List<string>() {"basic.cfg", "server.cfg", "common.Arma3Profile", "common.json"};
             foreach (var fileName in filesList) {
-                var destFileName = Path.Join(serverConfigDir, fileName);
+                var destFileName = Path.Join(DirectoryPath, fileName);
                 if (File.Exists(destFileName)) continue;
                 Console.WriteLine($"{fileName} not found, copying.");
                 File.Copy(Path.Join(Directory.GetCurrentDirectory(), $"example_{fileName}"), destFileName);

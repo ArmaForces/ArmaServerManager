@@ -2,6 +2,7 @@
 using System.IO;
 using Arma.Server.Config;
 using AutoFixture;
+using FluentAssertions;
 using Moq;
 using Xunit;
 
@@ -23,16 +24,16 @@ namespace Arma.Server.Test.Config {
         public void ServerConfig_LoadConfig_Success() {
             // Arrange
             var settingsMock = new Mock<ISettings>();
-            settingsMock.Setup(settings => settings.GetServerPath()).Returns(Directory.GetCurrentDirectory());
-            settingsMock.Setup(settings => settings.GetSettingsValue("serverConfigDirName"))
-                .Returns(_serverConfigDirName);
+            settingsMock.Setup(settings => settings.ServerExecutable).Returns(Directory.GetCurrentDirectory());
+            settingsMock.Setup(settings => settings.ServerConfigDirectory)
+                .Returns(_serverConfigDirPath);
 
             // Act
-            var serverConfig = new ServerConfig(settingsMock.Object);
+            IConfig serverConfig = new ServerConfig(settingsMock.Object);
             var configLoaded = serverConfig.LoadConfig();
 
             // Assert
-            Assert.True(configLoaded.IsSuccess);
+            configLoaded.IsSuccess.Should().BeTrue();
             Assert.True(Directory.Exists(_serverConfigDirPath));
             Assert.True(File.Exists(Path.Join(_serverConfigDirPath, "server.cfg")));
             Assert.True(File.Exists(Path.Join(_serverConfigDirPath, "basic.cfg")));

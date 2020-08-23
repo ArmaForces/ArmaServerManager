@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Arma.Server.Test.Helpers {
+namespace Arma.Server.Test {
     public static class EnumConvert {
         public static string ToEnumString<T>(T value) {
             return JsonConvert.SerializeObject(value).Replace("\"", "");

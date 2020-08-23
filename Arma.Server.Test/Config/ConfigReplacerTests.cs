@@ -21,7 +21,6 @@ namespace Arma.Server.Test.Config {
                 .Build();
 
             var jsonString = File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "test_common.json"));
-            var JSON = JsonSerializer.Deserialize<Object>(jsonString);
         }
 
         [Fact]

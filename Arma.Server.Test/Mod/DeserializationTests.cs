@@ -29,18 +29,18 @@ namespace Arma.Server.Test.Mod {
 
             var mod = JsonConvert.DeserializeObject<Arma.Server.Mod.Mod>(json);
 
-            mod.Id.Should().BeEquivalentTo(_modId);
-            mod.Name.Should().BeEquivalentTo(_modName);
+            mod.Id.Should().Be(_modId);
+            mod.Name.Should().Be(_modName);
             mod.CreatedAt.GetType().Should().Be<DateTime>();
             mod.CreatedAt.Should().BeCloseTo(_modCreatedAt, TimeSpan.FromSeconds(1));
             mod.LastUpdatedAt.GetType().Should().Be<DateTime>();
             mod.LastUpdatedAt.Should().BeCloseTo(_modLastUpdatedAt, TimeSpan.FromSeconds(1));
             mod.Source.GetType().Should().Be<ModSource>();
-            mod.Source.Should().BeEquivalentTo(_modSource);
+            mod.Source.Should().Be(_modSource);
             mod.Type.GetType().Should().Be<ModType>();
-            mod.Type.Should().BeEquivalentTo(_modType);
+            mod.Type.Should().Be(_modType);
             mod.ItemId.Should().Be(_workshopItemId);
-            mod.Directory.Should().BeEquivalentTo(_directory);
+            mod.Directory.Should().Be(_directory);
         }
         
         private Dictionary<string, object> PrepareModDictionary() {
