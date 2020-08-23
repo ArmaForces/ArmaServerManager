@@ -1,5 +1,5 @@
 ﻿namespace Arma.Server.Config {
-    public interface IModlistConfig : IConfig {
+    public interface IModsetConfig : IConfig {
 
         /// <summary>
         /// Path to config.json file.
@@ -12,9 +12,9 @@
         string HCProfileDirectory { get; }
 
         /// <summary>
-        /// Modlist name for given config.
+        /// Modset name for given config.
         /// </summary>
-        string ModlistName { get; }
+        string ModsetName { get; }
 
         /// <summary>
         /// Path to Server profile directory.

@@ -1,12 +1,12 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 
 namespace Arma.Server.Config {
     public interface ISettings {
 
         /// <summary>
-        /// Name of modlist configuration files directory.
+        /// Name of modset configuration files directory.
         /// </summary>
-        string ModlistConfigDirectoryName { get; }
+        string ModsetConfigDirectoryName { get; }
 
         /// <summary>
         /// Path to mods directory.

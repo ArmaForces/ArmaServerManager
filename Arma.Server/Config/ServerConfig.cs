@@ -15,7 +15,7 @@ namespace Arma.Server.Config {
         private readonly ISettings _settings;
 
         /// <summary>
-        /// Class prepares server configuration for given modlist
+        /// Class prepares server configuration for given modset
         /// </summary>
         /// <param name="settings">Server Settings Object</param>
         public ServerConfig(ISettings settings) {
