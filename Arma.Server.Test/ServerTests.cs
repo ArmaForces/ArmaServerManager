@@ -20,10 +20,10 @@ namespace Arma.Server.Test {
             _settingsMock.Setup(x => x.ServerDirectory).Returns(Directory.GetCurrentDirectory());
             _settingsMock.Setup(x => x.ServerConfigDirectory).Returns(_serverConfigDir);
             _settingsMock.Setup(x => x.ServerExecutable).Returns(Directory.GetCurrentDirectory());
-            _modlistConfigMock = new Mock<ModlistConfig>(_settingsMock.Object, _fixture.Create<string>());
+            _modsetConfigMock = new Mock<ModsetConfig>(_settingsMock.Object, _fixture.Create<string>());
 
             // Create server
-            _server = new Server(_settingsMock.Object, _modlistConfigMock.Object);
+            _server = new Server(_settingsMock.Object, _modsetConfigMock.Object);
         }
 
         [Fact]

@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Arma.Server.Manager.Clients.Modsets.Entities;
 using Newtonsoft.Json;
 
-namespace Arma.Server.Manager.Modset {
+namespace Arma.Server.Manager.Clients.Modsets {
     public class ApiModsetClient : IApiModsetClient {
         public HttpClient HttpClient = new HttpClient();
 
@@ -37,16 +38,16 @@ namespace Arma.Server.Manager.Modset {
             return GetHttpResponseMessage(requestUri).Content.ReadAsStringAsync().Result;
         }
 
-        public List<Modset> GetModsets()
-            => JsonConvert.DeserializeObject<List<Modset>>(ApiModsets());
+        public List<WebModset> GetModsets()
+            => JsonConvert.DeserializeObject<List<WebModset>>(ApiModsets());
 
-        public Modset GetModsetDataByName(string name)
-            => JsonConvert.DeserializeObject<Modset>(ApiModsetByName(name));
+        public WebModset GetModsetDataByName(string name)
+            => JsonConvert.DeserializeObject<WebModset>(ApiModsetByName(name));
 
-        public Modset GetModsetDataByModset(Modset modset)
-            => GetModsetDataById(modset.Id);
+        public WebModset GetModsetDataByModset(WebModset webModset)
+            => GetModsetDataById(webModset.Id);
 
-        public Modset GetModsetDataById(string id)
-            => JsonConvert.DeserializeObject<Modset>(ApiModsetById(id));
+        public WebModset GetModsetDataById(string id)
+            => JsonConvert.DeserializeObject<WebModset>(ApiModsetById(id));
     }
 }
