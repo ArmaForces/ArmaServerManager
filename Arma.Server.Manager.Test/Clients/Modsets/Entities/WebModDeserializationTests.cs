@@ -1,21 +1,22 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections.Generic;
+using Arma.Server.Manager.Clients.Modsets.Entities;
+using Arma.Server.Mod;
+using AutoFixture;
 using FluentAssertions;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using Arma.Server.Mod;
 using Xunit;
 
-namespace Arma.Server.Test.Mod {
-    public class DeserializationTests {
+namespace Arma.Server.Manager.Test.Clients.Modsets.Entities {
+    public class WebModDeserializationTests {
         const string ApiDateTimeFormat = "yyyy-MM-ddTHH:mm:sszzz";
         private readonly Fixture _fixture = new Fixture();
         private string _modId;
         private string _modName;
         private DateTime _modCreatedAt;
         private DateTime _modLastUpdatedAt;
-        private ModSource _modSource;
-        private ModType _modType;
+        private WebModSource _modSource;
+        private WebModType _modType;
         private int _workshopItemId;
         private string _directory;
 
@@ -27,7 +28,7 @@ namespace Arma.Server.Test.Mod {
             _jsonDictionary = PrepareModDictionary();
             var json = JsonConvert.SerializeObject(_jsonDictionary);
 
-            var mod = JsonConvert.DeserializeObject<Arma.Server.Mod.Mod>(json);
+            var mod = JsonConvert.DeserializeObject<WebMod>(json);
 
             mod.Id.Should().Be(_modId);
             mod.Name.Should().Be(_modName);
@@ -35,9 +36,9 @@ namespace Arma.Server.Test.Mod {
             mod.CreatedAt.Should().BeCloseTo(_modCreatedAt, TimeSpan.FromSeconds(1));
             mod.LastUpdatedAt.GetType().Should().Be<DateTime>();
             mod.LastUpdatedAt.Should().BeCloseTo(_modLastUpdatedAt, TimeSpan.FromSeconds(1));
-            mod.Source.GetType().Should().Be<ModSource>();
+            mod.Source.GetType().Should().Be<WebModSource>();
             mod.Source.Should().Be(_modSource);
-            mod.Type.GetType().Should().Be<ModType>();
+            mod.Type.GetType().Should().Be<WebModType>();
             mod.Type.Should().Be(_modType);
             mod.ItemId.Should().Be(_workshopItemId);
             mod.Directory.Should().Be(_directory);
@@ -48,8 +49,8 @@ namespace Arma.Server.Test.Mod {
             _modName = _fixture.Create<string>();
             _modCreatedAt = _fixture.Create<DateTime>();
             _modLastUpdatedAt = _fixture.Create<DateTime>();
-            _modSource = _fixture.Create<ModSource>();
-            _modType = _fixture.Create<ModType>();
+            _modSource = _fixture.Create<WebModSource>();
+            _modType = _fixture.Create<WebModType>();
             _workshopItemId = _fixture.Create<int>();
             _directory = null;
             _jsonDictionary = new Dictionary<string, object>();
