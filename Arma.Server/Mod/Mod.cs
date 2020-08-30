@@ -1,9 +1,8 @@
-﻿using System;
-using Newtonsoft.Json;
+using System;
 
 namespace Arma.Server.Mod {
     public class Mod : IMod {
-        public string Id { get; set; }
+        public string WebId { get; set; }
 
         public string Name { get; set; }
 
@@ -15,7 +14,7 @@ namespace Arma.Server.Mod {
 
         public ModType Type { get; set; }
 
-        public int ItemId { get; set; }
+        public int WorkshopId { get; set; }
 
         public string Directory { get; set; }
     }

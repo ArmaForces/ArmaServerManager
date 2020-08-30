@@ -1,12 +1,13 @@
+using System;
+using System.Collections.Generic;
+using Arma.Server.Manager.Clients.Modsets.Entities;
 using AutoFixture;
 using FluentAssertions;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using Xunit;
 
-namespace Arma.Server.Test.Modset {
-    public class DeserializationTests {
+namespace Arma.Server.Manager.Test.Clients.Modsets.Entities {
+    public class WebModsetDeserializationTests {
 
         const string ApiDateTimeFormat = "yyyy-MM-ddTHH:mm:sszzz";
         private readonly Fixture _fixture = new Fixture();
@@ -17,7 +18,7 @@ namespace Arma.Server.Test.Modset {
 
         private Dictionary<string, object> _jsonDictionary;
 
-        public DeserializationTests() {
+        public WebModsetDeserializationTests() {
             _modsetId = _fixture.Create<string>();
             _modsetName = _fixture.Create<string>();
             _modsetCreatedAt = _fixture.Create<DateTime>();
@@ -33,7 +34,7 @@ namespace Arma.Server.Test.Modset {
         public void Modset_DeserializeWithoutMods_Successfull() {
             var json = JsonConvert.SerializeObject(_jsonDictionary);
 
-            var modset = JsonConvert.DeserializeObject<Arma.Server.Modset.Modset>(json);
+            var modset = JsonConvert.DeserializeObject<WebModset>(json);
 
             modset.Id.Should().Be(_modsetId);
             modset.Name.Should().Be(_modsetName);
@@ -49,9 +50,9 @@ namespace Arma.Server.Test.Modset {
             _jsonDictionary.Add("mods", modsList);
             var json = JsonConvert.SerializeObject(_jsonDictionary);
 
-            var modset = JsonConvert.DeserializeObject<Arma.Server.Modset.Modset>(json);
+            var modset = JsonConvert.DeserializeObject<WebModset>(json);
 
-            modset.Mods.GetType().Should().Be<List<Arma.Server.Mod.Mod>>();
+            modset.Mods.GetType().Should().Be<List<WebMod>>();
             modset.Mods.Count.Should().Be(1);
         }
 
