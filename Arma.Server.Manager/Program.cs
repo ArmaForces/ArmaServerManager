@@ -7,8 +7,7 @@ namespace Arma.Server.Manager {
         static void Main(string[] args) {
             ISettings settings = new Settings();
             settings.LoadSettings();
-            var baseUrl = "https://dev.armaforces.com/";
-            var apiService = new ApiModsetClient(baseUrl);
+            var apiService = new ApiModsetClient(settings.ApiModsetsBaseUrl);
             IModset modset = apiService.GetModsetDataByName("default-test").ConvertForServer();
             IModsetConfig modsetConfig = new ModsetConfig(settings, modset.Name);
             modsetConfig.LoadConfig();
