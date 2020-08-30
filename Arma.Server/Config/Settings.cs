@@ -14,6 +14,8 @@ namespace Arma.Server.Config {
         public string ServerDirectory { get; protected set; }
         public string ServerExecutable { get; protected set; }
         public string ServerExecutableName { get; protected set; } = "arma3server_x64.exe";
+        public string SteamUser { get; protected set; }
+        public string SteamPassword { get; protected set; }
 
         private readonly IConfigurationRoot _config;
         private IFileSystem _fileSystem;
@@ -34,7 +36,9 @@ namespace Arma.Server.Config {
                 .Tap(ObtainModsDirectory)
                 .Tap(ObtainServerConfigDirectory)
                 .Tap(ObtainApiMissionsBaseUrl)
-                .Tap(ObtainApiModsetsBaseUrl);
+                .Tap(ObtainApiModsetsBaseUrl)
+                .Tap(ObtainSteamUserName)
+                .Tap(ObtainSteamPassword);
         }
 
         private IConfigurationRoot LoadConfigFile()
@@ -55,6 +59,12 @@ namespace Arma.Server.Config {
 
         private void ObtainApiModsetsBaseUrl()
             => ApiModsetsBaseUrl = _config["apiModsetsBaseUrl"];
+
+        private void ObtainSteamUserName()
+            => SteamUser = _config["steamUserName"];
+
+        private void ObtainSteamPassword()
+            => SteamPassword = _config["steamPassword"];
 
         private Result GetServerPath() {
             string serverPath = GetServerPathFromConfig() ?? GetServerPathFromRegistry();

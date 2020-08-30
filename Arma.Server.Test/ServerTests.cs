@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using Arma.Server.Config;
 using Arma.Server.Modset;
@@ -11,6 +11,7 @@ namespace Arma.Server.Test {
     public class ServerTests : IDisposable {
         private readonly Mock<ISettings> _settingsMock;
         private readonly Mock<ModsetConfig> _modsetConfigMock;
+        private readonly Mock<IModset> _modsetMock;
         private readonly Fixture _fixture = new Fixture();
         private readonly Server _server;
 
@@ -20,10 +21,12 @@ namespace Arma.Server.Test {
             _settingsMock.Setup(x => x.ServerDirectory).Returns(Directory.GetCurrentDirectory());
             _settingsMock.Setup(x => x.ServerConfigDirectory).Returns(_serverConfigDir);
             _settingsMock.Setup(x => x.ServerExecutable).Returns(Directory.GetCurrentDirectory());
-            _modsetConfigMock = new Mock<ModsetConfig>(_settingsMock.Object, _fixture.Create<string>());
+            _modsetMock = new Mock<IModset>();
+            _modsetMock.Setup(x => x.Name).Returns(_fixture.Create<string>());
+            _modsetConfigMock = new Mock<ModsetConfig>(_settingsMock.Object, _modsetMock.Object.Name);
 
             // Create server
-            _server = new Server(_settingsMock.Object, _modsetConfigMock.Object);
+            _server = new Server(_settingsMock.Object, _modsetConfigMock.Object, _modsetMock.Object);
         }
 
         [Fact]

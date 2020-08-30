@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 
 namespace Arma.Server.Config {
     public interface ISettings {
@@ -43,6 +43,16 @@ namespace Arma.Server.Config {
         /// Server executable file name, eg. "arma3server_x64.exe".
         /// </summary>
         string ServerExecutableName { get; }
+
+        /// <summary>
+        /// User name for Steam downloading.
+        /// </summary>
+        string SteamUser { get; }
+
+        /// <summary>
+        /// Password for Steam downloading.
+        /// </summary>
+        string SteamPassword { get; }
 
         /// <summary>
         /// Loads settings from configuration.
