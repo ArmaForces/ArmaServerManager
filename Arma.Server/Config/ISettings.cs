@@ -4,6 +4,11 @@ namespace Arma.Server.Config {
     public interface ISettings {
 
         /// <summary>
+        /// Base address for missions API
+        /// </summary>
+        string ApiMissionsBaseUrl { get; }
+
+        /// <summary>
         /// Base address for modsets API
         /// </summary>
         string ApiModsetsBaseUrl { get; }
