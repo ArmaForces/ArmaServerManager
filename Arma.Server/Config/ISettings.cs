@@ -22,6 +22,11 @@ namespace Arma.Server.Config {
         /// Path to mods directory.
         /// </summary>
         string ModsDirectory { get; }
+
+        /// <summary>
+        /// Name for mods cache file.
+        /// </summary>
+        string ModsManagerCacheFileName { get; }
         
         /// <summary>
         /// Path to server configuration files directory.

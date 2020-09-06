@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace Arma.Server.Mod {
     public class Mod : IMod {
@@ -17,5 +19,16 @@ namespace Arma.Server.Mod {
         public int WorkshopId { get; set; }
 
         public string Directory { get; set; }
+
+        public bool Exists() {
+            return !(Directory is null) 
+                   && System.IO.Directory.Exists(Directory);
+        }
+
+        public bool Equals(IMod mod) {
+            if (mod is null) return false;
+            if (ReferenceEquals(this, mod)) return true;
+            return Source == mod.Source && (WorkshopId == mod.WorkshopId || Name == mod.Name);
+        }
     }
 }

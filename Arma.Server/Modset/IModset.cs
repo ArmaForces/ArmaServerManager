@@ -6,6 +6,6 @@ namespace Arma.Server.Modset {
         string WebId { get; }
         string Name { get; }
         DateTime? LastUpdatedAt { get; }
-        List<Mod.Mod> Mods { get; }
+        ISet<Mod.Mod> Mods { get; }
     }
 }

@@ -9,6 +9,6 @@ namespace Arma.Server.Modset {
 
         public DateTime? LastUpdatedAt { get; set; }
 
-        public List<Mod.Mod> Mods { get; set; }
+        public ISet<Mod.Mod> Mods { get; set; }
     }
 }

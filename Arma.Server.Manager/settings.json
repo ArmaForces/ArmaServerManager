@@ -3,7 +3,10 @@
 	"apiModsetsBaseUrl":  "https://dev.armaforces.com",
 	"modsetConfigDirName":  "modsetConfig",
 	"modsDirectory":  "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\!Workshop",
+	"modsManagerCacheFileName":  ".ManagerModsCache",
 	"serverConfigDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\serverConfig",
 	"serverDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3",
-	"serverExecutableName":  "arma3server_x64.exe"
+	"serverExecutableName":  "arma3server_x64.exe",
+	"steamUserName":  "",
+	"steamPassword":  ""
 }

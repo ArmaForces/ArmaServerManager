@@ -1,71 +1,83 @@
-﻿using Arma.Server.Manager.Mods;
+using Arma.Server.Manager.Mods;
 using Arma.Server.Mod;
 using AutoFixture;
 using FluentAssertions;
 using System;
 using System.IO;
+using Arma.Server.Config;
+using Moq;
 using Xunit;
 
 namespace Arma.Server.Manager.Test.Mods {
-    public class ModsManagerTests: IDisposable {
-        private Fixture _fixture = new Fixture();
-        private readonly string _workingDirectory = Directory.GetCurrentDirectory();
-        private string _modDirectory;
+    public class ModsCacheTests: IDisposable {
+        private readonly Fixture _fixture = new Fixture();
+        private readonly string _workingDirectory = Path.Join(Directory.GetCurrentDirectory(), "mods");
+        private readonly Mock<ISettings> _settingsMock = new Mock<ISettings>();
+        private readonly IMod _mod;
 
-        [Fact]
-        public void ModExists_DirectoryNamedIdExists_ReturnsTrue() {
-            var mod = FixtureCreateMod();
-            _modDirectory = Path.Join(_workingDirectory, mod.WorkshopId.ToString());
-            Directory.CreateDirectory(_modDirectory);
-
-            ModsManager.ModExists(_workingDirectory, mod.WorkshopId).Should().BeTrue();
+        public ModsCacheTests() {
+            Directory.CreateDirectory(_workingDirectory);
+            _settingsMock.Setup(x => x.ModsDirectory).Returns(_workingDirectory);
+            _settingsMock.Setup(x => x.ModsManagerCacheFileName).Returns(".ManagerModsCache");
+            _mod = FixtureCreateMod();
         }
 
         [Fact]
-        public void ModExists_DirectoryNamedIdNotExists_ReturnsFalse() {
-            var mod = FixtureCreateMod();
+        public void ModExists_DirectoryNotExists_ReturnsFalse() {
+            var modsCache = InitializeModsCache();
+            modsCache.ModExists(_mod).Should().BeFalse();
+        }
 
-            ModsManager.ModExists(_workingDirectory, mod.WorkshopId).Should().BeFalse();
+        [Fact]
+        public void ModExists_DirectoryNamedIdExists_ReturnsTrue() {
+            var modsCache = InitializeModsCache();
+            var modDirectory = Path.Join(_workingDirectory, _mod.WorkshopId.ToString());
+            Directory.CreateDirectory(modDirectory);
+
+            modsCache.ModExists(_mod).Should().BeTrue();
         }
 
         [Fact]
         public void ModExists_DirectoryNamedNameExists_ReturnsTrue() {
-            var mod = FixtureCreateMod();
-            _modDirectory = Path.Join(_workingDirectory, mod.Name);
-            Directory.CreateDirectory(_modDirectory);
+            var modsCache = InitializeModsCache();
+            var modDirectory = Path.Join(_workingDirectory, _mod.Name);
+            Directory.CreateDirectory(modDirectory);
 
-            ModsManager.ModExists(_workingDirectory, mod.Name).Should().BeTrue();
-        }
-
-        [Fact]
-        public void ModExists_DirectoryNamedNameNotExists_ReturnsFalse() {
-            var mod = FixtureCreateMod();
-
-            ModsManager.ModExists(_workingDirectory, mod.Name).Should().BeFalse();
+            modsCache.ModExists(_mod).Should().BeTrue();
         }
 
         [Fact]
         public void ModExists_DirectoryNamedWithAtExists_ReturnsTrue() {
-            var mod = FixtureCreateMod();
-            _modDirectory = Path.Join(_workingDirectory, "@", mod.Name.ToString());
-            Directory.CreateDirectory(_modDirectory);
+            var modsCache = InitializeModsCache();
+            var modDirectory = Path.Join(_workingDirectory, string.Join("@", _mod.Name));
+            Directory.CreateDirectory(modDirectory);
 
-            ModsManager.ModExists(_workingDirectory, mod.Name).Should().BeTrue();
+            modsCache.ModExists(_mod).Should().BeTrue();
         }
 
         [Fact]
-        public void ModExists_DirectoryNamedWithAtNotExists_ReturnsFalse() {
-            var mod = FixtureCreateMod();
+        public void ModExists_CacheInvalidDirectoryRenamed_ReturnsTrue() {
+            var oldModDirectory = Path.Join(_workingDirectory, _mod.WorkshopId.ToString());
+            var newModDirectory = Path.Join(_workingDirectory, _mod.Name);
+            Directory.CreateDirectory(oldModDirectory);
 
-            ModsManager.ModExists(_workingDirectory, mod.Name).Should().BeFalse();
+            var modsCache = InitializeModsCache();
+            Directory.Delete(oldModDirectory);
+            Directory.CreateDirectory(newModDirectory);
+
+            modsCache.ModExists(_mod).Should().BeTrue();
         }
 
         private IMod FixtureCreateMod() {
             return _fixture.Create<Mod.Mod>();
         }
 
+        private ModsCache InitializeModsCache() {
+            return new ModsCache(_settingsMock.Object);
+        }
+
         public void Dispose() {
-            if (_modDirectory != null) Directory.Delete(_modDirectory, true);
+            if (_workingDirectory != null) Directory.Delete(_workingDirectory, true);
         }
     }
 }

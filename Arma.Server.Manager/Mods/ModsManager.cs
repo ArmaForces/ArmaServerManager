@@ -1,15 +1,15 @@
-﻿using Arma.Server.Config;
+using Arma.Server.Config;
 using Arma.Server.Manager.Steam;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace Arma.Server.Manager.Mods {
     public class ModsManager {
         private readonly ISettings _settings;
+        private ModsCache _modsCache;
 
         private readonly string _modsPath;
         private IClient _steamClient;
@@ -17,6 +17,7 @@ namespace Arma.Server.Manager.Mods {
         public ModsManager(ISettings settings) {
             _settings = settings;
             _modsPath = _settings.ModsDirectory;
+            _modsCache = new ModsCache(settings);
         }
 
         public Result PrepareModset(IModset modset) 
@@ -30,7 +31,7 @@ namespace Arma.Server.Manager.Mods {
         }
 
         public Result<IEnumerable<Mod.Mod>> CheckModsExist(IEnumerable<Mod.Mod> modsList) {
-            var missingMods = modsList.Where(mod => ModExists(mod));
+            var missingMods = modsList.Where(mod => _modsCache.ModExists(mod));
             return Result.Success(missingMods);
         }
 
@@ -41,20 +42,6 @@ namespace Arma.Server.Manager.Mods {
 
         private bool ModRequiresUpdate(IMod mod)
             => false;
-
-        private bool ModExists(IMod mod)
-            => ModExists(_modsPath, mod);
-
-        public static bool ModExists(string modsDirectory, IMod mod)
-            => ModExists(modsDirectory, mod.WorkshopId) ||
-               ModExists(modsDirectory, mod.Name);
-
-        public static bool ModExists(string modsDirectory, int itemId)
-            => Directory.Exists(Path.Join(modsDirectory, itemId.ToString()));
-
-        public static bool ModExists(string modsDirectory, string itemName)
-            => Directory.Exists(Path.Join(modsDirectory, itemName)) ||
-               Directory.Exists(Path.Join(modsDirectory, "@", itemName));
 
         private void EnsureClientCreated() {
             if (_steamClient is null)
