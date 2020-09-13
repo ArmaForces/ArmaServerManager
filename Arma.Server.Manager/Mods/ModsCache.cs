@@ -55,7 +55,7 @@ namespace Arma.Server.Manager.Mods {
             if (Directory.Exists(path)) return path;
             path = Path.Join(modsDirectory, mod.Name);
             if (Directory.Exists(path)) return path;
-            path = Path.Join(modsDirectory, "@", mod.Name);
+            path = Path.Join(modsDirectory, string.Join("", "@", mod.Name));
             if (Directory.Exists(path)) return path;
             return null;
         }
@@ -63,13 +63,16 @@ namespace Arma.Server.Manager.Mods {
         private Result<ISet<IMod>> LoadCache() {
             if (!File.Exists(_cacheFilePath)) return Result.Failure<ISet<IMod>>("Cache file does not exist.");
             var jsonString = File.ReadAllText(_cacheFilePath);
-            var mods = (ISet<IMod>) JsonConvert.DeserializeObject<ISet<Mod.Mod>>(jsonString);
-            mods = RefreshCache(mods);
-            return Result.Success(mods);
+            var mods = JsonConvert.DeserializeObject<IEnumerable<Mod.Mod>>(jsonString)
+                .Cast<IMod>()
+                .ToHashSet();
+            var cachedMods = RefreshCache(mods);
+            return Result.Success(cachedMods);
         }
 
         private ISet<IMod> RefreshCache(ISet<IMod> mods) {
-            mods = (ISet<IMod>) mods.Where(x => x.Exists());
+            mods = mods.Where(x => x.Exists())
+                .ToHashSet();
             return mods;
         }
 

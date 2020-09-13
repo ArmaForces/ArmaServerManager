@@ -3,9 +3,11 @@ using Arma.Server.Mod;
 using AutoFixture;
 using FluentAssertions;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Arma.Server.Config;
 using Moq;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Arma.Server.Manager.Test.Mods {
@@ -49,7 +51,7 @@ namespace Arma.Server.Manager.Test.Mods {
         [Fact]
         public void ModExists_DirectoryNamedWithAtExists_ReturnsTrue() {
             var modsCache = InitializeModsCache();
-            var modDirectory = Path.Join(_workingDirectory, string.Join("@", _mod.Name));
+            var modDirectory = Path.Join(_workingDirectory, string.Join("", "@", _mod.Name));
             Directory.CreateDirectory(modDirectory);
 
             modsCache.ModExists(_mod).Should().BeTrue();
@@ -64,6 +66,40 @@ namespace Arma.Server.Manager.Test.Mods {
             var modsCache = InitializeModsCache();
             Directory.Delete(oldModDirectory);
             Directory.CreateDirectory(newModDirectory);
+
+            modsCache.ModExists(_mod).Should().BeTrue();
+        }
+
+        [Fact]
+        public void ModExists_BuildCacheDirectoryNamedNameExists_ReturnsTrue() {
+            var modDirectory = Path.Join(_workingDirectory, _mod.Name);
+            Directory.CreateDirectory(modDirectory); 
+            var modsCache = InitializeModsCache();
+            
+            modsCache.ModExists(_mod).Should().BeTrue();
+        }
+
+        [Fact]
+        public void ModExists_LoadCacheModCachedNoDirectory_ReturnsFalse() {
+            var cacheFilePath = $"{_settingsMock.Object.ModsDirectory}\\{_settingsMock.Object.ModsManagerCacheFileName}.json";
+            ISet<IMod> mods = new HashSet<IMod>();
+            mods.Add(_mod);
+            File.WriteAllText(cacheFilePath, JsonConvert.SerializeObject(mods));
+
+            var modsCache = InitializeModsCache();
+
+            modsCache.ModExists(_mod).Should().BeFalse();
+        }
+
+        [Fact]
+        public void ModExists_LoadCacheModCachedDirectoryPresent_ReturnsTrue() {
+            var cacheFilePath = $"{_settingsMock.Object.ModsDirectory}\\{_settingsMock.Object.ModsManagerCacheFileName}.json";
+            ISet<IMod> mods = new HashSet<IMod>();
+            mods.Add(_mod);
+            File.WriteAllText(cacheFilePath, JsonConvert.SerializeObject(mods));
+            Directory.CreateDirectory(_mod.Directory);
+
+            var modsCache = InitializeModsCache();
 
             modsCache.ModExists(_mod).Should().BeTrue();
         }
