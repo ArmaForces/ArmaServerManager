@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Arma.Server.Manager.Steam {
     public interface IDownloader {
         Task DownloadArmaServer();
-        Task DownloadMod(uint itemId);
-        Task DownloadMods(IEnumerable<uint> itemsIds);
+        Task DownloadMod(int itemId);
+        Task DownloadMods(IEnumerable<int> itemsIds);
     }
 }

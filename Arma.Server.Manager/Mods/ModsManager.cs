@@ -1,4 +1,4 @@
-using Arma.Server.Config;
+﻿using Arma.Server.Config;
 using Arma.Server.Manager.Steam;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
@@ -8,15 +8,13 @@ using System.Linq;
 
 namespace Arma.Server.Manager.Mods {
     public class ModsManager {
-        private readonly ISettings _settings;
-        private ModsCache _modsCache;
+        private readonly IClient _steamClient;
+        private readonly ModsCache _modsCache;
 
-        private readonly string _modsPath;
-        private IClient _steamClient;
+        public ModsManager(ISettings settings): this(settings, new Client(settings)){}
 
-        public ModsManager(ISettings settings) {
-            _settings = settings;
-            _modsPath = _settings.ModsDirectory;
+        public ModsManager(ISettings settings, IClient steamClient) {
+            _steamClient = steamClient;
             _modsCache = new ModsCache(settings);
         }
 
@@ -30,12 +28,12 @@ namespace Arma.Server.Manager.Mods {
                 .TapIf(x => x.Any(), UpdateMods);
         }
 
-        public Result<IEnumerable<Mod.Mod>> CheckModsExist(IEnumerable<Mod.Mod> modsList) {
-            var missingMods = modsList.Where(mod => _modsCache.ModExists(mod));
+        public Result<IEnumerable<IMod>> CheckModsExist(IEnumerable<IMod> modsList) {
+            var missingMods = modsList.Where(mod => !_modsCache.ModExists(mod));
             return Result.Success(missingMods);
         }
 
-        public Result<IEnumerable<Mod.Mod>> CheckModsUpdated(IEnumerable<Mod.Mod> modsList) {
+        public Result<IEnumerable<IMod>> CheckModsUpdated(IEnumerable<IMod> modsList) {
             var modsRequireUpdate = modsList.Where(ModRequiresUpdate);
             return Result.Success(modsRequireUpdate);
         }
@@ -43,19 +41,12 @@ namespace Arma.Server.Manager.Mods {
         private bool ModRequiresUpdate(IMod mod)
             => false;
 
-        private void EnsureClientCreated() {
-            if (_steamClient is null)
-                _steamClient = new Client(_settings);
+        private void DownloadMods(IEnumerable<IMod> missingMods) {
+            _steamClient.Download(missingMods.Select(x => x.WorkshopId));
         }
 
-        private void DownloadMods(IEnumerable<Mod.Mod> missingMods) {
-            EnsureClientCreated();
-            _steamClient.Downloader.DownloadMods(missingMods.Select(x => (uint) x.WorkshopId));
-        }
-
-        private void UpdateMods(IEnumerable<Mod.Mod> requiredUpdateMods) {
-            EnsureClientCreated();
-            _steamClient.Downloader.DownloadMods(requiredUpdateMods.Select(x => (uint)x.WorkshopId));
+        private void UpdateMods(IEnumerable<IMod> requiredUpdateMods) {
+            _steamClient.Download(requiredUpdateMods.Select(x => x.WorkshopId));
         }
     }
 }

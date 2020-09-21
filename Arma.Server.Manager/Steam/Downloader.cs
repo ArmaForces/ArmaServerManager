@@ -12,7 +12,6 @@ namespace Arma.Server.Manager.Steam {
         private const int SteamDepotId = 228990;
         private readonly SteamContentClient _contentClient;
         private readonly IClient _steamClient;
-        private readonly ISettings _settings;
         private readonly string _modsDirectory;
 
         public Downloader(IClient steamClient,
@@ -26,17 +25,20 @@ namespace Arma.Server.Manager.Steam {
         public async Task DownloadArmaServer()
             => await Download(itemType:ItemType.App);
 
-        public async Task DownloadMods(IEnumerable<uint> itemsIds) {
+        public async Task DownloadMods(IEnumerable<int> itemsIds) {
             await _steamClient.Connect();
-            foreach (uint itemId in itemsIds)
+            foreach (int itemId in itemsIds)
             {
                 await Download(itemId);
             }
             _steamClient.Disconnect();
         }
 
-        public async Task DownloadMod(uint itemId)
+        public async Task DownloadMod(int itemId)
             => await Download(itemId);
+
+        private async Task Download(int itemId = 0)
+            => await Download((uint) itemId);
 
         private async Task Download(uint itemId = 0, ItemType itemType = ItemType.Mod) {
             try {

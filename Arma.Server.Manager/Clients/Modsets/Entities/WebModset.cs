@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Arma.Server.Mod;
 
 namespace Arma.Server.Manager.Clients.Modsets.Entities {
     public class WebModset {
@@ -19,7 +20,7 @@ namespace Arma.Server.Manager.Clients.Modsets.Entities {
             {
                 Name = Name,
                 WebId = Id,
-                Mods = (HashSet<Mod.Mod>)Mods.Select(x => x.ConvertForServer())
+                Mods = (ISet<IMod>)Mods.Select(x => x.ConvertForServer()).ToHashSet()
             };
     }
 }
