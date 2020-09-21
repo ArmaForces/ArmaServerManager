@@ -41,6 +41,19 @@ namespace Arma.Server.Manager.Test.Mods {
             steamClientMock.Verify(x => x.Download(modsEnumerable));
         }
 
+        [Fact]
+        public void PrepareModset_ModExists_DownloadsMod() {
+            var steamClientMock = new Mock<IClient>();
+            foreach (var modId in _modset.Mods.Select(x => x.WorkshopId)) {
+                Directory.CreateDirectory(Path.Join(_workingDirectory, modId.ToString()));
+            }
+            var modsManager = new ModsManager(_settingsMock.Object, steamClientMock.Object);
+
+            modsManager.PrepareModset(_modset);
+
+            steamClientMock.Verify(x => x.Download(It.IsAny<IEnumerable<int>>()), Times.Never);
+        }
+
         private IMod FixtureCreateMod() {
             return _fixture.Create<Mod.Mod>();
         }

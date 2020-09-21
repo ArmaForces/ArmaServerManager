@@ -27,26 +27,25 @@ namespace Arma.Server.Manager.Mods {
         /// </summary>
         /// <param name="mod">Mod to check if it exists.</param>
         /// <returns>True if mod directory is found.</returns>
-        public bool ModExists(IMod mod) {
-            IMod modInCache;
-            string path;
+        public bool ModExists(IMod mod) 
+            => GetOrSetModInCache(mod).Exists();
 
+        private IMod GetOrSetModInCache(IMod mod) {
             try {
-                 modInCache = _cache.Single(cacheMod => cacheMod.Equals(mod));
-            } catch (InvalidOperationException e) {
-                path = TryFindModDirectory(_modsPath, mod);
-                mod.Directory = path;
-                _cache.Append(mod);
-                return mod.Exists();
+                var modInCache = _cache.Single(cacheMod => cacheMod.Equals(mod));
+                return TryEnsureModDirectory(modInCache);
             }
-            
+            catch (InvalidOperationException e) {
+                mod = TryEnsureModDirectory(mod);
+                _cache.Append(mod);
+                return mod;
+            }
+        }
 
-            if (modInCache.Exists())
-                return true;
-
-            path = TryFindModDirectory(_modsPath, mod);
-            modInCache.Directory = path;
-            return modInCache.Exists();
+        private IMod TryEnsureModDirectory(IMod mod) {
+            if (mod.Exists()) return mod;
+            mod.Directory = TryFindModDirectory(_modsPath, mod);
+            return mod;
         }
 
         private static string TryFindModDirectory(string modsDirectory, IMod mod) {
