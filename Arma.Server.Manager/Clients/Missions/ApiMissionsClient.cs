@@ -1,4 +1,4 @@
-using Arma.Server.Manager.Clients.Missions.Entities;
+﻿using Arma.Server.Manager.Clients.Missions.Entities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -21,8 +21,8 @@ namespace Arma.Server.Manager.Clients.Missions {
                 .Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public List<WebMission> GetUpcomingMissions()
-            => JsonConvert.DeserializeObject<List<WebMission>>(ApiMissionsUpcoming());
+        public IEnumerable<WebMission> GetUpcomingMissions()
+            => JsonConvert.DeserializeObject<IEnumerable<WebMission>>(ApiMissionsUpcoming());
 
         public ISet<WebModset> GetUpcomingMissionsModsets()
             => GetUpcomingMissions()
