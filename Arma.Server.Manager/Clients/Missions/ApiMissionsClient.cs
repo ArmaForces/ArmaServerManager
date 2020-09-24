@@ -1,9 +1,11 @@
-﻿using Arma.Server.Manager.Clients.Missions.Entities;
+using Arma.Server.Manager.Clients.Missions.Entities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Arma.Server.Manager.Clients.Modsets.Entities;
 
 namespace Arma.Server.Manager.Clients.Missions {
     public class ApiMissionsClient : IApiMissionsClient
@@ -21,6 +23,11 @@ namespace Arma.Server.Manager.Clients.Missions {
 
         public List<WebMission> GetUpcomingMissions()
             => JsonConvert.DeserializeObject<List<WebMission>>(ApiMissionsUpcoming());
+
+        public ISet<WebModset> GetUpcomingMissionsModsets()
+            => GetUpcomingMissions()
+                .Select(x => new WebModset { Name = x.Modlist })
+                .ToHashSet();
 
         private string ApiMissionsUpcoming() {
             var requestUri = $"api/missions?includeArchive=true&fromDateTime={DateTime.Today}";
