@@ -2,53 +2,79 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using RestSharp;
 
 namespace Arma.Server.Manager.Clients.Modsets {
+    /// <inheritdoc />
     public class ApiModsetClient : IApiModsetClient {
-        public HttpClient HttpClient = new HttpClient();
+        private readonly IRestClient _restClient;
 
+        /// <inheritdoc cref="ApiModsetClient" />
+        /// <param name="restClient">Client used for connections.</param>
+        public ApiModsetClient(IRestClient restClient) {
+            _restClient = restClient;
+        }
+
+        /// <inheritdoc cref="ApiModsetClient" />
+        /// <param name="baseUrl">Base API url.</param>
         public ApiModsetClient(string baseUrl) : this(new Uri(baseUrl)) {
         }
 
+        /// <inheritdoc cref="ApiModsetClient" />
+        /// /// <param name="baseUri">Base API uri.</param>
         public ApiModsetClient(Uri baseUri) {
-            HttpClient.BaseAddress = baseUri;
-            HttpClient.DefaultRequestHeaders
-                .Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _restClient = new RestClient(baseUri);
         }
 
+        /// <inheritdoc />
         public List<WebModset> GetModsets()
-            => JsonConvert.DeserializeObject<List<WebModset>>(ApiModsets());
+            => ApiModsets();
 
+        /// <inheritdoc />
         public WebModset GetModsetDataByName(string name)
-            => JsonConvert.DeserializeObject<WebModset>(ApiModsetByName(name));
+            => ApiModsetByName(name);
 
+        /// <inheritdoc />
         public WebModset GetModsetDataByModset(WebModset webModset)
             => GetModsetDataById(webModset.Id);
 
+        /// <inheritdoc />
         public WebModset GetModsetDataById(string id)
-            => JsonConvert.DeserializeObject<WebModset>(ApiModsetById(id));
+            => ApiModsetById(id);
 
-        private string ApiModsetById(string id) {
+        /// <summary>
+        /// Executes REST request and converts response content to <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">Expected response content.</typeparam>
+        /// <param name="request">Request to execute.</param>
+        /// <exception cref="HttpRequestException">Thrown when status code is not OK.</exception>
+        /// <returns><typeparamref name="T"/></returns>
+        internal T ExecuteRequest<T>(IRestRequest request) where T : new() {
+            var response = _restClient.Execute<T>(request);
+            return response.StatusCode == HttpStatusCode.OK
+                ? response.Data
+                : throw new HttpRequestException(response.StatusCode.ToString());
+        }
+
+        private WebModset ApiModsetById(string id) {
             var requestUri = $"api/mod-lists/{id}";
-            return GetHttpResponseMessage(requestUri).Content.ReadAsStringAsync().Result;
+            var request = new RestRequest(requestUri, Method.GET, DataFormat.Json);
+            return ExecuteRequest<WebModset>(request);
         }
 
-        private string ApiModsetByName(string name) {
+        private WebModset ApiModsetByName(string name) {
             var requestUri = $"api/mod-lists/by-name/{name}";
-            return GetHttpResponseMessage(requestUri).Content.ReadAsStringAsync().Result;
+            var request = new RestRequest(requestUri, Method.GET, DataFormat.Json);
+            return ExecuteRequest<WebModset>(request);
         }
 
-        private string ApiModsets() {
+        private List<WebModset> ApiModsets() {
             var requestUri = "api/mod-lists";
-            return GetHttpResponseMessage(requestUri).Content.ReadAsStringAsync().Result;
-        }
-
-        private HttpResponseMessage GetHttpResponseMessage(string requestUri) {
-            var response = HttpClient.GetAsync(requestUri).Result;
-            response.EnsureSuccessStatusCode();
-            return response;
+            var request = new RestRequest(requestUri, Method.GET, DataFormat.Json);
+            return ExecuteRequest<List<WebModset>>(request);
         }
     }
 }

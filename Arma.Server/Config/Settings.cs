@@ -49,6 +49,8 @@ namespace Arma.Server.Config {
 
         private void ObtainModsDirectory()
             => ModsDirectory = _config["modsDirectory"] ?? Path.Join(ServerDirectory, "mods");
+        private void ObtainApiModsetsBaseUrl()
+            => ApiModsetsBaseUrl = _config["apiModsetsBaseUrl"];
 
         private void ObtainApiMissionsBaseUrl()
             => ApiMissionsBaseUrl = _config["apiMissionsBaseUrl"];
