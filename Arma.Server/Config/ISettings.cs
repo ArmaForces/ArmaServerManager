@@ -4,6 +4,11 @@ namespace Arma.Server.Config {
     public interface ISettings {
 
         /// <summary>
+        /// Base address for modsets API
+        /// </summary>
+        string ApiModsetsBaseUrl { get; }
+
+        /// <summary>
         /// Name of modset configuration files directory.
         /// </summary>
         string ModsetConfigDirectoryName { get; }

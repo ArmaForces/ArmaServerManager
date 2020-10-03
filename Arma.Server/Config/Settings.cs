@@ -1,12 +1,12 @@
+using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.IO.Abstractions;
-using CSharpFunctionalExtensions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Win32;
 
 namespace Arma.Server.Config {
     public class Settings : ISettings {
+        public string ApiModsetsBaseUrl { get; protected set; }
         public string ModsetConfigDirectoryName { get; protected set; } = "modsetConfig";
         public string ModsDirectory { get; protected set; }
         public string ServerConfigDirectory { get; protected set; }
@@ -31,7 +31,8 @@ namespace Arma.Server.Config {
             return GetServerPath()
                 .Tap(GetServerExecutable)
                 .Tap(ObtainModsDirectory)
-                .Tap(ObtainServerConfigDirectory);
+                .Tap(ObtainServerConfigDirectory)
+                .Tap(ObtainApiModsetsBaseUrl);
         }
 
         private IConfigurationRoot LoadConfigFile()
@@ -46,6 +47,8 @@ namespace Arma.Server.Config {
 
         private void ObtainModsDirectory()
             => ModsDirectory = _config["modsDirectory"] ?? Path.Join(ServerDirectory, "mods");
+        private void ObtainApiModsetsBaseUrl()
+            => ApiModsetsBaseUrl = _config["apiModsetsBaseUrl"];
 
         private Result GetServerPath() {
             string serverPath = GetServerPathFromConfig() ?? GetServerPathFromRegistry();
