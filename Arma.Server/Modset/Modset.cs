@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Arma.Server.Mod;
 
 namespace Arma.Server.Modset {
     public class Modset : IModset {
@@ -9,6 +10,6 @@ namespace Arma.Server.Modset {
 
         public DateTime? LastUpdatedAt { get; set; }
 
-        public List<Mod.Mod> Mods { get; set; }
+        public ISet<IMod> Mods { get; set; }
     }
 }

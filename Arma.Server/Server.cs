@@ -1,16 +1,23 @@
+﻿using Arma.Server.Config;
+using Arma.Server.Mod;
+using Arma.Server.Modset;
 using System;
 using System.Diagnostics;
-using Arma.Server.Config;
+using System.Linq;
 
 namespace Arma.Server {
     public class Server {
         private ISettings _settings;
         private Process _serverProcess;
         private IModsetConfig _modsetConfig;
+        private IModset _modset;
 
-        public Server(ISettings settings, IModsetConfig modsetConfig) {
+        public Server(ISettings settings,
+            IModsetConfig modsetConfig,
+            IModset modset) {
             _settings = settings;
             _modsetConfig = modsetConfig;
+            _modset = modset;
             Console.WriteLine("Initializing Server");
         }
 
@@ -44,6 +51,28 @@ namespace Arma.Server {
             _serverProcess = null;
         }
 
+        private string GetModsStartupParam()
+            => false // TODO: Check here for HC in the future
+                ? GetHcModsStartupParam()
+                : GetServerModsStartupParam();
+
+        private string GetServerModsStartupParam() {
+            var serverMods = _modset.Mods
+                .Where(x => x.Type.Equals(ModType.ServerSide))
+                .Select(x => x.Directory);
+            var mods = _modset.Mods
+                .Where(x => x.Type.Equals(ModType.Required))
+                .Select(x => x.Directory);
+            return "-serverMod=" + String.Join(";", serverMods) + " -mod=" + String.Join(";", mods);
+        }
+
+        private string GetHcModsStartupParam() {
+            var mods = _modset.Mods
+                .Where(x => x.Type.Equals(ModType.ServerSide) || x.Type.Equals(ModType.Required))
+                .Select(x => x.Directory);
+            return "-mod=" + String.Join(";", mods);
+        }
+
         private string GetServerStartupParams() {
             return String.Join(' ',
                 "-port=2302",
@@ -54,7 +83,8 @@ namespace Arma.Server {
                 "-filePatching",
                 "-netlog",
                 "-limitFPS=100",
-                "-loadMissionToMemory");
+                "-loadMissionToMemory",
+                GetModsStartupParam());
         }
     }
 }

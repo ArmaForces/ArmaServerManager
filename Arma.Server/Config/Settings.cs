@@ -10,10 +10,13 @@ namespace Arma.Server.Config {
         public string ApiModsetsBaseUrl { get; protected set; }
         public string ModsetConfigDirectoryName { get; protected set; } = "modsetConfig";
         public string ModsDirectory { get; protected set; }
+        public string ModsManagerCacheFileName { get; protected set; }
         public string ServerConfigDirectory { get; protected set; }
         public string ServerDirectory { get; protected set; }
         public string ServerExecutable { get; protected set; }
         public string ServerExecutableName { get; protected set; } = "arma3server_x64.exe";
+        public string SteamUser { get; protected set; }
+        public string SteamPassword { get; protected set; }
 
         private readonly IConfigurationRoot _config;
         private IFileSystem _fileSystem;
@@ -32,9 +35,12 @@ namespace Arma.Server.Config {
             return GetServerPath()
                 .Tap(GetServerExecutable)
                 .Tap(ObtainModsDirectory)
+                .Tap(ObtainModsManagerCacheFileName)
                 .Tap(ObtainServerConfigDirectory)
                 .Tap(ObtainApiMissionsBaseUrl)
-                .Tap(ObtainApiModsetsBaseUrl);
+                .Tap(ObtainApiModsetsBaseUrl)
+                .Tap(ObtainSteamUserName)
+                .Tap(ObtainSteamPassword);
         }
 
         private IConfigurationRoot LoadConfigFile()
@@ -50,11 +56,20 @@ namespace Arma.Server.Config {
         private void ObtainModsDirectory()
             => ModsDirectory = _config["modsDirectory"] ?? Path.Join(ServerDirectory, "mods");
 
+        private void ObtainModsManagerCacheFileName()
+            => ModsManagerCacheFileName = _config["modsManagerCacheFileName"] ?? ".ManagerModsCache";
+
         private void ObtainApiMissionsBaseUrl()
             => ApiMissionsBaseUrl = _config["apiMissionsBaseUrl"];
 
         private void ObtainApiModsetsBaseUrl()
             => ApiModsetsBaseUrl = _config["apiModsetsBaseUrl"];
+
+        private void ObtainSteamUserName()
+            => SteamUser = _config["steamUserName"];
+
+        private void ObtainSteamPassword()
+            => SteamPassword = _config["steamPassword"];
 
         private Result GetServerPath() {
             string serverPath = GetServerPathFromConfig() ?? GetServerPathFromRegistry();
