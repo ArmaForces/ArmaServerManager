@@ -6,39 +6,53 @@ using BytexDigital.Steam.ContentDelivery;
 using BytexDigital.Steam.Core.Enumerations;
 
 namespace Arma.Server.Manager.Clients.Steam {
+    /// <inheritdoc />
     public class Downloader: IDownloader {
         private const int SteamAppId = 233780; // Arma 3 Server
         private const int SteamDepotId = 228990;
         private readonly SteamContentClient _contentClient;
-        private readonly ISteamClient _steamSteamClient;
+        private readonly ISteamClient _steamClient;
         private readonly string _modsDirectory;
 
-        public Downloader(ISteamClient steamSteamClient,
+        /// <inheritdoc cref="Downloader" />
+        /// <param name="steamClient">Client used for connection.</param>
+        /// <param name="contentClient">Client used for downloading.</param>
+        /// <param name="modsDirectory">Directory where mods should be stored.</param>
+        public Downloader(ISteamClient steamClient,
             SteamContentClient contentClient,
             string modsDirectory) {
-            _steamSteamClient = steamSteamClient;
+            _steamClient = steamClient;
             _contentClient = contentClient;
             _modsDirectory = modsDirectory;
         }
 
+        /// <inheritdoc />
         public async Task DownloadArmaServer()
             => await Download(itemType:ItemType.App);
 
+        /// <inheritdoc />
         public async Task DownloadMods(IEnumerable<int> itemsIds) {
-            await _steamSteamClient.Connect();
+            await _steamClient.Connect();
             foreach (int itemId in itemsIds)
             {
                 await Download(itemId);
             }
-            _steamSteamClient.Disconnect();
+            _steamClient.Disconnect();
         }
 
+        /// <inheritdoc />
         public async Task DownloadMod(int itemId)
             => await Download(itemId);
 
         private async Task Download(int itemId = 0)
             => await Download((uint) itemId);
 
+        /// <summary>
+        /// Handles download process
+        /// </summary>
+        /// <param name="itemId">Id of item to download.</param>
+        /// <param name="itemType">Type of item, App or Mod.</param>
+        /// <returns>Awaitable <see cref="Task"/></returns>
         private async Task Download(uint itemId = 0, ItemType itemType = ItemType.Mod) {
             try {
                 if (itemType == ItemType.App)

@@ -16,9 +16,13 @@ namespace Arma.Server.Manager.Clients.Steam {
         private IDownloader Downloader { get; }
 
         /// <inheritdoc />
+        /// <param name="settings">Settings containing steam user, password and mods directory.</param>
         public SteamClient(ISettings settings) : this(settings.SteamUser, settings.SteamPassword, settings) { }
 
         /// <inheritdoc cref="SteamClient" />
+        /// <param name="user">Steam username.</param>
+        /// <param name="password">Steam password.</param>
+        /// <param name="settings">Settings containing mods directory.</param>
         public SteamClient(string user, string password, ISettings settings) {
             _steamCredentials = new SteamCredentials(user, password);
             _bytexSteamClient = new BytexSteamClient(_steamCredentials);

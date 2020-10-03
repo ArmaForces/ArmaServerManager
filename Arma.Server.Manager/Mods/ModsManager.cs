@@ -9,17 +9,17 @@ using Arma.Server.Manager.Clients.Steam;
 namespace Arma.Server.Manager.Mods {
     /// <inheritdoc />
     public class ModsManager : IModsManager {
-        private readonly ISteamClient _steamSteamClient;
+        private readonly ISteamClient _steamClient;
         private readonly IModsCache _modsCache;
 
         /// <inheritdoc />
         public ModsManager(ISettings settings) : this(new SteamClient(settings), new ModsCache(settings)){}
 
         /// <inheritdoc cref="ModsManager" />
-        /// <param name="steamSteamClient">Steam client for mods download and updating.</param>
+        /// <param name="steamClient">Steam client for mods download and updating.</param>
         /// <param name="modsCache">Installed mods cache.</param>
-        public ModsManager(ISteamClient steamSteamClient, IModsCache modsCache) {
-            _steamSteamClient = steamSteamClient;
+        public ModsManager(ISteamClient steamClient, IModsCache modsCache) {
+            _steamClient = steamClient;
             _modsCache = modsCache;
         }
 
@@ -54,13 +54,13 @@ namespace Arma.Server.Manager.Mods {
         /// </summary>
         /// <param name="missingMods">Mods to download.</param>
         private void DownloadMods(IEnumerable<IMod> missingMods)
-            => _steamSteamClient.Download(missingMods.Select(x => x.WorkshopId));
+            => _steamClient.Download(missingMods.Select(x => x.WorkshopId));
 
         /// <summary>
         /// Invokes <see cref="ISteamClient"/> to update given list of mods.
         /// </summary>
         /// <param name="requiredUpdateMods">Mods to update.</param>
         private void UpdateMods(IEnumerable<IMod> requiredUpdateMods)
-            => _steamSteamClient.Download(requiredUpdateMods.Select(x => x.WorkshopId));
+            => _steamClient.Download(requiredUpdateMods.Select(x => x.WorkshopId));
     }
 }
