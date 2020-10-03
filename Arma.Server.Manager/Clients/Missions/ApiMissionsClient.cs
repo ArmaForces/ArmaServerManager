@@ -1,4 +1,4 @@
-﻿using Arma.Server.Manager.Clients.Missions.Entities;
+using Arma.Server.Manager.Clients.Missions.Entities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,18 +12,24 @@ namespace Arma.Server.Manager.Clients.Missions {
     {
         public HttpClient HttpClient = new HttpClient();
 
+        /// <inheritdoc cref="ApiMissionsClient"/>
+        /// <param name="baseUrl">Base API url.</param>
         public ApiMissionsClient(string baseUrl) : this(new Uri(baseUrl)) {
         }
 
+        /// <inheritdoc cref="ApiMissionsClient"/>
+        /// <param name="baseUri">Base API uri.</param>
         public ApiMissionsClient(Uri baseUri) {
             HttpClient.BaseAddress = baseUri;
             HttpClient.DefaultRequestHeaders
                 .Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
+        /// <inheritdoc />
         public IEnumerable<WebMission> GetUpcomingMissions()
             => JsonConvert.DeserializeObject<IEnumerable<WebMission>>(ApiMissionsUpcoming());
 
+        /// <inheritdoc />
         public ISet<WebModset> GetUpcomingMissionsModsets()
             => GetUpcomingMissions()
                 .Select(x => new WebModset { Name = x.Modlist })
