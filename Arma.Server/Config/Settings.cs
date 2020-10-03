@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 
 namespace Arma.Server.Config {
     public class Settings : ISettings {
+        public string ApiMissionsBaseUrl { get; protected set; }
         public string ApiModsetsBaseUrl { get; protected set; }
         public string ModsetConfigDirectoryName { get; protected set; } = "modsetConfig";
         public string ModsDirectory { get; protected set; }
@@ -32,6 +33,7 @@ namespace Arma.Server.Config {
                 .Tap(GetServerExecutable)
                 .Tap(ObtainModsDirectory)
                 .Tap(ObtainServerConfigDirectory)
+                .Tap(ObtainApiMissionsBaseUrl)
                 .Tap(ObtainApiModsetsBaseUrl);
         }
 
@@ -47,6 +49,10 @@ namespace Arma.Server.Config {
 
         private void ObtainModsDirectory()
             => ModsDirectory = _config["modsDirectory"] ?? Path.Join(ServerDirectory, "mods");
+
+        private void ObtainApiMissionsBaseUrl()
+            => ApiMissionsBaseUrl = _config["apiMissionsBaseUrl"];
+
         private void ObtainApiModsetsBaseUrl()
             => ApiModsetsBaseUrl = _config["apiModsetsBaseUrl"];
 

@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using RestSharp;
+using Arma.Server.Manager.Clients.Extensions;
 
 namespace Arma.Server.Manager.Clients.Modsets {
     /// <inheritdoc />
@@ -45,36 +46,22 @@ namespace Arma.Server.Manager.Clients.Modsets {
         public WebModset GetModsetDataById(string id)
             => ApiModsetById(id);
 
-        /// <summary>
-        /// Executes REST request and converts response content to <typeparamref name="T"/>.
-        /// </summary>
-        /// <typeparam name="T">Expected response content.</typeparam>
-        /// <param name="request">Request to execute.</param>
-        /// <exception cref="HttpRequestException">Thrown when status code is not OK.</exception>
-        /// <returns><typeparamref name="T"/></returns>
-        internal T ExecuteRequest<T>(IRestRequest request) where T : new() {
-            var response = _restClient.Execute<T>(request);
-            return response.StatusCode == HttpStatusCode.OK
-                ? response.Data
-                : throw new HttpRequestException(response.StatusCode.ToString());
-        }
-
         private WebModset ApiModsetById(string id) {
             var requestUri = $"api/mod-lists/{id}";
             var request = new RestRequest(requestUri, Method.GET, DataFormat.Json);
-            return ExecuteRequest<WebModset>(request);
+            return _restClient.ExecuteAndReturnData<WebModset>(request);
         }
 
         private WebModset ApiModsetByName(string name) {
             var requestUri = $"api/mod-lists/by-name/{name}";
             var request = new RestRequest(requestUri, Method.GET, DataFormat.Json);
-            return ExecuteRequest<WebModset>(request);
+            return _restClient.ExecuteAndReturnData<WebModset>(request);
         }
 
         private List<WebModset> ApiModsets() {
             var requestUri = "api/mod-lists";
             var request = new RestRequest(requestUri, Method.GET, DataFormat.Json);
-            return ExecuteRequest<List<WebModset>>(request);
+            return _restClient.ExecuteAndReturnData<List<WebModset>>(request);
         }
     }
 }
