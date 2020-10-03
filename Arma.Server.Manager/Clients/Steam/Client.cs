@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Arma.Server.Config;
 using BytexDigital.Steam.ContentDelivery;
 using BytexDigital.Steam.Core;
-using BytexDigital.Steam.Core.Enumerations;
 
-namespace Arma.Server.Manager.Steam {
+namespace Arma.Server.Manager.Clients.Steam {
     public class Client : IClient {
         private const int SteamAppId = 233780; // Arma 3 Server
-        private protected readonly SteamCredentials _steamCredentials;
+        private readonly SteamCredentials _steamCredentials;
 
         private readonly SteamClient _steamClient;
         private readonly SteamContentClient _contentClient;

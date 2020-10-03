@@ -1,10 +1,10 @@
 ﻿using Arma.Server.Config;
-using Arma.Server.Manager.Steam;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
 using System.Collections.Generic;
 using System.Linq;
+using Arma.Server.Manager.Clients.Steam;
 
 namespace Arma.Server.Manager.Mods {
     /// <inheritdoc />

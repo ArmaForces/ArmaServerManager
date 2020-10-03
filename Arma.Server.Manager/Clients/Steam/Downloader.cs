@@ -1,12 +1,11 @@
-﻿using Arma.Server.Config;
-using BytexDigital.Steam.ContentDelivery;
-using BytexDigital.Steam.Core.Enumerations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using BytexDigital.Steam.ContentDelivery;
+using BytexDigital.Steam.Core.Enumerations;
 
-namespace Arma.Server.Manager.Steam {
+namespace Arma.Server.Manager.Clients.Steam {
     public class Downloader: IDownloader {
         private const int SteamAppId = 233780; // Arma 3 Server
         private const int SteamDepotId = 228990;

@@ -1,4 +1,4 @@
-﻿namespace Arma.Server.Manager.Steam {
+﻿namespace Arma.Server.Manager.Clients.Steam {
     public enum ItemType {
         App,
         Mod
