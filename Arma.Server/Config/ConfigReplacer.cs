@@ -8,10 +8,11 @@ namespace Arma.Server.Config {
         /// </summary>
         public static string ReplaceValue(string config, string key, string value) {
             // Build regex expression with new line before key to prevent mid-line replacements
-            var expression = $"\n{key}";
-            if (key == "template") {
-                expression = $"\t\t{key}";
-            }
+            var whiteChars = key == "template"
+                ? "\t\t"
+                : "\n";
+
+            var expression = $"{whiteChars}{key}";
 
             // Check if $key contains '[]' eg. 'admins[]' as then it's value should be an array
             if (Regex.IsMatch(key, @"[[\]]")) {
@@ -37,8 +38,8 @@ namespace Arma.Server.Config {
             }
 
             var replacement = Regex.IsMatch(key, @"[[\]]")
-                ? $"\n{key} = {{{value}}};"
-                : $"\n{key} = {quote}{value}{quote};";
+                ? $"{whiteChars}{key} = {{{value}}};"
+                : $"{whiteChars}{key} = {quote}{value}{quote};";
             config = Regex.Replace(config, expression, replacement);
             Console.WriteLine($"\"{match.ToString().Substring(1)}\" => \"{replacement.Substring(1)}\"");
 

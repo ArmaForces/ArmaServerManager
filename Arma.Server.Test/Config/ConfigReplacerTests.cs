@@ -107,5 +107,32 @@ namespace Arma.Server.Test.Config {
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
         }
+
+        [Fact]
+        public void ReplaceValue_Template_Match() {
+            // Arrange
+            var key = "template"; // It
+            var stringValue = "SomeMission.SomeMapCode";
+            var expectedMatch = $"\t\t{key} = {stringValue};";
+
+            // Act
+            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, stringValue);
+
+            // Assert
+            newCfgFile.Should().Contain(expectedMatch);
+        }
+
+        [Fact]
+        public void ReplaceValue_NoMatch_ConfigUnchanged() {
+            // Arrange
+            var key = "nonexistence"; // It doesn't exist
+            var stringValue = "";
+
+            // Act
+            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, stringValue);
+
+            // Assert
+            newCfgFile.Should().Be(_cfgFile);
+        }
     }
 }
