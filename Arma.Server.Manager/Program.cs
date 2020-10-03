@@ -14,7 +14,7 @@ namespace Arma.Server.Manager {
             modsManager.PrepareModset(modset);
             IModsetConfig modsetConfig = new ModsetConfig(settings, modset.Name);
             modsetConfig.LoadConfig();
-            var server = new Server(settings, modsetConfig);
+            var server = new Server(settings, modsetConfig, modset);
             server.Start();
             server.WaitUntilStarted();
             server.Shutdown();
