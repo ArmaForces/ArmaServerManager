@@ -18,7 +18,7 @@ namespace Arma.Server.Manager.Clients.Missions {
         private IRestClient _restClient;
 
         /// <inheritdoc cref="ApiMissionsClient"/>
-        /// <param name="restClient">Client used for connections.</param>
+        /// <param name="restClient">SteamClient used for connections.</param>
         public ApiMissionsClient(IRestClient restClient)
         {
             _restClient = restClient;

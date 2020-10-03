@@ -5,19 +5,19 @@ using BytexDigital.Steam.ContentDelivery;
 using BytexDigital.Steam.Core;
 
 namespace Arma.Server.Manager.Clients.Steam {
-    public class Client : IClient {
+    public class SteamClient : ISteamClient {
         private const int SteamAppId = 233780; // Arma 3 Server
         private readonly SteamCredentials _steamCredentials;
 
-        private readonly SteamClient _steamClient;
+        private readonly BytexDigital.Steam.Core.SteamClient _steamClient;
         private readonly SteamContentClient _contentClient;
         private IDownloader Downloader { get; }
 
-        public Client(ISettings settings) : this(settings.SteamUser, settings.SteamPassword, settings) { }
+        public SteamClient(ISettings settings) : this(settings.SteamUser, settings.SteamPassword, settings) { }
 
-        public Client(string user, string password, ISettings settings) {
+        public SteamClient(string user, string password, ISettings settings) {
             _steamCredentials = new SteamCredentials(user, password);
-            _steamClient = new SteamClient(_steamCredentials);
+            _steamClient = new BytexDigital.Steam.Core.SteamClient(_steamCredentials);
             _contentClient = new SteamContentClient(_steamClient);
             Downloader = new Downloader(this, _contentClient, settings.ModsDirectory);
         }

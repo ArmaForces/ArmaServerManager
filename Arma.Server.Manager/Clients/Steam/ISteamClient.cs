@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 namespace Arma.Server.Manager.Clients.Steam {
-    public interface IClient {
+    public interface ISteamClient {
         Task Connect();
         void Disconnect();
 

@@ -10,13 +10,13 @@ namespace Arma.Server.Manager.Clients.Steam {
         private const int SteamAppId = 233780; // Arma 3 Server
         private const int SteamDepotId = 228990;
         private readonly SteamContentClient _contentClient;
-        private readonly IClient _steamClient;
+        private readonly ISteamClient _steamSteamClient;
         private readonly string _modsDirectory;
 
-        public Downloader(IClient steamClient,
+        public Downloader(ISteamClient steamSteamClient,
             SteamContentClient contentClient,
             string modsDirectory) {
-            _steamClient = steamClient;
+            _steamSteamClient = steamSteamClient;
             _contentClient = contentClient;
             _modsDirectory = modsDirectory;
         }
@@ -25,12 +25,12 @@ namespace Arma.Server.Manager.Clients.Steam {
             => await Download(itemType:ItemType.App);
 
         public async Task DownloadMods(IEnumerable<int> itemsIds) {
-            await _steamClient.Connect();
+            await _steamSteamClient.Connect();
             foreach (int itemId in itemsIds)
             {
                 await Download(itemId);
             }
-            _steamClient.Disconnect();
+            _steamSteamClient.Disconnect();
         }
 
         public async Task DownloadMod(int itemId)

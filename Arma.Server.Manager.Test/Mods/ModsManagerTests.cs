@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Arma.Server.Config;
-using Arma.Server.Manager.Steam;
+using Arma.Server.Manager.Clients.Steam;
 using Arma.Server.Modset;
 using Moq;
 using Newtonsoft.Json;
@@ -17,7 +17,7 @@ namespace Arma.Server.Manager.Test.Mods {
     public class ModsManagerTests {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<IModsCache> _modsCacheMock = new Mock<IModsCache>();
-        private readonly Mock<IClient> _steamClientMock = new Mock<IClient>();
+        private readonly Mock<ISteamClient> _steamClientMock = new Mock<ISteamClient>();
         private readonly ModsManager _modsManager;
         private readonly IModset _modset;
 

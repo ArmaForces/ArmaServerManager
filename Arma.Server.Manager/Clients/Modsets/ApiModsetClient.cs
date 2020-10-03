@@ -14,7 +14,7 @@ namespace Arma.Server.Manager.Clients.Modsets {
         private readonly IRestClient _restClient;
 
         /// <inheritdoc cref="ApiModsetClient" />
-        /// <param name="restClient">Client used for connections.</param>
+        /// <param name="restClient">SteamClient used for connections.</param>
         public ApiModsetClient(IRestClient restClient) {
             _restClient = restClient;
         }

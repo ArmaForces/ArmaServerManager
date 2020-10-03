@@ -9,17 +9,17 @@ using Arma.Server.Manager.Clients.Steam;
 namespace Arma.Server.Manager.Mods {
     /// <inheritdoc />
     public class ModsManager : IModsManager {
-        private readonly IClient _steamClient;
+        private readonly ISteamClient _steamSteamClient;
         private readonly IModsCache _modsCache;
 
         /// <inheritdoc />
-        public ModsManager(ISettings settings) : this(new Client(settings), new ModsCache(settings)){}
+        public ModsManager(ISettings settings) : this(new SteamClient(settings), new ModsCache(settings)){}
 
         /// <inheritdoc cref="ModsManager" />
-        /// <param name="steamClient">Steam client for mods download and updating.</param>
+        /// <param name="steamSteamClient">Steam client for mods download and updating.</param>
         /// <param name="modsCache">Installed mods cache.</param>
-        public ModsManager(IClient steamClient, IModsCache modsCache) {
-            _steamClient = steamClient;
+        public ModsManager(ISteamClient steamSteamClient, IModsCache modsCache) {
+            _steamSteamClient = steamSteamClient;
             _modsCache = modsCache;
         }
 
@@ -50,17 +50,17 @@ namespace Arma.Server.Manager.Mods {
             => false;
 
         /// <summary>
-        /// Invokes <see cref="IClient"/> to download given list of mods.
+        /// Invokes <see cref="ISteamClient"/> to download given list of mods.
         /// </summary>
         /// <param name="missingMods">Mods to download.</param>
         private void DownloadMods(IEnumerable<IMod> missingMods)
-            => _steamClient.Download(missingMods.Select(x => x.WorkshopId));
+            => _steamSteamClient.Download(missingMods.Select(x => x.WorkshopId));
 
         /// <summary>
-        /// Invokes <see cref="IClient"/> to update given list of mods.
+        /// Invokes <see cref="ISteamClient"/> to update given list of mods.
         /// </summary>
         /// <param name="requiredUpdateMods">Mods to update.</param>
         private void UpdateMods(IEnumerable<IMod> requiredUpdateMods)
-            => _steamClient.Download(requiredUpdateMods.Select(x => x.WorkshopId));
+            => _steamSteamClient.Download(requiredUpdateMods.Select(x => x.WorkshopId));
     }
 }
