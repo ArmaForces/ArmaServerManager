@@ -9,7 +9,7 @@ using CSharpFunctionalExtensions;
 using Newtonsoft.Json;
 
 namespace Arma.Server.Manager.Mods {
-    public class ModsCache {
+    public class ModsCache : IModsCache {
         private readonly IFileSystem _fileSystem;
         private readonly ISet<IMod> _cache;
         private readonly string _cacheFilePath;
@@ -25,11 +25,7 @@ namespace Arma.Server.Manager.Mods {
             SaveCache();
         }
 
-        /// <summary>
-        ///     Checks if mod exists in mods directory.
-        /// </summary>
-        /// <param name="mod">Mod to check if it exists.</param>
-        /// <returns>True if mod directory is found.</returns>
+        /// <inheritdoc />
         public bool ModExists(IMod mod) 
             => GetOrSetModInCache(mod).Exists(_fileSystem);
 
@@ -85,6 +81,7 @@ namespace Arma.Server.Manager.Mods {
             return Result.Success(mods);
         }
 
+        /// <inheritdoc />
         public void SaveCache() {
             SaveCache(_cache);
         }

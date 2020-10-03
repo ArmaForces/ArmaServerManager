@@ -9,13 +9,13 @@ using System.Linq;
 namespace Arma.Server.Manager.Mods {
     public class ModsManager {
         private readonly IClient _steamClient;
-        private readonly ModsCache _modsCache;
+        private readonly IModsCache _modsCache;
 
-        public ModsManager(ISettings settings): this(settings, new Client(settings)){}
+        public ModsManager(ISettings settings) : this(new Client(settings), new ModsCache(settings)){}
 
-        public ModsManager(ISettings settings, IClient steamClient) {
+        public ModsManager(IClient steamClient, IModsCache modsCache) {
             _steamClient = steamClient;
-            _modsCache = new ModsCache(settings);
+            _modsCache = modsCache;
         }
 
         public Result PrepareModset(IModset modset) 
