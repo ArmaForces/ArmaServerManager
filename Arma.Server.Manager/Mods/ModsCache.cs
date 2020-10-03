@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Arma.Server.Config;
 using Arma.Server.Mod;
@@ -9,11 +10,13 @@ using Newtonsoft.Json;
 
 namespace Arma.Server.Manager.Mods {
     public class ModsCache {
+        private readonly IFileSystem _fileSystem;
         private readonly ISet<IMod> _cache;
         private readonly string _cacheFilePath;
         private readonly string _modsPath;
 
-        public ModsCache(ISettings settings) {
+        public ModsCache(ISettings settings, IFileSystem fileSystem = null) {
+            _fileSystem = fileSystem ?? new FileSystem();
             _modsPath = settings.ModsDirectory;
             _cacheFilePath = $"{_modsPath}\\{settings.ModsManagerCacheFileName}.json";
             _cache = LoadCache()
@@ -28,7 +31,7 @@ namespace Arma.Server.Manager.Mods {
         /// <param name="mod">Mod to check if it exists.</param>
         /// <returns>True if mod directory is found.</returns>
         public bool ModExists(IMod mod) 
-            => GetOrSetModInCache(mod).Exists();
+            => GetOrSetModInCache(mod).Exists(_fileSystem);
 
         private IMod GetOrSetModInCache(IMod mod) {
             try {
@@ -43,25 +46,25 @@ namespace Arma.Server.Manager.Mods {
         }
 
         private IMod TryEnsureModDirectory(IMod mod) {
-            if (mod.Exists()) return mod;
+            if (mod.Exists(_fileSystem)) return mod;
             mod.Directory = TryFindModDirectory(_modsPath, mod);
             return mod;
         }
 
-        private static string TryFindModDirectory(string modsDirectory, IMod mod) {
+        private string TryFindModDirectory(string modsDirectory, IMod mod) {
             string path;
             path = Path.Join(modsDirectory, mod.WorkshopId.ToString());
-            if (Directory.Exists(path)) return path;
+            if (_fileSystem.Directory.Exists(path)) return path;
             path = Path.Join(modsDirectory, mod.Name);
-            if (Directory.Exists(path)) return path;
+            if (_fileSystem.Directory.Exists(path)) return path;
             path = Path.Join(modsDirectory, string.Join("", "@", mod.Name));
-            if (Directory.Exists(path)) return path;
+            if (_fileSystem.Directory.Exists(path)) return path;
             return null;
         }
 
         private Result<ISet<IMod>> LoadCache() {
-            if (!File.Exists(_cacheFilePath)) return Result.Failure<ISet<IMod>>("Cache file does not exist.");
-            var jsonString = File.ReadAllText(_cacheFilePath);
+            if (!_fileSystem.File.Exists(_cacheFilePath)) return Result.Failure<ISet<IMod>>("Cache file does not exist.");
+            var jsonString = _fileSystem.File.ReadAllText(_cacheFilePath);
             var mods = JsonConvert.DeserializeObject<IEnumerable<Mod.Mod>>(jsonString)
                 .Cast<IMod>()
                 .ToHashSet();
@@ -70,13 +73,13 @@ namespace Arma.Server.Manager.Mods {
         }
 
         private ISet<IMod> RefreshCache(ISet<IMod> mods) {
-            mods = mods.Where(x => x.Exists())
+            mods = mods.Where(x => x.Exists(_fileSystem))
                 .ToHashSet();
             return mods;
         }
 
         private Result<ISet<IMod>> BuildCache() {
-            var mods = (ISet<IMod>) Directory.GetDirectories(_modsPath)
+            var mods = (ISet<IMod>)_fileSystem.Directory.GetDirectories(_modsPath)
                 .Select(CreateModFromDirectory)
                 .ToHashSet();
             return Result.Success(mods);
@@ -87,7 +90,7 @@ namespace Arma.Server.Manager.Mods {
         }
 
         private void SaveCache(ISet<IMod> mods) {
-            File.WriteAllText(_cacheFilePath, JsonConvert.SerializeObject(mods));
+            _fileSystem.File.WriteAllText(_cacheFilePath, JsonConvert.SerializeObject(mods));
         }
 
         private IMod CreateModFromDirectory(string directoryPath) {
@@ -102,7 +105,7 @@ namespace Arma.Server.Manager.Mods {
             }
 
             mod.Directory = directoryPath;
-            mod.CreatedAt = Directory.GetLastWriteTimeUtc(directoryPath);
+            mod.CreatedAt = _fileSystem.Directory.GetLastWriteTimeUtc(directoryPath);
             mod.LastUpdatedAt = mod.CreatedAt;
             mod.Type = ModType.Required;
 

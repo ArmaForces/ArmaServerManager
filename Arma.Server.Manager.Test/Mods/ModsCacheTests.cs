@@ -5,20 +5,23 @@ using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using Arma.Server.Config;
 using Moq;
 using Newtonsoft.Json;
 using Xunit;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace Arma.Server.Manager.Test.Mods {
     public class ModsCacheTests: IDisposable {
         private readonly Fixture _fixture = new Fixture();
         private readonly string _workingDirectory = Path.Join(Directory.GetCurrentDirectory(), "mods");
         private readonly Mock<ISettings> _settingsMock = new Mock<ISettings>();
+        private readonly IFileSystem _fileSystemMock = new MockFileSystem();
         private readonly IMod _mod;
 
         public ModsCacheTests() {
-            Directory.CreateDirectory(_workingDirectory);
+            _fileSystemMock.Directory.CreateDirectory(_workingDirectory);
             _settingsMock.Setup(x => x.ModsDirectory).Returns(_workingDirectory);
             _settingsMock.Setup(x => x.ModsManagerCacheFileName).Returns(".ManagerModsCache");
             _mod = FixtureCreateMod();
@@ -34,7 +37,7 @@ namespace Arma.Server.Manager.Test.Mods {
         public void ModExists_DirectoryNamedIdExists_ReturnsTrue() {
             var modsCache = InitializeModsCache();
             var modDirectory = Path.Join(_workingDirectory, _mod.WorkshopId.ToString());
-            Directory.CreateDirectory(modDirectory);
+            _fileSystemMock.Directory.CreateDirectory(modDirectory);
 
             modsCache.ModExists(_mod).Should().BeTrue();
         }
@@ -43,7 +46,7 @@ namespace Arma.Server.Manager.Test.Mods {
         public void ModExists_DirectoryNamedNameExists_ReturnsTrue() {
             var modsCache = InitializeModsCache();
             var modDirectory = Path.Join(_workingDirectory, _mod.Name);
-            Directory.CreateDirectory(modDirectory);
+            _fileSystemMock.Directory.CreateDirectory(modDirectory);
 
             modsCache.ModExists(_mod).Should().BeTrue();
         }
@@ -52,7 +55,7 @@ namespace Arma.Server.Manager.Test.Mods {
         public void ModExists_DirectoryNamedWithAtExists_ReturnsTrue() {
             var modsCache = InitializeModsCache();
             var modDirectory = Path.Join(_workingDirectory, string.Join("", "@", _mod.Name));
-            Directory.CreateDirectory(modDirectory);
+            _fileSystemMock.Directory.CreateDirectory(modDirectory);
 
             modsCache.ModExists(_mod).Should().BeTrue();
         }
@@ -61,11 +64,11 @@ namespace Arma.Server.Manager.Test.Mods {
         public void ModExists_CacheInvalidDirectoryRenamed_ReturnsTrue() {
             var oldModDirectory = Path.Join(_workingDirectory, _mod.WorkshopId.ToString());
             var newModDirectory = Path.Join(_workingDirectory, _mod.Name);
-            Directory.CreateDirectory(oldModDirectory);
+            _fileSystemMock.Directory.CreateDirectory(oldModDirectory);
 
             var modsCache = InitializeModsCache();
-            Directory.Delete(oldModDirectory);
-            Directory.CreateDirectory(newModDirectory);
+            _fileSystemMock.Directory.Delete(oldModDirectory);
+            _fileSystemMock.Directory.CreateDirectory(newModDirectory);
 
             modsCache.ModExists(_mod).Should().BeTrue();
         }
@@ -73,7 +76,7 @@ namespace Arma.Server.Manager.Test.Mods {
         [Fact]
         public void ModExists_BuildCacheDirectoryNamedNameExists_ReturnsTrue() {
             var modDirectory = Path.Join(_workingDirectory, _mod.Name);
-            Directory.CreateDirectory(modDirectory); 
+            _fileSystemMock.Directory.CreateDirectory(modDirectory); 
             var modsCache = InitializeModsCache();
             
             modsCache.ModExists(_mod).Should().BeTrue();
@@ -84,7 +87,7 @@ namespace Arma.Server.Manager.Test.Mods {
             var cacheFilePath = $"{_settingsMock.Object.ModsDirectory}\\{_settingsMock.Object.ModsManagerCacheFileName}.json";
             ISet<IMod> mods = new HashSet<IMod>();
             mods.Add(_mod);
-            File.WriteAllText(cacheFilePath, JsonConvert.SerializeObject(mods));
+            _fileSystemMock.File.WriteAllText(cacheFilePath, JsonConvert.SerializeObject(mods));
 
             var modsCache = InitializeModsCache();
 
@@ -96,8 +99,8 @@ namespace Arma.Server.Manager.Test.Mods {
             var cacheFilePath = $"{_settingsMock.Object.ModsDirectory}\\{_settingsMock.Object.ModsManagerCacheFileName}.json";
             ISet<IMod> mods = new HashSet<IMod>();
             mods.Add(_mod);
-            File.WriteAllText(cacheFilePath, JsonConvert.SerializeObject(mods));
-            Directory.CreateDirectory(_mod.Directory);
+            _fileSystemMock.File.WriteAllText(cacheFilePath, JsonConvert.SerializeObject(mods));
+            _fileSystemMock.Directory.CreateDirectory(_mod.Directory);
 
             var modsCache = InitializeModsCache();
 
@@ -109,11 +112,11 @@ namespace Arma.Server.Manager.Test.Mods {
         }
 
         private ModsCache InitializeModsCache() {
-            return new ModsCache(_settingsMock.Object);
+            return new ModsCache(_settingsMock.Object, _fileSystemMock);
         }
 
         public void Dispose() {
-            if (_workingDirectory != null) Directory.Delete(_workingDirectory, true);
+            if (_workingDirectory != null) _fileSystemMock.Directory.Delete(_workingDirectory, true);
         }
     }
 }

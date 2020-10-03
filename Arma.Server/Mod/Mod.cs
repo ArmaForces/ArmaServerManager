@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Arma.Server.Mod {
     public class Mod : IMod {
@@ -20,9 +21,10 @@ namespace Arma.Server.Mod {
 
         public string Directory { get; set; }
 
-        public bool Exists() {
+        public bool Exists(IFileSystem fileSystem = null) {
+            fileSystem ??= new FileSystem();
             return !(Directory is null) 
-                   && System.IO.Directory.Exists(Directory);
+                   && fileSystem.Directory.Exists(Directory);
         }
 
         public bool Equals(IMod mod) {
