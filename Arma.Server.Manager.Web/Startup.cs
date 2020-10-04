@@ -32,10 +32,7 @@ namespace Arma.Server.Manager.Web
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
-                .UseLiteDbStorage());
-
-            // Add the processing server as IHostedService
-            services.AddHangfireServer();
+                .UseLiteDbStorage(Configuration.GetConnectionString("HangfireConnection")));
 
             // Add framework services.
             services.AddMvc();

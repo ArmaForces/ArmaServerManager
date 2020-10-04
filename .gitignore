@@ -340,4 +340,4 @@ ASALocalRun/
 healthchecksdb
 
 # Hangfire jobs database
-Arma.Server.Manager.Web/Hangfire.db
+Hangfire.db

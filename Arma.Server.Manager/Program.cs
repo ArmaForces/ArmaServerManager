@@ -1,3 +1,6 @@
+using Hangfire;
+using Hangfire.LiteDB;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -13,7 +16,17 @@ namespace Arma.Server.Manager
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) => {
-                    services.AddHostedService<Worker>();
+                    // Add Hangfire services.
+                    services.AddHangfire(configuration => configuration
+                        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                        .UseSimpleAssemblyNameTypeSerializer()
+                        .UseRecommendedSerializerSettings()
+                        .UseLiteDbStorage(hostContext.Configuration.GetConnectionString("HangfireConnection")));
+
+                    // Add the processing server as IHostedService
+                    services.AddHangfireServer();
+
+                    //services.AddHostedService<Worker>();
                 });
     }
 }
