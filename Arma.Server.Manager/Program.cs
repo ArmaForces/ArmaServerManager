@@ -1,3 +1,4 @@
+using Arma.Server.Manager.Services;
 using Hangfire;
 using Hangfire.LiteDB;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +27,7 @@ namespace Arma.Server.Manager
                     // Add the processing server as IHostedService
                     services.AddHangfireServer();
 
-                    services.AddHostedService<Worker>();
+                    services.AddHostedService<ModsUpdateService>();
                 });
     }
 }
