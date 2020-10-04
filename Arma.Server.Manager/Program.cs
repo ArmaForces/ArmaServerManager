@@ -26,7 +26,7 @@ namespace Arma.Server.Manager
                     // Add the processing server as IHostedService
                     services.AddHangfireServer();
 
-                    //services.AddHostedService<Worker>();
+                    services.AddHostedService<Worker>();
                 });
     }
 }

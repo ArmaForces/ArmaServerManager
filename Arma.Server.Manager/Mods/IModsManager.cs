@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
@@ -30,6 +32,7 @@ namespace Arma.Server.Manager.Mods {
         /// <summary>
         /// Updates all installed mods.
         /// </summary>
-        void UpdateAllMods();
+        /// <param name="cancellationToken"><see cref="CancellationToken"/> used for task cancellation.</param>
+        Task UpdateAllMods(CancellationToken cancellationToken);
     }
 }

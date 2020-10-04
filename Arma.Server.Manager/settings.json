@@ -2,7 +2,7 @@
 	"apiMissionsBaseUrl":  "https://boderator.armaforces.com",
 	"apiModsetsBaseUrl":  "https://dev.armaforces.com",
 	"modsetConfigDirName":  "modsetConfig",
-	"modsDirectory":  "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\!Workshop",
+	"modsDirectory":  "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\Mods",
 	"modsManagerCacheFileName":  ".ManagerModsCache",
 	"serverConfigDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\serverConfig",
 	"serverDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3",

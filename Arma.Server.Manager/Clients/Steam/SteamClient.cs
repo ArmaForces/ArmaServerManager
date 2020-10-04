@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Security.Authentication;
+using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Config;
 using BytexDigital.Steam.ContentDelivery;
@@ -31,8 +34,24 @@ namespace Arma.Server.Manager.Clients.Steam {
         }
 
         /// <inheritdoc />
-        public async Task Connect() {
-            await _bytexSteamClient.ConnectAsync();
+        /// <exception cref="OperationCanceledException">Thrown when <see cref="CancellationToken"/> is cancelled.</exception>
+        /// <exception cref="InvalidCredentialException">Thrown when Steam credentials are invalid and connection could not be established.</exception>
+        public async Task Connect(CancellationToken cancellationToken) {
+            var connectCancellationTokenSource = new CancellationTokenSource();
+            var connectTask = _bytexSteamClient.ConnectAsync(connectCancellationTokenSource.Token);
+            var connectionTimeout = Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+            await Task.WhenAny(connectTask, connectionTimeout);
+
+            if (cancellationToken.IsCancellationRequested) {
+                connectCancellationTokenSource.Cancel();
+                Disconnect();
+                throw new OperationCanceledException(cancellationToken);
+            }
+
+            if (connectTask.Status == TaskStatus.WaitingForActivation) {
+                connectCancellationTokenSource.Cancel();
+                throw new InvalidCredentialException("Invalid Steam Credentials");
+            }
         }
 
         /// <inheritdoc />
@@ -41,11 +60,11 @@ namespace Arma.Server.Manager.Clients.Steam {
         }
 
         /// <inheritdoc />
-        public async Task Download(int itemId)
-            => await Downloader.DownloadMod(itemId);
+        public async Task Download(int itemId, CancellationToken cancellationToken)
+            => await Downloader.DownloadMod(itemId, cancellationToken);
 
         /// <inheritdoc />
-        public async Task Download(IEnumerable<int> itemsIds)
-            => await Downloader.DownloadMods(itemsIds);
+        public async Task Download(IEnumerable<int> itemsIds, CancellationToken cancellationToken)
+            => await Downloader.DownloadMods(itemsIds, cancellationToken);
     }
 }
