@@ -1,9 +1,12 @@
-﻿using Arma.Server.Config;
+﻿using System;
+using Arma.Server.Config;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Arma.Server.Manager.Clients.Steam;
 
 namespace Arma.Server.Manager.Mods {
@@ -27,11 +30,17 @@ namespace Arma.Server.Manager.Mods {
         public Result PrepareModset(IModset modset) 
             => InitializeMods(modset);
 
+        /// <inheritdoc />
+        public async Task UpdateAllMods(CancellationToken cancellationToken)
+        {
+            await UpdateMods(_modsCache.Mods, cancellationToken);
+        }
+
         private Result InitializeMods(IModset modset) {
             return CheckModsExist(modset.Mods)
-                .TapIf(x => x.Any(), DownloadMods)
+                .TapIf(x => x.Any(), async x => await DownloadMods(x, CancellationToken.None)).Result
                 .Bind(x => CheckModsUpdated(modset.Mods))
-                .TapIf(x => x.Any(), UpdateMods);
+                .TapIf(x => x.Any(), async x => await UpdateMods(x, CancellationToken.None)).Result;
         }
 
         /// <inheritdoc />
@@ -53,14 +62,16 @@ namespace Arma.Server.Manager.Mods {
         /// Invokes <see cref="ISteamClient"/> to download given list of mods.
         /// </summary>
         /// <param name="missingMods">Mods to download.</param>
-        private void DownloadMods(IEnumerable<IMod> missingMods)
-            => _steamClient.Download(missingMods.Select(x => x.WorkshopId));
+        /// /// <param name="cancellationToken"><see cref="CancellationToken"/> used for mods download safe cancelling.</param>
+        private async Task DownloadMods(IEnumerable<IMod> missingMods, CancellationToken cancellationToken)
+            => _steamClient.Download(missingMods.Select(x => x.WorkshopId), cancellationToken);
 
         /// <summary>
         /// Invokes <see cref="ISteamClient"/> to update given list of mods.
         /// </summary>
         /// <param name="requiredUpdateMods">Mods to update.</param>
-        private void UpdateMods(IEnumerable<IMod> requiredUpdateMods)
-            => _steamClient.Download(requiredUpdateMods.Select(x => x.WorkshopId));
+        /// <param name="cancellationToken"><see cref="CancellationToken"/> used for mods update safe cancelling.</param>
+        private async Task UpdateMods(IEnumerable<IMod> requiredUpdateMods, CancellationToken cancellationToken)
+            => await _steamClient.Download(requiredUpdateMods.Select(x => x.WorkshopId), cancellationToken);
     }
 }

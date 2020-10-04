@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using BytexDigital.Steam.ContentDelivery;
 using BytexDigital.Steam.Core.Enumerations;
@@ -27,33 +28,45 @@ namespace Arma.Server.Manager.Clients.Steam {
         }
 
         /// <inheritdoc />
-        public async Task DownloadArmaServer()
-            => await Download(itemType:ItemType.App);
+        public async Task DownloadArmaServer(CancellationToken cancellationToken)
+            => await Download(cancellationToken, SteamAppId, itemType: ItemType.App);
 
         /// <inheritdoc />
-        public async Task DownloadMods(IEnumerable<int> itemsIds) {
-            await _steamClient.Connect();
-            foreach (int itemId in itemsIds)
-            {
-                await Download(itemId);
+        public async Task DownloadMods(IEnumerable<int> itemsIds, CancellationToken cancellationToken) {
+            await _steamClient.Connect(cancellationToken);
+            foreach (int itemId in itemsIds) {
+                if (cancellationToken.IsCancellationRequested) CancelDownload();
+                await Download(itemId, cancellationToken);
             }
             _steamClient.Disconnect();
         }
 
         /// <inheritdoc />
-        public async Task DownloadMod(int itemId)
-            => await Download(itemId);
+        public async Task DownloadMod(int itemId, CancellationToken cancellationToken)
+            => await Download(itemId, cancellationToken);
 
-        private async Task Download(int itemId = 0)
-            => await Download((uint) itemId);
+        private async Task Download(int itemId, CancellationToken cancellationToken)
+            => await Download(cancellationToken, (uint) itemId);
+
+        /// <summary>
+        /// Safely cancels download process.
+        /// </summary>
+        private void CancelDownload() {
+            _steamClient.Disconnect();
+            throw new OperationCanceledException();
+        }
 
         /// <summary>
         /// Handles download process
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <param name="itemId">Id of item to download.</param>
         /// <param name="itemType">Type of item, App or Mod.</param>
         /// <returns>Awaitable <see cref="Task"/></returns>
-        private async Task Download(uint itemId = 0, ItemType itemType = ItemType.Mod) {
+        private async Task Download(
+            CancellationToken cancellationToken,
+            uint itemId = 0,
+            ItemType itemType = ItemType.Mod) {
             try {
                 if (itemType == ItemType.App)
                     throw new NotImplementedException("Downloading Arma 3 Server is not supported yet.");
@@ -64,7 +77,7 @@ namespace Arma.Server.Manager.Clients.Steam {
 
                 Console.WriteLine($"Starting download of {itemId}");
                 var downloadDirectory = Path.Join(_modsDirectory, itemId.ToString());
-                var downloadTask = downloadHandler.DownloadToFolderAsync(downloadDirectory);
+                var downloadTask = downloadHandler.DownloadToFolderAsync(downloadDirectory, cancellationToken);
 
                 while (!downloadTask.IsCompleted)
                 {
@@ -74,7 +87,10 @@ namespace Arma.Server.Manager.Clients.Steam {
                 }
 
                 await downloadTask;
-                Console.WriteLine($"Downloaded {itemId}.");
+
+                Console.WriteLine(downloadTask.IsCompletedSuccessfully
+                    ? $"Downloaded {itemId}."
+                    : $"Aborted {itemId} download.");
             }
             catch (Exception e)
             {
