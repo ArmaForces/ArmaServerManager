@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server", "Arma.Server\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server.Test", "Arma.Server.Test\Arma.Server.Test.csproj", "{133F10D8-E2BA-479F-AEEC-5365698BA7F5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arma.Server.Manager.Web", "Arma.Server.Manager.Web\Arma.Server.Manager.Web.csproj", "{9B24E394-3C18-47E0-A3E0-BE895AE33BAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{133F10D8-E2BA-479F-AEEC-5365698BA7F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B24E394-3C18-47E0-A3E0-BE895AE33BAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B24E394-3C18-47E0-A3E0-BE895AE33BAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B24E394-3C18-47E0-A3E0-BE895AE33BAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B24E394-3C18-47E0-A3E0-BE895AE33BAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
