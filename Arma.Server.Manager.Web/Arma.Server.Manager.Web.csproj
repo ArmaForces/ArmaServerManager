@@ -4,4 +4,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Hangfire.Core" Version="1.7.14" />
+    <PackageReference Include="Hangfire.LiteDB" Version="0.3.1" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.14" />
+  </ItemGroup>
+
 </Project>
