@@ -11,15 +11,17 @@ using Newtonsoft.Json;
 namespace Arma.Server.Manager.Mods {
     public class ModsCache : IModsCache {
         private readonly IFileSystem _fileSystem;
-        private readonly ISet<IMod> _cache;
         private readonly string _cacheFilePath;
         private readonly string _modsPath;
+
+        /// <inheritdoc />
+        public ISet<IMod> Mods { get; }
 
         public ModsCache(ISettings settings, IFileSystem fileSystem = null) {
             _fileSystem = fileSystem ?? new FileSystem();
             _modsPath = settings.ModsDirectory;
             _cacheFilePath = $"{_modsPath}\\{settings.ModsManagerCacheFileName}.json";
-            _cache = LoadCache()
+            Mods = LoadCache()
                 .OnFailureCompensate(x => BuildCache())
                 .Value;
             SaveCache();
@@ -31,12 +33,12 @@ namespace Arma.Server.Manager.Mods {
 
         private IMod GetOrSetModInCache(IMod mod) {
             try {
-                var modInCache = _cache.Single(cacheMod => cacheMod.Equals(mod));
+                var modInCache = Mods.Single(cacheMod => cacheMod.Equals(mod));
                 return TryEnsureModDirectory(modInCache);
             }
             catch (InvalidOperationException e) {
                 mod = TryEnsureModDirectory(mod);
-                _cache.Append(mod);
+                Mods.Append(mod);
                 return mod;
             }
         }
@@ -83,7 +85,7 @@ namespace Arma.Server.Manager.Mods {
 
         /// <inheritdoc />
         public void SaveCache() {
-            SaveCache(_cache);
+            SaveCache(Mods);
         }
 
         private void SaveCache(ISet<IMod> mods) {

@@ -1,4 +1,5 @@
-﻿using Arma.Server.Mod;
+﻿using System.Collections.Generic;
+using Arma.Server.Mod;
 
 namespace Arma.Server.Manager.Mods {
     public interface IModsCache {
@@ -9,6 +10,11 @@ namespace Arma.Server.Manager.Mods {
         /// <param name="mod">Mod to check if it exists.</param>
         /// <returns>True if mod directory is found.</returns>
         bool ModExists(IMod mod);
+
+        /// <summary>
+        /// All cached mods.
+        /// </summary>
+        public ISet<IMod> Mods { get; }
 
         /// <summary>
         ///     Saves cache to file.

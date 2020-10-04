@@ -1,4 +1,5 @@
-﻿using Arma.Server.Config;
+using System;
+using Arma.Server.Config;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
@@ -26,6 +27,12 @@ namespace Arma.Server.Manager.Mods {
         /// <inheritdoc />
         public Result PrepareModset(IModset modset) 
             => InitializeMods(modset);
+
+        /// <inheritdoc />
+        public void UpdateAllMods()
+        {
+            UpdateMods(_modsCache.Mods);
+        }
 
         private Result InitializeMods(IModset modset) {
             return CheckModsExist(modset.Mods)
