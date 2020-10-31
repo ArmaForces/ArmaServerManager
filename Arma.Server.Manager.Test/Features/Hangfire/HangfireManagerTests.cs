@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using Arma.Server.Manager.Features.Hangfire;
 using Arma.Server.Manager.Features.Hangfire.Helpers;
-using Arma.Server.Manager.Services;
 using Arma.Server.Manager.Test.Helpers.Dummy;
 using FluentAssertions;
 using FluentAssertions.Execution;
