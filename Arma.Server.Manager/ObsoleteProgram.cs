@@ -2,7 +2,7 @@ using Arma.Server.Config;
 using Arma.Server.Manager.Clients.Modsets;
 using Arma.Server.Manager.Mods;
 using Arma.Server.Modset;
-
+/*
 namespace Arma.Server.Manager {
     internal class ObsoleteProgram {
         static void ObsoleteMain(string[] args) {
@@ -20,4 +20,4 @@ namespace Arma.Server.Manager {
             server.Shutdown();
         }
     }
-}
+}*/

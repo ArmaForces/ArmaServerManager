@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.IO.Abstractions;
 using CSharpFunctionalExtensions;
-using Microsoft.Extensions.Configuration;
 
 namespace Arma.Server.Config {
     public class ServerConfig : IConfig {
@@ -13,13 +12,16 @@ namespace Arma.Server.Config {
         public string ServerCfg { get; protected set; }
 
         private readonly ISettings _settings;
+        private readonly IFileSystem _fileSystem;
 
         /// <summary>
         /// Class prepares server configuration for given modset
         /// </summary>
         /// <param name="settings">Server Settings Object</param>
-        public ServerConfig(ISettings settings) {
+        public ServerConfig(ISettings settings, IFileSystem fileSystem = null)
+        {
             _settings = settings;
+            _fileSystem = fileSystem ?? new FileSystem();
         }
 
         /// <summary>
@@ -32,7 +34,7 @@ namespace Arma.Server.Config {
             return SetProperties()
                 .Bind(GetOrCreateServerConfigDir)
                 .Tap(() => Console.WriteLine("ServerConfig loaded."))
-                .OnFailure(e => Console.WriteLine("ServerConfig could not be loaded with {e}.", e));
+                .OnFailure(error => Console.WriteLine("ServerConfig could not be loaded with {0}.", error));
         }
 
         private Result SetProperties() {
@@ -48,41 +50,23 @@ namespace Arma.Server.Config {
         /// </summary>
         /// <returns>path to serverConfig</returns>
         private Result GetOrCreateServerConfigDir() {
-            if (!Directory.Exists(DirectoryPath)) {
+            if (!_fileSystem.Directory.Exists(DirectoryPath)) {
                 Console.WriteLine($"Config directory {_settings.ServerConfigDirectory} does not exists, creating.");
-                Directory.CreateDirectory(DirectoryPath);
+                _fileSystem.Directory.CreateDirectory(DirectoryPath);
             }
 
             // Prepare files
             var filesList = new List<string>() {"basic.cfg", "server.cfg", "common.Arma3Profile", "common.json"};
             foreach (var fileName in filesList) {
                 var destFileName = Path.Join(DirectoryPath, fileName);
-                if (File.Exists(destFileName)) continue;
+                if (_fileSystem.File.Exists(destFileName)) continue;
                 Console.WriteLine($"{fileName} not found, copying.");
-                File.Copy(Path.Join(Directory.GetCurrentDirectory(), $"example_{fileName}"), destFileName);
+
+                var exampleFilePath = Path.Join(_fileSystem.Directory.GetCurrentDirectory(), $"example_{fileName}");
+                _fileSystem.File.Copy(exampleFilePath, destFileName);
             }
 
             return Result.Success();
-        }
-
-        /// <summary>
-        /// In given cfgFile string replaces values for keys present in given config. Returns filled string.
-        /// </summary>
-        public static string FillCfg(string cfgFile, IConfigurationSection config) {
-            foreach (var section in config.GetChildren()) {
-                var key = section.Key;
-                var value = config.GetSection(key).GetChildren().ToList();
-                // Replace default value in cfg with value from loaded configs
-                if (value.Count != 0) {
-                    // If value is array, it needs changing to string
-                    var stringValue = String.Join(", ", value.Select(p => p.Value.ToString()));
-                    cfgFile = ConfigReplacer.ReplaceValue(cfgFile, key, stringValue);
-                } else {
-                    cfgFile = ConfigReplacer.ReplaceValue(cfgFile, key, config[key]);
-                }
-            }
-
-            return cfgFile;
         }
     }
 }

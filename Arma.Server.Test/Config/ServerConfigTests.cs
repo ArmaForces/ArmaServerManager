@@ -1,44 +1,54 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using Arma.Server.Config;
+using Arma.Server.Test.Helpers;
 using AutoFixture;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Moq;
 using Xunit;
 
 namespace Arma.Server.Test.Config {
-    public class ServerConfigTests : IDisposable {
+    public class ServerConfigTests
+    {
+        private readonly string _workingDirectory = Directory.GetCurrentDirectory();
         private static readonly Fixture Fixture = new Fixture();
         private readonly string _serverConfigDirName = Fixture.Create<string>();
-        private readonly string _serverConfigDirPath;
+        private readonly IFileSystem _fileSystemMock;
 
-        public ServerConfigTests() {
-            _serverConfigDirPath = Path.Join(Directory.GetCurrentDirectory(), _serverConfigDirName);
-        }
-
-        public void Dispose() {
-            Directory.Delete(_serverConfigDirPath, true);
+        public ServerConfigTests()
+        {
+            _fileSystemMock = new MockFileSystem(new Dictionary<string, MockFileData>(), _workingDirectory);
+            _fileSystemMock.Directory.CreateDirectory(_workingDirectory);
+            MockedFileSystemHelpers.CopyExampleFilesToMockedFileSystem(_fileSystemMock, _workingDirectory);
         }
 
         [Fact]
         public void ServerConfig_LoadConfig_Success() {
             // Arrange
             var settingsMock = new Mock<ISettings>();
+            var serverConfigDirPath = Path.Join(_workingDirectory, _serverConfigDirName);
             settingsMock.Setup(settings => settings.ServerExecutable).Returns(Directory.GetCurrentDirectory());
             settingsMock.Setup(settings => settings.ServerConfigDirectory)
-                .Returns(_serverConfigDirPath);
+                .Returns(serverConfigDirPath);
+            var expectedServerConfigFiles = new[] { "server.cfg", "basic.cfg", "common.json", "common.Arma3Profile" };
 
             // Act
-            IConfig serverConfig = new ServerConfig(settingsMock.Object);
+            IConfig serverConfig = new ServerConfig(settingsMock.Object, _fileSystemMock);
             var configLoaded = serverConfig.LoadConfig();
 
             // Assert
-            configLoaded.IsSuccess.Should().BeTrue();
-            Assert.True(Directory.Exists(_serverConfigDirPath));
-            Assert.True(File.Exists(Path.Join(_serverConfigDirPath, "server.cfg")));
-            Assert.True(File.Exists(Path.Join(_serverConfigDirPath, "basic.cfg")));
-            Assert.True(File.Exists(Path.Join(_serverConfigDirPath, "common.json")));
-            Assert.True(File.Exists(Path.Join(_serverConfigDirPath, "common.Arma3Profile")));
+            using (new AssertionScope())
+            {
+                configLoaded.IsSuccess.Should().BeTrue();
+                _fileSystemMock.Directory.Exists(serverConfigDirPath).Should().BeTrue();
+                _fileSystemMock.Directory.GetFiles(serverConfigDirPath)
+                    .Select(Path.GetFileName).Should().BeEquivalentTo(expectedServerConfigFiles);
+            }
         }
     }
 }

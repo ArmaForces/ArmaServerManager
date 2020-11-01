@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using Arma.Server.Exceptions;
 
 namespace Arma.Server.Test.Config {
     public class SettingsTests {
