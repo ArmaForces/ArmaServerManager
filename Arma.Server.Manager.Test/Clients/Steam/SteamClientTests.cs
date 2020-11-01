@@ -21,14 +21,9 @@ namespace Arma.Server.Manager.Test.Clients.Steam {
             var cancellationTokenSource = new CancellationTokenSource();
 
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(1));
-            var task = steamClient.Connect(cancellationTokenSource.Token);
-            Func<Task> action = async () => await task;
+            Func<Task> action = async () => await steamClient.Connect(cancellationTokenSource.Token);
 
-            using (new AssertionScope())
-            {
-                action.Should().Throw<OperationCanceledException>();
-                task.IsCanceled.Should().BeTrue();
-            }
+            action.Should().Throw<OperationCanceledException>();
         }
         
         [Fact]
