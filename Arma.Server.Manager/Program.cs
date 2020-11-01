@@ -1,5 +1,8 @@
+using Arma.Server.Config;
+using Arma.Server.Manager.Clients.Steam;
 using Arma.Server.Manager.Features.Hangfire;
 using Arma.Server.Manager.Features.Hangfire.Helpers;
+using Arma.Server.Manager.Mods;
 using Arma.Server.Manager.Services;
 using Hangfire;
 using Hangfire.LiteDB;
@@ -11,29 +14,36 @@ namespace Arma.Server.Manager
 {
     public class Program
     {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+        public static void Main(string[] args) => CreateHostBuilder(args).Build().Run();
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureServices((hostContext, services) => {
-                    // Add Hangfire services.
-                    services.AddHangfire(configuration => configuration
-                        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-                        .UseSimpleAssemblyNameTypeSerializer()
-                        .UseRecommendedSerializerSettings()
-                        .UseLiteDbStorage(hostContext.Configuration.GetConnectionString("HangfireConnection")));
+        public static IHostBuilder CreateHostBuilder(string[] args)
+            => Host.CreateDefaultBuilder(args)
+                .ConfigureServices(
+                    (hostContext, services) =>
+                    {
+                        // Add Hangfire services.
+                        services.AddHangfire(
+                            configuration => configuration
+                                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                                .UseSimpleAssemblyNameTypeSerializer()
+                                .UseRecommendedSerializerSettings()
+                                .UseLiteDbStorage(hostContext.Configuration.GetConnectionString("HangfireConnection")));
 
-                    // Add the processing server as IHostedService
-                    services.AddHangfireServer();
+                        // Add the processing server as IHostedService
+                        services.AddHangfireServer();
 
-                    services.AddHostedService<ModsUpdateService>();
+                        services.AddHostedService<ModsUpdateService>();
 
-                    services.AddSingleton<IHangfireBackgroundJobClient>();
-                    services.AddSingleton<IHangfireJobStorage>();
-                    services.AddSingleton<IHangfireManager>();
-                });
+                        services.AddSingleton<ISettings>(Settings.LoadSettings);
+                        services.AddSingleton<IModsCache>(ModsCache.CreateModsCache);
+                        services.AddSingleton<IModsManager>(ModsManager.CreateModsManager);
+                        services.AddSingleton<ISteamClient>(SteamClient.CreateSteamClient);
+                        services.AddSingleton<IModsDownloader>(ModsDownloader.CreateModsDownloader);
+
+                        services.AddSingleton<IHangfireBackgroundJobClient>(
+                            HangfireBackgroundJobClient.CreateHangfireBackgroundJobClient);
+                        services.AddSingleton<IHangfireJobStorage>(HangfireJobStorage.CreateHangfireJobStorage);
+                        services.AddSingleton<IHangfireManager>(HangfireManager.CreateHangfireManager);
+                    });
     }
 }

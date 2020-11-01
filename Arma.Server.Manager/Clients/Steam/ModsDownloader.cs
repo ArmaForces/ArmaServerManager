@@ -3,77 +3,95 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using BytexDigital.Steam.ContentDelivery;
+using Arma.Server.Config;
 using BytexDigital.Steam.Core.Enumerations;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Arma.Server.Manager.Clients.Steam {
+namespace Arma.Server.Manager.Clients.Steam
+{
     /// <inheritdoc />
-    public class Downloader: IDownloader {
+    public class ModsDownloader : IModsDownloader
+    {
         private const int SteamAppId = 233780; // Arma 3 Server
         private const int SteamDepotId = 228990;
-        private readonly SteamContentClient _contentClient;
-        private readonly ISteamClient _steamClient;
-        private readonly string _modsDirectory;
 
-        /// <inheritdoc cref="Downloader" />
+        private readonly string _modsDirectory;
+        private readonly ISteamClient _steamClient;
+
+        public ModsDownloader(ISettings settings) : this(new SteamClient(settings), settings.ModsDirectory)
+        {
+        }
+
+        /// <inheritdoc cref="ModsDownloader" />
         /// <param name="steamClient">Client used for connection.</param>
-        /// <param name="contentClient">Client used for downloading.</param>
         /// <param name="modsDirectory">Directory where mods should be stored.</param>
-        public Downloader(ISteamClient steamClient,
-            SteamContentClient contentClient,
-            string modsDirectory) {
+        public ModsDownloader(
+            ISteamClient steamClient,
+            string modsDirectory)
+        {
             _steamClient = steamClient;
-            _contentClient = contentClient;
             _modsDirectory = modsDirectory;
         }
 
         /// <inheritdoc />
         public async Task DownloadArmaServer(CancellationToken cancellationToken)
-            => await Download(cancellationToken, SteamAppId, itemType: ItemType.App);
+            => await Download(
+                cancellationToken,
+                SteamAppId,
+                ItemType.App);
 
         /// <inheritdoc />
-        public async Task DownloadMods(IEnumerable<int> itemsIds, CancellationToken cancellationToken) {
-            await _steamClient.Connect(cancellationToken);
-            foreach (int itemId in itemsIds) {
+        public async Task DownloadMods(IEnumerable<int> itemsIds, CancellationToken cancellationToken)
+        {
+            await _steamClient.EnsureConnected(cancellationToken);
+            foreach (var itemId in itemsIds)
+            {
                 if (cancellationToken.IsCancellationRequested) CancelDownload();
                 await Download(itemId, cancellationToken);
             }
-            _steamClient.Disconnect();
         }
 
         /// <inheritdoc />
         public async Task DownloadMod(int itemId, CancellationToken cancellationToken)
             => await Download(itemId, cancellationToken);
 
+        public static ModsDownloader CreateModsDownloader(IServiceProvider serviceProvider)
+        {
+            var modsDirectory = serviceProvider.GetService<ISettings>().ModsDirectory;
+            return new ModsDownloader(serviceProvider.GetService<ISteamClient>(), modsDirectory);
+        }
+
         private async Task Download(int itemId, CancellationToken cancellationToken)
             => await Download(cancellationToken, (uint) itemId);
 
         /// <summary>
-        /// Safely cancels download process.
+        ///     Safely cancels download process.
         /// </summary>
-        private void CancelDownload() {
-            _steamClient.Disconnect();
-            throw new OperationCanceledException();
-        }
+        private void CancelDownload() => throw new OperationCanceledException();
 
         /// <summary>
-        /// Handles download process
+        ///     Handles download process
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <param name="itemId">Id of item to download.</param>
         /// <param name="itemType">Type of item, App or Mod.</param>
-        /// <returns>Awaitable <see cref="Task"/></returns>
+        /// <returns>Awaitable <see cref="Task" /></returns>
         private async Task Download(
             CancellationToken cancellationToken,
             uint itemId = 0,
-            ItemType itemType = ItemType.Mod) {
-            try {
+            ItemType itemType = ItemType.Mod)
+        {
+            try
+            {
                 if (itemType == ItemType.App)
                     throw new NotImplementedException("Downloading Arma 3 Server is not supported yet.");
 
                 var downloadHandler = itemType == ItemType.App
-                    ? await _contentClient.GetAppDataAsync(SteamAppId, SteamDepotId, os: SteamOs.Windows)
-                    : await _contentClient.GetPublishedFileDataAsync(itemId, os: SteamOs.Windows);
+                    ? await _steamClient.ContentClient.GetAppDataAsync(
+                        SteamAppId,
+                        SteamDepotId,
+                        os: SteamOs.Windows)
+                    : await _steamClient.ContentClient.GetPublishedFileDataAsync(itemId, os: SteamOs.Windows);
 
                 Console.WriteLine($"Starting download of {itemId}");
                 var downloadDirectory = Path.Join(_modsDirectory, itemId.ToString());
@@ -88,11 +106,11 @@ namespace Arma.Server.Manager.Clients.Steam {
 
                 await downloadTask;
 
-                Console.WriteLine(downloadTask.IsCompletedSuccessfully
-                    ? $"Downloaded {itemId}."
-                    : $"Aborted {itemId} download.");
-            }
-            catch (Exception e)
+                Console.WriteLine(
+                    downloadTask.IsCompletedSuccessfully
+                        ? $"Downloaded {itemId}."
+                        : $"Aborted {itemId} download.");
+            } catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw;

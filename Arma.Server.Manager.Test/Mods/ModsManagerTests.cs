@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
-using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Config;
@@ -15,14 +14,13 @@ using Arma.Server.Manager.Clients.Steam;
 using Arma.Server.Modset;
 using FluentAssertions.Execution;
 using Moq;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Arma.Server.Manager.Test.Mods {
     public class ModsManagerTests {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<IModsCache> _modsCacheMock = new Mock<IModsCache>();
-        private readonly Mock<ISteamClient> _steamClientMock = new Mock<ISteamClient>();
+        private readonly Mock<IModsDownloader> _downloaderMock = new Mock<IModsDownloader>();
         private readonly ModsManager _modsManager;
         private readonly IModset _modset;
 
@@ -31,7 +29,7 @@ namespace Arma.Server.Manager.Test.Mods {
                 Mods = new HashSet<IMod> { FixtureCreateMod() }
             };
 
-            _modsManager = new ModsManager(_steamClientMock.Object, _modsCacheMock.Object);
+            _modsManager = new ModsManager(_downloaderMock.Object, _modsCacheMock.Object);
         }
 
         [Fact]
@@ -40,7 +38,7 @@ namespace Arma.Server.Manager.Test.Mods {
 
             _modsManager.PrepareModset(_modset);
 
-            _steamClientMock.Verify(x => x.Download(modsEnumerable, It.IsAny<CancellationToken>()));
+            _downloaderMock.Verify(x => x.DownloadMods(modsEnumerable, It.IsAny<CancellationToken>()));
         }
 
         [Fact]
@@ -52,7 +50,7 @@ namespace Arma.Server.Manager.Test.Mods {
 
             _modsManager.PrepareModset(_modset);
 
-            _steamClientMock.Verify(x => x.Download(
+            _downloaderMock.Verify(x => x.DownloadMods(
                 It.IsAny<IEnumerable<int>>(),
                 It.IsAny<CancellationToken>()),
                 Times.Never);
@@ -69,8 +67,8 @@ namespace Arma.Server.Manager.Test.Mods {
             settingsMock.Setup(x => x.SteamPassword).Returns("");
             settingsMock.Setup(x => x.ModsDirectory).Returns(workingDirectory);
             var modsCache = new ModsCache(settingsMock.Object, fileSystemMock);
-            var steamClient = new SteamClient(settingsMock.Object);
-            var modsManager = new ModsManager(steamClient, modsCache);
+            var downloader = new ModsDownloader(settingsMock.Object);
+            var modsManager = new ModsManager(downloader, modsCache);
             var cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(1));
 

@@ -2,6 +2,9 @@
 using System.Threading.Tasks;
 using Arma.Server.Manager.Features.Hangfire;
 
+// Disable call not awaited
+#pragma warning disable 1998
+
 namespace Arma.Server.Manager.Test.Helpers.Dummy
 {
     /// <summary>
