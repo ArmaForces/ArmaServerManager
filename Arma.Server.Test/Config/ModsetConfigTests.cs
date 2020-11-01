@@ -1,50 +1,64 @@
-using System;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using Arma.Server.Config;
+using Arma.Server.Test.Helpers;
 using AutoFixture;
-using CSharpFunctionalExtensions;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Moq;
 using Xunit;
 
-namespace Arma.Server.Test.Config {
-    public class ModsetConfigTests : IDisposable {
+namespace Arma.Server.Test.Config
+{
+    public class ModsetConfigTests
+    {
+        private readonly string _workingDirectory = Directory.GetCurrentDirectory();
+
         private static readonly Fixture Fixture = new Fixture();
+
         private readonly string _modsetName = Fixture.Create<string>();
-        private readonly string _serverConfigDirName = Fixture.Create<string>();
         private readonly string _modsetConfigDirName = Fixture.Create<string>();
-        private readonly string _serverConfigDirPath;
-        private readonly string _modsetConfigDirPath;
+        private readonly Mock<ISettings> _settingsMock = new Mock<ISettings>();
+        private readonly Mock<IConfig> _configMock = new Mock<IConfig>();
+        private readonly IFileSystem _fileSystemMock;
 
-        public ModsetConfigTests() {
-            _serverConfigDirPath = Path.Join(Directory.GetCurrentDirectory(), _serverConfigDirName);
-            _modsetConfigDirPath = Path.Join(_serverConfigDirPath, _modsetConfigDirName, _modsetName);
-        }
-
-        public void Dispose() {
-            Directory.Delete(_serverConfigDirPath, true);
+        public ModsetConfigTests()
+        {
+            _fileSystemMock = new MockFileSystem(new Dictionary<string, MockFileData>(), _workingDirectory);
+            _fileSystemMock.Directory.CreateDirectory(_workingDirectory);
+            MockedFileSystemHelpers.CopyExampleFilesToMockedFileSystem(_fileSystemMock, _workingDirectory);
+            MockedFileSystemHelpers.CopyTestFilesToMockedFileSystem(_fileSystemMock, _workingDirectory);
         }
 
         [Fact]
-        public void ModsetConfig_LoadConfig_Success() {
-            // Arrange
-            var settingsMock = new Mock<ISettings>();
-            settingsMock.Setup(settings => settings.ServerDirectory).Returns(Directory.GetCurrentDirectory());
-            settingsMock.Setup(settings => settings.ServerConfigDirectory)
-                .Returns(_serverConfigDirPath);
-            settingsMock.Setup(settings => settings.ModsetConfigDirectoryName)
-                .Returns(_modsetConfigDirName);
+        public void ModsetConfig_LoadConfig_Success()
+        {
+            _settingsMock.Setup(settings => settings.ModsetConfigDirectoryName).Returns(_modsetConfigDirName);
+            _configMock.Setup(x => x.DirectoryPath).Returns(_workingDirectory);
+            _configMock.Setup(x => x.BasicCfg).Returns(Path.Join(_workingDirectory, "example_basic.cfg"));
+            _configMock.Setup(x => x.ServerCfg).Returns(Path.Join(_workingDirectory, "example_server.cfg"));
+            _configMock.Setup(x => x.ConfigJson).Returns(Path.Join(_workingDirectory, "common.json"));
 
-            // Act
-            IModsetConfig modsetConfig = new ModsetConfig(settingsMock.Object, _modsetName);
+            var expectedModsetConfigDirectory = Path.Join(_workingDirectory, _modsetConfigDirName, _modsetName);
+            var expectedModsetConfigFiles = new[] { "server.cfg", "basic.cfg", "config.json" };
+
+            IModsetConfig modsetConfig = new ModsetConfig(
+                _configMock.Object,
+                _settingsMock.Object,
+                _modsetName,
+                _fileSystemMock);
             var configLoaded = modsetConfig.LoadConfig();
 
-            // Assert
-            configLoaded.IsSuccess.Should().BeTrue();
-            Assert.True(Directory.Exists(_modsetConfigDirPath));
-            Assert.True(File.Exists(Path.Join(_modsetConfigDirPath, "server.cfg")));
-            Assert.True(File.Exists(Path.Join(_modsetConfigDirPath, "basic.cfg")));
-            Assert.True(File.Exists(Path.Join(_modsetConfigDirPath, "config.json")));
+            using (new AssertionScope())
+            {
+                configLoaded.IsSuccess.Should().BeTrue();
+                _fileSystemMock.Directory.Exists(expectedModsetConfigDirectory).Should().BeTrue();
+                _fileSystemMock.Directory.GetFiles(expectedModsetConfigDirectory)
+                    .Select(Path.GetFileName).Should().BeEquivalentTo(expectedModsetConfigFiles);
+            }
         }
     }
 }

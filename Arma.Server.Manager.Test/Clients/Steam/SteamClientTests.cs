@@ -21,18 +21,13 @@ namespace Arma.Server.Manager.Test.Clients.Steam {
             var cancellationTokenSource = new CancellationTokenSource();
 
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(1));
-            var task = steamClient.Connect(cancellationTokenSource.Token);
-            Func<Task> action = async () => await task;
+            Func<Task> action = async () => await steamClient.Connect(cancellationTokenSource.Token);
 
-            using (new AssertionScope())
-            {
-                action.Should().Throw<OperationCanceledException>();
-                task.IsCanceled.Should().BeTrue();
-            }
+            action.Should().Throw<OperationCanceledException>();
         }
         
         [Fact]
-        public void Connect_InvalidCredentials_TaskCancelled() {
+        public void Connect_InvalidCredentials_ThrowsInvalidCredentialsException() {
             var settingsMock = new Mock<ISettings>();
             settingsMock.Setup(x => x.SteamUser).Returns("");
             settingsMock.Setup(x => x.SteamPassword).Returns("");

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Arma.Server.Config {
+namespace Arma.Server.Exceptions {
     public class ServerNotFoundException : Exception {
         public ServerNotFoundException() {
         }

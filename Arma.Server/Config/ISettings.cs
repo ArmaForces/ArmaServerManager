@@ -14,6 +14,11 @@ namespace Arma.Server.Config {
         string ApiModsetsBaseUrl { get; }
 
         /// <summary>
+        /// Path to Manager directory.
+        /// </summary>
+        string ManagerDirectory { get; }
+
+        /// <summary>
         /// Name of modset configuration files directory.
         /// </summary>
         string ModsetConfigDirectoryName { get; }

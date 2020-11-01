@@ -3,11 +3,13 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using Arma.Server.Exceptions;
 
 namespace Arma.Server.Config {
     public class Settings : ISettings {
         public string ApiMissionsBaseUrl { get; protected set; }
         public string ApiModsetsBaseUrl { get; protected set; }
+        public string ManagerDirectory { get; } = Directory.GetCurrentDirectory();
         public string ModsetConfigDirectoryName { get; protected set; } = "modsetConfig";
         public string ModsDirectory { get; protected set; }
         public string ModsManagerCacheFileName { get; protected set; }
