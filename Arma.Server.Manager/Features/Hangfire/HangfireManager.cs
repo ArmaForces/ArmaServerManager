@@ -8,15 +8,15 @@ using Arma.Server.Manager.Features.Hangfire.Helpers;
 using CSharpFunctionalExtensions;
 using Hangfire.Common;
 using Hangfire.Storage.Monitoring;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Arma.Server.Manager.Features.Hangfire
 {
-    /// <inheritdoc cref="IHangfireManager"/>
+    /// <inheritdoc cref="IHangfireManager" />
     public class HangfireManager : IHangfireManager
     {
-        private readonly TimeSpan _defaultPrecision = TimeSpan.FromMinutes(15);
-
         private readonly IHangfireBackgroundJobClient _backgroundJobClient;
+        private readonly TimeSpan _defaultPrecision = TimeSpan.FromMinutes(15);
         private readonly IHangfireJobStorage _hangfireJobStorage;
 
         public HangfireManager(IHangfireBackgroundJobClient backgroundJobClient, IHangfireJobStorage hangfireJobStorage)
@@ -25,22 +25,27 @@ namespace Arma.Server.Manager.Features.Hangfire
             _hangfireJobStorage = hangfireJobStorage;
         }
 
-        /// <inheritdoc cref="IHangfireManager"/>
+        /// <inheritdoc cref="IHangfireManager" />
         public Result ScheduleJob<T>(Expression<Func<T, Task>> func, DateTime? dateTime = null) where T : new()
             => dateTime.HasValue
                 ? ScheduleAt(func, dateTime.Value)
                 : EnqueueImmediately(func);
 
+        public static HangfireManager CreateHangfireManager(IServiceProvider serviceProvider)
+            => new HangfireManager(
+                serviceProvider.GetService<IHangfireBackgroundJobClient>(),
+                serviceProvider.GetService<IHangfireJobStorage>());
+
         /// <summary>
-        /// Checks if given <paramref name="job"/> will execute using <typeparamref name="T"/>
-        /// and uses the same method as in <paramref name="func"/>.
+        ///     Checks if given <paramref name="job" /> will execute using <typeparamref name="T" />
+        ///     and uses the same method as in <paramref name="func" />.
         /// </summary>
         private static bool JobMatchesMethod<T>(Job job, Expression<Func<T, Task>> func)
             => job.Type == typeof(T) && func.Body.ToString().Contains(job.Method.Name);
 
         /// <summary>
-        /// Schedules job for execution at <paramref name="dateTime"/>.
-        /// If similar job is already scheduled around that time, nothing is done.
+        ///     Schedules job for execution at <paramref name="dateTime" />.
+        ///     If similar job is already scheduled around that time, nothing is done.
         /// </summary>
         private Result ScheduleAt<T>(Expression<Func<T, Task>> func, DateTime dateTime) where T : new()
         {
@@ -58,8 +63,8 @@ namespace Arma.Server.Manager.Features.Hangfire
         }
 
         /// <summary>
-        /// Schedules job for immediate execution.
-        /// If similar job is already scheduled or in queue now, nothing is done.
+        ///     Schedules job for immediate execution.
+        ///     If similar job is already scheduled or in queue now, nothing is done.
         /// </summary>
         private Result EnqueueImmediately<T>(Expression<Func<T, Task>> func) where T : new()
         {

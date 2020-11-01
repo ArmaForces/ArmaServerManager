@@ -31,9 +31,9 @@ namespace Arma.Server.Manager
 
                     services.AddHostedService<ModsUpdateService>();
 
-                    services.AddSingleton<IHangfireBackgroundJobClient>();
-                    services.AddSingleton<IHangfireJobStorage>();
-                    services.AddSingleton<IHangfireManager>();
+                    services.AddSingleton<IHangfireBackgroundJobClient>(HangfireBackgroundJobClient.CreateHangfireBackgroundJobClient);
+                    services.AddSingleton<IHangfireJobStorage>(HangfireJobStorage.CreateHangfireJobStorage);
+                    services.AddSingleton<IHangfireManager>(HangfireManager.CreateHangfireManager);
                 });
     }
 }
