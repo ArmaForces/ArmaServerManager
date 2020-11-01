@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
-using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Config;
@@ -15,7 +14,6 @@ using Arma.Server.Manager.Clients.Steam;
 using Arma.Server.Modset;
 using FluentAssertions.Execution;
 using Moq;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Arma.Server.Manager.Test.Mods {
