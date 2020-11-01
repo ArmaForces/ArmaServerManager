@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Arma.Server.Mod;
 
 namespace Arma.Server.Manager.Mods {
@@ -19,6 +20,6 @@ namespace Arma.Server.Manager.Mods {
         /// <summary>
         ///     Saves cache to file.
         /// </summary>
-        void SaveCache();
+        Task SaveCache();
     }
 }

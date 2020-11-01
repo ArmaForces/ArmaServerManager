@@ -10,6 +10,7 @@
     <PackageReference Include="BytexDigital.Steam" Version="0.7.40-beta" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.7.14" />
     <PackageReference Include="Hangfire.LiteDB" Version="0.3.1" />
+    <PackageReference Include="Hangfire.MaximumConcurrentExecutions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.8" />
   </ItemGroup>
 

@@ -1,18 +1,21 @@
-using CSharpFunctionalExtensions;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.IO.Abstractions;
 using Arma.Server.Exceptions;
+using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
-namespace Arma.Server.Config {
-    public class Settings : ISettings {
+namespace Arma.Server.Config
+{
+    public class Settings : ISettings
+    {
         public string ApiMissionsBaseUrl { get; protected set; }
         public string ApiModsetsBaseUrl { get; protected set; }
         public string ManagerDirectory { get; } = Directory.GetCurrentDirectory();
         public string ModsetConfigDirectoryName { get; protected set; } = "modsetConfig";
         public string ModsDirectory { get; protected set; }
-        public string ModsManagerCacheFileName { get; protected set; }
+        public string ModsManagerCacheFileName { get; protected set; } = ".ManagerModsCache";
         public string ServerConfigDirectory { get; protected set; }
         public string ServerDirectory { get; protected set; }
         public string ServerExecutable { get; protected set; }
@@ -21,23 +24,34 @@ namespace Arma.Server.Config {
         public string SteamPassword { get; protected set; }
 
         private readonly IConfigurationRoot _config;
-        private IFileSystem _fileSystem;
-        private IRegistryReader _registryReader;
+        private readonly IFileSystem _fileSystem;
+        private readonly IRegistryReader _registryReader;
 
-        public Settings(IConfigurationRoot config = null,
+        public Settings(
+            IConfigurationRoot config = null,
             IFileSystem fileSystem = null,
-            IRegistryReader registryReader = null) {
+            IRegistryReader registryReader = null)
+        {
             _fileSystem = fileSystem ?? new FileSystem();
             _config = config ?? LoadConfigFile();
             _registryReader = registryReader ?? new RegistryReader();
+
+            LoadSettings();
         }
 
-        public Result LoadSettings() {
+        public static Settings LoadSettings(IServiceProvider serviceProvider)
+        {
+            var settingsJsonPath = Path.Join(Directory.GetCurrentDirectory(), "settings.json");
+            var json = File.ReadAllTextAsync(settingsJsonPath).Result;
+            return JsonConvert.DeserializeObject<Settings>(json);
+        }
+
+        public Result LoadSettings()
+        {
             Console.WriteLine("Loading Manager Settings.");
             return GetServerPath()
                 .Tap(GetServerExecutable)
                 .Tap(ObtainModsDirectory)
-                .Tap(ObtainModsManagerCacheFileName)
                 .Tap(ObtainServerConfigDirectory)
                 .Tap(ObtainApiMissionsBaseUrl)
                 .Tap(ObtainApiModsetsBaseUrl)
@@ -53,56 +67,55 @@ namespace Arma.Server.Config {
                 .Build();
 
         private void ObtainServerConfigDirectory()
-            => ServerConfigDirectory = _config["serverConfigDirectory"] ?? Path.Join(ServerDirectory, "serverConfig");
+            => ServerConfigDirectory ??= _config["serverConfigDirectory"] ?? Path.Join(ServerDirectory, "serverConfig");
 
         private void ObtainModsDirectory()
-            => ModsDirectory = _config["modsDirectory"] ?? Path.Join(ServerDirectory, "mods");
+            => ModsDirectory ??= _config["modsDirectory"] ?? Path.Join(ServerDirectory, "mods");
 
-        private void ObtainModsManagerCacheFileName()
-            => ModsManagerCacheFileName = _config["modsManagerCacheFileName"] ?? ".ManagerModsCache";
+        private void ObtainApiMissionsBaseUrl() => ApiMissionsBaseUrl ??= _config["apiMissionsBaseUrl"];
 
-        private void ObtainApiMissionsBaseUrl()
-            => ApiMissionsBaseUrl = _config["apiMissionsBaseUrl"];
+        private void ObtainApiModsetsBaseUrl() => ApiModsetsBaseUrl ??= _config["apiModsetsBaseUrl"];
 
-        private void ObtainApiModsetsBaseUrl()
-            => ApiModsetsBaseUrl = _config["apiModsetsBaseUrl"];
+        private void ObtainSteamUserName() => SteamUser ??= _config["steamUserName"];
 
-        private void ObtainSteamUserName()
-            => SteamUser = _config["steamUserName"];
+        private void ObtainSteamPassword() => SteamPassword ??= _config["steamPassword"];
 
-        private void ObtainSteamPassword()
-            => SteamPassword = _config["steamPassword"];
-
-        private Result GetServerPath() {
-            string serverPath = GetServerPathFromConfig() ?? GetServerPathFromRegistry();
-            ServerDirectory = serverPath ?? throw new ServerNotFoundException("Could not find server directory.");
+        private Result GetServerPath()
+        {
+            var serverPath = GetServerPathFromConfig() ?? GetServerPathFromRegistry();
+            ServerDirectory ??= serverPath ?? throw new ServerNotFoundException("Could not find server directory.");
             return Result.Success();
         }
 
-        private string GetServerPathFromConfig() {
+        private string GetServerPathFromConfig()
+        {
             var serverPath = _config["serverDirectory"];
             return _fileSystem.Directory.Exists(serverPath)
                 ? serverPath
                 : null;
         }
 
-        private string GetServerPathFromRegistry() {
-            try {
+        private string GetServerPathFromRegistry()
+        {
+            try
+            {
                 var serverPath = _registryReader
                     .GetValueFromLocalMachine(@"SOFTWARE\WOW6432Node\bohemia interactive\arma 3", "main")
                     .ToString();
                 return _fileSystem.Directory.Exists(serverPath)
                     ? serverPath
                     : null;
-            } catch (NullReferenceException) {
+            } catch (NullReferenceException)
+            {
                 return null;
             }
         }
 
-        private void GetServerExecutable() {
-            string serverExecutableName = _config["serverExecutableName"];
-            string serverExecutablePath = Path.Join(ServerDirectory, serverExecutableName);
-            ServerExecutable = _fileSystem.File.Exists(serverExecutablePath)
+        private void GetServerExecutable()
+        {
+            var serverExecutableName = _config["serverExecutableName"];
+            var serverExecutablePath = Path.Join(ServerDirectory, serverExecutableName);
+            ServerExecutable ??= _fileSystem.File.Exists(serverExecutablePath)
                 ? serverExecutablePath
                 : Path.Join(ServerDirectory, "arma3server_x64.exe");
         }

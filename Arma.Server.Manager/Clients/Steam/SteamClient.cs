@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Arma.Server.Config;
 using BytexDigital.Steam.ContentDelivery;
 using BytexDigital.Steam.Core;
+using Microsoft.Extensions.DependencyInjection;
 using BytexSteamClient = BytexDigital.Steam.Core.SteamClient;
 
 namespace Arma.Server.Manager.Clients.Steam {
@@ -31,6 +32,11 @@ namespace Arma.Server.Manager.Clients.Steam {
             _bytexSteamClient = new BytexSteamClient(_steamCredentials);
             _contentClient = new SteamContentClient(_bytexSteamClient);
             Downloader = new Downloader(this, _contentClient, settings.ModsDirectory);
+        }
+
+        public static SteamClient CreateSteamClient(IServiceProvider serviceProvider)
+        {
+            return new SteamClient(serviceProvider.GetService<ISettings>());
         }
 
         /// <inheritdoc />
@@ -60,11 +66,11 @@ namespace Arma.Server.Manager.Clients.Steam {
         }
 
         /// <inheritdoc />
-        public async Task Download(int itemId, CancellationToken cancellationToken)
+        public async Task Download(int itemId, CancellationToken cancellationToken) 
             => await Downloader.DownloadMod(itemId, cancellationToken);
 
         /// <inheritdoc />
-        public async Task Download(IEnumerable<int> itemsIds, CancellationToken cancellationToken)
+        public async Task Download(IEnumerable<int> itemsIds, CancellationToken cancellationToken) 
             => await Downloader.DownloadMods(itemsIds, cancellationToken);
     }
 }
