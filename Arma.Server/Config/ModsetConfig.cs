@@ -77,10 +77,9 @@ namespace Arma.Server.Config
             var sampleJSON = new Dictionary<string, Dictionary<string, string>>();
             sampleJSON.Add("server", sampleServer);
             // Write to file
-            using (StreamWriter file = _fileSystem.File.CreateText(ConfigJson))
+            using (var file = _fileSystem.File.CreateText(ConfigJson))
             {
-                var serializerOptions = new JsonSerializerOptions();
-                serializerOptions.WriteIndented = true;
+                var serializerOptions = new JsonSerializerOptions {WriteIndented = true};
                 var serializedJson = JsonSerializer.Serialize(sampleJSON, serializerOptions);
                 file.Write(serializedJson);
             }
@@ -94,27 +93,30 @@ namespace Arma.Server.Config
         {
             // Apply modset config on top of default config
             var modsetConfig = new ConfigurationBuilder()
-                .AddJsonFile(_serverConfig.ConfigJson)
-                .AddJsonFile(ConfigJson)
+                .AddJsonStream(_fileSystem.FileStream.Create(_serverConfig.ConfigJson, FileMode.Open))
+                .AddJsonStream(_fileSystem.FileStream.Create(ConfigJson, FileMode.Open))
                 .Build();
 
-            // Process configuration files for modset
-            var configs = new List<string> { "server", "basic" };
-            foreach (var config in configs)
-            {
-                Console.WriteLine($"Loading {config}.cfg for {ModsetName} modset.");
-
-                var somePath = Path.Join($"{_serverConfig.DirectoryPath}", $"{config}.cfg");
-
-                var cfgFile = ConfigFileCreator.FillCfg(
-                    _fileSystem.File.ReadAllText(somePath),
-                    modsetConfig.GetSection(config));
-
-                _fileSystem.File.WriteAllText(Path.Join(DirectoryPath, $"{config}.cfg"), cfgFile);
-                Console.WriteLine($"{config}.cfg successfully exported to {DirectoryPath}");
-            }
+            CreateConfigFiles(_serverConfig.BasicCfg, BasicCfg, modsetConfig);
+            CreateConfigFiles(_serverConfig.ServerCfg, ServerCfg, modsetConfig);
 
             return Result.Success();
+        }
+
+        private void CreateConfigFiles(
+            string serverConfigFilePath,
+            string modsetConfigFilePath,
+            IConfigurationRoot modsetConfig)
+        {
+            var fileName = Path.GetFileName(serverConfigFilePath);
+            Console.WriteLine($"Loading {fileName} for {ModsetName} modset.");
+
+            var cfgFile = ConfigFileCreator.FillCfg(
+                _fileSystem.File.ReadAllText(serverConfigFilePath),
+                modsetConfig.GetSection(serverConfigFilePath));
+
+            _fileSystem.File.WriteAllText(modsetConfigFilePath, cfgFile);
+            Console.WriteLine($"{fileName} successfully exported to {DirectoryPath}");
         }
     }
 }

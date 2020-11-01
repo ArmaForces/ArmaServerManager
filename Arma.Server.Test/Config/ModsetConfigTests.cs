@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using Arma.Server.Config;
 using Arma.Server.Test.Helpers;
 using AutoFixture;
@@ -29,6 +30,7 @@ namespace Arma.Server.Test.Config
             _fileSystemMock = new MockFileSystem(new Dictionary<string, MockFileData>(), _workingDirectory);
             _fileSystemMock.Directory.CreateDirectory(_workingDirectory);
             MockedFileSystemHelpers.CopyExampleFilesToMockedFileSystem(_fileSystemMock, _workingDirectory);
+            MockedFileSystemHelpers.CopyTestFilesToMockedFileSystem(_fileSystemMock, _workingDirectory);
         }
 
         [Fact]
@@ -36,7 +38,11 @@ namespace Arma.Server.Test.Config
         {
             _settingsMock.Setup(settings => settings.ModsetConfigDirectoryName).Returns(_modsetConfigDirName);
             _configMock.Setup(x => x.DirectoryPath).Returns(_workingDirectory);
-            var expectedModsetConfigDirectory = Path.Join(_workingDirectory, _modsetConfigDirName);
+            _configMock.Setup(x => x.BasicCfg).Returns(Path.Join(_workingDirectory, "example_basic.cfg"));
+            _configMock.Setup(x => x.ServerCfg).Returns(Path.Join(_workingDirectory, "example_server.cfg"));
+            _configMock.Setup(x => x.ConfigJson).Returns(Path.Join(_workingDirectory, "common.json"));
+
+            var expectedModsetConfigDirectory = Path.Join(_workingDirectory, _modsetConfigDirName, _modsetName);
             var expectedModsetConfigFiles = new[] { "server.cfg", "basic.cfg", "config.json" };
 
             IModsetConfig modsetConfig = new ModsetConfig(
@@ -50,7 +56,8 @@ namespace Arma.Server.Test.Config
             {
                 configLoaded.IsSuccess.Should().BeTrue();
                 _fileSystemMock.Directory.Exists(expectedModsetConfigDirectory).Should().BeTrue();
-                _fileSystemMock.Directory.GetFiles(expectedModsetConfigDirectory).Should().BeEquivalentTo(expectedModsetConfigFiles);
+                _fileSystemMock.Directory.GetFiles(expectedModsetConfigDirectory)
+                    .Select(Path.GetFileName).Should().BeEquivalentTo(expectedModsetConfigFiles);
             }
         }
     }
