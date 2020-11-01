@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Arma.Server.Config;
 using Arma.Server.Manager.Mods;
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,12 +14,9 @@ namespace Arma.Server.Manager.Services
     public class ModsUpdateService : IHostedService
     {
         private readonly IModsManager _modsManager;
-        private readonly ISettings _settings;
-        private bool _lock;
 
-        public ModsUpdateService(ISettings settings, IModsManager modsManager)
+        public ModsUpdateService(IModsManager modsManager)
         {
-            _settings = settings;
             _modsManager = modsManager;
         }
 
@@ -35,9 +31,7 @@ namespace Arma.Server.Manager.Services
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
         public static ModsUpdateService CreateModsUpdateService(IServiceProvider serviceProvider)
-            => new ModsUpdateService(
-                serviceProvider.GetService<ISettings>(),
-                serviceProvider.GetService<IModsManager>());
+            => new ModsUpdateService(serviceProvider.GetService<IModsManager>());
 
         /// <summary>
         ///     Handles updating all cached mods.

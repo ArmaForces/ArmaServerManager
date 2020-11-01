@@ -15,20 +15,20 @@ namespace Arma.Server.Manager.Mods
     /// <inheritdoc />
     public class ModsManager : IModsManager
     {
+        private readonly IModsDownloader _modsDownloader;
         private readonly IModsCache _modsCache;
-        private readonly ISteamClient _steamClient;
 
         /// <inheritdoc />
-        public ModsManager(ISettings settings) : this(new SteamClient(settings), new ModsCache(settings))
+        public ModsManager(ISettings settings) : this(new ModsDownloader(settings), new ModsCache(settings))
         {
         }
 
         /// <inheritdoc cref="ModsManager" />
-        /// <param name="steamClient">Steam client for mods download and updating.</param>
+        /// <param name="modsDownloader">Client for mods download and updating.</param>
         /// <param name="modsCache">Installed mods cache.</param>
-        public ModsManager(ISteamClient steamClient, IModsCache modsCache)
+        public ModsManager(IModsDownloader modsDownloader, IModsCache modsCache)
         {
-            _steamClient = steamClient;
+            _modsDownloader = modsDownloader;
             _modsCache = modsCache;
         }
 
@@ -54,7 +54,7 @@ namespace Arma.Server.Manager.Mods
         }
 
         public static ModsManager CreateModsManager(IServiceProvider serviceProvider)
-            => new ModsManager(serviceProvider.GetService<ISteamClient>(), serviceProvider.GetService<IModsCache>());
+            => new ModsManager(serviceProvider.GetService<IModsDownloader>(), serviceProvider.GetService<IModsCache>());
 
         private Result InitializeMods(IModset modset)
             => CheckModsExist(modset.Mods)
@@ -73,7 +73,7 @@ namespace Arma.Server.Manager.Mods
         /// ///
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods download safe cancelling.</param>
         private async Task DownloadMods(IEnumerable<IMod> missingMods, CancellationToken cancellationToken)
-            => _steamClient.Download(missingMods.Select(x => x.WorkshopId), cancellationToken);
+            => await _modsDownloader.DownloadMods(missingMods.Select(x => x.WorkshopId), cancellationToken);
 
         /// <summary>
         ///     Invokes <see cref="ISteamClient" /> to update given list of mods.
@@ -81,6 +81,6 @@ namespace Arma.Server.Manager.Mods
         /// <param name="requiredUpdateMods">Mods to update.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods update safe cancelling.</param>
         private async Task UpdateMods(IEnumerable<IMod> requiredUpdateMods, CancellationToken cancellationToken)
-            => await _steamClient.Download(requiredUpdateMods.Select(x => x.WorkshopId), cancellationToken);
+            => await _modsDownloader.DownloadMods(requiredUpdateMods.Select(x => x.WorkshopId), cancellationToken);
     }
 }

@@ -50,7 +50,7 @@ namespace Arma.Server.Manager.Mods
             {
                 var modInCache = Mods.Single(cacheMod => cacheMod.Equals(mod));
                 return TryEnsureModDirectory(modInCache);
-            } catch (InvalidOperationException e)
+            } catch (InvalidOperationException)
             {
                 mod = TryEnsureModDirectory(mod);
                 Mods.Append(mod);

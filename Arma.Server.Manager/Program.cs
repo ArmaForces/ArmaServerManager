@@ -38,6 +38,7 @@ namespace Arma.Server.Manager
                         services.AddSingleton<IModsCache>(ModsCache.CreateModsCache);
                         services.AddSingleton<IModsManager>(ModsManager.CreateModsManager);
                         services.AddSingleton<ISteamClient>(SteamClient.CreateSteamClient);
+                        services.AddSingleton<IModsDownloader>(ModsDownloader.CreateModsDownloader);
 
                         services.AddSingleton<IHangfireBackgroundJobClient>(
                             HangfireBackgroundJobClient.CreateHangfireBackgroundJobClient);

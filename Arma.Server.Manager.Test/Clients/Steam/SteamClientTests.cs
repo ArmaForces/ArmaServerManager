@@ -21,7 +21,7 @@ namespace Arma.Server.Manager.Test.Clients.Steam {
             var cancellationTokenSource = new CancellationTokenSource();
 
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(1));
-            Func<Task> action = async () => await steamClient.Connect(cancellationTokenSource.Token);
+            Func<Task> action = async () => await steamClient.EnsureConnected(cancellationTokenSource.Token);
 
             action.Should().Throw<OperationCanceledException>();
         }
@@ -34,7 +34,7 @@ namespace Arma.Server.Manager.Test.Clients.Steam {
             settingsMock.Setup(x => x.ModsDirectory).Returns("");
             var steamClient = new SteamClient(settingsMock.Object);
 
-            Func<Task> action = async () => await steamClient.Connect(CancellationToken.None);
+            Func<Task> action = async () => await steamClient.EnsureConnected(CancellationToken.None);
 
             action.Should().Throw<InvalidCredentialException>("Invalid Steam Credentials");
         }

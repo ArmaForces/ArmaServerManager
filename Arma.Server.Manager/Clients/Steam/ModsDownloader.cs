@@ -3,28 +3,34 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using BytexDigital.Steam.ContentDelivery;
+using Arma.Server.Config;
 using BytexDigital.Steam.Core.Enumerations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Arma.Server.Manager.Clients.Steam {
     /// <inheritdoc />
-    public class Downloader: IDownloader {
+    public class ModsDownloader: IModsDownloader {
         private const int SteamAppId = 233780; // Arma 3 Server
         private const int SteamDepotId = 228990;
-        private readonly SteamContentClient _contentClient;
         private readonly ISteamClient _steamClient;
         private readonly string _modsDirectory;
 
-        /// <inheritdoc cref="Downloader" />
+        public ModsDownloader(ISettings settings) : this(new SteamClient(settings), settings.ModsDirectory)
+        {
+        }
+
+        /// <inheritdoc cref="ModsDownloader" />
         /// <param name="steamClient">Client used for connection.</param>
-        /// <param name="contentClient">Client used for downloading.</param>
         /// <param name="modsDirectory">Directory where mods should be stored.</param>
-        public Downloader(ISteamClient steamClient,
-            SteamContentClient contentClient,
+        public ModsDownloader(ISteamClient steamClient,
             string modsDirectory) {
             _steamClient = steamClient;
-            _contentClient = contentClient;
             _modsDirectory = modsDirectory;
+        }
+
+        public static ModsDownloader CreateModsDownloader(IServiceProvider serviceProvider)
+        {
+            return new ModsDownloader(serviceProvider.GetService<ISettings>());
         }
 
         /// <inheritdoc />
@@ -33,12 +39,11 @@ namespace Arma.Server.Manager.Clients.Steam {
 
         /// <inheritdoc />
         public async Task DownloadMods(IEnumerable<int> itemsIds, CancellationToken cancellationToken) {
-            await _steamClient.Connect(cancellationToken);
+            await _steamClient.EnsureConnected(cancellationToken);
             foreach (int itemId in itemsIds) {
                 if (cancellationToken.IsCancellationRequested) CancelDownload();
                 await Download(itemId, cancellationToken);
             }
-            _steamClient.Disconnect();
         }
 
         /// <inheritdoc />
@@ -52,7 +57,6 @@ namespace Arma.Server.Manager.Clients.Steam {
         /// Safely cancels download process.
         /// </summary>
         private void CancelDownload() {
-            _steamClient.Disconnect();
             throw new OperationCanceledException();
         }
 
@@ -72,8 +76,8 @@ namespace Arma.Server.Manager.Clients.Steam {
                     throw new NotImplementedException("Downloading Arma 3 Server is not supported yet.");
 
                 var downloadHandler = itemType == ItemType.App
-                    ? await _contentClient.GetAppDataAsync(SteamAppId, SteamDepotId, os: SteamOs.Windows)
-                    : await _contentClient.GetPublishedFileDataAsync(itemId, os: SteamOs.Windows);
+                    ? await _steamClient.ContentClient.GetAppDataAsync(SteamAppId, SteamDepotId, os: SteamOs.Windows)
+                    : await _steamClient.ContentClient.GetPublishedFileDataAsync(itemId, os: SteamOs.Windows);
 
                 Console.WriteLine($"Starting download of {itemId}");
                 var downloadDirectory = Path.Join(_modsDirectory, itemId.ToString());

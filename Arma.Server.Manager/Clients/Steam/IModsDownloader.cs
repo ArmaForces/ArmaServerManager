@@ -6,7 +6,7 @@ namespace Arma.Server.Manager.Clients.Steam {
     /// <summary>
     /// Handles downloading/updating mods and arma server.
     /// </summary>
-    public interface IDownloader {
+    public interface IModsDownloader {
         /// <summary>
         /// Downloads arma server.
         /// </summary>
