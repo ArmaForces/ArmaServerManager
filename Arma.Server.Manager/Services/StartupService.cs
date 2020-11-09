@@ -13,6 +13,7 @@ namespace Arma.Server.Manager.Services
         /// <inheritdoc />
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            BackgroundJob.Schedule<ServerStartupService>(x => x.StartServer("default-test", CancellationToken.None), DateTimeOffset.Now);
             RecurringJob.AddOrUpdate<ModsUpdateService>(x => x.UpdateAllMods(CancellationToken.None), Cron.Hourly);
             return Task.CompletedTask;
         }

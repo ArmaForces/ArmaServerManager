@@ -1,17 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Arma.Server.Config;
+using Arma.Server.Manager.Clients.Modsets;
+using Arma.Server.Manager.Clients.Steam;
+using Arma.Server.Manager.Features.Hangfire;
+using Arma.Server.Manager.Features.Hangfire.Helpers;
+using Arma.Server.Manager.Mods;
+using Arma.Server.Manager.Providers;
+using Arma.Server.Manager.Services;
 using Hangfire;
 using Hangfire.LiteDB;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Arma.Server.Manager.Web
+namespace Arma.Server.Manager
 {
     public class Startup
     {
@@ -33,6 +36,25 @@ namespace Arma.Server.Manager.Web
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
                 .UseLiteDbStorage(Configuration.GetConnectionString("HangfireConnection")));
+
+            // Add the processing server as IHostedService
+            services.AddHangfireServer();
+
+            services.AddHostedService<StartupService>();
+
+            services.AddSingleton<ISettings>(Settings.LoadSettings);
+            services.AddSingleton<IModsCache>(ModsCache.CreateModsCache);
+            services.AddSingleton<IModsManager>(ModsManager.CreateModsManager);
+            services.AddSingleton<IApiModsetClient>(ApiModsetClient.CreateApiModsetClient);
+            services.AddSingleton<ISteamClient>(SteamClient.CreateSteamClient);
+            services.AddSingleton<IModsDownloader>(ModsDownloader.CreateModsDownloader);
+            services.AddSingleton<IModsetProvider>(ModsetProvider.CreateModsetProvider);
+            services.AddSingleton<IModsUpdateService>(ModsUpdateService.CreateModsUpdateService);
+
+            services.AddSingleton<IHangfireBackgroundJobClient>(
+                HangfireBackgroundJobClient.CreateHangfireBackgroundJobClient);
+            services.AddSingleton<IHangfireJobStorage>(HangfireJobStorage.CreateHangfireJobStorage);
+            services.AddSingleton<IHangfireManager>(HangfireManager.CreateHangfireManager);
 
             // Add framework services.
             services.AddMvc();

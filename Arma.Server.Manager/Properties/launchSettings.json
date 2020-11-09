@@ -1,9 +1,26 @@
 {
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:43234",
+      "sslPort": 44354
+    }
+  },
   "profiles": {
-    "ArmaServerManager": {
-      "commandName": "Project",
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
       "environmentVariables": {
-        "hostNamePattern": "ArmaForces {0} edition"
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Arma.Server.Manager": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:5001;http://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }
