@@ -3,6 +3,7 @@ using Arma.Server.Manager.Clients.Steam;
 using Arma.Server.Manager.Features.Hangfire;
 using Arma.Server.Manager.Features.Hangfire.Helpers;
 using Arma.Server.Manager.Mods;
+using Arma.Server.Manager.Providers;
 using Arma.Server.Manager.Services;
 using Hangfire;
 using Hangfire.LiteDB;
@@ -32,13 +33,15 @@ namespace Arma.Server.Manager
                         // Add the processing server as IHostedService
                         services.AddHangfireServer();
 
-                        services.AddHostedService<ModsUpdateService>();
+                        services.AddHostedService<StartupService>();
 
                         services.AddSingleton<ISettings>(Settings.LoadSettings);
                         services.AddSingleton<IModsCache>(ModsCache.CreateModsCache);
                         services.AddSingleton<IModsManager>(ModsManager.CreateModsManager);
                         services.AddSingleton<ISteamClient>(SteamClient.CreateSteamClient);
                         services.AddSingleton<IModsDownloader>(ModsDownloader.CreateModsDownloader);
+                        services.AddSingleton<IModsetProvider>(ModsetProvider.CreateModsetProvider);
+                        services.AddSingleton<IModsUpdateService>(ModsUpdateService.CreateModsUpdateService);
 
                         services.AddSingleton<IHangfireBackgroundJobClient>(
                             HangfireBackgroundJobClient.CreateHangfireBackgroundJobClient);

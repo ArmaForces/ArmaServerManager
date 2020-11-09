@@ -2,16 +2,16 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Manager.Mods;
+using Arma.Server.Modset;
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Arma.Server.Manager.Services
 {
     /// <summary>
     ///     Schedules recurring job for updating all cached mods.
     /// </summary>
-    public class ModsUpdateService : IHostedService
+    public class ModsUpdateService : IModsUpdateService
     {
         private readonly IModsManager _modsManager;
 
@@ -20,18 +20,10 @@ namespace Arma.Server.Manager.Services
             _modsManager = modsManager;
         }
 
-        /// <inheritdoc />
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task UpdateModset(IModset modset, CancellationToken cancellationToken)
         {
-            RecurringJob.AddOrUpdate<ModsUpdateService>(x => x.Update(CancellationToken.None), Cron.Hourly);
-            return Task.CompletedTask;
+            await _modsManager.PrepareModset(modset);
         }
-
-        /// <inheritdoc />
-        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-        public static ModsUpdateService CreateModsUpdateService(IServiceProvider serviceProvider)
-            => new ModsUpdateService(serviceProvider.GetService<IModsManager>());
 
         /// <summary>
         ///     Handles updating all cached mods.
@@ -39,7 +31,10 @@ namespace Arma.Server.Manager.Services
         /// <param name="cancellationToken">Cancellation token for safe process abort.</param>
         /// <returns>Awaitable <see cref="Task" /></returns>
         [MaximumConcurrentExecutions(1)]
-        public async Task Update(CancellationToken cancellationToken)
+        public async Task UpdateAllMods(CancellationToken cancellationToken)
             => await _modsManager.UpdateAllMods(cancellationToken);
+
+        public static ModsUpdateService CreateModsUpdateService(IServiceProvider serviceProvider)
+            => new ModsUpdateService(serviceProvider.GetService<IModsManager>());
     }
 }

@@ -13,7 +13,7 @@ namespace Arma.Server.Manager.Mods {
         /// <inheritdoc cref="IModsManager"/>
         /// <param name="modset">Modset to prepare.</param>
         /// <returns><see cref="Result.Success"/> if all mods from <see cref="IModset"/> are downloaded and up to date.</returns>
-        Result PrepareModset(IModset modset);
+        Task<Result> PrepareModset(IModset modset);
 
         /// <summary>
         /// Checks if all mods from given list exist.
