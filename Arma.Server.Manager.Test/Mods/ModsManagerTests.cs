@@ -33,22 +33,22 @@ namespace Arma.Server.Manager.Test.Mods {
         }
 
         [Fact]
-        public void PrepareModset_ModNotExists_DownloadsMod() {
+        public async Task PrepareModset_ModNotExists_DownloadsMod() {
             var modsEnumerable = _modset.Mods.Select(x => x.WorkshopId);
 
-            _modsManager.PrepareModset(_modset);
+            await _modsManager.PrepareModset(_modset);
 
             _downloaderMock.Verify(x => x.DownloadMods(modsEnumerable, It.IsAny<CancellationToken>()));
         }
 
         [Fact]
-        public void PrepareModset_ModExists_DownloadsMod() {
+        public async Task PrepareModset_ModExists_DownloadsMod() {
             foreach (var mod in _modset.Mods) {
-                _modsCacheMock.Setup(x => x.ModExists(It.IsAny<IMod>())).Returns(false);
-                _modsCacheMock.Setup(x => x.ModExists(mod)).Returns(true);
+                _modsCacheMock.Setup(x => x.ModExists(It.IsAny<IMod>())).Returns(Task.FromResult(false));
+                _modsCacheMock.Setup(x => x.ModExists(mod)).Returns(Task.FromResult(true));
             }
 
-            _modsManager.PrepareModset(_modset);
+            await _modsManager.PrepareModset(_modset);
 
             _downloaderMock.Verify(x => x.DownloadMods(
                 It.IsAny<IEnumerable<int>>(),

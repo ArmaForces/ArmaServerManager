@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="RestSharp" Version="106.11.7" />
+    <PackageReference Include="System.Linq.Async" Version="4.1.1" />
   </ItemGroup>
 
   <ItemGroup>

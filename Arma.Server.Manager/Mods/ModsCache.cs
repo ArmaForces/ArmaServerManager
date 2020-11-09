@@ -36,7 +36,11 @@ namespace Arma.Server.Manager.Mods
         public ISet<IMod> Mods { get; protected set; }
 
         /// <inheritdoc />
-        public bool ModExists(IMod mod) => GetOrSetModInCache(mod).Exists(_fileSystem);
+        public async Task<bool> ModExists(IMod mod)
+        {
+            mod = await GetOrSetModInCache(mod);
+            return mod?.Exists(_fileSystem) ?? false;
+        }
 
         /// <inheritdoc />
         public async Task SaveCache() => await SaveCache(Mods);
@@ -44,7 +48,7 @@ namespace Arma.Server.Manager.Mods
         public static ModsCache CreateModsCache(IServiceProvider serviceProvider)
             => new ModsCache(serviceProvider.GetService<ISettings>());
 
-        private IMod GetOrSetModInCache(IMod mod)
+        private async Task<IMod> GetOrSetModInCache(IMod mod)
         {
             try
             {
@@ -53,9 +57,17 @@ namespace Arma.Server.Manager.Mods
             } catch (InvalidOperationException)
             {
                 mod = TryEnsureModDirectory(mod);
-                Mods.Add(mod);
-                return mod;
+                return mod.Directory is null
+                    ? null
+                    : await AddModToCache(mod);
             }
+        }
+
+        private async Task<IMod> AddModToCache(IMod mod)
+        {
+            Mods.Add(mod);
+            await SaveCache();
+            return mod;
         }
 
         private IMod TryEnsureModDirectory(IMod mod)

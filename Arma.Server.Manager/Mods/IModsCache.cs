@@ -10,7 +10,7 @@ namespace Arma.Server.Manager.Mods {
         /// </summary>
         /// <param name="mod">Mod to check if it exists.</param>
         /// <returns>True if mod directory is found.</returns>
-        bool ModExists(IMod mod);
+        Task<bool> ModExists(IMod mod);
 
         /// <summary>
         /// All cached mods.

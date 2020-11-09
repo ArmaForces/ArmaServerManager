@@ -42,7 +42,10 @@ namespace Arma.Server.Manager.Mods
         /// <inheritdoc />
         public Result<IEnumerable<IMod>> CheckModsExist(IEnumerable<IMod> modsList)
         {
-            var missingMods = modsList.Where(mod => !_modsCache.ModExists(mod));
+            var missingMods = modsList
+                .ToAsyncEnumerable()
+                .WhereAwait(async mod => !await _modsCache.ModExists(mod))
+                .ToEnumerable();
             return Result.Success(missingMods);
         }
 
