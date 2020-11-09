@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -53,7 +53,7 @@ namespace Arma.Server.Manager.Mods
             } catch (InvalidOperationException)
             {
                 mod = TryEnsureModDirectory(mod);
-                Mods.Append(mod);
+                Mods.Add(mod);
                 return mod;
             }
         }
