@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Arma.Server.Config;
 using Arma.Server.Providers;
+using Arma.Server.Providers.Parameters;
 using Microsoft.Extensions.Logging;
+
+[assembly: InternalsVisibleTo("Arma.Server.Test")]
 
 namespace Arma.Server
 {

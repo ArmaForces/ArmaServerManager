@@ -1,4 +1,4 @@
-﻿namespace Arma.Server.Providers
+﻿namespace Arma.Server.Providers.Parameters
 {
     public interface IParametersProvider
     {

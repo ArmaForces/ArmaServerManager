@@ -8,5 +8,7 @@ namespace Arma.Server.Modset {
         string Name { get; }
         DateTime? LastUpdatedAt { get; }
         ISet<IMod> Mods { get; }
+        ISet<IMod> RequiredMods { get; }
+        ISet<IMod> ServerSideMods { get; }
     }
 }

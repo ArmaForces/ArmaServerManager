@@ -3,15 +3,15 @@ using Arma.Server.Config;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 
-namespace Arma.Server.Providers
+namespace Arma.Server.Providers.Parameters
 {
-    public class ParametersProvider : IParametersProvider
+    public class ServerParametersProvider : IParametersProvider
     {
         private readonly int _port;
         private readonly IModset _modset;
         private readonly IModsetConfig _modsetConfig;
 
-        public ParametersProvider(
+        public ServerParametersProvider(
             int port,
             IModset modset,
             IModsetConfig modsetConfig)
@@ -31,31 +31,32 @@ namespace Arma.Server.Providers
                 GetSpecialParams(),
                 GetModsStartupParam(_modset));
 
-        private static string GetModsStartupParam(IModset modset)
-            => false // TODO: Check here for HC in the future
-                ? GetHcModsStartupParam(modset)
-                : GetServerModsStartupParam(modset);
+        internal static string GetModsStartupParam(IModset modset) 
+            => string.Join(
+                ' ',
+                GetServerModsStartupParam(modset),
+                GetRequiredModsStartupParam(modset));
 
         private static string GetServerModsStartupParam(IModset modset)
         {
-            var serverMods = modset.Mods
-                .Where(x => x.Type.Equals(ModType.ServerSide))
-                .Select(x => x.Directory);
+            var serverMods = modset.ServerSideMods
+                .Select(x => x.Directory)
+                .ToList();
 
-            var mods = modset.Mods
-                .Where(x => x.Type.Equals(ModType.Required))
-                .Select(x => x.Directory);
-
-            return "-serverMod=" + string.Join(";", serverMods) + " -mod=" + string.Join(";", mods);
+            return serverMods.Any()
+                ? "-serverMod=" + string.Join(";", serverMods)
+                : null;
         }
 
-        private static string GetHcModsStartupParam(IModset modset)
+        private static string GetRequiredModsStartupParam(IModset modset)
         {
-            var mods = modset.Mods
-                .Where(x => x.Type.Equals(ModType.ServerSide) || x.Type.Equals(ModType.Required))
-                .Select(x => x.Directory);
+            var mods = modset.RequiredMods
+                .Select(x => x.Directory)
+                .ToList();
 
-            return "-mod=" + string.Join(";", mods);
+            return mods.Any()
+                ? "-mod=" + string.Join(";", mods)
+                : null;
         }
 
         /// <summary>

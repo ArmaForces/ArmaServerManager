@@ -2,6 +2,8 @@
 using System.IO;
 using Arma.Server.Config;
 using Arma.Server.Modset;
+using Arma.Server.Providers;
+using Arma.Server.Providers.Parameters;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
@@ -10,8 +12,7 @@ using Xunit;
 namespace Arma.Server.Test {
     public class ServerTests : IDisposable {
         private readonly Mock<ISettings> _settingsMock;
-        private readonly Mock<IModsetConfig> _modsetConfigMock;
-        private readonly Mock<IModset> _modsetMock;
+        private readonly Mock<IParametersProvider> _parametersProviderMock;
 
         private readonly Fixture _fixture = new Fixture();
         private readonly Server _server;
@@ -22,12 +23,12 @@ namespace Arma.Server.Test {
             _settingsMock.Setup(x => x.ServerDirectory).Returns(Directory.GetCurrentDirectory());
             _settingsMock.Setup(x => x.ServerConfigDirectory).Returns(_serverConfigDir);
             _settingsMock.Setup(x => x.ServerExecutable).Returns(Directory.GetCurrentDirectory());
-            _modsetMock = new Mock<IModset>();
-            _modsetMock.Setup(x => x.Name).Returns(_fixture.Create<string>());
-            _modsetConfigMock = new Mock<IModsetConfig>();
+
+            _parametersProviderMock = new Mock<IParametersProvider>();
+            _parametersProviderMock.Setup(x => x.GetStartupParams()).Returns(string.Empty);
 
             // Create server
-            _server = new Server(_settingsMock.Object, _modsetConfigMock.Object, _modsetMock.Object);
+            _server = new Server(_settingsMock.Object, _parametersProviderMock.Object, null);
         }
 
         [Fact]
