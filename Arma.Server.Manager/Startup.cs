@@ -5,7 +5,9 @@ using Arma.Server.Manager.Features.Hangfire;
 using Arma.Server.Manager.Features.Hangfire.Helpers;
 using Arma.Server.Manager.Mods;
 using Arma.Server.Manager.Providers;
+using Arma.Server.Manager.Providers.Server;
 using Arma.Server.Manager.Services;
+using Arma.Server.Providers.Configuration;
 using Hangfire;
 using Hangfire.LiteDB;
 using Microsoft.AspNetCore.Builder;
@@ -49,6 +51,8 @@ namespace Arma.Server.Manager
             services.AddSingleton<ISteamClient>(SteamClient.CreateSteamClient);
             services.AddSingleton<IModsDownloader>(ModsDownloader.CreateModsDownloader);
             services.AddSingleton<IModsetProvider>(ModsetProvider.CreateModsetProvider);
+            services.AddSingleton<IServerProvider>(ServerProvider.CreateServerProvider);
+            services.AddSingleton<IServerConfigurationProvider>(ServerConfigurationProvider.CreateServerConfigurationProvider);
             services.AddSingleton<IModsUpdateService>(ModsUpdateService.CreateModsUpdateService);
 
             services.AddSingleton<IHangfireBackgroundJobClient>(

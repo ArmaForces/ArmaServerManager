@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Arma.Server.Manager\Arma.Server.Manager.csproj" />
+    <ProjectReference Include="..\Arma.Server.Test\Arma.Server.Test.csproj" />
   </ItemGroup>
 
 </Project>
