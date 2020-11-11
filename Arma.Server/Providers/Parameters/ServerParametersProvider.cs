@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Arma.Server.Config;
 using Arma.Server.Extensions;
-using Arma.Server.Mod;
 using Arma.Server.Modset;
 
 namespace Arma.Server.Providers.Parameters
