@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Arma.Server.Config;
+using Arma.Server.Extensions;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 
@@ -36,8 +37,7 @@ namespace Arma.Server.Providers.Parameters
         {
             var mods = modset.Mods
                 .Where(x => x.Type == ModType.ServerSide || x.Type == ModType.Required)
-                .Select(x => x.Directory)
-                .ToList();
+                .GetDirectories();
 
             return mods.Any()
                 ? "-mod=" + string.Join(";", mods)

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Arma.Server.Config;
+using Arma.Server.Extensions;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 
@@ -40,8 +41,7 @@ namespace Arma.Server.Providers.Parameters
         private static string GetServerModsStartupParam(IModset modset)
         {
             var serverMods = modset.ServerSideMods
-                .Select(x => x.Directory)
-                .ToList();
+                .GetDirectories();
 
             return serverMods.Any()
                 ? "-serverMod=" + string.Join(";", serverMods)
@@ -51,8 +51,7 @@ namespace Arma.Server.Providers.Parameters
         private static string GetRequiredModsStartupParam(IModset modset)
         {
             var mods = modset.RequiredMods
-                .Select(x => x.Directory)
-                .ToList();
+                .GetDirectories();
 
             return mods.Any()
                 ? "-mod=" + string.Join(";", mods)

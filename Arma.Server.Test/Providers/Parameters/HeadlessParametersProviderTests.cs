@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Arma.Server.Config;
+using Arma.Server.Extensions;
 using Arma.Server.Mod;
 using Arma.Server.Providers.Parameters;
 using Arma.Server.Test.Helpers;
@@ -25,7 +26,7 @@ namespace Arma.Server.Test.Providers.Parameters
             var modset = ModsetHelpers.CreateTestModset(_fixture);
             var requiredAndServerModsDirectories = modset.Mods
                 .Where(x => x.Type == ModType.Required || x.Type == ModType.ServerSide)
-                .Select(x => x.Directory);
+                .GetDirectories();
 
             var modsetConfigMock = new Mock<IModsetConfig>();
             modsetConfigMock.Setup(x => x.HCProfileDirectory).Returns(hcProfileDirectory);
@@ -69,7 +70,7 @@ namespace Arma.Server.Test.Providers.Parameters
             var modset = ModsetHelpers.CreateTestModsetWithModsOfOneType(_fixture, ModType.Required);
 
             var modsDirectories = modset.RequiredMods
-                .Select(x => x.Directory);
+                .GetDirectories();
 
             var modsParams = HeadlessParametersProvider.GetModsStartupParam(modset);
 
@@ -85,7 +86,7 @@ namespace Arma.Server.Test.Providers.Parameters
             var modset = ModsetHelpers.CreateTestModsetWithModsOfOneType(_fixture, ModType.ServerSide);
 
             var modsDirectories = modset.ServerSideMods
-                .Select(x => x.Directory);
+                .GetDirectories();
 
             var modsParams = HeadlessParametersProvider.GetModsStartupParam(modset);
 
