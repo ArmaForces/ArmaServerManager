@@ -48,7 +48,11 @@ namespace Arma.Server.Manager.Services
 
             var server = _serverProvider.GetServer(Port, modset);
 
-            return server.Start();
+            return server.IsServerStopped
+                ? server.Start()
+                : server.Modset == modset 
+                    ? Result.Success()
+                    : Result.Failure($"Server is already running with {server.Modset.Name} modset on port {Port}.");
         }
     }
 }

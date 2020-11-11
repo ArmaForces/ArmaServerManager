@@ -26,12 +26,14 @@ namespace Arma.Server.Features.Server
 
         public bool IsStopped => _serverProcess == null;
 
-        public bool IsStarted => false; // TODO: Check if server is started, probably through named pipe
+        public bool IsStarted => false; // TODO: Check if server is started
 
         public bool IsStarting => !IsStopped && !IsStarted;
 
         public Result Start()
         {
+            if (!IsStopped) return Result.Success();
+
             try
             {
                 _serverProcess = Process.Start(_executablePath, _arguments);
@@ -49,7 +51,7 @@ namespace Arma.Server.Features.Server
 
         public Result Shutdown()
         {
-            if (_serverProcess == null)
+            if (IsStopped)
             {
                 _logger.LogInformation("Server not running.");
                 return Result.Success();

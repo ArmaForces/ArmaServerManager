@@ -1,4 +1,5 @@
 ﻿using System;
+using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
 
 namespace Arma.Server.Features.Server
@@ -6,6 +7,8 @@ namespace Arma.Server.Features.Server
     public interface IDedicatedServer : IDisposable
     {
         int Port { get; }
+        
+        IModset Modset { get; }
 
         bool IsServerStarted { get; }
 

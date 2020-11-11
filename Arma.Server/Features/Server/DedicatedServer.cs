@@ -14,7 +14,6 @@ namespace Arma.Server.Features.Server
     public class DedicatedServer : IDedicatedServer
     {
         private readonly ILogger<DedicatedServer> _logger;
-        private readonly IModset _modset;
         private readonly IServerConfigurationProvider _serverConfigurationProvider;
         private readonly ISettings _settings;
         private IServerProcess _headlessProcess;
@@ -30,12 +29,14 @@ namespace Arma.Server.Features.Server
         {
             Port = port;
             _settings = settings;
-            _modset = modset;
+            Modset = modset;
             _serverConfigurationProvider = serverConfigurationProvider;
             _logger = logger;
         }
 
         public int Port { get; }
+
+        public IModset Modset { get; }
 
         public bool IsServerStarted => _serverProcess?.IsStarted ?? false;
 
@@ -58,7 +59,7 @@ namespace Arma.Server.Features.Server
             _serverProcess = CreateDedicatedServerProcess();
             _headlessProcess = CreateHeadlessServerProcess();
 
-            _logger.LogTrace("Starting server on port {port} with {modsetName} modset.", Port, _modset.Name);
+            _logger.LogTrace("Starting server on port {port} with {modsetName} modset.", Port, Modset.Name);
 
             return _serverProcess.Start()
                 .Bind(() => _headlessProcess.Start());
@@ -78,26 +79,26 @@ namespace Arma.Server.Features.Server
         {
             var serverParametersProvider = new ServerParametersProvider(
                 Port,
-                _modset,
-                _serverConfigurationProvider.GetModsetConfig(_modset.Name));
+                Modset,
+                _serverConfigurationProvider.GetModsetConfig(Modset.Name));
 
-            return new ServerProcess(
-                _settings.ServerExecutable,
-                serverParametersProvider.GetStartupParams(),
-                null);
+            return CreateServerProcess(serverParametersProvider);
         }
 
         private ServerProcess CreateHeadlessServerProcess()
         {
             var headlessParametersProvider = new HeadlessParametersProvider(
                 Port,
-                _modset,
-                _serverConfigurationProvider.GetModsetConfig(_modset.Name));
+                Modset,
+                _serverConfigurationProvider.GetModsetConfig(Modset.Name));
 
-            return new ServerProcess(
-                _settings.ServerExecutable,
-                headlessParametersProvider.GetStartupParams(),
-                null);
+            return CreateServerProcess(headlessParametersProvider);
         }
+
+        private ServerProcess CreateServerProcess(IParametersProvider parametersProvider) 
+            => new ServerProcess(
+                _settings.ServerExecutable,
+                parametersProvider.GetStartupParams(),
+                null);
     }
 }
