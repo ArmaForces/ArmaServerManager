@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Config;
 using BytexDigital.Steam.Core.Enumerations;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Arma.Server.Manager.Clients.Steam
@@ -34,14 +35,14 @@ namespace Arma.Server.Manager.Clients.Steam
         }
 
         /// <inheritdoc />
-        public async Task DownloadArmaServer(CancellationToken cancellationToken)
+        public async Task<Result> DownloadArmaServer(CancellationToken cancellationToken)
             => await Download(
                 cancellationToken,
                 SteamAppId,
                 ItemType.App);
 
         /// <inheritdoc />
-        public async Task DownloadMods(IEnumerable<int> itemsIds, CancellationToken cancellationToken)
+        public async Task<Result> DownloadMods(IEnumerable<int> itemsIds, CancellationToken cancellationToken)
         {
             await _steamClient.EnsureConnected(cancellationToken);
             foreach (var itemId in itemsIds)
@@ -49,10 +50,12 @@ namespace Arma.Server.Manager.Clients.Steam
                 if (cancellationToken.IsCancellationRequested) CancelDownload();
                 await Download(itemId, cancellationToken);
             }
+
+            return Result.Success();
         }
 
         /// <inheritdoc />
-        public async Task DownloadMod(int itemId, CancellationToken cancellationToken)
+        public async Task<Result> DownloadMod(int itemId, CancellationToken cancellationToken)
             => await Download(itemId, cancellationToken);
 
         public static ModsDownloader CreateModsDownloader(IServiceProvider serviceProvider)
@@ -61,7 +64,7 @@ namespace Arma.Server.Manager.Clients.Steam
             return new ModsDownloader(serviceProvider.GetService<ISteamClient>(), modsDirectory);
         }
 
-        private async Task Download(int itemId, CancellationToken cancellationToken)
+        private async Task<Result> Download(int itemId, CancellationToken cancellationToken)
             => await Download(cancellationToken, (uint) itemId);
 
         /// <summary>
@@ -76,7 +79,7 @@ namespace Arma.Server.Manager.Clients.Steam
         /// <param name="itemId">Id of item to download.</param>
         /// <param name="itemType">Type of item, App or Mod.</param>
         /// <returns>Awaitable <see cref="Task" /></returns>
-        private async Task Download(
+        private async Task<Result> Download(
             CancellationToken cancellationToken,
             uint itemId = 0,
             ItemType itemType = ItemType.Mod)
@@ -110,6 +113,8 @@ namespace Arma.Server.Manager.Clients.Steam
                     downloadTask.IsCompletedSuccessfully
                         ? $"Downloaded {itemId}."
                         : $"Aborted {itemId} download.");
+
+                return Result.Success();
             } catch (Exception e)
             {
                 Console.WriteLine(e);

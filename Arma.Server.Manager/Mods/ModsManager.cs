@@ -33,7 +33,7 @@ namespace Arma.Server.Manager.Mods
         }
 
         /// <inheritdoc />
-        public Result PrepareModset(IModset modset) => InitializeMods(modset);
+        public async Task<Result> PrepareModset(IModset modset) => await InitializeMods(modset);
 
         /// <inheritdoc />
         public async Task UpdateAllMods(CancellationToken cancellationToken)
@@ -42,7 +42,10 @@ namespace Arma.Server.Manager.Mods
         /// <inheritdoc />
         public Result<IEnumerable<IMod>> CheckModsExist(IEnumerable<IMod> modsList)
         {
-            var missingMods = modsList.Where(mod => !_modsCache.ModExists(mod));
+            var missingMods = modsList
+                .ToAsyncEnumerable()
+                .WhereAwait(async mod => !await _modsCache.ModExists(mod))
+                .ToEnumerable();
             return Result.Success(missingMods);
         }
 
@@ -56,13 +59,11 @@ namespace Arma.Server.Manager.Mods
         public static ModsManager CreateModsManager(IServiceProvider serviceProvider)
             => new ModsManager(serviceProvider.GetService<IModsDownloader>(), serviceProvider.GetService<IModsCache>());
 
-        private Result InitializeMods(IModset modset)
-            => CheckModsExist(modset.Mods)
-                .TapIf(x => x.Any(), async x => await DownloadMods(x, CancellationToken.None))
-                .Result
+        private async Task<Result> InitializeMods(IModset modset)
+            => await CheckModsExist(modset.Mods)
+                .TapIf(x => x.Any(), x => DownloadMods(x, CancellationToken.None))
                 .Bind(x => CheckModsUpdated(modset.Mods))
-                .TapIf(x => x.Any(), async x => await UpdateMods(x, CancellationToken.None))
-                .Result;
+                .TapIf(x => x.Any(), x => UpdateMods(x, CancellationToken.None));
 
         private bool ModRequiresUpdate(IMod mod) => false;
 
@@ -72,7 +73,7 @@ namespace Arma.Server.Manager.Mods
         /// <param name="missingMods">Mods to download.</param>
         /// ///
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods download safe cancelling.</param>
-        private async Task DownloadMods(IEnumerable<IMod> missingMods, CancellationToken cancellationToken)
+        private async Task<Result> DownloadMods(IEnumerable<IMod> missingMods, CancellationToken cancellationToken)
             => await _modsDownloader.DownloadMods(missingMods.Select(x => x.WorkshopId), cancellationToken);
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace Arma.Server.Manager.Mods
         /// </summary>
         /// <param name="requiredUpdateMods">Mods to update.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods update safe cancelling.</param>
-        private async Task UpdateMods(IEnumerable<IMod> requiredUpdateMods, CancellationToken cancellationToken)
+        private async Task<Result> UpdateMods(IEnumerable<IMod> requiredUpdateMods, CancellationToken cancellationToken)
             => await _modsDownloader.DownloadMods(requiredUpdateMods.Select(x => x.WorkshopId), cancellationToken);
     }
 }

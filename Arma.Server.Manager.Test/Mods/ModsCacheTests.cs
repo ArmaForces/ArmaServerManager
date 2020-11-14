@@ -11,6 +11,9 @@ using Moq;
 using Newtonsoft.Json;
 using Xunit;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
+using System.Threading.Tasks;
+using FluentAssertions.Execution;
 
 namespace Arma.Server.Manager.Test.Mods {
     public class ModsCacheTests: IDisposable {
@@ -28,40 +31,57 @@ namespace Arma.Server.Manager.Test.Mods {
         }
 
         [Fact]
-        public void ModExists_DirectoryNotExists_ReturnsFalse() {
+        public async Task ModExists_DirectoryNotExists_ReturnsFalse() {
             var modsCache = InitializeModsCache();
-            modsCache.ModExists(_mod).Should().BeFalse();
+            
+            using (new AssertionScope())
+            {
+                (await modsCache.ModExists(_mod)).Should().BeFalse();
+                modsCache.Mods.Should().NotContain(_mod);
+            }
         }
 
         [Fact]
-        public void ModExists_DirectoryNamedIdExists_ReturnsTrue() {
+        public async Task ModExists_DirectoryNamedIdExists_ReturnsTrue() {
             var modsCache = InitializeModsCache();
             var modDirectory = Path.Join(_workingDirectory, _mod.WorkshopId.ToString());
             _fileSystemMock.Directory.CreateDirectory(modDirectory);
 
-            modsCache.ModExists(_mod).Should().BeTrue();
+            using (new AssertionScope())
+            {
+                (await modsCache.ModExists(_mod)).Should().BeTrue();
+                modsCache.Mods.Should().ContainEquivalentOf(_mod);
+            }
         }
 
         [Fact]
-        public void ModExists_DirectoryNamedNameExists_ReturnsTrue() {
+        public async Task ModExists_DirectoryNamedNameExists_ReturnsTrue() {
             var modsCache = InitializeModsCache();
             var modDirectory = Path.Join(_workingDirectory, _mod.Name);
             _fileSystemMock.Directory.CreateDirectory(modDirectory);
 
-            modsCache.ModExists(_mod).Should().BeTrue();
+            using (new AssertionScope())
+            {
+                (await modsCache.ModExists(_mod)).Should().BeTrue();
+                modsCache.Mods.Should().ContainEquivalentOf(_mod);
+            }
         }
 
         [Fact]
-        public void ModExists_DirectoryNamedWithAtExists_ReturnsTrue() {
+        public async Task ModExists_DirectoryNamedWithAtExists_ReturnsTrue() {
             var modsCache = InitializeModsCache();
             var modDirectory = Path.Join(_workingDirectory, string.Join("", "@", _mod.Name));
             _fileSystemMock.Directory.CreateDirectory(modDirectory);
 
-            modsCache.ModExists(_mod).Should().BeTrue();
+            using (new AssertionScope())
+            {
+                (await modsCache.ModExists(_mod)).Should().BeTrue();
+                modsCache.Mods.Should().ContainEquivalentOf(_mod);
+            }
         }
 
         [Fact]
-        public void ModExists_CacheInvalidDirectoryRenamed_ReturnsTrue() {
+        public async Task ModExists_CacheInvalidDirectoryRenamed_ReturnsTrue() {
             var oldModDirectory = Path.Join(_workingDirectory, _mod.WorkshopId.ToString());
             var newModDirectory = Path.Join(_workingDirectory, _mod.Name);
             _fileSystemMock.Directory.CreateDirectory(oldModDirectory);
@@ -70,41 +90,57 @@ namespace Arma.Server.Manager.Test.Mods {
             _fileSystemMock.Directory.Delete(oldModDirectory);
             _fileSystemMock.Directory.CreateDirectory(newModDirectory);
 
-            modsCache.ModExists(_mod).Should().BeTrue();
+            using (new AssertionScope())
+            {
+                (await modsCache.ModExists(_mod)).Should().BeTrue();
+                modsCache.Mods.Should().Contain(mod => mod.WorkshopId == _mod.WorkshopId);
+            }
         }
 
         [Fact]
-        public void ModExists_BuildCacheDirectoryNamedNameExists_ReturnsTrue() {
+        public async Task ModExists_BuildCacheDirectoryNamedNameExists_ReturnsTrue() {
             var modDirectory = Path.Join(_workingDirectory, _mod.Name);
             _fileSystemMock.Directory.CreateDirectory(modDirectory); 
             var modsCache = InitializeModsCache();
-            
-            modsCache.ModExists(_mod).Should().BeTrue();
+
+            using (new AssertionScope())
+            {
+                (await modsCache.ModExists(_mod)).Should().BeTrue();
+                modsCache.Mods.Should().ContainEquivalentOf(_mod);
+            }
         }
 
         [Fact]
-        public void ModExists_LoadCacheModCachedNoDirectory_ReturnsFalse() {
+        public async Task ModExists_LoadCacheModCachedNoDirectory_ReturnsFalse() {
             var cacheFilePath = $"{_settingsMock.Object.ModsDirectory}\\{_settingsMock.Object.ModsManagerCacheFileName}.json";
             ISet<IMod> mods = new HashSet<IMod>();
             mods.Add(_mod);
-            _fileSystemMock.File.WriteAllText(cacheFilePath, JsonConvert.SerializeObject(mods));
+            await _fileSystemMock.File.WriteAllTextAsync(cacheFilePath, JsonConvert.SerializeObject(mods));
 
             var modsCache = InitializeModsCache();
 
-            modsCache.ModExists(_mod).Should().BeFalse();
+            using (new AssertionScope())
+            {
+                (await modsCache.ModExists(_mod)).Should().BeFalse();
+                modsCache.Mods.Should().NotContain(_mod);
+            }
         }
 
         [Fact]
-        public void ModExists_LoadCacheModCachedDirectoryPresent_ReturnsTrue() {
+        public async Task ModExists_LoadCacheModCachedDirectoryPresent_ReturnsTrue() {
             var cacheFilePath = $"{_settingsMock.Object.ModsDirectory}\\{_settingsMock.Object.ModsManagerCacheFileName}.json";
             ISet<IMod> mods = new HashSet<IMod>();
             mods.Add(_mod);
-            _fileSystemMock.File.WriteAllText(cacheFilePath, JsonConvert.SerializeObject(mods));
+            await _fileSystemMock.File.WriteAllTextAsync(cacheFilePath, JsonConvert.SerializeObject(mods));
             _fileSystemMock.Directory.CreateDirectory(_mod.Directory);
 
             var modsCache = InitializeModsCache();
 
-            modsCache.ModExists(_mod).Should().BeTrue();
+            using (new AssertionScope())
+            {
+                (await modsCache.ModExists(_mod)).Should().BeTrue();
+                modsCache.Mods.Should().ContainEquivalentOf(_mod);
+            }
         }
 
         private IMod FixtureCreateMod() {

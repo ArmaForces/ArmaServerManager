@@ -20,7 +20,7 @@ namespace Arma.Server.Manager.Clients.Modsets.Entities {
             {
                 Name = Name,
                 WebId = Id,
-                Mods = (ISet<IMod>)Mods.Select(x => x.ConvertForServer()).ToHashSet()
+                Mods = Mods.Select(x => (IMod) x.ConvertForServer()).ToHashSet()
             };
     }
 }
