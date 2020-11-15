@@ -10,7 +10,7 @@ namespace Arma.Server.Manager.Clients.Steam
     /// </summary>
     public interface IContentDownloader
     {
-        Task<List<Result>> Download(IEnumerable<KeyValuePair<int, ItemType>> items, CancellationToken cancellationToken);
+        Task<List<Result>> DownloadOrUpdate(IEnumerable<KeyValuePair<int, ItemType>> items, CancellationToken cancellationToken);
 
         /// <summary>
         ///     Downloads <paramref name="itemType"/> with given <paramref name="itemId" />.
@@ -19,21 +19,7 @@ namespace Arma.Server.Manager.Clients.Steam
         /// <param name="itemType">Type of item to download.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken" /> for safe download abort.</param>
         /// <returns>Awaitable <see cref="Task" /></returns>
-        Task<Result> Download(
-            int itemId,
-            ItemType itemType,
-            CancellationToken cancellationToken);
-        
-        Task<List<Result>> Update(IEnumerable<KeyValuePair<int, ItemType>> items, CancellationToken cancellationToken);
-
-        /// <summary>
-        ///     Updates <paramref name="itemType"/> with given <paramref name="itemId" />.
-        /// </summary>
-        /// <param name="itemId">ID of item to update.</param>
-        /// <param name="itemType">Type of item to update.</param>
-        /// <param name="cancellationToken"><see cref="CancellationToken" /> for safe update abort.</param>
-        /// <returns>Awaitable <see cref="Task" /></returns>
-        Task<Result> Update(
+        Task<Result> DownloadOrUpdate(
             int itemId,
             ItemType itemType,
             CancellationToken cancellationToken);

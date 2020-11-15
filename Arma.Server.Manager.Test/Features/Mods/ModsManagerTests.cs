@@ -38,7 +38,7 @@ namespace Arma.Server.Manager.Test.Features.Mods {
 
             await _modsManager.PrepareModset(_modset);
 
-            _downloaderMock.Verify(x => x.Download(modsEnumerable, It.IsAny<CancellationToken>()));
+            _downloaderMock.Verify(x => x.DownloadOrUpdate(modsEnumerable, It.IsAny<CancellationToken>()));
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace Arma.Server.Manager.Test.Features.Mods {
 
             await _modsManager.PrepareModset(_modset);
 
-            _downloaderMock.Verify(x => x.Download(
+            _downloaderMock.Verify(x => x.DownloadOrUpdate(
                 It.IsAny<IEnumerable<int>>(),
                 It.IsAny<CancellationToken>()),
                 Times.Never);

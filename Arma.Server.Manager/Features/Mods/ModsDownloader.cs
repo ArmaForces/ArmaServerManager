@@ -21,13 +21,8 @@ namespace Arma.Server.Manager.Features.Mods
         public static ModsDownloader CreateModsDownloader(IServiceProvider serviceProvider)
             => new ModsDownloader(serviceProvider.GetService<IContentDownloader>());
 
-        public async Task<List<Result>> Download(IEnumerable<int> modsIds, CancellationToken cancellationToken) 
-            => await _contentDownloader.Download(
-                modsIds.Select(id => new KeyValuePair<int, ItemType>(id, ItemType.Mod)).ToList(),
-                cancellationToken);
-
-        public async Task<List<Result>> Update(IEnumerable<int> modsIds, CancellationToken cancellationToken) 
-            => await _contentDownloader.Update(
+        public async Task<List<Result>> DownloadOrUpdate(IEnumerable<int> modsIds, CancellationToken cancellationToken) 
+            => await _contentDownloader.DownloadOrUpdate(
                 modsIds.Select(id => new KeyValuePair<int, ItemType>(id, ItemType.Mod)).ToList(),
                 cancellationToken);
     }

@@ -27,9 +27,5 @@ namespace Arma.Server.Manager.Clients.Steam
         public async Task DownloadChangesToFolderAsync(string directory, CancellationToken cancellationToken) 
             => await (_multipleFilesHandler?.DownloadChangesToFolderAsync(directory, cancellationToken) ??
                       _downloadHandler.DownloadToFolderAsync(directory, cancellationToken));
-
-        public async Task DownloadToFolderAsync(string directory, CancellationToken cancellationToken)
-            => await (_multipleFilesHandler?.DownloadToFolderAsync(directory, cancellationToken) ??
-                      _downloadHandler.DownloadToFolderAsync(directory, cancellationToken));
     }
 }

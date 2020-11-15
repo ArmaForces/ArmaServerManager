@@ -8,6 +8,5 @@ namespace Arma.Server.Manager.Clients.Steam
         double TotalProgress { get; }
 
         Task DownloadChangesToFolderAsync(string directory, CancellationToken cancellationToken);
-        Task DownloadToFolderAsync(string directory, CancellationToken cancellationToken);
     }
 }

@@ -7,8 +7,6 @@ namespace Arma.Server.Manager.Features.Mods
 {
     public interface IModsDownloader
     {
-        Task<List<Result>> Download(IEnumerable<int> modsIds, CancellationToken cancellationToken);
-        
-        Task<List<Result>> Update(IEnumerable<int> modsIds, CancellationToken cancellationToken);
+        Task<List<Result>> DownloadOrUpdate(IEnumerable<int> modsIds, CancellationToken cancellationToken);
     }
 }

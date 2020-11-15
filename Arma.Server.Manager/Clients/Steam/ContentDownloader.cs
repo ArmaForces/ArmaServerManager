@@ -36,7 +36,7 @@ namespace Arma.Server.Manager.Clients.Steam
             _modsDirectory = modsDirectory;
         }
 
-        public async Task<List<Result>> Download(
+        public async Task<List<Result>> DownloadOrUpdate(
             IEnumerable<KeyValuePair<int, ItemType>> items,
             CancellationToken cancellationToken)
         {
@@ -46,40 +46,18 @@ namespace Arma.Server.Manager.Clients.Steam
             foreach (var (itemId, itemType) in items)
             {
                 if (cancellationToken.IsCancellationRequested) CancelDownload();
-                results.Add(await Download(itemId, itemType, cancellationToken));
+                results.Add(await DownloadOrUpdate(itemId, itemType, cancellationToken));
             }
 
             return results;
         }
 
-        public async Task<Result> Download(
+        public async Task<Result> DownloadOrUpdate(
             int itemId,
             ItemType itemType,
             CancellationToken cancellationToken)
             => await Download((uint) itemId, itemType, cancellationToken);
-
-        public async Task<List<Result>> Update(
-            IEnumerable<KeyValuePair<int, ItemType>> items,
-            CancellationToken cancellationToken)
-        {
-            await _steamClient.EnsureConnected(cancellationToken);
-
-            var results = new List<Result>();
-            foreach (var (itemId, itemType) in items)
-            {
-                if (cancellationToken.IsCancellationRequested) CancelDownload();
-                results.Add(await Update(itemId, itemType, cancellationToken));
-            }
-
-            return results;
-        }
-
-        public async Task<Result> Update(
-            int itemId,
-            ItemType itemType,
-            CancellationToken cancellationToken)
-            => await Update((uint) itemId, itemType, cancellationToken);
-
+        
         public static ContentDownloader CreateContentDownloader(IServiceProvider serviceProvider)
         {
             var modsDirectory = serviceProvider.GetService<ISettings>().ModsDirectory;
@@ -116,24 +94,6 @@ namespace Arma.Server.Manager.Clients.Steam
                 cancellationToken);
         }
 
-        private async Task<Result> Update(
-            uint itemId,
-            ItemType itemType,
-            CancellationToken cancellationToken)
-        {
-            if (itemType == ItemType.App)
-                throw new NotImplementedException("Downloading Arma 3 Server is not supported yet.");
-
-            var downloadHandler = await GetDownloadHandler(itemId, itemType);
-
-            var contentDownloadHandler = new ContentDownloadHandler(downloadHandler);
-
-            return await Update(
-                itemId,
-                contentDownloadHandler,
-                cancellationToken);
-        }
-
         private async Task<IDownloadHandler> GetDownloadHandler(uint itemId, ItemType itemType) 
             => itemType == ItemType.App
                 ? await _steamClient.ContentClient.GetAppDataAsync(
@@ -150,23 +110,6 @@ namespace Arma.Server.Manager.Clients.Steam
             Console.WriteLine($"Starting download of {itemId}");
 
             var downloadDirectory = GetModDownloadDirectory(_modsDirectory, itemId);
-            var downloadTask = contentDownloadHandler.DownloadToFolderAsync(downloadDirectory, cancellationToken);
-
-            return await HandleDownloadTask(
-                itemId,
-                contentDownloadHandler,
-                downloadTask,
-                cancellationToken);
-        }
-
-        private async Task<Result> Update(
-            uint itemId,
-            IContentDownloadHandler contentDownloadHandler,
-            CancellationToken cancellationToken)
-        {
-            Console.WriteLine($"Starting update of {itemId}");
-
-            var downloadDirectory = GetModDownloadDirectory(_modsDirectory, itemId);
             var downloadTask = contentDownloadHandler.DownloadChangesToFolderAsync(downloadDirectory, cancellationToken);
 
             return await HandleDownloadTask(
@@ -176,7 +119,7 @@ namespace Arma.Server.Manager.Clients.Steam
                 cancellationToken);
         }
 
-        private string GetModDownloadDirectory(string modsDirectory, uint itemId)
+        private static string GetModDownloadDirectory(string modsDirectory, uint itemId)
             => Path.Join(modsDirectory, itemId.ToString());
 
         private async Task<Result> HandleDownloadTask(
