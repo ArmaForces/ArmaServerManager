@@ -1,21 +1,20 @@
-using Arma.Server.Manager.Mods;
-using Arma.Server.Mod;
-using AutoFixture;
-using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Threading.Tasks;
 using Arma.Server.Config;
+using Arma.Server.Manager.Features.Mods;
+using Arma.Server.Mod;
+using AutoFixture;
+using FluentAssertions;
+using FluentAssertions.Execution;
 using Moq;
 using Newtonsoft.Json;
 using Xunit;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentAssertions.Execution;
 
-namespace Arma.Server.Manager.Test.Mods {
+namespace Arma.Server.Manager.Test.Features.Mods {
     public class ModsCacheTests: IDisposable {
         private readonly Fixture _fixture = new Fixture();
         private readonly string _workingDirectory = Path.Join(Directory.GetCurrentDirectory(), "mods");

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Arma.Server.Mod;
 
-namespace Arma.Server.Manager.Mods {
+namespace Arma.Server.Manager.Features.Mods {
     public interface IModsCache {
 
         /// <summary>

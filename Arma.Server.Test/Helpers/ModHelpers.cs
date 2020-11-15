@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Arma.Server.Mod;
 using AutoFixture;
 
@@ -24,6 +25,18 @@ namespace Arma.Server.Test.Helpers
                 WebId = fixture.Create<string>(),
                 WorkshopId = fixture.Create<int>()
             };
+        }
+
+        public static List<Mod.Mod> CreateModsList(Fixture fixture, int modsNumber)
+        {
+            var modsList = new List<Mod.Mod>();
+
+            for (var i = 0; i < modsNumber; i++)
+            {
+                modsList.Add(fixture.Create<Mod.Mod>());
+            }
+
+            return modsList;
         }
     }
 }

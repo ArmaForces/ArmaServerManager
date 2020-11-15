@@ -10,7 +10,7 @@ using CSharpFunctionalExtensions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace Arma.Server.Manager.Mods
+namespace Arma.Server.Manager.Features.Mods
 {
     public class ModsCache : IModsCache
     {

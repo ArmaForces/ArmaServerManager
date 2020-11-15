@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Arma.Server.Manager.Mods;
+using Arma.Server.Manager.Features.Mods;
 using Arma.Server.Modset;
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;

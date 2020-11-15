@@ -5,7 +5,7 @@ using Arma.Server.Mod;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
 
-namespace Arma.Server.Manager.Mods {
+namespace Arma.Server.Manager.Features.Mods {
     /// <summary>
     /// Prepares modset by downloading missing mods and updating outdated mods.
     /// </summary>

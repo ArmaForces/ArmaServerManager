@@ -10,7 +10,7 @@ using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arma.Server.Manager.Mods
+namespace Arma.Server.Manager.Features.Mods
 {
     /// <inheritdoc />
     public class ModsManager : IModsManager
@@ -19,7 +19,7 @@ namespace Arma.Server.Manager.Mods
         private readonly IModsCache _modsCache;
 
         /// <inheritdoc />
-        public ModsManager(ISettings settings) : this(new ModsDownloader(settings), new ModsCache(settings))
+        public ModsManager(ISettings settings) : this(new ModsDownloader(new ContentDownloader(settings)), new ModsCache(settings))
         {
         }
 
@@ -73,15 +73,15 @@ namespace Arma.Server.Manager.Mods
         /// <param name="missingMods">Mods to download.</param>
         /// ///
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods download safe cancelling.</param>
-        private async Task<Result> DownloadMods(IEnumerable<IMod> missingMods, CancellationToken cancellationToken)
-            => await _modsDownloader.DownloadMods(missingMods.Select(x => x.WorkshopId), cancellationToken);
+        private async Task<List<Result>> DownloadMods(IEnumerable<IMod> missingMods, CancellationToken cancellationToken)
+            => await _modsDownloader.Download(missingMods.Select(x => x.WorkshopId), cancellationToken);
 
         /// <summary>
         ///     Invokes <see cref="ISteamClient" /> to update given list of mods.
         /// </summary>
         /// <param name="requiredUpdateMods">Mods to update.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods update safe cancelling.</param>
-        private async Task<Result> UpdateMods(IEnumerable<IMod> requiredUpdateMods, CancellationToken cancellationToken)
-            => await _modsDownloader.DownloadMods(requiredUpdateMods.Select(x => x.WorkshopId), cancellationToken);
+        private async Task<List<Result>> UpdateMods(IEnumerable<IMod> requiredUpdateMods, CancellationToken cancellationToken)
+            => await _modsDownloader.Download(requiredUpdateMods.Select(x => x.WorkshopId), cancellationToken);
     }
 }
