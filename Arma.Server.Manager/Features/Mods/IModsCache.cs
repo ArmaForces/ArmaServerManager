@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Arma.Server.Mod;
+using CSharpFunctionalExtensions;
 
 namespace Arma.Server.Manager.Features.Mods {
     public interface IModsCache {
@@ -21,5 +22,11 @@ namespace Arma.Server.Manager.Features.Mods {
         ///     Saves cache to file.
         /// </summary>
         Task SaveCache();
+
+        /// <summary>
+        ///     Adds <paramref name="mod"/> to mods cache and saves it.
+        /// </summary>
+        /// <param name="mod"></param>
+        Task<Result<IEnumerable<IMod>>> AddOrUpdateCache(IEnumerable<IMod> mod);
     }
 }

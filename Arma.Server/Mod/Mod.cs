@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.IO.Abstractions;
 
 namespace Arma.Server.Mod {
@@ -12,6 +10,8 @@ namespace Arma.Server.Mod {
         public DateTime CreatedAt { get; set; }
 
         public DateTime? LastUpdatedAt { get; set; }
+        
+        public ulong? ManifestId { get; set; }
 
         public ModSource Source { get; set; }
 

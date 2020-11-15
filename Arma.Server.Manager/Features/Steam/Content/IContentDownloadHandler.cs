@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Arma.Server.Manager.Clients.Steam
+namespace Arma.Server.Manager.Features.Steam.Content
 {
     public interface IContentDownloadHandler
     {

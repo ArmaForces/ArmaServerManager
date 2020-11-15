@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Config;
+using Arma.Server.Manager.Constants;
+using Arma.Server.Manager.Features.Steam.Content.DTOs;
+using BytexDigital.Steam.ContentDelivery.Models;
 using BytexDigital.Steam.ContentDelivery.Models.Downloading;
 using BytexDigital.Steam.Core.Enumerations;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arma.Server.Manager.Clients.Steam
+namespace Arma.Server.Manager.Features.Steam.Content
 {
     /// <inheritdoc />
     public class ContentDownloader : IContentDownloader
     {
-        private const int SteamAppId = 233780; // Arma 3 Server
-        private const int SteamDepotId = 228990;
-
         private readonly string _modsDirectory;
         private readonly ISteamClient _steamClient;
 
@@ -36,27 +38,26 @@ namespace Arma.Server.Manager.Clients.Steam
             _modsDirectory = modsDirectory;
         }
 
-        public async Task<List<Result>> DownloadOrUpdate(
-            IEnumerable<KeyValuePair<int, ItemType>> items,
+        public async Task<List<Result<ContentItem>>> DownloadOrUpdate(
+            IEnumerable<ContentItem> items,
             CancellationToken cancellationToken)
         {
             await _steamClient.EnsureConnected(cancellationToken);
 
-            var results = new List<Result>();
-            foreach (var (itemId, itemType) in items)
+            var results = new List<Result<ContentItem>>();
+            foreach (var item in items)
             {
                 if (cancellationToken.IsCancellationRequested) CancelDownload();
-                results.Add(await DownloadOrUpdate(itemId, itemType, cancellationToken));
+                results.Add(await DownloadOrUpdate(item, cancellationToken));
             }
 
             return results;
         }
 
-        public async Task<Result> DownloadOrUpdate(
-            int itemId,
-            ItemType itemType,
+        public async Task<Result<ContentItem>> DownloadOrUpdate(
+            ContentItem contentItem,
             CancellationToken cancellationToken)
-            => await Download((uint) itemId, itemType, cancellationToken);
+            => await Download(contentItem, cancellationToken);
         
         public static ContentDownloader CreateContentDownloader(IServiceProvider serviceProvider)
         {
@@ -76,31 +77,32 @@ namespace Arma.Server.Manager.Clients.Steam
         /// <param name="itemId">Id of item to download.</param>
         /// <param name="itemType">Type of item, App or Mod.</param>
         /// <returns>Awaitable <see cref="Task" /></returns>
-        private async Task<Result> Download(
-            uint itemId,
-            ItemType itemType,
-            CancellationToken cancellationToken)
+        private async Task<Result<ContentItem>> Download(ContentItem contentItem, CancellationToken cancellationToken)
         {
-            if (itemType == ItemType.App)
+            if (contentItem.ItemType == ItemType.App)
                 throw new NotImplementedException("Downloading Arma 3 Server is not supported yet.");
 
-            var downloadHandler = await GetDownloadHandler(itemId, itemType);
+            var downloadHandler = await GetDownloadHandler(contentItem);
 
             var contentDownloadHandler = new ContentDownloadHandler(downloadHandler);
 
-            return await Download(
-                itemId,
+            var downloadResult = await Download(
+                contentItem.Id,
                 contentDownloadHandler,
                 cancellationToken);
-        }
 
-        private async Task<IDownloadHandler> GetDownloadHandler(uint itemId, ItemType itemType) 
-            => itemType == ItemType.App
+            return downloadResult.Match(
+                onSuccess: () => Result.Success(contentItem),
+                onFailure: error => Result.Failure<ContentItem>($"Failed downloading {contentItem}. Error: {error}"));
+        }
+        
+        private async Task<IDownloadHandler> GetDownloadHandler(ContentItem contentItem) 
+            => contentItem.ItemType == ItemType.App
                 ? await _steamClient.ContentClient.GetAppDataAsync(
-                    SteamAppId,
-                    SteamDepotId,
+                    SteamConstants.ArmaAppId,
+                    SteamConstants.ArmaDepotId,
                     os: SteamOs.Windows)
-                : await _steamClient.ContentClient.GetPublishedFileDataAsync(itemId, os: SteamOs.Windows);
+                : await _steamClient.ContentClient.GetPublishedFileDataAsync(contentItem.Id, os: SteamOs.Windows);
 
         private async Task<Result> Download(
             uint itemId,

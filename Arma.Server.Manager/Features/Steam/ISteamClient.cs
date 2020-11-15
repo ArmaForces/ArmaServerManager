@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using BytexDigital.Steam.ContentDelivery;
 
-namespace Arma.Server.Manager.Clients.Steam
+namespace Arma.Server.Manager.Features.Steam
 {
     /// <summary>
     ///     Handles connection to Steam Servers and downloading of mods.

@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Config;
-using Arma.Server.Manager.Clients.Steam;
 using Arma.Server.Manager.Features.Mods;
+using Arma.Server.Manager.Features.Steam.Content;
+using Arma.Server.Manager.Features.Steam.Content.DTOs;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 using AutoFixture;
+using CSharpFunctionalExtensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
@@ -20,7 +21,8 @@ namespace Arma.Server.Manager.Test.Features.Mods {
     public class ModsManagerTests {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<IModsCache> _modsCacheMock = new Mock<IModsCache>();
-        private readonly Mock<IModsDownloader> _downloaderMock = new Mock<IModsDownloader>();
+        private readonly Mock<IContentVerifier> _contentVerifierMock = new Mock<IContentVerifier>();
+        private readonly Mock<IContentDownloader> _downloaderMock = new Mock<IContentDownloader>();
         private readonly ModsManager _modsManager;
         private readonly IModset _modset;
 
@@ -29,16 +31,19 @@ namespace Arma.Server.Manager.Test.Features.Mods {
                 Mods = new HashSet<IMod> { FixtureCreateMod() }
             };
 
-            _modsManager = new ModsManager(_downloaderMock.Object, _modsCacheMock.Object);
+            _modsManager = new ModsManager(_downloaderMock.Object, _contentVerifierMock.Object, _modsCacheMock.Object);
         }
 
         [Fact]
         public async Task PrepareModset_ModNotExists_DownloadsMod() {
-            var modsEnumerable = _modset.Mods.Select(x => x.WorkshopId);
+            _downloaderMock.Setup(x => x.DownloadOrUpdate(It.IsAny<IEnumerable<ContentItem>>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new List<Result<ContentItem>> { Result.Success((ContentItem) new ContentItem()) }));
 
-            await _modsManager.PrepareModset(_modset);
+            await _modsManager.PrepareModset(_modset, CancellationToken.None);
 
-            _downloaderMock.Verify(x => x.DownloadOrUpdate(modsEnumerable, It.IsAny<CancellationToken>()));
+            _downloaderMock.Verify(x => x.DownloadOrUpdate(
+                It.IsAny<IEnumerable<ContentItem>>(),
+                It.IsAny<CancellationToken>()));
         }
 
         [Fact]
@@ -48,12 +53,14 @@ namespace Arma.Server.Manager.Test.Features.Mods {
                 _modsCacheMock.Setup(x => x.ModExists(mod)).Returns(Task.FromResult(true));
             }
 
-            await _modsManager.PrepareModset(_modset);
+            _downloaderMock.Setup(x => x.DownloadOrUpdate(It.IsAny<IEnumerable<ContentItem>>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new List<Result<ContentItem>> { Result.Success((ContentItem)new ContentItem()) }));
+
+            await _modsManager.PrepareModset(_modset, CancellationToken.None);
 
             _downloaderMock.Verify(x => x.DownloadOrUpdate(
-                It.IsAny<IEnumerable<int>>(),
-                It.IsAny<CancellationToken>()),
-                Times.Never);
+                It.IsAny<IEnumerable<ContentItem>>(),
+                It.IsAny<CancellationToken>()));
         }
 
         [Fact]
@@ -68,8 +75,8 @@ namespace Arma.Server.Manager.Test.Features.Mods {
             settingsMock.Setup(x => x.ModsDirectory).Returns(workingDirectory);
             var modsCache = new ModsCache(settingsMock.Object, fileSystemMock);
             var contentDownloader = new ContentDownloader(settingsMock.Object);
-            var modsDownloader = new ModsDownloader(contentDownloader);
-            var modsManager = new ModsManager(modsDownloader, modsCache);
+            var contentVerifier = new ContentVerifier(settingsMock.Object);
+            var modsManager = new ModsManager(contentDownloader, contentVerifier, modsCache);
             var cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(1));
 

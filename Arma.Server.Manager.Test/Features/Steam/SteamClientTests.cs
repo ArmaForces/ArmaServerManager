@@ -3,12 +3,12 @@ using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Config;
-using Arma.Server.Manager.Clients.Steam;
+using Arma.Server.Manager.Features.Steam;
 using FluentAssertions;
 using Moq;
 using Xunit;
 
-namespace Arma.Server.Manager.Test.Clients.Steam
+namespace Arma.Server.Manager.Test.Features.Steam
 {
     public class SteamClientTests
     {

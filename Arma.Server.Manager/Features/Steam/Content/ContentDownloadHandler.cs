@@ -1,9 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Arma.Server.Mod;
 using BytexDigital.Steam.ContentDelivery.Models.Downloading;
 
-namespace Arma.Server.Manager.Clients.Steam
+namespace Arma.Server.Manager.Features.Steam.Content
 {
     public class ContentDownloadHandler : IContentDownloadHandler
     {

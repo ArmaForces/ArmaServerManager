@@ -59,15 +59,58 @@ namespace Arma.Server.Manager.Features.Mods
                 mod = TryEnsureModDirectory(mod);
                 return mod.Directory is null
                     ? null
-                    : await AddModToCache(mod);
+                    : await AddModToCacheAndSave(mod);
             }
         }
 
-        private async Task<IMod> AddModToCache(IMod mod)
+        private async Task<IMod> AddModToCacheAndSave(IMod mod)
+        {
+            var modInCache = AddModToCache(mod);
+            await SaveCache();
+            return modInCache;
+        }
+
+        private IMod AddOrUpdateModInCache(IMod mod)
+        {
+            var modAddedToCache = Mods.Add(mod);
+
+            return modAddedToCache
+                ? mod
+                : UpdateModInCache(mod);
+        }
+
+        private IMod AddModToCache(IMod mod)
         {
             Mods.Add(mod);
-            await SaveCache();
             return mod;
+        }
+
+        private IMod UpdateModInCache(IMod mod)
+        {
+            var modInCache = Mods.Single(x => x == mod);
+
+            Mods.Remove(modInCache);
+            var newMod = new Mod.Mod
+            {
+                Directory = mod.Directory ?? modInCache.Directory,
+                CreatedAt = modInCache.CreatedAt,
+                LastUpdatedAt = DateTime.Now,
+                ManifestId = mod.ManifestId ?? modInCache.ManifestId,
+                Name = mod.Name,
+                Source = mod.Source,
+                Type = mod.Type,
+                WebId = mod.WebId ?? modInCache.WebId,
+                WorkshopId = mod.WorkshopId
+            };
+
+            return AddModToCache(newMod);
+        }
+
+        public async Task<Result<IEnumerable<IMod>>> AddOrUpdateCache(IEnumerable<IMod> mods)
+        {
+            var cacheMods = mods.Select(AddOrUpdateModInCache);
+            await SaveCache();
+            return Result.Success(cacheMods);
         }
 
         private IMod TryEnsureModDirectory(IMod mod)

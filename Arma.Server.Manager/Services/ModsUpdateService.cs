@@ -22,7 +22,7 @@ namespace Arma.Server.Manager.Services
 
         public async Task UpdateModset(IModset modset, CancellationToken cancellationToken)
         {
-            await _modsManager.PrepareModset(modset);
+            await _modsManager.PrepareModset(modset, cancellationToken);
         }
 
         /// <summary>
