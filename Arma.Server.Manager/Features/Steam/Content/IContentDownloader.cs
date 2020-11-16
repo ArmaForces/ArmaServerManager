@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Manager.Features.Steam.Content.DTOs;
+using Arma.Server.Mod;
 using CSharpFunctionalExtensions;
 
 namespace Arma.Server.Manager.Features.Steam.Content
@@ -11,6 +12,8 @@ namespace Arma.Server.Manager.Features.Steam.Content
     /// </summary>
     public interface IContentDownloader
     {
+        Task<List<Result<IMod>>> DownloadOrUpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken);
+        
         Task<List<Result<ContentItem>>> DownloadOrUpdate(IEnumerable<ContentItem> items, CancellationToken cancellationToken);
 
         /// <summary>

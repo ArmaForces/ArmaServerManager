@@ -8,7 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Config;
 using Arma.Server.Manager.Constants;
+using Arma.Server.Manager.Extensions;
 using Arma.Server.Manager.Features.Steam.Content.DTOs;
+using Arma.Server.Mod;
 using BytexDigital.Steam.ContentDelivery.Models;
 using BytexDigital.Steam.ContentDelivery.Models.Downloading;
 using BytexDigital.Steam.Core.Enumerations;
@@ -36,6 +38,45 @@ namespace Arma.Server.Manager.Features.Steam.Content
         {
             _steamClient = steamClient;
             _modsDirectory = modsDirectory;
+        }
+
+        public async Task<List<Result<IMod>>> DownloadOrUpdateMods(
+            IEnumerable<IMod> mods,
+            CancellationToken cancellationToken)
+        {
+            await _steamClient.EnsureConnected(cancellationToken);
+
+            var results = new List<Result<IMod>>();
+            foreach (var mod in mods)
+            {
+                if (cancellationToken.IsCancellationRequested) CancelDownload();
+                var item = mod.AsContentItem();
+                var result = await DownloadOrUpdate(item, cancellationToken);
+
+                if (result.IsSuccess)
+                {
+                    var downloadedItem = result.Value;
+                    var updatedMod = (IMod) new Mod.Mod
+                    {
+                        Directory = mod.Directory ?? downloadedItem.Directory,
+                        CreatedAt = mod.CreatedAt,
+                        LastUpdatedAt = DateTime.Now,
+                        Name = mod.Name,
+                        WorkshopId = mod.WorkshopId,
+                        Type = mod.Type,
+                        ManifestId = downloadedItem.ManifestId,
+                        Source = mod.Source,
+                        WebId = mod.WebId
+                    };
+                    results.Add(Result.Success(updatedMod));
+                }
+                else
+                {
+                    results.Add(Result.Failure<IMod>(result.Error));
+                }
+            }
+
+            return results;
         }
 
         public async Task<List<Result<ContentItem>>> DownloadOrUpdate(
@@ -73,9 +114,8 @@ namespace Arma.Server.Manager.Features.Steam.Content
         /// <summary>
         ///     Handles download process
         /// </summary>
+        /// <param name="contentItem">Item to download.</param>
         /// <param name="cancellationToken"></param>
-        /// <param name="itemId">Id of item to download.</param>
-        /// <param name="itemType">Type of item, App or Mod.</param>
         /// <returns>Awaitable <see cref="Task" /></returns>
         private async Task<Result<ContentItem>> Download(ContentItem contentItem, CancellationToken cancellationToken)
         {
@@ -87,7 +127,7 @@ namespace Arma.Server.Manager.Features.Steam.Content
             var contentDownloadHandler = new ContentDownloadHandler(downloadHandler);
 
             var downloadResult = await Download(
-                contentItem.Id,
+                contentItem,
                 contentDownloadHandler,
                 cancellationToken);
 
@@ -105,24 +145,24 @@ namespace Arma.Server.Manager.Features.Steam.Content
                 : await _steamClient.ContentClient.GetPublishedFileDataAsync(contentItem.Id, os: SteamOs.Windows);
 
         private async Task<Result> Download(
-            uint itemId,
+            ContentItem contentItem,
             IContentDownloadHandler contentDownloadHandler,
             CancellationToken cancellationToken)
         {
-            Console.WriteLine($"Starting download of {itemId}");
+            Console.WriteLine($"Starting download of {contentItem}");
 
-            var downloadDirectory = GetModDownloadDirectory(_modsDirectory, itemId);
+            var downloadDirectory = GetModDownloadDirectory(contentItem);
             var downloadTask = contentDownloadHandler.DownloadChangesToFolderAsync(downloadDirectory, cancellationToken);
 
             return await HandleDownloadTask(
-                itemId,
+                contentItem.Id,
                 contentDownloadHandler,
                 downloadTask,
                 cancellationToken);
         }
 
-        private static string GetModDownloadDirectory(string modsDirectory, uint itemId)
-            => Path.Join(modsDirectory, itemId.ToString());
+        private string GetModDownloadDirectory(ContentItem contentItem)
+            => contentItem.Directory ?? Path.Join(_modsDirectory, contentItem.Id.ToString());
 
         private async Task<Result> HandleDownloadTask(
             uint itemId,

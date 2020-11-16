@@ -77,15 +77,13 @@ namespace Arma.Server.Manager.Features.Mods
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods download safe cancelling.</param>
         private async Task<Result> DownloadMods(IEnumerable<IMod> modsToDownload, CancellationToken cancellationToken)
         {
-            var contentItems = modsToDownload.Select(x => x.AsContentItem());
+            var downloadResults = await _contentDownloader.DownloadOrUpdateMods(modsToDownload, cancellationToken);
 
-            var downloadResults = await _contentDownloader.DownloadOrUpdate(contentItems, cancellationToken);
-
-            var successfullyDownloadedContentItems = downloadResults
+            var successfullyDownloadedMods = downloadResults
                 .Where(x => x.IsSuccess)
                 .Select(x => x.Value);
 
-            await _modsCache.AddOrUpdateCache(modsToDownload);
+            await _modsCache.AddOrUpdateCache(successfullyDownloadedMods);
 
             return downloadResults.Combine();
         }

@@ -36,13 +36,13 @@ namespace Arma.Server.Manager.Test.Features.Mods {
 
         [Fact]
         public async Task PrepareModset_ModNotExists_DownloadsMod() {
-            _downloaderMock.Setup(x => x.DownloadOrUpdate(It.IsAny<IEnumerable<ContentItem>>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(new List<Result<ContentItem>> { Result.Success((ContentItem) new ContentItem()) }));
+            _downloaderMock.Setup(x => x.DownloadOrUpdateMods(It.IsAny<IEnumerable<IMod>>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new List<Result<IMod>> { Result.Success((IMod) new Mod.Mod()) }));
 
             await _modsManager.PrepareModset(_modset, CancellationToken.None);
 
-            _downloaderMock.Verify(x => x.DownloadOrUpdate(
-                It.IsAny<IEnumerable<ContentItem>>(),
+            _downloaderMock.Verify(x => x.DownloadOrUpdateMods(
+                It.IsAny<IEnumerable<IMod>>(),
                 It.IsAny<CancellationToken>()));
         }
 
@@ -53,13 +53,13 @@ namespace Arma.Server.Manager.Test.Features.Mods {
                 _modsCacheMock.Setup(x => x.ModExists(mod)).Returns(Task.FromResult(true));
             }
 
-            _downloaderMock.Setup(x => x.DownloadOrUpdate(It.IsAny<IEnumerable<ContentItem>>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(new List<Result<ContentItem>> { Result.Success((ContentItem)new ContentItem()) }));
+            _downloaderMock.Setup(x => x.DownloadOrUpdateMods(It.IsAny<IEnumerable<IMod>>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new List<Result<IMod>> { Result.Success((IMod)new Mod.Mod()) }));
 
             await _modsManager.PrepareModset(_modset, CancellationToken.None);
 
-            _downloaderMock.Verify(x => x.DownloadOrUpdate(
-                It.IsAny<IEnumerable<ContentItem>>(),
+            _downloaderMock.Verify(x => x.DownloadOrUpdateMods(
+                It.IsAny<IEnumerable<IMod>>(),
                 It.IsAny<CancellationToken>()));
         }
 
