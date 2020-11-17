@@ -33,6 +33,9 @@ namespace Arma.Server.Manager
         {
             services.AddRazorPages();
 
+            // Add REST API Controller
+            services.AddControllers();
+
             // Add Hangfire services.
             services.AddHangfire(configuration => configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -91,6 +94,7 @@ namespace Arma.Server.Manager
             {
                 endpoints.MapRazorPages();
                 endpoints.MapHangfireDashboard();
+                endpoints.MapControllers();
             });
         }
     }
