@@ -38,7 +38,8 @@ namespace Arma.Server.Manager.Providers.Server
                 _serviceProvider.GetService<ISettings>(),
                 modset,
                 _serviceProvider.GetService<IServerConfigurationProvider>(),
-                _serviceProvider.GetService<ILogger<DedicatedServer>>());
+                _serviceProvider.GetService<ILogger<DedicatedServer>>(),
+                _serviceProvider.GetService<ILogger<ServerProcess>>());
 
             server.Disposed += OnServerDisposed;
 

@@ -6,6 +6,7 @@ using Arma.Server.Providers.Configuration;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -62,6 +63,7 @@ namespace Arma.Server.Test.Features.Server
                 _settingsMock.Object,
                 _modsetMock.Object,
                 _serverConfigurationProvider.Object,
-                new Logger<DedicatedServer>(new LoggerFactory()));
+                new Logger<DedicatedServer>(new NullLoggerFactory()),
+                new Logger<ServerProcess>(new NullLoggerFactory()));
     }
 }
