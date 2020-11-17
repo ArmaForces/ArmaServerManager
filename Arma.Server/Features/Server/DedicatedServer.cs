@@ -41,6 +41,8 @@ namespace Arma.Server.Features.Server
 
         public IModset Modset { get; }
 
+        public int HeadlessClientsConnected => _headlessProcess is null ? 0 : 1;
+
         public bool IsServerStarted => _serverProcess?.IsStarted ?? false;
 
         public bool IsServerStopped => _serverProcess?.IsStopped ?? true;

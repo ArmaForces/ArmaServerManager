@@ -5,6 +5,8 @@ namespace Arma.Server.Manager.Providers.Server
 {
     public interface IServerProvider
     {
+        IDedicatedServer GetServer(int port);
+
         IDedicatedServer GetServer(int port, IModset modset);
     }
 }

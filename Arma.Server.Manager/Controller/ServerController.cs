@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Arma.Server.Manager.Features.Hangfire;
+using Arma.Server.Manager.Features.Server.DTOs;
+using Arma.Server.Manager.Providers.Server;
 using Arma.Server.Manager.Services;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +17,31 @@ namespace Arma.Server.Manager.Controller
     public class ServerController : ControllerBase
     {
         private readonly IHangfireManager _hangfireManager;
+        private readonly IServerProvider _serverProvider;
 
-        public ServerController(IHangfireManager hangfireManager)
+        public ServerController(
+            IHangfireManager hangfireManager,
+            IServerProvider serverProvider)
         {
             _hangfireManager = hangfireManager;
+            _serverProvider = serverProvider;
+        }
+
+        [HttpGet]
+        [Route("{port}")]
+        public IActionResult GetServerStatus(int port = 2302)
+        {
+            var server = _serverProvider.GetServer(port);
+
+            var serverStatus = new ServerStatus(server, port);
+
+            return Ok(serverStatus);
         }
 
         // POST api/<ServerController>
         [HttpPost]
         [Route("StartServer")]
-        public IActionResult StartServer([FromQuery] string modsetName, DateTime? dateTime = null)
+        public IActionResult StartServer([FromBody] string modsetName, DateTime? dateTime = null)
         {
             var result = _hangfireManager.ScheduleJob<ServerStartupService>(
                 x => x.StartServer(modsetName, CancellationToken.None),

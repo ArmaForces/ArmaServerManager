@@ -18,6 +18,13 @@ namespace Arma.Server.Manager.Providers.Server
 
         public ServerProvider(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
+        public IDedicatedServer GetServer(int port)
+        {
+            return _servers.TryGetValue(port, out var server)
+                ? server
+                : null;
+        }
+
         public IDedicatedServer GetServer(int port, IModset modset)
             => _servers.GetOrAdd(port, CreateServer(port, modset));
 
