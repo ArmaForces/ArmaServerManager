@@ -5,15 +5,16 @@ using Arma.Server.Mod;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
 
-namespace Arma.Server.Manager.Mods {
+namespace Arma.Server.Manager.Features.Mods {
     /// <summary>
     /// Prepares modset by downloading missing mods and updating outdated mods.
     /// </summary>
     public interface IModsManager {
         /// <inheritdoc cref="IModsManager"/>
         /// <param name="modset">Modset to prepare.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns><see cref="Result.Success"/> if all mods from <see cref="IModset"/> are downloaded and up to date.</returns>
-        Task<Result> PrepareModset(IModset modset);
+        Task<Result> PrepareModset(IModset modset, CancellationToken cancellationToken);
 
         /// <summary>
         /// Checks if all mods from given list exist.

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Arma.Server.Manager.Mods;
+using Arma.Server.Manager.Features.Mods;
 using Arma.Server.Modset;
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +22,7 @@ namespace Arma.Server.Manager.Services
 
         public async Task UpdateModset(IModset modset, CancellationToken cancellationToken)
         {
-            await _modsManager.PrepareModset(modset);
+            await _modsManager.PrepareModset(modset, cancellationToken);
         }
 
         /// <summary>

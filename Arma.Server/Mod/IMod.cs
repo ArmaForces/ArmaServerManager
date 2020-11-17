@@ -7,6 +7,7 @@ namespace Arma.Server.Mod {
         string Name { get; }
         DateTime CreatedAt { get; }
         DateTime? LastUpdatedAt { get; }
+        ulong? ManifestId { get; set; }
         ModSource Source { get; }
         ModType Type { get; }
         int WorkshopId { get; }

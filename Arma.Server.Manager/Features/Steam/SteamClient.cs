@@ -8,13 +8,12 @@ using BytexDigital.Steam.Core;
 using Microsoft.Extensions.DependencyInjection;
 using BytexSteamClient = BytexDigital.Steam.Core.SteamClient;
 
-namespace Arma.Server.Manager.Clients.Steam
+namespace Arma.Server.Manager.Features.Steam
 {
     /// <inheritdoc />
     public class SteamClient : ISteamClient
     {
         private readonly BytexSteamClient _bytexSteamClient;
-        private readonly SteamCredentials _steamCredentials;
 
         /// <inheritdoc />
         /// <param name="settings">Settings containing steam user, password and mods directory.</param>
@@ -27,8 +26,8 @@ namespace Arma.Server.Manager.Clients.Steam
         /// <param name="password">Steam password.</param>
         public SteamClient(string user, string password)
         {
-            _steamCredentials = new SteamCredentials(user, password);
-            _bytexSteamClient = new BytexSteamClient(_steamCredentials);
+            var steamCredentials = new SteamCredentials(user, password);
+            _bytexSteamClient = new BytexSteamClient(steamCredentials);
             ContentClient = new SteamContentClient(_bytexSteamClient);
         }
 
