@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Arma.Server.Manager.Controller
 {
-    [Route("api/ServerController")]
+    [Route("api/Server")]
     [ApiController]
     public class ServerController : ControllerBase
     {
@@ -38,14 +38,13 @@ namespace Arma.Server.Manager.Controller
             return Ok(serverStatus);
         }
 
-        // POST api/<ServerController>
         [HttpPost]
-        [Route("StartServer")]
-        public IActionResult StartServer([FromBody] string modsetName, DateTime? dateTime = null)
+        [Route("Start")]
+        public IActionResult StartServer([FromBody] ServerStartRequest startRequest)
         {
             var result = _hangfireManager.ScheduleJob<ServerStartupService>(
-                x => x.StartServer(modsetName, CancellationToken.None),
-                dateTime);
+                x => x.StartServer(startRequest.ModsetName, CancellationToken.None),
+                startRequest.ScheduleAt);
 
             return result.Match(
                 onSuccess: Ok,
