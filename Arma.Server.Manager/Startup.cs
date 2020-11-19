@@ -1,5 +1,6 @@
 using Arma.Server.Config;
 using Arma.Server.Manager.Clients.Modsets;
+using Arma.Server.Manager.Features.Configuration;
 using Arma.Server.Manager.Features.Hangfire;
 using Arma.Server.Manager.Features.Hangfire.Helpers;
 using Arma.Server.Manager.Features.Mods;
@@ -57,6 +58,7 @@ namespace Arma.Server.Manager
             services.AddSingleton<IModsetProvider>(ModsetProvider.CreateModsetProvider);
             services.AddSingleton<IServerProvider>(ServerProvider.CreateServerProvider);
             services.AddSingleton<IServerConfigurationProvider>(ServerConfigurationProvider.CreateServerConfigurationProvider);
+            services.AddSingleton<IServerConfigurationLogic>(ServerConfigurationLogic.CreateServerConfigurationLogic);
             services.AddSingleton<IModsUpdateService>(ModsUpdateService.CreateModsUpdateService);
 
             services.AddSingleton<IHangfireBackgroundJobClient>(
