@@ -2,7 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Manager.Features.Mods;
+using Arma.Server.Manager.Providers;
 using Arma.Server.Modset;
+using CSharpFunctionalExtensions;
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,15 +16,23 @@ namespace Arma.Server.Manager.Services
     public class ModsUpdateService : IModsUpdateService
     {
         private readonly IModsManager _modsManager;
+        private readonly IModsetProvider _modsetProvider;
 
-        public ModsUpdateService(IModsManager modsManager)
+        public ModsUpdateService(IModsManager modsManager, IModsetProvider modsetProvider)
         {
             _modsManager = modsManager;
+            _modsetProvider = modsetProvider;
         }
 
-        public async Task UpdateModset(IModset modset, CancellationToken cancellationToken)
+        public async Task<Result> UpdateModset(string modsetName, CancellationToken cancellationToken)
         {
-            await _modsManager.PrepareModset(modset, cancellationToken);
+            return await _modsetProvider.GetModsetByName(modsetName)
+                .Bind(x => UpdateModset(x, cancellationToken));
+        }
+
+        public async Task<Result> UpdateModset(IModset modset, CancellationToken cancellationToken)
+        {
+            return await _modsManager.PrepareModset(modset, cancellationToken);
         }
 
         /// <summary>
@@ -35,6 +45,8 @@ namespace Arma.Server.Manager.Services
             => await _modsManager.UpdateAllMods(cancellationToken);
 
         public static ModsUpdateService CreateModsUpdateService(IServiceProvider serviceProvider)
-            => new ModsUpdateService(serviceProvider.GetService<IModsManager>());
+            => new ModsUpdateService(
+                serviceProvider.GetService<IModsManager>(),
+                serviceProvider.GetService<IModsetProvider>());
     }
 }

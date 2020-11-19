@@ -33,11 +33,7 @@ namespace Arma.Server.Manager.Features.Mods
 
         /// <inheritdoc />
         public async Task<Result> PrepareModset(IModset modset, CancellationToken cancellationToken)
-        {
-            var results = await DownloadMods(modset.Mods, cancellationToken);
-
-            return results;
-        }
+            => await DownloadMods(modset.Mods, cancellationToken);
 
         /// <inheritdoc />
         public async Task UpdateAllMods(CancellationToken cancellationToken)

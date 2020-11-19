@@ -1,12 +1,13 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Modset;
+using CSharpFunctionalExtensions;
 
 namespace Arma.Server.Manager.Services
 {
     public interface IModsUpdateService
     {
-        Task UpdateModset(IModset modset, CancellationToken cancellationToken);
+        Task<Result> UpdateModset(IModset modset, CancellationToken cancellationToken);
 
         /// <summary>
         ///     Handles updating all cached mods.
