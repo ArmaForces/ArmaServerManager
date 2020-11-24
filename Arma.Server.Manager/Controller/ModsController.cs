@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading;
 using Arma.Server.Manager.Features.Hangfire;
 using Arma.Server.Manager.Features.Server.DTOs;
 using Arma.Server.Manager.Providers;
-using Arma.Server.Manager.Providers.Server;
 using Arma.Server.Manager.Services;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
@@ -36,8 +30,12 @@ namespace Arma.Server.Manager.Controller
         public IActionResult UpdateMods([FromBody] ModsUpdateRequest modsUpdateRequest)
         {
             var result = modsUpdateRequest.ModsetName is null
-                ? _hangfireManager.ScheduleJob<ModsUpdateService>(x => x.UpdateAllMods(CancellationToken.None))
-                : _hangfireManager.ScheduleJob<ModsUpdateService>(x => x.UpdateModset(modsUpdateRequest.ModsetName, CancellationToken.None));
+                ? _hangfireManager.ScheduleJob<ModsUpdateService>(
+                    x => x.UpdateAllMods(CancellationToken.None),
+                    modsUpdateRequest.ScheduleAt)
+                : _hangfireManager.ScheduleJob<ModsUpdateService>(
+                    x => x.UpdateModset(modsUpdateRequest.ModsetName, CancellationToken.None),
+                    modsUpdateRequest.ScheduleAt);
 
             return result.Match(
                 onSuccess: Ok,
