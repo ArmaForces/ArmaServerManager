@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Manager.Extensions;
 using Arma.Server.Manager.Features.Hangfire.Helpers;
@@ -26,7 +27,7 @@ namespace Arma.Server.Manager.Features.Hangfire
         }
 
         /// <inheritdoc cref="IHangfireManager" />
-        public Result ScheduleJob<T>(Expression<Func<T, Task>> func, DateTime? dateTime = null) where T : new()
+        public Result ScheduleJob<T>(Expression<Func<T, Task>> func, DateTime? dateTime = null) where T : class
             => dateTime.HasValue
                 ? ScheduleAt(func, dateTime.Value)
                 : EnqueueImmediately(func);
@@ -47,7 +48,7 @@ namespace Arma.Server.Manager.Features.Hangfire
         ///     Schedules job for execution at <paramref name="dateTime" />.
         ///     If similar job is already scheduled around that time, nothing is done.
         /// </summary>
-        private Result ScheduleAt<T>(Expression<Func<T, Task>> func, DateTime dateTime) where T : new()
+        private Result ScheduleAt<T>(Expression<Func<T, Task>> func, DateTime dateTime) where T : class
         {
             var scheduledJobs = GetSimilarScheduledJobs(func)
                 .Where(x => x.EnqueueAt.IsCloseTo(dateTime, _defaultPrecision));
@@ -66,7 +67,7 @@ namespace Arma.Server.Manager.Features.Hangfire
         ///     Schedules job for immediate execution.
         ///     If similar job is already scheduled or in queue now, nothing is done.
         /// </summary>
-        private Result EnqueueImmediately<T>(Expression<Func<T, Task>> func) where T : new()
+        private Result EnqueueImmediately<T>(Expression<Func<T, Task>> func) where T : class
         {
             var scheduledJobs = GetSimilarScheduledJobs(func)
                 .Where(x => x.EnqueueAt.IsCloseTo(DateTime.Now, _defaultPrecision));

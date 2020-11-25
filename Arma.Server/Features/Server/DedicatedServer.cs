@@ -14,6 +14,7 @@ namespace Arma.Server.Features.Server
     public class DedicatedServer : IDedicatedServer
     {
         private readonly ILogger<DedicatedServer> _logger;
+        private readonly ILogger<ServerProcess> _serverProcessLogger;
         private readonly IServerConfigurationProvider _serverConfigurationProvider;
         private readonly ISettings _settings;
         private IServerProcess _headlessProcess;
@@ -25,18 +26,22 @@ namespace Arma.Server.Features.Server
             ISettings settings,
             IModset modset,
             IServerConfigurationProvider serverConfigurationProvider,
-            ILogger<DedicatedServer> logger)
+            ILogger<DedicatedServer> logger,
+            ILogger<ServerProcess> serverProcessLogger)
         {
             Port = port;
             _settings = settings;
             Modset = modset;
             _serverConfigurationProvider = serverConfigurationProvider;
             _logger = logger;
+            _serverProcessLogger = serverProcessLogger;
         }
 
         public int Port { get; }
 
         public IModset Modset { get; }
+
+        public int HeadlessClientsConnected => _headlessProcess is null ? 0 : 1;
 
         public bool IsServerStarted => _serverProcess?.IsStarted ?? false;
 
@@ -99,6 +104,6 @@ namespace Arma.Server.Features.Server
             => new ServerProcess(
                 _settings.ServerExecutable,
                 parametersProvider.GetStartupParams(),
-                null);
+                _serverProcessLogger);
     }
 }

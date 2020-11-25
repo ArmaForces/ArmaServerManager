@@ -10,6 +10,8 @@ namespace Arma.Server.Features.Server
         
         IModset Modset { get; }
 
+        int HeadlessClientsConnected { get; }
+
         bool IsServerStarted { get; }
 
         bool IsServerStopped { get; }
