@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Arma.Server.Config;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -20,8 +21,9 @@ namespace Arma.Server.Manager.Pages
         {
         }
 
-        public void OnPost()
+        public async Task OnPost(Settings settings)
         {
+            await Settings.ReloadSettings(settings);
         }
     }
 }

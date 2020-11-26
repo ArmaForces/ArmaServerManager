@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Arma.Server.Exceptions;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
@@ -10,22 +11,27 @@ namespace Arma.Server.Config
 {
     public class Settings : ISettings
     {
-        public string ApiMissionsBaseUrl { get; protected set; }
-        public string ApiModsetsBaseUrl { get; protected set; }
-        public string ManagerDirectory { get; } = Directory.GetCurrentDirectory();
-        public string ModsetConfigDirectoryName { get; protected set; } = "modsetConfig";
-        public string ModsDirectory { get; protected set; }
-        public string ModsManagerCacheFileName { get; protected set; } = ".ManagerModsCache";
-        public string ServerConfigDirectory { get; protected set; }
-        public string ServerDirectory { get; protected set; }
-        public string ServerExecutable { get; protected set; }
-        public string ServerExecutableName { get; protected set; } = "arma3server_x64.exe";
-        public string SteamUser { get; protected set; }
-        public string SteamPassword { get; protected set; }
+        private static string SettingsJsonPath { get; } = Path.Join(Directory.GetCurrentDirectory(), "settings.json");
 
-        private readonly IConfigurationRoot _config;
+        public string ManagerDirectory { get; } = Directory.GetCurrentDirectory();
+
+        public string ApiMissionsBaseUrl { get; set; }
+        public string ApiModsetsBaseUrl { get; set; }
+        public string ModsetConfigDirectoryName { get; set; } = "modsetConfig";
+        public string ModsDirectory { get; set; }
+        public string ModsManagerCacheFileName { get; set; } = ".ManagerModsCache";
+        public string ServerConfigDirectory { get; set; }
+        public string ServerDirectory { get; set; }
+        public string ServerExecutable { get; set; }
+        public string ServerExecutableName { get; set; } = "arma3server_x64.exe";
+        public string SteamUser { get; set; }
+        public string SteamPassword { get; set; }
+
         private readonly IFileSystem _fileSystem;
         private readonly IRegistryReader _registryReader;
+        private IConfigurationRoot _config;
+
+        public Settings():this(null, null, null){}
 
         public Settings(
             IConfigurationRoot config = null,
@@ -41,8 +47,7 @@ namespace Arma.Server.Config
 
         public static Settings LoadSettings(IServiceProvider serviceProvider)
         {
-            var settingsJsonPath = Path.Join(Directory.GetCurrentDirectory(), "settings.json");
-            var json = File.ReadAllTextAsync(settingsJsonPath).Result;
+            var json = File.ReadAllTextAsync(SettingsJsonPath).Result;
             return JsonConvert.DeserializeObject<Settings>(json);
         }
 
@@ -57,6 +62,32 @@ namespace Arma.Server.Config
                 .Tap(ObtainApiModsetsBaseUrl)
                 .Tap(ObtainSteamUserName)
                 .Tap(ObtainSteamPassword);
+        }
+
+        public Result ReloadSettings()
+        {
+            _config = LoadConfigFile();
+            return LoadSettings();
+        }
+
+        public async Task<Result> ReloadSettings(ISettings settings)
+        {
+            ApiMissionsBaseUrl = settings.ApiMissionsBaseUrl;
+            ApiModsetsBaseUrl = settings.ApiModsetsBaseUrl;
+            ModsetConfigDirectoryName = settings.ModsetConfigDirectoryName;
+            ModsDirectory = settings.ModsDirectory;
+            ModsManagerCacheFileName = settings.ModsManagerCacheFileName;
+            ServerConfigDirectory = settings.ServerConfigDirectory;
+            ServerDirectory = settings.ServerDirectory;
+            ServerExecutable = settings.ServerExecutable;
+            ServerExecutableName = settings.ServerExecutableName;
+            SteamUser = settings.SteamUser;
+            SteamPassword = settings.SteamPassword;
+
+            var json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            await _fileSystem.File.WriteAllTextAsync(SettingsJsonPath, json);
+
+            return Result.Success();
         }
 
         private IConfigurationRoot LoadConfigFile()
@@ -105,7 +136,8 @@ namespace Arma.Server.Config
                 return _fileSystem.Directory.Exists(serverPath)
                     ? serverPath
                     : null;
-            } catch (NullReferenceException)
+            }
+            catch (NullReferenceException)
             {
                 return null;
             }

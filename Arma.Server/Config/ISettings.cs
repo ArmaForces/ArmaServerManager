@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 
 namespace Arma.Server.Config {
     public interface ISettings {
@@ -69,5 +70,13 @@ namespace Arma.Server.Config {
         /// </summary>
         /// <returns>Result</returns>
         Result LoadSettings();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        Result ReloadSettings();
+
+        Task<Result> ReloadSettings(ISettings settings);
     }
 }
