@@ -1,0 +1,18 @@
+﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model ConfigurationModel
+@{
+    ViewData["Title"] = "Configuration page";
+}
+
+<body>
+    <div class="text-center">
+        <h1>Adjust your Arma Server Manager configuration here.</h1>
+        <form method="post">
+            @Html.EditorFor(x => x.Settings, new { htmlAttributes = new { @class = "form-control" } })
+            <br />
+            <br />
+            <input type="submit" value="Save configuration"/>
+        </form>
+    </div>
+</body>
