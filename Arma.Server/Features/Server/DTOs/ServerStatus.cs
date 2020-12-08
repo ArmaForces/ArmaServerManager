@@ -6,7 +6,7 @@ namespace Arma.Server.Features.Server.DTOs
     public class ServerStatus
     {
         private readonly IDedicatedServer _dedicatedServer;
-        private readonly A2S_INFO _serverInfo;
+        private readonly A2SInfo _serverInfo;
 
         public ServerStatus()
         {
@@ -34,11 +34,11 @@ namespace Arma.Server.Features.Server.DTOs
 
         public int Port => _dedicatedServer?.Port ?? 0;
 
-        private static A2S_INFO GetServerInfo(int port)
+        private static A2SInfo GetServerInfo(int port)
         {
             try
             {
-                return new A2S_INFO(new IPEndPoint(IPAddress.Loopback, port + 1));
+                return new A2SInfo(new IPEndPoint(IPAddress.Loopback, port + 1));
             }
             catch (SocketException)
             {

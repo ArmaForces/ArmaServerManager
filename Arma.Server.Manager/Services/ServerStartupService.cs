@@ -58,6 +58,9 @@ namespace Arma.Server.Manager.Services
         public async Task<Result> ShutdownServer(int port, bool force, CancellationToken cancellationToken)
         {
             var server = _serverProvider.GetServer(port);
+
+            if (server is null) return Result.Success();
+
             var serverStatus = server.ServerStatus;
 
             if (serverStatus.Players != 0 && !force)

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Manager.Extensions;
 using Arma.Server.Manager.Features.Hangfire.Helpers;
@@ -27,11 +26,11 @@ namespace Arma.Server.Manager.Features.Hangfire
         }
 
         /// <inheritdoc cref="IHangfireManager" />
-        public Result ScheduleJob<T>(Expression<Func<T, Task>> func, DateTime? dateTime = null) where T : class
+        public Result<string> ScheduleJob<T>(Expression<Func<T, Task>> func, DateTime? dateTime = null) where T : class
             => dateTime.HasValue
                 ? ScheduleAt(func, dateTime.Value)
                 : EnqueueImmediately(func);
-
+        
         public static HangfireManager CreateHangfireManager(IServiceProvider serviceProvider)
             => new HangfireManager(
                 serviceProvider.GetService<IHangfireBackgroundJobClient>(),
@@ -48,7 +47,7 @@ namespace Arma.Server.Manager.Features.Hangfire
         ///     Schedules job for execution at <paramref name="dateTime" />.
         ///     If similar job is already scheduled around that time, nothing is done.
         /// </summary>
-        private Result ScheduleAt<T>(Expression<Func<T, Task>> func, DateTime dateTime) where T : class
+        private Result<string> ScheduleAt<T>(Expression<Func<T, Task>> func, DateTime dateTime) where T : class
         {
             var scheduledJobs = GetSimilarScheduledJobs(func)
                 .Where(x => x.EnqueueAt.IsCloseTo(dateTime, _defaultPrecision));
@@ -56,18 +55,18 @@ namespace Arma.Server.Manager.Features.Hangfire
             var queuedJobs = GetSimilarQueuedJobs(func);
 
             if (scheduledJobs.Any() || queuedJobs.Any())
-                return Result.Success();
+                return Result.Success(string.Empty);
 
-            _backgroundJobClient.Schedule(func, dateTime);
+            var jobId = _backgroundJobClient.Schedule(func, dateTime);
 
-            return Result.Success();
+            return Result.Success(jobId);
         }
 
         /// <summary>
         ///     Schedules job for immediate execution.
         ///     If similar job is already scheduled or in queue now, nothing is done.
         /// </summary>
-        private Result EnqueueImmediately<T>(Expression<Func<T, Task>> func) where T : class
+        private Result<string> EnqueueImmediately<T>(Expression<Func<T, Task>> func) where T : class
         {
             var scheduledJobs = GetSimilarScheduledJobs(func)
                 .Where(x => x.EnqueueAt.IsCloseTo(DateTime.Now, _defaultPrecision));
@@ -75,11 +74,11 @@ namespace Arma.Server.Manager.Features.Hangfire
             var queuedJobs = GetSimilarQueuedJobs(func);
 
             if (scheduledJobs.Any() || queuedJobs.Any())
-                return Result.Success();
+                return Result.Success(string.Empty);
 
-            _backgroundJobClient.Enqueue(func);
+            var jobId = _backgroundJobClient.Enqueue(func);
 
-            return Result.Success();
+            return Result.Success(jobId);
         }
 
         private IEnumerable<EnqueuedJobDto> GetSimilarQueuedJobs<T>(

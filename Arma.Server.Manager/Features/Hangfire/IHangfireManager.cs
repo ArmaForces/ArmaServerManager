@@ -16,6 +16,6 @@ namespace Arma.Server.Manager.Features.Hangfire {
         /// <param name="func">Expression to execute as job.</param>
         /// <param name="dateTime">When job should be executed.</param>
         /// <returns>Successful <see cref="Result"/> if job was correctly scheduled or was scheduled before around given <paramref name="dateTime"/>.</returns>
-        Result ScheduleJob<T>(Expression<Func<T, Task>> func, DateTime? dateTime = null) where T : class;
+        Result<string> ScheduleJob<T>(Expression<Func<T, Task>> func, DateTime? dateTime = null) where T : class;
     }
 }

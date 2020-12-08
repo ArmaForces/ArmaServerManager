@@ -1,19 +1,24 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Arma.Server.Manager.Features.Hangfire;
 using Hangfire;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Arma.Server.Manager.Services
 {
     public class StartupService : IHostedService
     {
+        private readonly IHangfireManager _hangfireManager;
+
+        public StartupService(IHangfireManager hangfireManager)
+        {
+            _hangfireManager = hangfireManager;
+        }
+
         /// <inheritdoc />
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            BackgroundJob.Schedule<ServerStartupService>(x => x.StartServer("default-test", CancellationToken.None), DateTimeOffset.Now);
-            RecurringJob.AddOrUpdate<ModsUpdateService>(x => x.UpdateAllMods(CancellationToken.None), Cron.Hourly);
+            RecurringJob.AddOrUpdate<MaintenanceService>(x => x.PerformMaintenance(CancellationToken.None), Cron.Daily(4));
             return Task.CompletedTask;
         }
 

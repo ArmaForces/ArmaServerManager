@@ -7,6 +7,8 @@ namespace Arma.Server.Manager.Services
 {
     public interface IModsUpdateService
     {
+        Task<Result> UpdateModset(string modsetName, CancellationToken cancellationToken);
+
         Task<Result> UpdateModset(IModset modset, CancellationToken cancellationToken);
 
         /// <summary>

@@ -1,21 +1,18 @@
 ﻿using Arma.Server.Manager.Clients.Missions.Entities;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
+using Arma.Server.Config;
 using Arma.Server.Manager.Clients.Extensions;
 using Arma.Server.Manager.Clients.Modsets.Entities;
 using RestSharp;
-using RestSharp.Deserializers;
 
 namespace Arma.Server.Manager.Clients.Missions {
     /// <inheritdoc />
     public class ApiMissionsClient : IApiMissionsClient {
         private const string MissionsUpcomingResourceFormat = @"api/missions?includeArchive=true&fromDateTime={0}";
 
-        private IRestClient _restClient;
+        private readonly IRestClient _restClient;
 
         /// <inheritdoc cref="ApiMissionsClient"/>
         /// <param name="restClient">SteamClient used for connections.</param>
@@ -24,14 +21,16 @@ namespace Arma.Server.Manager.Clients.Missions {
             _restClient = restClient;
         }
 
+        public ApiMissionsClient(ISettings settings):this(settings.ApiMissionsBaseUrl){}
+
         /// <inheritdoc cref="ApiMissionsClient"/>
         /// <param name="baseUrl">Base API url.</param>
-        public ApiMissionsClient(string baseUrl) : this(new Uri(baseUrl)) {
+        private ApiMissionsClient(string baseUrl) : this(new Uri(baseUrl)) {
         }
 
         /// <inheritdoc cref="ApiMissionsClient"/>
         /// <param name="baseUri">Base API uri.</param>
-        public ApiMissionsClient(Uri baseUri) {
+        private ApiMissionsClient(Uri baseUri) {
             _restClient = new RestClient(baseUri);
         }
 
