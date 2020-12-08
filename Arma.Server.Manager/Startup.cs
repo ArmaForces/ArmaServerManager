@@ -6,7 +6,7 @@ using Arma.Server.Manager.Features.Hangfire.Helpers;
 using Arma.Server.Manager.Features.Mods;
 using Arma.Server.Manager.Features.Steam;
 using Arma.Server.Manager.Features.Steam.Content;
-using Arma.Server.Manager.Infrastructure.Authorization;
+using Arma.Server.Manager.Infrastructure.Authentication;
 using Arma.Server.Manager.Providers;
 using Arma.Server.Manager.Providers.Server;
 using Arma.Server.Manager.Services;

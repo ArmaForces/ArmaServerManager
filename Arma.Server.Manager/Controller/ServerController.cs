@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Arma.Server.Manager.Features.Hangfire;
 using Arma.Server.Manager.Features.Server.DTOs;
-using Arma.Server.Manager.Infrastructure.Authorization;
+using Arma.Server.Manager.Infrastructure.Authentication;
 using Arma.Server.Manager.Providers.Server;
 using Arma.Server.Manager.Services;
 using CSharpFunctionalExtensions;

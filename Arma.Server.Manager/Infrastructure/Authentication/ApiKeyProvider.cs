@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 
-namespace Arma.Server.Manager.Infrastructure.Authorization
+namespace Arma.Server.Manager.Infrastructure.Authentication
 {
     public class ApiKeyProvider : IApiKeyProvider
     {

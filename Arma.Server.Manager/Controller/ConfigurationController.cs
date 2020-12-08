@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Arma.Server.Manager.Features.Configuration;
-using Arma.Server.Manager.Infrastructure.Authorization;
+using Arma.Server.Manager.Infrastructure.Authentication;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
