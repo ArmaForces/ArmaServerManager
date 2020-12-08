@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Arma.Server.Manager.Features.Configuration;
+using Arma.Server.Manager.Infrastructure.Authentication;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ namespace Arma.Server.Manager.Controller
 {
     [Route("api/configuration")]
     [ApiController]
+    [ApiKey]
     public class ConfigurationController : ControllerBase
     {
         private readonly string _serverConfigurationName = string.Empty;

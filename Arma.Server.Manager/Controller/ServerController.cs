@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Arma.Server.Manager.Features.Hangfire;
 using Arma.Server.Manager.Features.Server.DTOs;
+using Arma.Server.Manager.Infrastructure.Authentication;
 using Arma.Server.Manager.Providers.Server;
 using Arma.Server.Manager.Services;
 using CSharpFunctionalExtensions;
@@ -40,6 +41,7 @@ namespace Arma.Server.Manager.Controller
 
         [HttpPost]
         [Route("Start")]
+        [ApiKey]
         public IActionResult StartServer([FromBody] ServerStartRequest startRequest)
         {
             var result = _hangfireManager.ScheduleJob<ServerStartupService>(

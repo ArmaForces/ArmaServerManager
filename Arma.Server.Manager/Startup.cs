@@ -6,6 +6,7 @@ using Arma.Server.Manager.Features.Hangfire.Helpers;
 using Arma.Server.Manager.Features.Mods;
 using Arma.Server.Manager.Features.Steam;
 using Arma.Server.Manager.Features.Steam.Content;
+using Arma.Server.Manager.Infrastructure.Authentication;
 using Arma.Server.Manager.Providers;
 using Arma.Server.Manager.Providers.Server;
 using Arma.Server.Manager.Services;
@@ -65,6 +66,8 @@ namespace Arma.Server.Manager
                 HangfireBackgroundJobClient.CreateHangfireBackgroundJobClient);
             services.AddSingleton<IHangfireJobStorage>(HangfireJobStorage.CreateHangfireJobStorage);
             services.AddSingleton<IHangfireManager>(HangfireManager.CreateHangfireManager);
+
+            services.AddSingleton<IApiKeyProvider, ApiKeyProvider>();
 
             // Add framework services.
             services.AddMvc();
