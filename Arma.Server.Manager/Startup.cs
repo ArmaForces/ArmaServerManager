@@ -57,7 +57,7 @@ namespace Arma.Server.Manager
             services.AddSingleton<ISteamClient>(SteamClient.CreateSteamClient);
             services.AddSingleton<IContentDownloader>(ContentDownloader.CreateContentDownloader);
             services.AddSingleton<IModsetProvider>(ModsetProvider.CreateModsetProvider);
-            services.AddSingleton<IServerProvider>(ServerProvider.CreateServerProvider);
+            services.AddSingleton<IServerProvider, ServerProvider>();
             services.AddSingleton<IServerConfigurationProvider>(ServerConfigurationProvider.CreateServerConfigurationProvider);
             services.AddSingleton<IServerConfigurationLogic>(ServerConfigurationLogic.CreateServerConfigurationLogic);
             services.AddSingleton<IModsUpdateService>(ModsUpdateService.CreateModsUpdateService);

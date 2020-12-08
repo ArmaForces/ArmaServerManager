@@ -54,5 +54,19 @@ namespace Arma.Server.Manager.Services
                     ? Result.Success()
                     : Result.Failure($"Server is already running with {server.Modset.Name} modset on port {Port}.");
         }
+
+        public async Task<Result> ShutdownServer(int port, bool force, CancellationToken cancellationToken)
+        {
+            var server = _serverProvider.GetServer(port);
+            var serverStatus = server.ServerStatus;
+
+            if (serverStatus.Players != 0 && !force)
+            {
+                return Result.Failure($"Server cannot be shut down, there are {serverStatus.Players} online.");
+            }
+
+            server.Shutdown();
+            return Result.Success();
+        }
     }
 }

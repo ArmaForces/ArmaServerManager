@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using Arma.Server.Config;
+using Arma.Server.Features.Server.DTOs;
 using Arma.Server.Modset;
 using Arma.Server.Providers.Configuration;
 using Arma.Server.Providers.Parameters;
@@ -17,9 +20,22 @@ namespace Arma.Server.Features.Server
         private readonly ILogger<ServerProcess> _serverProcessLogger;
         private readonly IServerConfigurationProvider _serverConfigurationProvider;
         private readonly ISettings _settings;
+
         private IServerProcess _headlessProcess;
 
         private IServerProcess _serverProcess;
+        
+        public DedicatedServer(
+            int port,
+            ISettings settings,
+            IModset modset,
+            IServerConfigurationProvider serverConfigurationProvider,
+            ILogger<DedicatedServer> logger,
+            ILogger<ServerProcess> serverProcessLogger,
+            IServerProcess serverProcess) : this(port, settings, modset, serverConfigurationProvider, logger, serverProcessLogger)
+        {
+            _serverProcess = serverProcess;
+        }
 
         public DedicatedServer(
             int port,
@@ -41,12 +57,14 @@ namespace Arma.Server.Features.Server
 
         public IModset Modset { get; }
 
+        public ServerStatus ServerStatus => new ServerStatus(this);
+
         public int HeadlessClientsConnected => _headlessProcess is null ? 0 : 1;
 
-        public bool IsServerStarted => _serverProcess?.IsStarted ?? false;
+        public bool IsServerStarted => ServerStatus.IsServerRunning;
 
         public bool IsServerStopped => _serverProcess?.IsStopped ?? true;
-
+        
         public event EventHandler Disposed;
 
         public void Dispose()

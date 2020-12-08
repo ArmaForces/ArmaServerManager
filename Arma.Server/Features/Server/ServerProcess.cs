@@ -14,6 +14,11 @@ namespace Arma.Server.Features.Server
 
         private Process _serverProcess;
 
+        public ServerProcess(Process process, ILogger<ServerProcess> logger) : this(null, null, logger)
+        {
+            _serverProcess = process;
+        }
+
         public ServerProcess(
             string executablePath,
             string arguments,
@@ -25,10 +30,8 @@ namespace Arma.Server.Features.Server
         }
 
         public bool IsStopped => _serverProcess == null;
-
-        public bool IsStarted => false; // TODO: Check if server is started
-
-        public bool IsStarting => !IsStopped && !IsStarted;
+        
+        public bool IsStartingOrStarted => !IsStopped;
 
         public Result Start()
         {
