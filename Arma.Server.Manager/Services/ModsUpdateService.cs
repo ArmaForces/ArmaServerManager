@@ -43,10 +43,5 @@ namespace Arma.Server.Manager.Services
         [MaximumConcurrentExecutions(1)]
         public async Task UpdateAllMods(CancellationToken cancellationToken)
             => await _modsManager.UpdateAllMods(cancellationToken);
-
-        public static ModsUpdateService CreateModsUpdateService(IServiceProvider serviceProvider)
-            => new ModsUpdateService(
-                serviceProvider.GetService<IModsManager>(),
-                serviceProvider.GetService<IModsetProvider>());
     }
 }

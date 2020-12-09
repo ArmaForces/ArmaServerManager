@@ -1,8 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
+using Arma.Server.Features.Server;
+using Arma.Server.Features.Server.DTOs;
 using Arma.Server.Manager.Features.Hangfire;
 using Arma.Server.Manager.Features.Server.DTOs;
+using Arma.Server.Manager.Features.Steam;
 using Arma.Server.Manager.Infrastructure.Authentication;
 using Arma.Server.Manager.Providers.Server;
 using Arma.Server.Manager.Services;
@@ -30,11 +35,15 @@ namespace Arma.Server.Manager.Controller
 
         [HttpGet]
         [Route("{port}")]
-        public IActionResult GetServerStatus(int port = 2302)
+        public async Task<IActionResult> GetServerStatus(int port = 2302)
         {
             var server = _serverProvider.GetServer(port);
 
-            var serverStatus = new ServerStatus(server, port);
+            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+
+            var serverStatus = server is null
+                ? new ServerStatus()
+                : await server.GetServerStatusAsync(cancellationTokenSource.Token);
 
             return Ok(serverStatus);
         }

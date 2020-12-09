@@ -38,7 +38,7 @@ namespace Arma.Server.Test.Features.Server
 
             using (new AssertionScope())
             {
-                serverProcess.IsStarting.Should().BeFalse();
+                serverProcess.IsStartingOrStarted.Should().BeFalse();
             }
         }
 

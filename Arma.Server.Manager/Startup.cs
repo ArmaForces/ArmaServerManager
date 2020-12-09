@@ -1,4 +1,5 @@
 using Arma.Server.Config;
+using Arma.Server.Manager.Clients.Missions;
 using Arma.Server.Manager.Clients.Modsets;
 using Arma.Server.Manager.Features.Configuration;
 using Arma.Server.Manager.Features.Hangfire;
@@ -54,13 +55,17 @@ namespace Arma.Server.Manager
             services.AddSingleton<IModsCache>(ModsCache.CreateModsCache);
             services.AddSingleton<IModsManager>(ModsManager.CreateModsManager);
             services.AddSingleton<IApiModsetClient>(ApiModsetClient.CreateApiModsetClient);
+            services.AddSingleton<IApiMissionsClient, ApiMissionsClient>();
             services.AddSingleton<ISteamClient>(SteamClient.CreateSteamClient);
             services.AddSingleton<IContentDownloader>(ContentDownloader.CreateContentDownloader);
             services.AddSingleton<IModsetProvider>(ModsetProvider.CreateModsetProvider);
-            services.AddSingleton<IServerProvider>(ServerProvider.CreateServerProvider);
+            services.AddSingleton<IServerProvider, ServerProvider>();
             services.AddSingleton<IServerConfigurationProvider>(ServerConfigurationProvider.CreateServerConfigurationProvider);
             services.AddSingleton<IServerConfigurationLogic>(ServerConfigurationLogic.CreateServerConfigurationLogic);
-            services.AddSingleton<IModsUpdateService>(ModsUpdateService.CreateModsUpdateService);
+            services.AddSingleton<IModsUpdateService, ModsUpdateService>();
+            services.AddSingleton<MaintenanceService>();
+            services.AddSingleton<MissionPreparationService>();
+            services.AddSingleton<ServerStartupService>();
 
             services.AddSingleton<IHangfireBackgroundJobClient>(
                 HangfireBackgroundJobClient.CreateHangfireBackgroundJobClient);

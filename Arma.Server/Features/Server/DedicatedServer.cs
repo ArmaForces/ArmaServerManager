@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Arma.Server.Config;
+using Arma.Server.Features.Server.DTOs;
 using Arma.Server.Modset;
 using Arma.Server.Providers.Configuration;
 using Arma.Server.Providers.Parameters;
@@ -17,9 +20,22 @@ namespace Arma.Server.Features.Server
         private readonly ILogger<ServerProcess> _serverProcessLogger;
         private readonly IServerConfigurationProvider _serverConfigurationProvider;
         private readonly ISettings _settings;
+
         private IServerProcess _headlessProcess;
 
         private IServerProcess _serverProcess;
+        
+        public DedicatedServer(
+            int port,
+            ISettings settings,
+            IModset modset,
+            IServerConfigurationProvider serverConfigurationProvider,
+            ILogger<DedicatedServer> logger,
+            ILogger<ServerProcess> serverProcessLogger,
+            IServerProcess serverProcess) : this(port, settings, modset, serverConfigurationProvider, logger, serverProcessLogger)
+        {
+            _serverProcess = serverProcess;
+        }
 
         public DedicatedServer(
             int port,
@@ -43,10 +59,8 @@ namespace Arma.Server.Features.Server
 
         public int HeadlessClientsConnected => _headlessProcess is null ? 0 : 1;
 
-        public bool IsServerStarted => _serverProcess?.IsStarted ?? false;
-
         public bool IsServerStopped => _serverProcess?.IsStopped ?? true;
-
+        
         public event EventHandler Disposed;
 
         public void Dispose()
@@ -79,6 +93,9 @@ namespace Arma.Server.Features.Server
 
             return Result.Success();
         }
+
+        public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken) 
+            => await ServerStatus.GetServerStatus(this, cancellationToken);
 
         private ServerProcess CreateDedicatedServerProcess()
         {
