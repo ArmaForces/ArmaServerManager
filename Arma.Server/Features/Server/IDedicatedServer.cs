@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Arma.Server.Features.Server.DTOs;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
@@ -11,13 +13,11 @@ namespace Arma.Server.Features.Server
         
         IModset Modset { get; }
 
-        ServerStatus ServerStatus { get; }
-
         int HeadlessClientsConnected { get; }
 
-        bool IsServerStarted { get; }
-
         bool IsServerStopped { get; }
+
+        Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken);
 
         Result Start();
 

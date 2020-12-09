@@ -3,6 +3,8 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Arma.Server.Features.Server
 {
@@ -12,21 +14,21 @@ namespace Arma.Server.Features.Server
     /// </summary>
     public class A2SInfo
     {
-        public byte Header { get; set; } // I
-        public byte Protocol { get; set; }
-        public string Name { get; set; }
-        public string Map { get; set; }
-        public string Folder { get; set; }
-        public string Game { get; set; }
-        public short Id { get; set; }
-        public byte Players { get; set; }
-        public byte MaxPlayers { get; set; }
-        public byte Bots { get; set; }
-        public ServerTypeFlags ServerType { get; set; }
-        public EnvironmentFlags Environment { get; set; }
-        public VisibilityFlags Visibility { get; set; }
-        public VACFlags VAC { get; set; }
-        public string Version { get; set; }
+        public byte Header { get; protected set; } // I
+        public byte Protocol { get; protected set; }
+        public string Name { get; protected set; }
+        public string Map { get; protected set; }
+        public string Folder { get; protected set; }
+        public string Game { get; protected set; }
+        public short Id { get; protected set; }
+        public byte Players { get; protected set; }
+        public byte MaxPlayers { get; protected set; }
+        public byte Bots { get; protected set; }
+        public ServerTypeFlags ServerType { get; protected set; }
+        public EnvironmentFlags Environment { get; protected set; }
+        public VisibilityFlags Visibility { get; protected set; }
+        public VACFlags VAC { get; protected set; }
+        public string Version { get; protected set; }
 
         public ExtraDataFlags ExtraDataFlag { get; set; }
 
@@ -37,74 +39,98 @@ namespace Arma.Server.Features.Server
             0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x00
         };
 
-        public A2SInfo(IPEndPoint ep)
+        public static async Task<A2SInfo> GetServerInfoAsync(IPEndPoint ipEndPoint, CancellationToken cancellationToken)
         {
-            var udp = new UdpClient();
-            udp.Send(
+            using var udpClient = new UdpClient();
+
+            try
+            {
+                return await Task.Run(
+                    () => ReadServerInfo(udpClient, ipEndPoint),
+                    cancellationToken);
+            }
+            catch (TaskCanceledException)
+            {
+                // Connection timed out
+                return new A2SInfo();
+            }
+            catch (SocketException)
+            {
+                // Connection error
+                return null;
+            }
+        }
+
+        private static A2SInfo ReadServerInfo(UdpClient udpClient, IPEndPoint ipEndPoint)
+        {
+            var serverInfo = new A2SInfo();
+
+            udpClient.Send(
                 Request,
                 Request.Length,
-                ep);
-            var ms = new MemoryStream(udp.Receive(ref ep)); // Saves the received data in a memory buffer
-            var br = new BinaryReader(ms, Encoding.UTF8); // A binary reader that treats charaters as Unicode 8-bit
-            ms.Seek(4, SeekOrigin.Begin); // skip the 4 0xFFs
-            Header = br.ReadByte();
-            Protocol = br.ReadByte();
-            Name = ReadNullTerminatedString(ref br);
-            Map = ReadNullTerminatedString(ref br);
-            Folder = ReadNullTerminatedString(ref br);
-            Game = ReadNullTerminatedString(ref br);
-            Id = br.ReadInt16();
-            Players = br.ReadByte();
-            MaxPlayers = br.ReadByte();
-            Bots = br.ReadByte();
-            ServerType = (ServerTypeFlags) br.ReadByte();
-            Environment = (EnvironmentFlags) br.ReadByte();
-            Visibility = (VisibilityFlags) br.ReadByte();
-            VAC = (VACFlags) br.ReadByte();
-            Version = ReadNullTerminatedString(ref br);
-            ExtraDataFlag = (ExtraDataFlags) br.ReadByte();
+                ipEndPoint);
+
+            var responseBuffer = udpClient.Receive(ref ipEndPoint);
+            using var memoryStream = new MemoryStream(responseBuffer); // Saves the received data in a memory buffer
+            using var binaryReader = new BinaryReader(memoryStream, Encoding.UTF8); // A binary reader that treats characters as Unicode 8-bit
+            memoryStream.Seek(4, SeekOrigin.Begin); // skip the 4 0xFFs
+
+            serverInfo.Header = binaryReader.ReadByte();
+            serverInfo.Protocol = binaryReader.ReadByte();
+            serverInfo.Name = ReadNullTerminatedString(binaryReader);
+            serverInfo.Map = ReadNullTerminatedString(binaryReader);
+            serverInfo.Folder = ReadNullTerminatedString(binaryReader);
+            serverInfo.Game = ReadNullTerminatedString(binaryReader);
+            serverInfo.Id = binaryReader.ReadInt16();
+            serverInfo.Players = binaryReader.ReadByte();
+            serverInfo.MaxPlayers = binaryReader.ReadByte();
+            serverInfo.Bots = binaryReader.ReadByte();
+            serverInfo.ServerType = (ServerTypeFlags)binaryReader.ReadByte();
+            serverInfo.Environment = (EnvironmentFlags)binaryReader.ReadByte();
+            serverInfo.Visibility = (VisibilityFlags)binaryReader.ReadByte();
+            serverInfo.VAC = (VACFlags)binaryReader.ReadByte();
+            serverInfo.Version = ReadNullTerminatedString(binaryReader);
+            serverInfo.ExtraDataFlag = (ExtraDataFlags)binaryReader.ReadByte();
 
             #region These EDF readers have to be in this order because that's the way they are reported
 
-            if (ExtraDataFlag.HasFlag(ExtraDataFlags.Port))
-                Port = br.ReadInt16();
-            if (ExtraDataFlag.HasFlag(ExtraDataFlags.SteamId))
-                SteamId = br.ReadUInt64();
-            if (ExtraDataFlag.HasFlag(ExtraDataFlags.Spectator))
+            if (serverInfo.ExtraDataFlag.HasFlag(ExtraDataFlags.Port))
+                serverInfo.Port = binaryReader.ReadInt16();
+            if (serverInfo.ExtraDataFlag.HasFlag(ExtraDataFlags.SteamId))
+                serverInfo.SteamId = binaryReader.ReadUInt64();
+            if (serverInfo.ExtraDataFlag.HasFlag(ExtraDataFlags.Spectator))
             {
-                SpectatorPort = br.ReadInt16();
-                Spectator = ReadNullTerminatedString(ref br);
+                serverInfo.SpectatorPort = binaryReader.ReadInt16();
+                serverInfo.Spectator = ReadNullTerminatedString(binaryReader);
             }
 
-            if (ExtraDataFlag.HasFlag(ExtraDataFlags.Keywords))
-                Keywords = ReadNullTerminatedString(ref br);
-            if (ExtraDataFlag.HasFlag(ExtraDataFlags.GameId))
-                GameId = br.ReadUInt64();
+            if (serverInfo.ExtraDataFlag.HasFlag(ExtraDataFlags.Keywords))
+                serverInfo.Keywords = ReadNullTerminatedString(binaryReader);
+            if (serverInfo.ExtraDataFlag.HasFlag(ExtraDataFlags.GameId))
+                serverInfo.GameId = binaryReader.ReadUInt64();
 
             #endregion
 
-            br.Close();
-            ms.Close();
-            udp.Close();
+            return serverInfo;
         }
-
+        
         /// <summary>Reads a null-terminated string into a .NET Framework compatible string.</summary>
         /// <param name="input">
         ///     Binary reader to pull the null-terminated string from.  Make sure it is correctly positioned in the
         ///     stream before calling.
         /// </param>
         /// <returns>String of the same encoding as the input BinaryReader.</returns>
-        public static string ReadNullTerminatedString(ref BinaryReader input)
+        private static string ReadNullTerminatedString(BinaryReader input)
         {
-            var sb = new StringBuilder();
-            var read = input.ReadChar();
-            while (read != '\x00')
+            var stringBuilder = new StringBuilder();
+            var readChar = input.ReadChar();
+            while (readChar != '\x00')
             {
-                sb.Append(read);
-                read = input.ReadChar();
+                stringBuilder.Append(readChar);
+                readChar = input.ReadChar();
             }
 
-            return sb.ToString();
+            return stringBuilder.ToString();
         }
 
         #region Strong Typing Enumerators
@@ -150,12 +176,12 @@ namespace Arma.Server.Features.Server
 
         #region Extra Data Flag Members
 
-        public ulong GameId { get; set; } //0x01
-        public ulong SteamId { get; set; } //0x10
-        public string Keywords { get; set; } //0x20
-        public string Spectator { get; set; } //0x40
-        public short SpectatorPort { get; set; } //0x40
-        public short Port { get; set; } //0x80
+        public ulong GameId { get; protected set; } //0x01
+        public ulong SteamId { get; protected set; } //0x10
+        public string Keywords { get; protected set; } //0x20
+        public string Spectator { get; protected set; } //0x40
+        public short SpectatorPort { get; protected set; } //0x40
+        public short Port { get; protected set; } //0x80
 
         #endregion
     }

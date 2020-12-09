@@ -61,7 +61,7 @@ namespace Arma.Server.Manager.Services
 
             if (server is null) return Result.Success();
 
-            var serverStatus = server.ServerStatus;
+            var serverStatus = await server.GetServerStatusAsync(cancellationToken);
 
             if (serverStatus.Players != 0 && !force)
             {

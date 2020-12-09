@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Arma.Server.Config;
 using Arma.Server.Features.Server;
 using Arma.Server.Modset;
@@ -39,11 +42,16 @@ namespace Arma.Server.Test.Features.Server
         }
 
         [Fact]
-        public void IsServerStarted_NoServerProcessCreated_ReturnsServerStopped()
+        public async Task IsServerStarted_NoServerProcessCreated_ReturnsServerStopped()
         {
             var dedicatedServer = PrepareDedicatedServer();
 
-            dedicatedServer.IsServerStarted.Should().BeFalse();
+            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+            var serverStatus = await dedicatedServer.GetServerStatusAsync(cancellationTokenSource.Token);
+
+            serverStatus.IsServerRunning.Should().BeFalse();
+            serverStatus.IsServerStarting.Should().BeFalse();
             dedicatedServer.IsServerStopped.Should().BeTrue();
         }
 

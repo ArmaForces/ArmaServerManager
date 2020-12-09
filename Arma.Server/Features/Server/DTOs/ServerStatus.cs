@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Arma.Server.Features.Server.DTOs
 {
@@ -12,10 +14,20 @@ namespace Arma.Server.Features.Server.DTOs
         {
         }
 
-        public ServerStatus(IDedicatedServer dedicatedServer)
+        public ServerStatus(IDedicatedServer dedicatedServer, A2SInfo serverInfo)
         {
             _dedicatedServer = dedicatedServer;
-            _serverInfo = GetServerInfo(dedicatedServer.Port);
+            _serverInfo = serverInfo;
+        }
+
+        public static async Task<ServerStatus> GetServerStatus(
+            IDedicatedServer dedicatedServer,
+            CancellationToken cancellationToken)
+        {
+            var ipEndPoint = new IPEndPoint(IPAddress.Loopback, dedicatedServer.Port + 1);
+            var serverInfo = await A2SInfo.GetServerInfoAsync(ipEndPoint, cancellationToken);
+
+            return new ServerStatus(dedicatedServer, serverInfo);
         }
 
         public int? HeadlessClientsConnected => _dedicatedServer?.HeadlessClientsConnected;
@@ -23,6 +35,8 @@ namespace Arma.Server.Features.Server.DTOs
         public bool IsServerStarting => !IsServerRunning && (!_dedicatedServer?.IsServerStopped ?? false);
 
         public bool IsServerRunning => !(_serverInfo is null);
+
+        public bool IsServerStopped => _dedicatedServer?.IsServerStopped ?? true;
 
         public string ModsetName => _dedicatedServer?.Modset.Name;
 
@@ -35,17 +49,5 @@ namespace Arma.Server.Features.Server.DTOs
         public int PlayersMax => _serverInfo?.MaxPlayers ?? 0;
 
         public int Port => _dedicatedServer?.Port ?? 0;
-
-        private static A2SInfo GetServerInfo(int port)
-        {
-            try
-            {
-                return new A2SInfo(new IPEndPoint(IPAddress.Loopback, port + 1));
-            }
-            catch (SocketException)
-            {
-                return null;
-            }
-        }
     }
 }

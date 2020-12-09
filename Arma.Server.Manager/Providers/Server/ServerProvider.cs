@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Arma.Server.Config;
 using Arma.Server.Features.Server;
 using Arma.Server.Manager.Features.Hangfire;
@@ -44,7 +45,7 @@ namespace Arma.Server.Manager.Providers.Server
             _ = _servers.TryRemove(server.Port, out _);
         }
 
-        private void DiscoverProcesses()
+        private async Task DiscoverProcesses()
         {
             const string portString = "port ";
 
@@ -70,7 +71,9 @@ namespace Arma.Server.Manager.Providers.Server
                 };
 
                 var server = CreateServer(port, unknownModset, armaServerProcess);
-                if (server.ServerStatus.Players == 0)
+                var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                var serverStatus = await server.GetServerStatusAsync(cancellationTokenSource.Token);
+                if (serverStatus.Players == 0)
                 {
                     server.Shutdown();
                 }

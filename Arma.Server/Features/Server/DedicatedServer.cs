@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Net;
-using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Arma.Server.Config;
 using Arma.Server.Features.Server.DTOs;
 using Arma.Server.Modset;
@@ -57,11 +57,7 @@ namespace Arma.Server.Features.Server
 
         public IModset Modset { get; }
 
-        public ServerStatus ServerStatus => new ServerStatus(this);
-
         public int HeadlessClientsConnected => _headlessProcess is null ? 0 : 1;
-
-        public bool IsServerStarted => ServerStatus.IsServerRunning;
 
         public bool IsServerStopped => _serverProcess?.IsStopped ?? true;
         
@@ -97,6 +93,9 @@ namespace Arma.Server.Features.Server
 
             return Result.Success();
         }
+
+        public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken) 
+            => await ServerStatus.GetServerStatus(this, cancellationToken);
 
         private ServerProcess CreateDedicatedServerProcess()
         {
