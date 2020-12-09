@@ -77,11 +77,15 @@ namespace Arma.Server.Features.Server
             Console.WriteLine($"UDP request sent to {ipEndPoint}.");
 
             var receiveTask = udpClient.ReceiveAsync();
-            Task.WaitAll(new Task[] { receiveTask }, cancellationToken);
-            if (cancellationToken.IsCancellationRequested)
+            while (!receiveTask.IsCompleted)
             {
-                throw new TaskCanceledException($"Connection to {ipEndPoint} timed out");
-            };
+                var delayTask = Task.Delay(1000, cancellationToken);
+                await Task.WhenAny(receiveTask, delayTask);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException($"Connection to {ipEndPoint} timed out");
+                }
+            }
 
             var udpReceiveResult = await receiveTask;
             Console.WriteLine($"UDP request received from {ipEndPoint}. Reading started.");
