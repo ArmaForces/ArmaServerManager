@@ -1,17 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Config;
 using Arma.Server.Manager.Constants;
 using Arma.Server.Manager.Extensions;
 using Arma.Server.Manager.Features.Steam.Content.DTOs;
+using Arma.Server.Manager.Features.Steam.Content.Exceptions;
 using Arma.Server.Mod;
-using BytexDigital.Steam.ContentDelivery.Models;
+using BytexDigital.Steam.ContentDelivery.Exceptions;
 using BytexDigital.Steam.ContentDelivery.Models.Downloading;
 using BytexDigital.Steam.Core.Enumerations;
 using CSharpFunctionalExtensions;
@@ -45,9 +44,10 @@ namespace Arma.Server.Manager.Features.Steam.Content
             CancellationToken cancellationToken)
         {
             await _steamClient.EnsureConnected(cancellationToken);
+            var workshopMods = mods.Where(x => x.Source == ModSource.SteamWorkshop);
 
             var results = new List<Result<IMod>>();
-            foreach (var mod in mods)
+            foreach (var mod in workshopMods)
             {
                 if (cancellationToken.IsCancellationRequested) CancelDownload();
                 var item = mod.AsContentItem();
@@ -136,13 +136,22 @@ namespace Arma.Server.Manager.Features.Steam.Content
                 onFailure: error => Result.Failure<ContentItem>($"Failed downloading {contentItem}. Error: {error}"));
         }
         
-        private async Task<IDownloadHandler> GetDownloadHandler(ContentItem contentItem) 
-            => contentItem.ItemType == ItemType.App
-                ? await _steamClient.ContentClient.GetAppDataAsync(
-                    SteamConstants.ArmaAppId,
-                    SteamConstants.ArmaDepotId,
-                    os: SteamOs.Windows)
-                : await _steamClient.ContentClient.GetPublishedFileDataAsync(contentItem.Id, os: SteamOs.Windows);
+        private async Task<IDownloadHandler> GetDownloadHandler(ContentItem contentItem)
+        {
+            try
+            {
+                return contentItem.ItemType == ItemType.App
+                    ? await _steamClient.ContentClient.GetAppDataAsync(
+                        SteamConstants.ArmaAppId,
+                        SteamConstants.ArmaDepotId,
+                        os: SteamOs.Windows)
+                    : await _steamClient.ContentClient.GetPublishedFileDataAsync(contentItem.Id, os: SteamOs.Windows);
+            }
+            catch (SteamAppAccessTokenDeniedException exception)
+            {
+                throw new WorkshopItemNotExistsException(contentItem.Id, exception);
+            }
+        }
 
         private async Task<Result> Download(
             ContentItem contentItem,
