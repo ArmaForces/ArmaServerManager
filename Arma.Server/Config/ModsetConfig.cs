@@ -108,12 +108,12 @@ namespace Arma.Server.Config
             string modsetConfigFilePath,
             IConfigurationRoot modsetConfig)
         {
-            var fileName = Path.GetFileName(serverConfigFilePath);
+            var fileName = Path.GetFileNameWithoutExtension(serverConfigFilePath);
             Console.WriteLine($"Loading {fileName} for {ModsetName} modset.");
 
             var cfgFile = ConfigFileCreator.FillCfg(
                 _fileSystem.File.ReadAllText(serverConfigFilePath),
-                modsetConfig.GetSection(serverConfigFilePath));
+                modsetConfig.GetSection(fileName));
 
             _fileSystem.File.WriteAllText(modsetConfigFilePath, cfgFile);
             Console.WriteLine($"{fileName} successfully exported to {DirectoryPath}");
