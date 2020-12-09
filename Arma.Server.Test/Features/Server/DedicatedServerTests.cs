@@ -8,6 +8,7 @@ using Arma.Server.Modset;
 using Arma.Server.Providers.Configuration;
 using AutoFixture;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -47,12 +48,14 @@ namespace Arma.Server.Test.Features.Server
             var dedicatedServer = PrepareDedicatedServer();
 
             var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-
             var serverStatus = await dedicatedServer.GetServerStatusAsync(cancellationTokenSource.Token);
 
-            serverStatus.IsServerRunning.Should().BeFalse();
-            serverStatus.IsServerStarting.Should().BeFalse();
-            dedicatedServer.IsServerStopped.Should().BeTrue();
+            using (new AssertionScope())
+            {
+                serverStatus.IsServerRunning.Should().BeFalse();
+                serverStatus.IsServerStarting.Should().BeFalse();
+                dedicatedServer.IsServerStopped.Should().BeTrue();
+            }
         }
 
         [Fact]

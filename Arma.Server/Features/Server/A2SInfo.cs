@@ -65,12 +65,19 @@ namespace Arma.Server.Features.Server
         {
             var serverInfo = new A2SInfo();
 
+            // TODO: use logger
+            Console.WriteLine($"Sending UDP request to {ipEndPoint}.");
+
             udpClient.Send(
                 Request,
                 Request.Length,
                 ipEndPoint);
 
+            Console.WriteLine($"UDP request sent to {ipEndPoint}.");
+
             var responseBuffer = udpClient.Receive(ref ipEndPoint);
+            Console.WriteLine($"UDP request received from {ipEndPoint}. Reading started.");
+
             using var memoryStream = new MemoryStream(responseBuffer); // Saves the received data in a memory buffer
             using var binaryReader = new BinaryReader(memoryStream, Encoding.UTF8); // A binary reader that treats characters as Unicode 8-bit
             memoryStream.Seek(4, SeekOrigin.Begin); // skip the 4 0xFFs
@@ -110,6 +117,8 @@ namespace Arma.Server.Features.Server
                 serverInfo.GameId = binaryReader.ReadUInt64();
 
             #endregion
+
+            Console.WriteLine($"Successfully read message from {ipEndPoint}.");
 
             return serverInfo;
         }
