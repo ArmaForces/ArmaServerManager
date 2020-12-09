@@ -20,7 +20,7 @@ namespace Arma.Server.Features.Server.DTOs
 
         public int? HeadlessClientsConnected => _dedicatedServer?.HeadlessClientsConnected;
 
-        public bool IsServerRunning => !(_serverInfo is null) && (_dedicatedServer?.IsServerStarted ?? false);
+        public bool IsServerRunning => !(_serverInfo is null) && (!_dedicatedServer?.IsServerStopped ?? false);
 
         public string ModsetName => _dedicatedServer?.Modset.Name;
 
