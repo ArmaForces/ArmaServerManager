@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Arma.Server.Manager.Clients.Modsets.Entities;
 using Arma.Server.Mod;
@@ -31,6 +31,6 @@ namespace Arma.Server.Manager.Features.Mods {
         ///     Adds <paramref name="mod"/> to mods cache and saves it.
         /// </summary>
         /// <param name="mod"></param>
-        Task<Result<IEnumerable<IMod>>> AddOrUpdateCache(IEnumerable<IMod> mod);
+        Task<Result<List<IMod>>> AddOrUpdateCache(IEnumerable<IMod> mod);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Security.Cryptography;
@@ -7,8 +8,10 @@ using System.Threading.Tasks;
 using Arma.Server.Config;
 using Arma.Server.Manager.Constants;
 using Arma.Server.Manager.Features.Steam.Content.DTOs;
+using BytexDigital.Steam.ContentDelivery.Enumerations;
 using BytexDigital.Steam.ContentDelivery.Models;
 using CSharpFunctionalExtensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Arma.Server.Manager.Features.Steam.Content
 {
@@ -29,20 +32,55 @@ namespace Arma.Server.Manager.Features.Steam.Content
             _fileSystem = fileSystem ?? new FileSystem();
         }
 
-        public async Task<Result> ItemIsUpToDate(ContentItem contentItem, CancellationToken cancellationToken)
+        public static ContentVerifier CreateContentVerifier(IServiceProvider serviceProvider)
         {
-            if (contentItem.Directory is null) return Result.Failure("Item not exists.");
-            
-            contentItem.ManifestId ??=
-                (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItem.Id)).hcontent_file;
+            return new ContentVerifier(serviceProvider.GetService<ISteamClient>());
+        }
 
+        public async Task<Result<ContentItem>> ItemIsUpToDate(ContentItem contentItem, CancellationToken cancellationToken)
+        {
+            if (contentItem.Directory is null) return Result.Failure<ContentItem>("Item not exists.");
+            
+            if (contentItem.ManifestId is null)
+            {
+                await GetManifestId(contentItem);
+            }
+            
             var manifest = await GetManifest(contentItem, cancellationToken);
 
-            return manifest.Files
+            var incorrectFiles = manifest.Files
                 .SkipWhile(manifestFile => FileIsUpToDate(contentItem.Directory, manifestFile))
+                .ToList();
+
+            return incorrectFiles
                 .Any()
-                ? Result.Failure("One or more files are either missing or require update.")
-                : Result.Success();
+                ? Result.Failure<ContentItem>("One or more files are either missing or require update.")
+                : Result.Success(contentItem);
+        }
+
+        /// <summary>
+        /// TODO: Do it better
+        /// </summary>
+        private async Task GetManifestId(ContentItem contentItem)
+        {
+            var errors = 0;
+            while (errors < 10 && contentItem.ManifestId == null)
+            {
+                try
+                {
+                    contentItem.ManifestId = (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItem.Id))
+                        .hcontent_file;
+                }
+                catch (TaskCanceledException)
+                {
+                    errors += 1;
+                }
+            }
+
+            if (errors > 9)
+            {
+                throw new Exception($"10 errors while attempting to download manifest for {contentItem.Id}");
+            }
         }
 
         private async Task<Manifest> GetManifest(ContentItem contentItem, CancellationToken cancellationToken)
@@ -54,6 +92,11 @@ namespace Arma.Server.Manager.Features.Steam.Content
 
         private bool FileIsUpToDate(string directory, ManifestFile file)
         {
+            if (file.Flags == ManifestFileFlag.Directory)
+            {
+                return _fileSystem.Directory.Exists(Path.Join(directory, file.FileName));
+            }
+
             var filePath = _fileSystem.Path.Combine(directory, file.FileName);
 
             if (!_fileSystem.File.Exists(filePath)) return false;

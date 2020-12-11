@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Arma.Server.Config;
 using BytexDigital.Steam.ContentDelivery;
 using BytexDigital.Steam.Core;
-using Microsoft.Extensions.DependencyInjection;
 using BytexSteamClient = BytexDigital.Steam.Core.SteamClient;
 
 namespace Arma.Server.Manager.Features.Steam
@@ -61,8 +60,5 @@ namespace Arma.Server.Manager.Features.Steam
 
         /// <inheritdoc />
         public void Disconnect() => _bytexSteamClient.Shutdown();
-
-        public static SteamClient CreateSteamClient(IServiceProvider serviceProvider)
-            => new SteamClient(serviceProvider.GetService<ISettings>());
     }
 }

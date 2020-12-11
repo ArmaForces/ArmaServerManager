@@ -121,11 +121,11 @@ namespace Arma.Server.Manager.Features.Steam.Content
         {
             if (contentItem.ItemType == ItemType.App)
                 throw new NotImplementedException("Downloading Arma 3 Server is not supported yet.");
-
+            
             var downloadHandler = await GetDownloadHandler(contentItem);
 
             var contentDownloadHandler = new ContentDownloadHandler(downloadHandler);
-
+            
             var downloadResult = await Download(
                 contentItem,
                 contentDownloadHandler,
@@ -136,21 +136,36 @@ namespace Arma.Server.Manager.Features.Steam.Content
                 onFailure: error => Result.Failure<ContentItem>($"Failed downloading {contentItem}. Error: {error}"));
         }
         
+        /// <summary>
+        /// TODO: Do it better
+        /// </summary>
         private async Task<IDownloadHandler> GetDownloadHandler(ContentItem contentItem)
         {
-            try
+            var errors = 0;
+            while (errors < 10)
             {
-                return contentItem.ItemType == ItemType.App
-                    ? await _steamClient.ContentClient.GetAppDataAsync(
-                        SteamConstants.ArmaAppId,
-                        SteamConstants.ArmaDepotId,
-                        os: SteamOs.Windows)
-                    : await _steamClient.ContentClient.GetPublishedFileDataAsync(contentItem.Id, os: SteamOs.Windows);
+                try
+                {
+                    return contentItem.ItemType == ItemType.App
+                        ? await _steamClient.ContentClient.GetAppDataAsync(
+                            SteamConstants.ArmaServerAppId,
+                            SteamConstants.ArmaDepotId,
+                            os: SteamOs.Windows)
+                        : await _steamClient.ContentClient.GetPublishedFileDataAsync(
+                            contentItem.Id,
+                            os: SteamOs.Windows);
+                }
+                catch (TaskCanceledException)
+                {
+                    errors += 1;
+                }
+                catch (SteamAppAccessTokenDeniedException exception)
+                {
+                    throw new WorkshopItemNotExistsException(contentItem.Id, exception);
+                }
             }
-            catch (SteamAppAccessTokenDeniedException exception)
-            {
-                throw new WorkshopItemNotExistsException(contentItem.Id, exception);
-            }
+
+            throw new Exception($"10 errors while attempting to download item {contentItem.Id}");
         }
 
         private async Task<Result> Download(

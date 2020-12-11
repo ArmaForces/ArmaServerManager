@@ -53,11 +53,12 @@ namespace Arma.Server.Manager
 
             services.AddSingleton<ISettings>(Settings.LoadSettings);
             services.AddSingleton<IModsCache>(ModsCache.CreateModsCache);
-            services.AddSingleton<IModsManager>(ModsManager.CreateModsManager);
+            services.AddSingleton<IModsManager, ModsManager>();
             services.AddSingleton<IApiModsetClient>(ApiModsetClient.CreateApiModsetClient);
             services.AddSingleton<IApiMissionsClient, ApiMissionsClient>();
-            services.AddSingleton<ISteamClient>(SteamClient.CreateSteamClient);
+            services.AddSingleton<ISteamClient, SteamClient>();
             services.AddSingleton<IContentDownloader>(ContentDownloader.CreateContentDownloader);
+            services.AddSingleton<IContentVerifier>(ContentVerifier.CreateContentVerifier);
             services.AddSingleton<IModsetProvider, ModsetProvider>();
             services.AddSingleton<IServerProvider, ServerProvider>();
             services.AddSingleton<IServerConfigurationProvider>(ServerConfigurationProvider.CreateServerConfigurationProvider);
