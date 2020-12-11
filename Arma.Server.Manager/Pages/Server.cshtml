@@ -1,0 +1,19 @@
+﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model ServerModel
+@{
+    ViewData["Title"] = "Server Startup page";
+}
+
+<body>
+    <div class="text-center">
+        <h1>Server startup can be initiated from here.</h1>
+        <form method="post">
+            Select modset to start server:
+            <select name="modsetName" asp-items="Model.Options"></select>
+            <br/>
+            <br/>
+            <input type="submit" value="Start server"/>
+        </form>
+    </div>
+</body>
