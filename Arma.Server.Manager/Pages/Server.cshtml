@@ -8,12 +8,27 @@
 <body>
     <div class="text-center">
         <h1>Server startup can be initiated from here.</h1>
-        <form method="post">
-            Select modset to start server:
-            <select name="modsetName" asp-items="Model.Options"></select>
-            <br/>
-            <br/>
-            <input type="submit" value="Start server"/>
-        </form>
+        <div>
+            <div>
+                <form method="post">
+                    Select modset to start server:
+                    <select name="modsetName" asp-items="Model.ModsetOptions"></select>
+                    <br />
+                    <br />
+                    <input type="submit" value="Start server with modset" />
+                </form>
+            </div>
+            <br />
+            <br />
+            <div>
+                <form method="post">
+                    Select mission to start server:
+                    <select name="missionTitle" asp-items="Model.MissionOptions"></select>
+                    <br />
+                    <br />
+                    <input type="submit" value="Start server for mission" />
+                </form>
+            </div>
+        </div>
     </div>
 </body>
