@@ -39,6 +39,9 @@ namespace Arma.Server.Manager.Test.Features.Mods {
             _downloaderMock.Setup(x => x.DownloadOrUpdateMods(It.IsAny<IEnumerable<IMod>>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new List<Result<IMod>> { Result.Success((IMod) new Mod.Mod()) }));
 
+            _contentVerifierMock.Setup(x => x.ItemIsUpToDate(It.IsAny<ContentItem>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(Result.Failure<ContentItem>("Item requires update")));
+
             await _modsManager.PrepareModset(_modset, CancellationToken.None);
 
             _downloaderMock.Verify(x => x.DownloadOrUpdateMods(
@@ -55,6 +58,9 @@ namespace Arma.Server.Manager.Test.Features.Mods {
 
             _downloaderMock.Setup(x => x.DownloadOrUpdateMods(It.IsAny<IEnumerable<IMod>>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new List<Result<IMod>> { Result.Success((IMod)new Mod.Mod()) }));
+
+            _contentVerifierMock.Setup(x => x.ItemIsUpToDate(It.IsAny<ContentItem>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(Result.Failure<ContentItem>("Item requires update")));
 
             await _modsManager.PrepareModset(_modset, CancellationToken.None);
 
