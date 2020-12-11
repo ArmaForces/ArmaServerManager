@@ -17,6 +17,7 @@ namespace Arma.Server.Config
         public string ModsetName { get; protected set; }
         public string ServerCfg { get; protected set; }
         public string ServerProfileDirectory { get; protected set; }
+        public string ServerPassword { get; protected set; }
 
         private readonly IConfig _serverConfig;
         private readonly IFileSystem _fileSystem;
@@ -96,6 +97,8 @@ namespace Arma.Server.Config
                 .AddJsonStream(_fileSystem.FileStream.Create(_serverConfig.ConfigJson, FileMode.Open))
                 .AddJsonStream(_fileSystem.FileStream.Create(ConfigJson, FileMode.Open))
                 .Build();
+
+            ServerPassword = modsetConfig["server:password"] ?? string.Empty;
 
             CreateConfigFiles(_serverConfig.BasicCfg, BasicCfg, modsetConfig);
             CreateConfigFiles(_serverConfig.ServerCfg, ServerCfg, modsetConfig);

@@ -28,7 +28,7 @@ namespace Arma.Server.Providers.Parameters
                 "-client",
                 "-connect=127.0.0.1",
                 $"-port={_port}",
-                "-password=PLACEHOLDER", // TODO: Get password from server.cfg
+                $"-password={_modsetConfig.ServerPassword}",
                 $"-profiles=\"{_modsetConfig.HCProfileDirectory}\"",
                 "-limitFPS=100",
                 GetModsStartupParam(_modset));
