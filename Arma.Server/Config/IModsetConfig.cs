@@ -1,5 +1,6 @@
 ﻿namespace Arma.Server.Config {
-    public interface IModsetConfig : IConfig {
+    public interface IModsetConfig : IConfig
+    {
 
         /// <summary>
         /// Path to config.json file.
@@ -20,5 +21,10 @@
         /// Path to Server profile directory.
         /// </summary>
         string ServerProfileDirectory { get; }
+
+        /// <summary>
+        /// Password to enter the server.
+        /// </summary>
+        string ServerPassword { get; }
     }
 }
