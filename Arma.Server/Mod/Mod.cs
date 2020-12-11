@@ -32,5 +32,12 @@ namespace Arma.Server.Mod {
             if (ReferenceEquals(this, mod)) return true;
             return Source == mod.Source && (WorkshopId == mod.WorkshopId || Name == mod.Name);
         }
+
+        public override int GetHashCode()
+        {
+            return Source == ModSource.SteamWorkshop
+                ? WorkshopId
+                : Name.GetHashCode();
+        }
     }
 }

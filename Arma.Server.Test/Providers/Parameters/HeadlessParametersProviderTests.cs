@@ -22,6 +22,7 @@ namespace Arma.Server.Test.Providers.Parameters
             var serverCfgPath = _fixture.Create<string>();
             var basicCfgPath = _fixture.Create<string>();
             var port = _fixture.Create<int>();
+            var serverPassword = _fixture.Create<string>();
 
             var modset = ModsetHelpers.CreateTestModset(_fixture);
             var requiredAndServerModsDirectories = modset.Mods
@@ -32,6 +33,7 @@ namespace Arma.Server.Test.Providers.Parameters
             modsetConfigMock.Setup(x => x.HCProfileDirectory).Returns(hcProfileDirectory);
             modsetConfigMock.Setup(x => x.ServerCfg).Returns(serverCfgPath);
             modsetConfigMock.Setup(x => x.BasicCfg).Returns(basicCfgPath);
+            modsetConfigMock.Setup(x => x.ServerPassword).Returns(serverPassword);
 
             var parametersProvider = new HeadlessParametersProvider(
                 port,
@@ -47,7 +49,7 @@ namespace Arma.Server.Test.Providers.Parameters
                 .And.Subject.Should()
                 .Contain($"port={port}")
                 .And.Subject.Should()
-                .Contain("-password=PLACEHOLDER")
+                .Contain($"-password={serverPassword}")
                 .And.Subject.Should()
                 .Contain($"-profiles=\"{hcProfileDirectory}\"")
                 .And.Subject.Should()
