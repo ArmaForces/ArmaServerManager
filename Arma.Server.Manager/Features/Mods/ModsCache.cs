@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using Arma.Server.Config;
+using Arma.Server.Manager.Clients.Modsets.Entities;
 using Arma.Server.Mod;
+using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -42,11 +44,38 @@ namespace Arma.Server.Manager.Features.Mods
             return mod?.Exists(_fileSystem) ?? false;
         }
 
+        public IModset MapWebModsetToCacheModset(WebModset webModset)
+        {
+            var mappedMods = webModset.Mods
+                .Select(x => GetModInCache(x.ConvertForServer()))
+                .ToHashSet();
+
+            return new Modset.Modset
+            {
+                Name = webModset.Name,
+                WebId = webModset.Id,
+                Mods = mappedMods
+            };
+        }
+
         /// <inheritdoc />
         public async Task SaveCache() => await SaveCache(Mods);
 
         public static ModsCache CreateModsCache(IServiceProvider serviceProvider)
             => new ModsCache(serviceProvider.GetService<ISettings>());
+
+        private IMod GetModInCache(IMod mod)
+        {
+            try
+            {
+                var modInCache = Mods.Single(x => x.Equals(mod));
+                return TryEnsureModDirectory(modInCache);
+            }
+            catch (InvalidOperationException )
+            {
+                return TryEnsureModDirectory(mod);
+            }
+        }
 
         private async Task<IMod> GetOrSetModInCache(IMod mod)
         {

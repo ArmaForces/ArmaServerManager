@@ -14,13 +14,5 @@ namespace Arma.Server.Manager.Clients.Modsets.Entities {
         public DateTime? LastUpdatedAt { get; set; }
 
         public List<WebMod> Mods { get; set; }
-
-        public Arma.Server.Modset.Modset ConvertForServer() 
-            => new Arma.Server.Modset.Modset
-            {
-                Name = Name,
-                WebId = Id,
-                Mods = Mods.Select(x => (IMod) x.ConvertForServer()).ToHashSet()
-            };
     }
 }

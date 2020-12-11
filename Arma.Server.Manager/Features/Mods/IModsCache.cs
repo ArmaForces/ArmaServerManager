@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Arma.Server.Manager.Clients.Modsets.Entities;
 using Arma.Server.Mod;
+using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
 
 namespace Arma.Server.Manager.Features.Mods {
@@ -12,6 +14,8 @@ namespace Arma.Server.Manager.Features.Mods {
         /// <param name="mod">Mod to check if it exists.</param>
         /// <returns>True if mod directory is found.</returns>
         Task<bool> ModExists(IMod mod);
+
+        IModset MapWebModsetToCacheModset(WebModset webModset);
 
         /// <summary>
         /// All cached mods.
