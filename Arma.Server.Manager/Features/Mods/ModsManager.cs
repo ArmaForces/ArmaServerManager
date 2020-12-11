@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -9,7 +9,6 @@ using Arma.Server.Manager.Features.Steam.Content;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Arma.Server.Manager.Features.Mods
 {
@@ -50,21 +49,22 @@ namespace Arma.Server.Manager.Features.Mods
         }
 
         /// <inheritdoc />
-        public Result<IEnumerable<IMod>> CheckModsUpdated(IEnumerable<IMod> modsList)
+        public async Task<Result<List<IMod>>> CheckModsUpdated(IEnumerable<IMod> modsList, CancellationToken cancellationToken)
         {
-            var modsRequireUpdate = modsList
+            var modsRequireUpdate = new ConcurrentBag<IMod>();
+
+            await foreach (var mod in modsList.Where(x => x.Source == ModSource.SteamWorkshop)
                 .ToAsyncEnumerable()
-                .WhereAwait(async x => (await _contentVerifier.ItemIsUpToDate(x.AsContentItem(), CancellationToken.None)).IsFailure)
-                .ToEnumerable();
-            return Result.Success(modsRequireUpdate);
+                .WithCancellation(cancellationToken))
+            {
+                await _contentVerifier.ItemIsUpToDate(mod.AsContentItem(), cancellationToken)
+                    .Tap(contentItem => mod.ManifestId = contentItem.ManifestId)
+                    .OnFailure(() => modsRequireUpdate.Add(mod));
+            }
+            
+            return Result.Success(modsRequireUpdate.ToList());
         }
-
-        public static ModsManager CreateModsManager(IServiceProvider serviceProvider)
-            => new ModsManager(
-                serviceProvider.GetService<IContentDownloader>(),
-                serviceProvider.GetService<IContentVerifier>(),
-                serviceProvider.GetService<IModsCache>());
-
+        
         /// <summary>
         ///     Invokes <see cref="ISteamClient" /> to download given list of mods.
         /// </summary>
@@ -73,7 +73,9 @@ namespace Arma.Server.Manager.Features.Mods
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods download safe cancelling.</param>
         private async Task<Result> DownloadMods(IEnumerable<IMod> modsToDownload, CancellationToken cancellationToken)
         {
-            var downloadResults = await _contentDownloader.DownloadOrUpdateMods(modsToDownload, cancellationToken);
+            var modsMissingOrOutdated = await CheckModsUpdated(modsToDownload, cancellationToken);
+
+            var downloadResults = await _contentDownloader.DownloadOrUpdateMods(modsMissingOrOutdated.Value, cancellationToken);
 
             var successfullyDownloadedMods = downloadResults
                 .Where(x => x.IsSuccess)

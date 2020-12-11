@@ -28,7 +28,7 @@ namespace Arma.Server.Manager.Features.Mods {
         /// </summary>
         /// <param name="modsList">List of mods to check.</param>
         /// <returns><see cref="Result{T}"/> with outdated mods.</returns>
-        Result<IEnumerable<IMod>> CheckModsUpdated(IEnumerable<IMod> modsList);
+        Task<Result<List<IMod>>> CheckModsUpdated(IEnumerable<IMod> modsList, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates all installed mods.

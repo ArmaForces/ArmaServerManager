@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -116,7 +116,7 @@ namespace Arma.Server.Manager.Features.Mods
 
         private IMod UpdateModInCache(IMod mod)
         {
-            var modInCache = Mods.Single(x => x == mod);
+            var modInCache = Mods.Single(x => x.Equals(mod));
 
             Mods.Remove(modInCache);
             var newMod = new Mod.Mod
@@ -135,9 +135,9 @@ namespace Arma.Server.Manager.Features.Mods
             return AddModToCache(newMod);
         }
 
-        public async Task<Result<IEnumerable<IMod>>> AddOrUpdateCache(IEnumerable<IMod> mods)
+        public async Task<Result<List<IMod>>> AddOrUpdateCache(IEnumerable<IMod> mods)
         {
-            var cacheMods = mods.Select(AddOrUpdateModInCache);
+            var cacheMods = mods.Select(AddOrUpdateModInCache).ToList();
             await SaveCache();
             return Result.Success(cacheMods);
         }
