@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Arma.Server.Manager.Features.Hangfire;
 using CSharpFunctionalExtensions;
 using Hangfire;
-using RestSharp.Extensions;
 
 namespace Arma.Server.Manager.Services
 {
@@ -20,11 +19,11 @@ namespace Arma.Server.Manager.Services
         {
             var serverShutdownJob = _hangfireManager.ScheduleJob<ServerStartupService>(x => x.ShutdownServer(2302, false, CancellationToken.None));
 
-            var missionsPreparationJob = BackgroundJob.ContinueJobWith<MissionPreparationService>(
+            var missionsPreparationJob = BackgroundJob.ContinueJobWith<IMissionPreparationService>(
                 serverShutdownJob.Value,
                 x => x.PrepareForUpcomingMissions(CancellationToken.None));
 
-            var startServerForNextMissionJob = BackgroundJob.ContinueJobWith<MissionPreparationService>(
+            var startServerForNextMissionJob = BackgroundJob.ContinueJobWith<IMissionPreparationService>(
                 missionsPreparationJob,
                 x => x.StartServerForNearestMission(CancellationToken.None));
 

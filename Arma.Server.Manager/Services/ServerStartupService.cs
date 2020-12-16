@@ -1,18 +1,16 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Manager.Providers;
 using Arma.Server.Manager.Providers.Server;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Arma.Server.Manager.Services
 {
     /// <summary>
-    ///     
+    /// TODO: create documentation
     /// </summary>
-    public class ServerStartupService
+    public class ServerStartupService : IServerStartupService
     {
         private const int Port = 2302;
 
@@ -29,13 +27,7 @@ namespace Arma.Server.Manager.Services
             _serverProvider = serverProvider;
             _modsUpdateService = modsUpdateService;
         }
-
-        public static ServerStartupService CreateServerStartupService(IServiceProvider serviceProvider) 
-            => new ServerStartupService(
-                serviceProvider.GetService<IModsetProvider>(),
-                serviceProvider.GetService<IServerProvider>(),
-                serviceProvider.GetService<ModsUpdateService>());
-
+        
         public async Task<Result> StartServer(string modsetName, CancellationToken cancellationToken)
         {
             return await _modsetProvider.GetModsetByName(modsetName)

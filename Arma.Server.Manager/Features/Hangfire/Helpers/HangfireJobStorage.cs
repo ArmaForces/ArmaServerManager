@@ -1,5 +1,4 @@
-﻿using System;
-using Hangfire;
+﻿using Hangfire;
 using Hangfire.Storage;
 
 namespace Arma.Server.Manager.Features.Hangfire.Helpers
@@ -11,8 +10,5 @@ namespace Arma.Server.Manager.Features.Hangfire.Helpers
         public HangfireJobStorage() => MonitoringApi = _jobStorage.GetMonitoringApi();
 
         public IMonitoringApi MonitoringApi { get; }
-
-        public static HangfireJobStorage CreateHangfireJobStorage(IServiceProvider serviceProvider)
-            => new HangfireJobStorage();
     }
 }

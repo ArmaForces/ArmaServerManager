@@ -6,15 +6,15 @@ using CSharpFunctionalExtensions;
 
 namespace Arma.Server.Manager.Services
 {
-    public class MissionPreparationService
+    public class MissionPreparationService : IMissionPreparationService
     {
         private readonly IApiMissionsClient _apiMissionsClient;
-        private readonly ServerStartupService _serverStartupService;
+        private readonly IServerStartupService _serverStartupService;
         private readonly IModsUpdateService _modsUpdateService;
 
         public MissionPreparationService(
             IApiMissionsClient apiMissionsClient,
-            ServerStartupService serverStartupService,
+            IServerStartupService serverStartupService,
             IModsUpdateService modsUpdateService)
         {
             _apiMissionsClient = apiMissionsClient;
@@ -22,6 +22,7 @@ namespace Arma.Server.Manager.Services
             _modsUpdateService = modsUpdateService;
         }
 
+        /// <inheritdoc />
         public async Task<Result> PrepareForUpcomingMissions(CancellationToken cancellationToken)
         {
             var modsetsToPrepare = _apiMissionsClient.GetUpcomingMissionsModsets();
@@ -33,6 +34,7 @@ namespace Arma.Server.Manager.Services
             return Result.Success();
         }
 
+        /// <inheritdoc />
         public async Task<Result> StartServerForNearestMission(CancellationToken cancellationToken)
         {
             var upcomingMission = _apiMissionsClient.GetUpcomingMissions().FirstOrDefault();

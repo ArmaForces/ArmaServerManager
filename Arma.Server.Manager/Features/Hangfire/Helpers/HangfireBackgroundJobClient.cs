@@ -14,8 +14,5 @@ namespace Arma.Server.Manager.Features.Hangfire.Helpers
 
         public string Enqueue<T>(Expression<Func<T, Task>> methodCall)
             => _backgroundJobClient.Enqueue(methodCall);
-
-        public static HangfireBackgroundJobClient CreateHangfireBackgroundJobClient(IServiceProvider serviceProvider)
-            => new HangfireBackgroundJobClient();
     }
 }

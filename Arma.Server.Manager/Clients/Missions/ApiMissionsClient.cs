@@ -10,6 +10,7 @@ using RestSharp;
 namespace Arma.Server.Manager.Clients.Missions {
     /// <inheritdoc />
     public class ApiMissionsClient : IApiMissionsClient {
+        // TODO: it should not be like this
         private const string MissionsUpcomingResourceFormat = @"api/missions?includeArchive=true&fromDateTime={0}";
 
         private readonly IRestClient _restClient;

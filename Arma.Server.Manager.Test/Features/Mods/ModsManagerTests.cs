@@ -81,7 +81,7 @@ namespace Arma.Server.Manager.Test.Features.Mods {
             settingsMock.Setup(x => x.ModsDirectory).Returns(workingDirectory);
             var modsCache = new ModsCache(settingsMock.Object, fileSystemMock);
             var contentDownloader = new ContentDownloader(settingsMock.Object);
-            var contentVerifier = new ContentVerifier(settingsMock.Object);
+            var contentVerifier = new Mock<IContentVerifier>().Object;
             var modsManager = new ModsManager(contentDownloader, contentVerifier, modsCache);
             var cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(1));

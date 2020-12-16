@@ -8,7 +8,6 @@ using Arma.Server.Manager.Features.Hangfire.Helpers;
 using CSharpFunctionalExtensions;
 using Hangfire.Common;
 using Hangfire.Storage.Monitoring;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Arma.Server.Manager.Features.Hangfire
 {
@@ -30,11 +29,6 @@ namespace Arma.Server.Manager.Features.Hangfire
             => dateTime.HasValue
                 ? ScheduleAt(func, dateTime.Value)
                 : EnqueueImmediately(func);
-        
-        public static HangfireManager CreateHangfireManager(IServiceProvider serviceProvider)
-            => new HangfireManager(
-                serviceProvider.GetService<IHangfireBackgroundJobClient>(),
-                serviceProvider.GetService<IHangfireJobStorage>());
 
         /// <summary>
         ///     Checks if given <paramref name="job" /> will execute using <typeparamref name="T" />
