@@ -1,0 +1,121 @@
+using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Providers.Configuration;
+using ArmaForces.ArmaServerManager.Clients.Missions;
+using ArmaForces.ArmaServerManager.Clients.Modsets;
+using ArmaForces.ArmaServerManager.Features.Configuration;
+using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Mods;
+using ArmaForces.ArmaServerManager.Features.Steam;
+using ArmaForces.ArmaServerManager.Features.Steam.Content;
+using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
+using ArmaForces.ArmaServerManager.Providers;
+using ArmaForces.ArmaServerManager.Providers.Server;
+using ArmaForces.ArmaServerManager.Services;
+using Hangfire;
+using Hangfire.LiteDB;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+namespace ArmaForces.ArmaServerManager
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddRazorPages();
+
+            // Add REST API Controller
+            services.AddControllers();
+
+            // Add framework services.
+            services.AddMvc();
+
+            // Add Hangfire services.
+            services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseLiteDbStorage(Configuration.GetConnectionString("HangfireConnection")))
+
+            // Add the processing server as IHostedService
+            .AddHangfireServer()
+
+            .AddHostedService<StartupService>()
+
+            // Job services
+            .AddSingleton<MaintenanceService>()
+            .AddSingleton<IMissionPreparationService, MissionPreparationService>()
+            .AddSingleton<IModsUpdateService, ModsUpdateService>()
+            .AddSingleton<IServerStartupService, ServerStartupService>()
+
+            .AddSingleton<ISettings>(Settings.LoadSettings)
+
+            // Mods
+            .AddSingleton<IModsCache, ModsCache>()
+            .AddSingleton<IModsManager, ModsManager>()
+            .AddSingleton<IApiModsetClient, ApiModsetClient>()
+            .AddSingleton<ISteamClient, SteamClient>()
+            .AddSingleton<IContentDownloader, ContentDownloader>()
+            .AddSingleton<IContentVerifier, ContentVerifier>()
+            .AddSingleton<IModsetProvider, ModsetProvider>()
+
+            // Mission
+            .AddSingleton<IApiMissionsClient, ApiMissionsClient>()
+
+            // Server
+            .AddSingleton<IServerProvider, ServerProvider>()
+            .AddSingleton<IServerConfigurationProvider, ServerConfigurationProvider>()
+            .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
+
+            // Hangfire
+            .AddSingleton<IHangfireBackgroundJobClient, HangfireBackgroundJobClient>()
+            .AddSingleton<IHangfireJobStorage, HangfireJobStorage>()
+            .AddSingleton<IHangfireManager, HangfireManager>()
+            
+            // Security
+            .AddSingleton<IApiKeyProvider, ApiKeyProvider>();
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseHangfireDashboard();
+
+            app.UseRouting();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorPages();
+                endpoints.MapHangfireDashboard();
+                endpoints.MapControllers();
+            });
+        }
+    }
+}
