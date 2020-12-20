@@ -1,14 +1,9 @@
 ﻿using Arma.Server.Manager.Clients.Modsets.Entities;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using Arma.Server.Config;
 using RestSharp;
 using Arma.Server.Manager.Clients.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Arma.Server.Manager.Clients.Modsets {
     /// <inheritdoc />
@@ -21,6 +16,10 @@ namespace Arma.Server.Manager.Clients.Modsets {
             _restClient = restClient;
         }
 
+        public ApiModsetClient(ISettings settings) : this(settings.ApiModsetsBaseUrl)
+        {
+        }
+
         /// <inheritdoc cref="ApiModsetClient" />
         /// <param name="baseUrl">Base API url.</param>
         public ApiModsetClient(string baseUrl) : this(new Uri(baseUrl)) {
@@ -30,12 +29,6 @@ namespace Arma.Server.Manager.Clients.Modsets {
         /// /// <param name="baseUri">Base API uri.</param>
         public ApiModsetClient(Uri baseUri) {
             _restClient = new RestClient(baseUri);
-        }
-
-        public static ApiModsetClient CreateApiModsetClient(IServiceProvider serviceProvider)
-        {
-            var settings = serviceProvider.GetService<ISettings>();
-            return new ApiModsetClient(settings.ApiModsetsBaseUrl);
         }
 
         /// <inheritdoc />

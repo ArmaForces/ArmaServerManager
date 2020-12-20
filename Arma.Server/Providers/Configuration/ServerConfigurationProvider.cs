@@ -1,6 +1,4 @@
-﻿using System;
-using Arma.Server.Config;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Arma.Server.Config;
 
 namespace Arma.Server.Providers.Configuration
 {
@@ -11,11 +9,6 @@ namespace Arma.Server.Providers.Configuration
         public ServerConfigurationProvider(ISettings settings)
         {
             _settings = settings;
-        }
-
-        public static ServerConfigurationProvider CreateServerConfigurationProvider(IServiceProvider serviceProvider)
-        {
-            return new ServerConfigurationProvider(serviceProvider.GetService<ISettings>());
         }
 
         public IModsetConfig GetModsetConfig(string modsetName)

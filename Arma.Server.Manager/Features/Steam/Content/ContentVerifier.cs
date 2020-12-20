@@ -5,7 +5,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using Arma.Server.Config;
 using Arma.Server.Manager.Constants;
 using Arma.Server.Manager.Features.Steam.Content.DTOs;
 using BytexDigital.Steam.ContentDelivery.Enumerations;
@@ -19,13 +18,7 @@ namespace Arma.Server.Manager.Features.Steam.Content
     {
         private readonly ISteamClient _steamClient;
         private readonly IFileSystem _fileSystem;
-
-        public ContentVerifier(ISettings settings, IFileSystem fileSystem = null) : this(
-            new SteamClient(settings),
-            fileSystem)
-        {
-        }
-
+        
         public ContentVerifier(ISteamClient steamClient, IFileSystem fileSystem = null)
         {
             _steamClient = steamClient;

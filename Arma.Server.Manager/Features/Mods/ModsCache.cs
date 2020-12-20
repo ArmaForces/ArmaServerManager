@@ -9,7 +9,6 @@ using Arma.Server.Manager.Clients.Modsets.Entities;
 using Arma.Server.Mod;
 using Arma.Server.Modset;
 using CSharpFunctionalExtensions;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace Arma.Server.Manager.Features.Mods
@@ -60,9 +59,6 @@ namespace Arma.Server.Manager.Features.Mods
 
         /// <inheritdoc />
         public async Task SaveCache() => await SaveCache(Mods);
-
-        public static ModsCache CreateModsCache(IServiceProvider serviceProvider)
-            => new ModsCache(serviceProvider.GetService<ISettings>());
 
         private IMod GetModInCache(IMod mod)
         {

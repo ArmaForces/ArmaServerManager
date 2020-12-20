@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Arma.Server.Config;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -29,10 +28,7 @@ namespace Arma.Server.Manager.Features.Configuration
             ModsetConfigsPath = Path.Join(settings.ServerConfigDirectory, settings.ModsetConfigDirectoryName);
             _fileSystem = fileSystem;
         }
-
-        public static ServerConfigurationLogic CreateServerConfigurationLogic(IServiceProvider serviceProvider)
-            => new ServerConfigurationLogic(serviceProvider.GetService<ISettings>());
-
+        
         public async Task<Result<string>> UploadConfigurationFile(string modsetName, IFormFile formFile)
         {
             var (configDirectory, configFileName) = GetConfigDirectoryAndFileName(modsetName);

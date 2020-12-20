@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arma.Server.Manager.Clients.Missions;
@@ -10,9 +10,9 @@ using CSharpFunctionalExtensions;
 namespace Arma.Server.Manager.Services
 {
     /// <summary>
-    ///     
+    /// TODO: create documentation
     /// </summary>
-    public class ServerStartupService
+    public class ServerStartupService : IServerStartupService
     {
         private const int Port = 2302;
 

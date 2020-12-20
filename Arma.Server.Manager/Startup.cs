@@ -1,3 +1,4 @@
+using System;
 using Arma.Server.Config;
 using Arma.Server.Manager.Clients.Missions;
 using Arma.Server.Manager.Clients.Modsets;
@@ -39,44 +40,53 @@ namespace Arma.Server.Manager
             // Add REST API Controller
             services.AddControllers();
 
+            // Add framework services.
+            services.AddMvc();
+
             // Add Hangfire services.
             services.AddHangfire(configuration => configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
-                .UseLiteDbStorage(Configuration.GetConnectionString("HangfireConnection")));
+                .UseLiteDbStorage(Configuration.GetConnectionString("HangfireConnection")))
 
             // Add the processing server as IHostedService
-            services.AddHangfireServer();
+            .AddHangfireServer()
 
-            services.AddHostedService<StartupService>();
+            .AddHostedService<StartupService>()
 
-            services.AddSingleton<ISettings>(Settings.LoadSettings);
-            services.AddSingleton<IModsCache>(ModsCache.CreateModsCache);
-            services.AddSingleton<IModsManager, ModsManager>();
-            services.AddSingleton<IApiModsetClient>(ApiModsetClient.CreateApiModsetClient);
-            services.AddSingleton<IApiMissionsClient, ApiMissionsClient>();
-            services.AddSingleton<ISteamClient, SteamClient>();
-            services.AddSingleton<IContentDownloader>(ContentDownloader.CreateContentDownloader);
-            services.AddSingleton<IContentVerifier>(ContentVerifier.CreateContentVerifier);
-            services.AddSingleton<IModsetProvider, ModsetProvider>();
-            services.AddSingleton<IServerProvider, ServerProvider>();
-            services.AddSingleton<IServerConfigurationProvider>(ServerConfigurationProvider.CreateServerConfigurationProvider);
-            services.AddSingleton<IServerConfigurationLogic>(ServerConfigurationLogic.CreateServerConfigurationLogic);
-            services.AddSingleton<IModsUpdateService, ModsUpdateService>();
-            services.AddSingleton<MaintenanceService>();
-            services.AddSingleton<MissionPreparationService>();
-            services.AddSingleton<ServerStartupService>();
+            // Job services
+            .AddSingleton<MaintenanceService>()
+            .AddSingleton<IMissionPreparationService, MissionPreparationService>()
+            .AddSingleton<IModsUpdateService, ModsUpdateService>()
+            .AddSingleton<IServerStartupService, ServerStartupService>()
 
-            services.AddSingleton<IHangfireBackgroundJobClient>(
-                HangfireBackgroundJobClient.CreateHangfireBackgroundJobClient);
-            services.AddSingleton<IHangfireJobStorage>(HangfireJobStorage.CreateHangfireJobStorage);
-            services.AddSingleton<IHangfireManager>(HangfireManager.CreateHangfireManager);
+            .AddSingleton<ISettings>(Settings.LoadSettings)
 
-            services.AddSingleton<IApiKeyProvider, ApiKeyProvider>();
+            // Mods
+            .AddSingleton<IModsCache, ModsCache>()
+            .AddSingleton<IModsManager, ModsManager>()
+            .AddSingleton<IApiModsetClient, ApiModsetClient>()
+            .AddSingleton<ISteamClient, SteamClient>()
+            .AddSingleton<IContentDownloader, ContentDownloader>()
+            .AddSingleton<IContentVerifier, ContentVerifier>()
+            .AddSingleton<IModsetProvider, ModsetProvider>()
 
-            // Add framework services.
-            services.AddMvc();
+            // Mission
+            .AddSingleton<IApiMissionsClient, ApiMissionsClient>()
+
+            // Server
+            .AddSingleton<IServerProvider, ServerProvider>()
+            .AddSingleton<IServerConfigurationProvider, ServerConfigurationProvider>()
+            .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
+
+            // Hangfire
+            .AddSingleton<IHangfireBackgroundJobClient, HangfireBackgroundJobClient>()
+            .AddSingleton<IHangfireJobStorage, HangfireJobStorage>()
+            .AddSingleton<IHangfireManager, HangfireManager>()
+            
+            // Security
+            .AddSingleton<IApiKeyProvider, ApiKeyProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
