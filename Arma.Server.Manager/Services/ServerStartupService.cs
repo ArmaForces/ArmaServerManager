@@ -1,5 +1,7 @@
-﻿using System.Threading;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Arma.Server.Manager.Clients.Missions;
 using Arma.Server.Manager.Providers;
 using Arma.Server.Manager.Providers.Server;
 using Arma.Server.Modset;
@@ -14,20 +16,31 @@ namespace Arma.Server.Manager.Services
     {
         private const int Port = 2302;
 
+        private readonly IApiMissionsClient _apiMissionsClient;
         private readonly IModsetProvider _modsetProvider;
         private readonly IServerProvider _serverProvider;
         private readonly IModsUpdateService _modsUpdateService;
 
         public ServerStartupService(
+            IApiMissionsClient apiMissionsClient,
             IModsetProvider modsetProvider,
             IServerProvider serverProvider,
             IModsUpdateService modsUpdateService)
         {
+            _apiMissionsClient = apiMissionsClient;
             _modsetProvider = modsetProvider;
             _serverProvider = serverProvider;
             _modsUpdateService = modsUpdateService;
         }
-        
+
+        public async Task<Result> StartServerForMission(string missionTitle, CancellationToken cancellationToken)
+        {
+            var mission = _apiMissionsClient.GetUpcomingMissions()
+                .Single(x => x.Title == missionTitle);
+
+            return await StartServer(mission.Modlist, cancellationToken);
+        }
+
         public async Task<Result> StartServer(string modsetName, CancellationToken cancellationToken)
         {
             return await _modsetProvider.GetModsetByName(modsetName)
