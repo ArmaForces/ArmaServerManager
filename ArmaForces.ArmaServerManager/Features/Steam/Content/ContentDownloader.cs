@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
-using ArmaForces.Arma.Server.Mod;
+using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.ArmaServerManager.Constants;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;

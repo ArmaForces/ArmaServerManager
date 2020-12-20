@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using ArmaForces.Arma.Server.Mod;
+using ArmaForces.Arma.Server.Features.Mods;
 using AutoFixture;
 
 namespace ArmaForces.Arma.Server.Tests.Helpers
 {
     public static class ModHelpers
     {
-        public static Mod.Mod CreateTestMod(Fixture fixture)
+        public static Mod CreateTestMod(Fixture fixture)
         {
-            return fixture.Create<Mod.Mod>();
+            return fixture.Create<Mod>();
         }
 
-        public static Mod.Mod CreateTestMod(Fixture fixture, ModType modType)
+        public static Mod CreateTestMod(Fixture fixture, ModType modType)
         {
-            return new Mod.Mod
+            return new Mod
             {
                 CreatedAt = fixture.Create<DateTime>(),
                 Directory = fixture.Create<string>(),
@@ -27,13 +27,13 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             };
         }
 
-        public static List<Mod.Mod> CreateModsList(Fixture fixture, int modsNumber)
+        public static List<Mod> CreateModsList(Fixture fixture, int modsNumber)
         {
-            var modsList = new List<Mod.Mod>();
+            var modsList = new List<Mod>();
 
             for (var i = 0; i < modsNumber; i++)
             {
-                modsList.Add(fixture.Create<Mod.Mod>());
+                modsList.Add(fixture.Create<Mod>());
             }
 
             return modsList;

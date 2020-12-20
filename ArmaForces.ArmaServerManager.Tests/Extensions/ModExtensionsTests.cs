@@ -1,4 +1,4 @@
-﻿using ArmaForces.Arma.Server.Mod;
+﻿using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using AutoFixture;

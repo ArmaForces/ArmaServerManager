@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using ArmaForces.Arma.Server.Mod;
+using ArmaForces.Arma.Server.Features.Mods;
 
-namespace ArmaForces.Arma.Server.Modset {
+namespace ArmaForces.Arma.Server.Features.Modsets {
     public interface IModset {
         string WebId { get; }
         string Name { get; }

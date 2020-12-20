@@ -1,7 +1,7 @@
 using System;
 using System.IO.Abstractions;
 
-namespace ArmaForces.Arma.Server.Mod {
+namespace ArmaForces.Arma.Server.Features.Mods {
     public interface IMod : IEquatable<IMod> {
         string WebId { get; }
         string Name { get; }

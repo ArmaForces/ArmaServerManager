@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ArmaForces.Arma.Server.Mod;
+using ArmaForces.Arma.Server.Features.Mods;
 
-namespace ArmaForces.Arma.Server.Modset {
+namespace ArmaForces.Arma.Server.Features.Modsets {
     public class Modset : IModset {
         public string WebId { get; set; }
 

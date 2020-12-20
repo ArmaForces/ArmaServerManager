@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using ArmaForces.Arma.Server.Mod;
+using ArmaForces.Arma.Server.Features.Mods;
+using ArmaForces.Arma.Server.Features.Modsets;
 using AutoFixture;
 
 namespace ArmaForces.Arma.Server.Tests.Helpers
 {
     public static class ModsetHelpers
     {
-        public static Modset.Modset CreateEmptyModset(Fixture fixture) => CreateTestModset(fixture, 0);
+        public static Modset CreateEmptyModset(Fixture fixture) => CreateTestModset(fixture, 0);
 
-        public static Modset.Modset CreateTestModset(Fixture fixture, int eachModTypeNumber = 5)
+        public static Modset CreateTestModset(Fixture fixture, int eachModTypeNumber = 5)
         {
-            var modset = new Modset.Modset
+            var modset = new Modset
             {
                 Mods = new HashSet<IMod>(),
                 LastUpdatedAt = fixture.Create<DateTime>(),
@@ -30,12 +31,12 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             return modset;
         }
 
-        public static Modset.Modset CreateTestModsetWithModsOfOneType(
+        public static Modset CreateTestModsetWithModsOfOneType(
             Fixture fixture,
             ModType modType,
             int modsNumber = 5)
         {
-            var modset = new Modset.Modset
+            var modset = new Modset
             {
                 Mods = new HashSet<IMod>()
             };

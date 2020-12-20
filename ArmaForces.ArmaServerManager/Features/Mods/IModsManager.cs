@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ArmaForces.Arma.Server.Mod;
-using ArmaForces.Arma.Server.Modset;
+using ArmaForces.Arma.Server.Features.Mods;
+using ArmaForces.Arma.Server.Features.Modsets;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Mods {

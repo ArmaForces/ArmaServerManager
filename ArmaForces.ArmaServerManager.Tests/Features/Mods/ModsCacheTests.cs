@@ -5,7 +5,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
-using ArmaForces.Arma.Server.Mod;
+using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.ArmaServerManager.Features.Mods;
 using AutoFixture;
 using FluentAssertions;

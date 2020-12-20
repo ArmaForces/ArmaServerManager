@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using ArmaForces.Arma.Server.Config;
-using ArmaForces.Arma.Server.Mod;
+using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Providers.Parameters;
 using ArmaForces.Arma.Server.Tests.Helpers;
 using AutoFixture;

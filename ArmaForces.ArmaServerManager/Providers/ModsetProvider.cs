@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ArmaForces.Arma.Server.Modset;
+using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Clients.Modsets;
 using ArmaForces.ArmaServerManager.Features.Mods;
 using CSharpFunctionalExtensions;

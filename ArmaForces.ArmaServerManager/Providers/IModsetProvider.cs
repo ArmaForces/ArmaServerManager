@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ArmaForces.Arma.Server.Modset;
+using ArmaForces.Arma.Server.Features.Modsets;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Providers

@@ -1,4 +1,4 @@
-﻿namespace ArmaForces.Arma.Server.Mod {
+﻿namespace ArmaForces.Arma.Server.Features.Mods {
     public enum ModType {
         ServerSide,
 

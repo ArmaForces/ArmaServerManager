@@ -1,7 +1,7 @@
 using System;
 using System.IO.Abstractions;
 
-namespace ArmaForces.Arma.Server.Mod {
+namespace ArmaForces.Arma.Server.Features.Mods {
     public class Mod : IMod {
         public string WebId { get; set; }
 

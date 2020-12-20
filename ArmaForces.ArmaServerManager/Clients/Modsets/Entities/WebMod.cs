@@ -1,5 +1,5 @@
 ﻿using System;
-using ArmaForces.Arma.Server.Mod;
+using ArmaForces.Arma.Server.Features.Mods;
 
 namespace ArmaForces.ArmaServerManager.Clients.Modsets.Entities {
     public class WebMod {
