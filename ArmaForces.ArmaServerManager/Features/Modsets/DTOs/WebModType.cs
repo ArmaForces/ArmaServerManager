@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace ArmaForces.ArmaServerManager.Clients.Modsets.Entities {
+namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
     public enum WebModType {
         [EnumMember(Value = "server_side")]
         ServerSide,

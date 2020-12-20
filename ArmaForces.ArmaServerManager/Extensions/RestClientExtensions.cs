@@ -2,7 +2,7 @@
 using System.Net.Http;
 using RestSharp;
 
-namespace ArmaForces.ArmaServerManager.Clients.Extensions {
+namespace ArmaForces.ArmaServerManager.Extensions {
     internal static class RestClientExtensions {
         /// <summary>
         /// Executes REST request and converts response content to <typeparamref name="T"/>.

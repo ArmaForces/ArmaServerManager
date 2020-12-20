@@ -1,4 +1,4 @@
-﻿namespace ArmaForces.ArmaServerManager.Constants
+﻿namespace ArmaForces.ArmaServerManager.Features.Steam.Constants
 {
     public class SteamConstants
     {

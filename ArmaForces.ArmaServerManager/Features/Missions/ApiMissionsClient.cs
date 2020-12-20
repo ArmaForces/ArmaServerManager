@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using ArmaForces.Arma.Server.Config;
-using ArmaForces.ArmaServerManager.Clients.Extensions;
-using ArmaForces.ArmaServerManager.Clients.Missions.Entities;
-using ArmaForces.ArmaServerManager.Clients.Modsets.Entities;
+using ArmaForces.ArmaServerManager.Extensions;
+using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using RestSharp;
 
-namespace ArmaForces.ArmaServerManager.Clients.Missions {
+namespace ArmaForces.ArmaServerManager.Features.Missions {
     /// <inheritdoc />
     public class ApiMissionsClient : IApiMissionsClient {
         // TODO: it should not be like this

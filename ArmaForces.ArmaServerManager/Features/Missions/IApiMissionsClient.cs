@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using ArmaForces.ArmaServerManager.Clients.Missions.Entities;
-using ArmaForces.ArmaServerManager.Clients.Modsets.Entities;
+using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 
-namespace ArmaForces.ArmaServerManager.Clients.Missions {
+namespace ArmaForces.ArmaServerManager.Features.Missions {
     /// <summary>
     /// Handles connection and retrieving missions data from web API.
     /// </summary>

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using ArmaForces.ArmaServerManager.Clients.Modsets;
-using ArmaForces.ArmaServerManager.Clients.Modsets.Entities;
+using ArmaForces.ArmaServerManager.Features.Modsets;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using ArmaForces.ArmaServerManager.Tests.Helpers.Extensions;
 using AutoFixture;
 using FluentAssertions;
@@ -11,7 +11,7 @@ using Moq;
 using RestSharp;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Clients {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets {
     public class ApiModsetClientTests {
         private readonly Fixture _fixture = new Fixture();
 

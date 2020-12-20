@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace ArmaForces.ArmaServerManager.Clients.Missions.Entities {
+namespace ArmaForces.ArmaServerManager.Features.Missions.DTOs {
     public class WebMission {
         public string Title { get; set; }
 

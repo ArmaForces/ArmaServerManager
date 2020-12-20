@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using ArmaForces.ArmaServerManager.Clients.Missions;
-using ArmaForces.ArmaServerManager.Clients.Missions.Entities;
-using ArmaForces.ArmaServerManager.Clients.Modsets.Entities;
+using ArmaForces.ArmaServerManager.Features.Missions;
+using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using ArmaForces.ArmaServerManager.Tests.Helpers.Extensions;
 using AutoFixture;
 using FluentAssertions;
@@ -11,7 +11,7 @@ using Moq;
 using RestSharp;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Clients.Missions {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Missions {
     public class ApiMissionsClientTests {
         private readonly Fixture _fixture = new Fixture();
 

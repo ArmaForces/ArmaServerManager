@@ -1,7 +1,7 @@
 ﻿using System;
 using ArmaForces.Arma.Server.Features.Mods;
 
-namespace ArmaForces.ArmaServerManager.Clients.Modsets.Entities {
+namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
     public class WebMod {
         public string Id { get; set; }
 

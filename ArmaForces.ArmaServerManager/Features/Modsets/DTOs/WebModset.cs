@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArmaForces.ArmaServerManager.Clients.Modsets.Entities {
+namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
     public class WebModset {
         public string Id { get; set; }
 

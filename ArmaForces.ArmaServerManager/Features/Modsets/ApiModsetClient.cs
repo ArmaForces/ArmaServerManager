@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using ArmaForces.Arma.Server.Config;
-using ArmaForces.ArmaServerManager.Clients.Extensions;
-using ArmaForces.ArmaServerManager.Clients.Modsets.Entities;
+using ArmaForces.ArmaServerManager.Extensions;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using RestSharp;
 
-namespace ArmaForces.ArmaServerManager.Clients.Modsets {
+namespace ArmaForces.ArmaServerManager.Features.Modsets {
     /// <inheritdoc />
     public class ApiModsetClient : IApiModsetClient {
         private readonly IRestClient _restClient;

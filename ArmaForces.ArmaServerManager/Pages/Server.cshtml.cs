@@ -1,10 +1,10 @@
 using System.Threading;
 using System.Threading.Tasks;
-using ArmaForces.ArmaServerManager.Clients.Missions;
-using ArmaForces.ArmaServerManager.Clients.Missions.Entities;
-using ArmaForces.ArmaServerManager.Clients.Modsets;
-using ArmaForces.ArmaServerManager.Clients.Modsets.Entities;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Missions;
+using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
+using ArmaForces.ArmaServerManager.Features.Modsets;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using ArmaForces.ArmaServerManager.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

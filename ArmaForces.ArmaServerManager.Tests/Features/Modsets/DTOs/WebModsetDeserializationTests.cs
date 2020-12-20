@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using ArmaForces.ArmaServerManager.Clients.Modsets.Entities;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using AutoFixture;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Clients.Modsets.Entities {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
     public class WebModsetDeserializationTests {
 
         const string ApiDateTimeFormat = "yyyy-MM-ddTHH:mm:sszzz";

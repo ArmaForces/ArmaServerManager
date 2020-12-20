@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
-using ArmaForces.ArmaServerManager.Clients.Modsets.Entities;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 
-namespace ArmaForces.ArmaServerManager.Clients.Modsets {
+namespace ArmaForces.ArmaServerManager.Features.Modsets {
     /// <summary>
     /// Handles connection and retrieving modsets data from web API.
     /// </summary>

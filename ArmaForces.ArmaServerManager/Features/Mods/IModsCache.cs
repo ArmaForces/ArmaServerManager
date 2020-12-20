@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
-using ArmaForces.ArmaServerManager.Clients.Modsets.Entities;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Mods {

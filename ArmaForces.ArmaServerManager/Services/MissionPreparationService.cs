@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ArmaForces.ArmaServerManager.Clients.Missions;
+using ArmaForces.ArmaServerManager.Features.Missions;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Services
