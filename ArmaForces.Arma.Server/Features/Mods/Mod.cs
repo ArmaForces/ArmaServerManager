@@ -30,14 +30,26 @@ namespace ArmaForces.Arma.Server.Features.Mods {
         public bool Equals(IMod mod) {
             if (mod is null) return false;
             if (ReferenceEquals(this, mod)) return true;
-            return Source == mod.Source && (WorkshopId == mod.WorkshopId || Name == mod.Name);
+            return Source == ModSource.SteamWorkshop
+                ? IsWorkshopModEqual(mod)
+                : IsLocalModEqual(mod);
         }
 
         public override int GetHashCode()
         {
             return Source == ModSource.SteamWorkshop
-                ? WorkshopId
+                ? WorkshopId.GetHashCode()
                 : Name.GetHashCode();
+        }
+
+        private bool IsWorkshopModEqual(IMod mod)
+        {
+            return Source == mod.Source && WorkshopId == mod.WorkshopId;
+        }
+
+        private bool IsLocalModEqual(IMod mod)
+        {
+            return Source == mod.Source && Name == mod.Name;
         }
     }
 }
