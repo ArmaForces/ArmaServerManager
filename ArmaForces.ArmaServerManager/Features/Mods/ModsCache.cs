@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
@@ -169,7 +169,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             {
                 Directory = newerMod.Directory ?? olderMod.Directory,
                 CreatedAt = olderMod.CreatedAt,
-                LastUpdatedAt = DateTime.Now,
+                LastUpdatedAt = newerMod.LastUpdatedAt ?? olderMod.LastUpdatedAt,
                 ManifestId = newerMod.ManifestId ?? olderMod.ManifestId,
                 Name = newerMod.Name,
                 Source = newerMod.Source,
