@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Mods;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Features.Mods
@@ -13,12 +14,14 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private readonly ILogger<ModDirectoryFinder> _logger;
         private readonly IFileSystem _fileSystem;
         private readonly string _modsPath;
+        private readonly string _serverPath;
 
         public ModDirectoryFinder(
             ISettings settings,
             ILogger<ModDirectoryFinder> logger,
             IFileSystem fileSystem = null)
         {
+            _serverPath = settings.ServerDirectory;
             _modsPath = settings.ModsDirectory;
             _fileSystem = fileSystem ?? new FileSystem();
             _logger = logger;
@@ -50,30 +53,68 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         public IMod TryEnsureModDirectory(IMod mod)
         {
             if (mod.Exists(_fileSystem)) return mod;
-            mod.Directory = TryFindModDirectory(_modsPath, mod);
+            mod.Directory = TryFindModDirectory(mod)
+                .Match(
+                    onSuccess: directory => directory,
+                    onFailure: error =>
+                    {
+                        _logger.LogInformation(error);
+                        return null;
+                    });
             return mod;
         }
 
-        private string TryFindModDirectory(string modsDirectory, IMod mod)
+        private Result<string> TryFindModDirectory(IMod mod) 
+            => TryFindModDirectoryByDirectory(mod)
+                .OnFailureCompensate(() => TryFindModDirectoryByWorkshopId(mod))
+                .OnFailureCompensate(() => TryFindModDirectoryByName(mod))
+                .OnFailureCompensate(() => TryFindModDirectoryByNamePrefixedWithAtSign(mod))
+                .OnFailureCompensate(() => TryFindCdlcDirectory(mod))
+                .OnFailureCompensate(() => Result.Failure<string>($"Directory not found for {mod}."));
+
+        private Result<string> TryFindModDirectoryByDirectory(IMod mod)
         {
-            string path;
-            path = Path.Join(modsDirectory, mod.Directory);
-            if (_fileSystem.Directory.Exists(path)) return path;
-            path = Path.Join(modsDirectory, mod.WorkshopId.ToString());
-            if (_fileSystem.Directory.Exists(path)) return path;
-            path = Path.Join(modsDirectory, mod.Name);
-            if (_fileSystem.Directory.Exists(path)) return path;
-            path = Path.Join(
-                modsDirectory,
+            var path = Path.Join(_modsPath, mod.Directory);
+            return _fileSystem.Directory.Exists(path)
+                ? Result.Success(path)
+                : Result.Failure<string>("Mod directory not found using its directory.");
+        }
+
+        private Result<string> TryFindModDirectoryByWorkshopId(IMod mod)
+        {
+            var path = Path.Join(_modsPath, mod.WorkshopId.ToString());
+            return _fileSystem.Directory.Exists(path)
+                ? Result.Success(path)
+                : Result.Failure<string>("Mod directory not found using its workshopId.");
+        }
+
+        private Result<string> TryFindModDirectoryByName(IMod mod)
+        {
+            var path = Path.Join(_modsPath, mod.Name);
+            return _fileSystem.Directory.Exists(path)
+                ? Result.Success(path)
+                : Result.Failure<string>("Mod directory not found using its name.");
+        }
+
+        private Result<string> TryFindModDirectoryByNamePrefixedWithAtSign(IMod mod)
+        {
+            var path = Path.Join(
+                _modsPath,
                 string.Join(
                     "",
                     "@",
                     mod.Name));
-            if (_fileSystem.Directory.Exists(path)) return path;
+            return _fileSystem.Directory.Exists(path)
+                ? Result.Success(path)
+                : Result.Failure<string>("Mod directory not found using its name with @ prefix.");
+        }
 
-            _logger.LogInformation("Directory not found for {mod}.", mod.ToString());
-
-            return null;
+        private Result<string> TryFindCdlcDirectory(IMod maybeCdlc)
+        {
+            var path = Path.Join(_serverPath, maybeCdlc.Directory);
+            return _fileSystem.Directory.Exists(path)
+                ? Result.Success(path)
+                : Result.Failure<string>("cDLC directory not found.");
         }
     }
 }

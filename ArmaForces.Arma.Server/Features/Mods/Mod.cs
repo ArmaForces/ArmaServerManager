@@ -46,6 +46,13 @@ namespace ArmaForces.Arma.Server.Features.Mods {
                 : Name.GetHashCode();
         }
 
+        public override string ToString()
+        {
+            return Source == ModSource.SteamWorkshop
+                ? $"{Name}:{WorkshopId}"
+                : $"{Name}:{Directory}";
+        }
+
         private bool IsWorkshopModEqual(IMod mod)
         {
             return Source == mod.Source && WorkshopId == mod.WorkshopId;

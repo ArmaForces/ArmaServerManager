@@ -15,5 +15,6 @@ namespace ArmaForces.Arma.Server.Features.Mods {
 
         bool Exists(IFileSystem fileSystem = null);
         new bool Equals(IMod mod);
+        string ToString();
     }
 }
