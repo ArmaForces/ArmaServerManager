@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,38 +14,55 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 {
     public class ModsCache : IModsCache
     {
-        private readonly string _cacheFilePath;
+        private readonly IModDirectoryFinder _modDirectoryFinder;
         private readonly IFileSystem _fileSystem;
+        private readonly string _cacheFilePath;
         private readonly string _modsPath;
 
-        public ModsCache(ISettings settings, IFileSystem fileSystem = null)
+        private readonly ISet<IMod> _mods;
+
+        // TODO: Make an asynchronous factory for it
+        public ModsCache(
+            ISettings settings,
+            IModDirectoryFinder modDirectoryFinder,
+            IFileSystem fileSystem = null)
         {
+            _modDirectoryFinder = modDirectoryFinder;
             _fileSystem = fileSystem ?? new FileSystem();
             _modsPath = settings.ModsDirectory;
             _cacheFilePath = $"{_modsPath}\\{settings.ModsManagerCacheFileName}.json";
 
             // Blocking on asynchronous code as it's only done once at app startup
-            Mods = LoadCache()
+            _mods = LoadCache()
                 .Result
-                .OnFailureCompensate(x => BuildCache())
+                .OnFailureCompensate(x => BuildCacheFromModsDirectory())
                 .Value;
             SaveCache().Wait();
         }
 
         /// <inheritdoc />
-        public ISet<IMod> Mods { get; protected set; }
+        public IReadOnlyCollection<IMod> Mods => _mods.ToList();
 
         /// <inheritdoc />
         public async Task<bool> ModExists(IMod mod)
         {
-            mod = await GetOrSetModInCache(mod);
-            return mod?.Exists(_fileSystem) ?? false;
+            var result = await GetModInCache(mod)
+                .Bind(
+                    x => x.Exists(_fileSystem)
+                        ? Result.Success(x)
+                        : Result.Failure<IMod>("Mod's directory doesn't exist."))
+                .OnFailureCompensate(error => TryFindModInModsDirectory(mod))
+                .Bind(AddOrUpdateModInCache)
+                .Tap(SaveCache);
+
+            return result.IsSuccess;
         }
 
+        /// <inheritdoc />
         public IModset MapWebModsetToCacheModset(WebModset webModset)
         {
             var mappedMods = webModset.Mods
-                .Select(x => GetModInCache(x.ConvertForServer()))
+                .Select(MapWebModToCacheMod)
                 .ToHashSet();
 
             return new Modset
@@ -58,160 +74,179 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         /// <inheritdoc />
-        public async Task SaveCache() => await SaveCache(Mods);
+        public async Task SaveCache() 
+            => await _fileSystem.File.WriteAllTextAsync(_cacheFilePath, JsonConvert.SerializeObject(_mods));
 
-        private IMod GetModInCache(IMod mod)
+        /// <inheritdoc />
+        public async Task<Result<List<IMod>>> AddOrUpdateModsInCache(IEnumerable<IMod> mods)
         {
-            try
-            {
-                var modInCache = Mods.Single(x => x.Equals(mod));
-                return TryEnsureModDirectory(modInCache);
-            }
-            catch (InvalidOperationException )
-            {
-                return TryEnsureModDirectory(mod);
-            }
-        }
-
-        private async Task<IMod> GetOrSetModInCache(IMod mod)
-        {
-            try
-            {
-                var modInCache = Mods.Single(cacheMod => cacheMod.Equals(mod));
-                return TryEnsureModDirectory(modInCache);
-            } catch (InvalidOperationException)
-            {
-                mod = TryEnsureModDirectory(mod);
-                return mod.Directory is null
-                    ? null
-                    : await AddModToCacheAndSave(mod);
-            }
-        }
-
-        private async Task<IMod> AddModToCacheAndSave(IMod mod)
-        {
-            var modInCache = AddModToCache(mod);
-            await SaveCache();
-            return modInCache;
-        }
-
-        private IMod AddOrUpdateModInCache(IMod mod)
-        {
-            var modAddedToCache = Mods.Add(mod);
-
-            return modAddedToCache
-                ? mod
-                : UpdateModInCache(mod);
-        }
-
-        private IMod AddModToCache(IMod mod)
-        {
-            Mods.Add(mod);
-            return mod;
-        }
-
-        private IMod UpdateModInCache(IMod mod)
-        {
-            var modInCache = Mods.Single(x => x.Equals(mod));
-
-            Mods.Remove(modInCache);
-            var newMod = new Mod
-            {
-                Directory = mod.Directory ?? modInCache.Directory,
-                CreatedAt = modInCache.CreatedAt,
-                LastUpdatedAt = DateTime.Now,
-                ManifestId = mod.ManifestId ?? modInCache.ManifestId,
-                Name = mod.Name,
-                Source = mod.Source,
-                Type = mod.Type,
-                WebId = mod.WebId ?? modInCache.WebId,
-                WorkshopId = mod.WorkshopId
-            };
-
-            return AddModToCache(newMod);
-        }
-
-        public async Task<Result<List<IMod>>> AddOrUpdateCache(IEnumerable<IMod> mods)
-        {
-            var cacheMods = mods.Select(AddOrUpdateModInCache).ToList();
+            var cacheMods = mods.Select(x => AddOrUpdateModInCache(x).Value).ToList();
             await SaveCache();
             return Result.Success(cacheMods);
         }
 
-        private IMod TryEnsureModDirectory(IMod mod)
+        /// <summary>
+        /// Gets given <paramref name="mod"/> from cache.
+        /// </summary>
+        /// <param name="mod">Mod to retrieve from cache.</param>
+        /// <returns>Successful <see cref="Result"/> if mod was retrieved from cache, failure if it doesn't exist.</returns>
+        private Result<IMod> GetModInCache(IMod mod)
         {
-            if (mod.Exists(_fileSystem)) return mod;
-            mod.Directory = TryFindModDirectory(_modsPath, mod);
-            return mod;
+            var modInCache = _mods.SingleOrDefault(x => x.Equals(mod));
+
+            return modInCache is null
+                ? Result.Failure<IMod>("Mod doesn't exist in cache.")
+                : Result.Success(modInCache);
         }
 
-        private string TryFindModDirectory(string modsDirectory, IMod mod)
+        /// <summary>
+        /// Performs data update of existing <see cref="IMod"/> in cache, which corresponds to given <paramref name="mod"/>.
+        /// The <see cref="IMod"/> corresponding to <paramref name="mod"/> must exist in cache.
+        /// </summary>
+        /// <param name="mod">Mod data to update corresponding mod in cache.</param>
+        /// <returns>Successful <see cref="Result"/> if mod data was updated properly, failure if <see cref="IMod"/> doesn't exist in cache.</returns>
+        private Result<IMod> UpdateModInCache(IMod mod)
         {
-            string path;
-            path = Path.Join(modsDirectory, mod.WorkshopId.ToString());
-            if (_fileSystem.Directory.Exists(path)) return path;
-            path = Path.Join(modsDirectory, mod.Name);
-            if (_fileSystem.Directory.Exists(path)) return path;
-            path = Path.Join(
-                modsDirectory,
-                string.Join(
-                    "",
-                    "@",
-                    mod.Name));
-            if (_fileSystem.Directory.Exists(path)) return path;
-            return null;
+            return RemoveModFromCache(mod)
+                .Bind(modInCache => UpdateModData(modInCache, mod))
+                .Bind(AddModToCache);
         }
 
+        /// <summary>
+        /// Adds mod to cache.
+        /// </summary>
+        /// <param name="mod">Mod to be added to cache.</param>
+        /// <returns>Successful <see cref="Result"/> if mod was added to cache, failure if it already exists.</returns>
+        private Result<IMod> AddModToCache(IMod mod)
+        {
+            var result = _mods.Add(mod);
+
+            return result
+                ? Result.Success(mod)
+                : Result.Failure<IMod>("Mod already exists in cache.");
+        }
+
+        /// <summary>
+        /// Removes mod from cache.
+        /// </summary>
+        /// <param name="mod">Mod to remove from cache.</param>
+        /// <returns>Successful <see cref="Result"/> if mod was removed from cache, failure if it doesn't exist in cache.</returns>
+        private Result<IMod> RemoveModFromCache(IMod mod)
+        {
+            var result = _mods.Remove(mod);
+
+            return result
+                ? Result.Success(mod)
+                : Result.Failure<IMod>("Mod couldn't be removed from cache as it doesn't exist.");
+        }
+
+        /// <summary>
+        /// Attempts to map given <paramref name="webMod"/> to some cache <see cref="IMod"/>.
+        /// On failure attempts to find <paramref name="webMod"/> directory and returns non-cache <see cref="IMod"/>.
+        /// Directory property of the returned <see cref="IMod"/> might be null if it wasn't found.
+        /// </summary>
+        /// <param name="webMod">WebMod to map to cache mod.</param>
+        /// <returns>Cache or non-cache <see cref="IMod"/>.</returns>
+        private IMod MapWebModToCacheMod(WebMod webMod)
+        {
+            var convertedMod = webMod.ConvertForServer();
+            var result = GetModInCache(convertedMod);
+
+            return result.IsSuccess
+                ? result.Value
+                : _modDirectoryFinder.TryEnsureModDirectory(convertedMod);
+        }
+
+        /// <summary>
+        /// Updates <paramref name="olderMod"/> with relevant data from <paramref name="newerMod"/>.
+        /// </summary>
+        /// <param name="olderMod">Mod to be updated.</param>
+        /// <param name="newerMod">Mod used as source for updated data.</param>
+        /// <returns>New <see cref="IMod"/> with updated data.</returns>
+        private static Result<IMod> UpdateModData(IMod olderMod, IMod newerMod)
+        {
+            var mod = new Mod
+            {
+                Directory = newerMod.Directory ?? olderMod.Directory,
+                CreatedAt = olderMod.CreatedAt,
+                LastUpdatedAt = newerMod.LastUpdatedAt ?? olderMod.LastUpdatedAt,
+                ManifestId = newerMod.ManifestId ?? olderMod.ManifestId,
+                Name = newerMod.Name,
+                Source = newerMod.Source,
+                Type = newerMod.Type,
+                WebId = newerMod.WebId ?? olderMod.WebId,
+                WorkshopId = newerMod.WorkshopId
+            };
+
+            return Result.Success<IMod>(mod);
+        }
+
+        /// <summary>
+        /// Tries to add <paramref name="mod"/> to cache and if it already exists, updates it.
+        /// </summary>
+        /// <returns>Always successful <see cref="Result"/>.</returns>
+        private Result<IMod> AddOrUpdateModInCache(IMod mod)
+        {
+            return AddModToCache(mod)
+                .OnFailureCompensate(error => UpdateModInCache(mod));
+        }
+
+        /// <summary>
+        /// Attempts to find given non-cached <paramref name="mod"/> in mods directory.
+        /// If successful, mod will be added to cache.
+        /// </summary>
+        /// <param name="mod">The non-cached mod to look for in mods directory.</param>
+        /// <returns>Successful <see cref="Result"/> if mod was found in the mods directory, failure if it couldn't be found.</returns>
+        private Result<IMod> TryFindModInModsDirectory(IMod mod)
+        {
+            mod = _modDirectoryFinder.TryEnsureModDirectory(mod);
+
+            return mod.Directory is null
+                ? Result.Failure<IMod>("Mod directory could not be found.")
+                : Result.Success(mod);
+        }
+        
+        /// <summary>
+        /// Performs cache loading from cache file.
+        /// After loading the file performs quick filtering to exclude non-existing mods.
+        /// </summary>
+        /// <returns>Successful <see cref="Result"/> with cache mods.</returns>
         private async Task<Result<ISet<IMod>>> LoadCache()
         {
             if (!_fileSystem.File.Exists(_cacheFilePath))
                 return Result.Failure<ISet<IMod>>("Cache file does not exist.");
+
             var jsonString = await _fileSystem.File.ReadAllTextAsync(_cacheFilePath);
             var mods = JsonConvert.DeserializeObject<IEnumerable<Mod>>(jsonString)
                 .Cast<IMod>()
                 .ToHashSet();
-            var cachedMods = RefreshCache(mods);
+            var cachedMods = FilterOutNonExistingMods(mods);
+
             return Result.Success(cachedMods);
         }
 
-        private ISet<IMod> RefreshCache(ISet<IMod> mods)
+        /// <summary>
+        /// Filters out mods which don't exist.
+        /// </summary>
+        /// <param name="mods">Set of mods to filter.</param>
+        /// <returns>Set of mods which exist.</returns>
+        private ISet<IMod> FilterOutNonExistingMods(ISet<IMod> mods)
         {
             mods = mods.Where(x => x.Exists(_fileSystem))
                 .ToHashSet();
             return mods;
         }
 
-        private Result<ISet<IMod>> BuildCache()
+        /// <summary>
+        /// Builds cache from mods directory, loading each folder as separate mod.
+        /// </summary>
+        /// <returns>Successful result with discovered mods.</returns>
+        private Result<ISet<IMod>> BuildCacheFromModsDirectory()
         {
-            var mods = (ISet<IMod>) _fileSystem.Directory.GetDirectories(_modsPath)
-                .Select(CreateModFromDirectory)
+            var mods = _fileSystem.Directory.GetDirectories(_modsPath)
+                .Select(_modDirectoryFinder.CreateModFromDirectory)
                 .ToHashSet();
-            return Result.Success(mods);
-        }
-
-        private async Task SaveCache(ISet<IMod> mods)
-            => await _fileSystem.File.WriteAllTextAsync(_cacheFilePath, JsonConvert.SerializeObject(mods));
-
-        private IMod CreateModFromDirectory(string directoryPath)
-        {
-            var directoryName = directoryPath.Split('\\').Last();
-            var mod = new Mod();
-            try
-            {
-                mod.WorkshopId = int.Parse(directoryName);
-                mod.Source = ModSource.SteamWorkshop;
-            } catch (FormatException)
-            {
-                mod.Name = directoryName;
-                mod.Source = ModSource.Directory;
-            }
-
-            mod.Directory = directoryPath;
-            mod.CreatedAt = _fileSystem.Directory.GetLastWriteTimeUtc(directoryPath);
-            mod.LastUpdatedAt = mod.CreatedAt;
-            mod.Type = ModType.Required;
-
-            return mod;
+            return Result.Success<ISet<IMod>>(mods);
         }
     }
 }

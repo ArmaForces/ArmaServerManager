@@ -15,7 +15,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
 
         public WebModType Type { get; set; }
 
-        public int ItemId { get; set; }
+        public long ItemId { get; set; }
 
         public string Directory { get; set; }
 
@@ -26,7 +26,8 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
                 WebId = Id,
                 WorkshopId = ItemId,
                 Source = (ModSource)Source,
-                Type = (ModType)Type
+                Type = (ModType)Type,
+                Directory = Directory
             };
     }
 }

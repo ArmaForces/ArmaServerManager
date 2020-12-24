@@ -12,7 +12,7 @@ namespace ArmaForces.ArmaServerManager.Pages
         private readonly IModsCache _modsCache;
         private readonly ILogger<ModsModel> _logger;
         
-        public ISet<IMod> Mods { get; set; }
+        public IReadOnlyCollection<IMod> Mods { get; set; }
 
         public ModsModel(
             IModsCache modsCache,

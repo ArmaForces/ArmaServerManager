@@ -19,8 +19,9 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
 
         /// <summary>
         /// All cached mods.
+        /// TODO: Change to IReadOnlySet after migration to newer .NET.
         /// </summary>
-        public ISet<IMod> Mods { get; }
+        public IReadOnlyCollection<IMod> Mods { get; }
 
         /// <summary>
         ///     Saves cache to file.
@@ -28,9 +29,9 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
         Task SaveCache();
 
         /// <summary>
-        ///     Adds <paramref name="mod"/> to mods cache and saves it.
+        ///     Adds <paramref name="mods"/> to mods cache or updates them if they already exists.
         /// </summary>
-        /// <param name="mod"></param>
-        Task<Result<List<IMod>>> AddOrUpdateCache(IEnumerable<IMod> mod);
+        /// <param name="mods">List of mods to be added or updated.</param>
+        Task<Result<List<IMod>>> AddOrUpdateModsInCache(IEnumerable<IMod> mods);
     }
 }

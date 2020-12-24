@@ -43,7 +43,7 @@ namespace ArmaForces.Arma.Server.Providers.Parameters
                 .GetDirectories();
 
             return serverMods.Any()
-                ? "-serverMod=" + string.Join(";", serverMods)
+                ? "\"-serverMod=" + string.Join(";", serverMods) + "\""
                 : null;
         }
 
@@ -53,7 +53,7 @@ namespace ArmaForces.Arma.Server.Providers.Parameters
                 .GetDirectories();
 
             return mods.Any()
-                ? "-mod=" + string.Join(";", mods)
+                ? "\"-mod=" + string.Join(";", mods) + "\""
                 : null;
         }
 
