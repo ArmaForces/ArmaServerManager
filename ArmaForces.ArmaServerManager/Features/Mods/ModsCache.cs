@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -198,7 +198,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             var mod = new Mod();
             try
             {
-                mod.WorkshopId = int.Parse(directoryName);
+                mod.WorkshopId = long.Parse(directoryName);
                 mod.Source = ModSource.SteamWorkshop;
             } catch (FormatException)
             {

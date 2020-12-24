@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ArmaForces.Arma.Server.Features.Mods;
 
 namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
@@ -15,7 +15,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
 
         public WebModType Type { get; set; }
 
-        public int ItemId { get; set; }
+        public long ItemId { get; set; }
 
         public string Directory { get; set; }
 

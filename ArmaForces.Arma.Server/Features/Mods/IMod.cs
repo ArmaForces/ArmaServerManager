@@ -10,7 +10,7 @@ namespace ArmaForces.Arma.Server.Features.Mods {
         ulong? ManifestId { get; set; }
         ModSource Source { get; }
         ModType Type { get; }
-        int WorkshopId { get; }
+        long WorkshopId { get; }
         string Directory { get; set; }
 
         bool Exists(IFileSystem fileSystem = null);
