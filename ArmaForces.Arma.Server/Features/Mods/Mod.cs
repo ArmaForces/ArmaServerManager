@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 
 namespace ArmaForces.Arma.Server.Features.Mods {
@@ -35,6 +36,9 @@ namespace ArmaForces.Arma.Server.Features.Mods {
                 : IsLocalModEqual(mod);
         }
 
+        // Disabled warning as properties cannot be readonly if we want to initialize them without constructor.
+        // Mod name can change but then the local mod would be different and this is correct behavior.
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
         public override int GetHashCode()
         {
             return Source == ModSource.SteamWorkshop
