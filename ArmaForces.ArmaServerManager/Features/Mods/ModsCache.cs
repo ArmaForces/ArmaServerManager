@@ -148,6 +148,8 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private string TryFindModDirectory(string modsDirectory, IMod mod)
         {
             string path;
+            path = Path.Join(modsDirectory, mod.Directory);
+            if (_fileSystem.Directory.Exists(path)) return path;
             path = Path.Join(modsDirectory, mod.WorkshopId.ToString());
             if (_fileSystem.Directory.Exists(path)) return path;
             path = Path.Join(modsDirectory, mod.Name);
@@ -166,6 +168,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         {
             if (!_fileSystem.File.Exists(_cacheFilePath))
                 return Result.Failure<ISet<IMod>>("Cache file does not exist.");
+
             var jsonString = await _fileSystem.File.ReadAllTextAsync(_cacheFilePath);
             var mods = JsonConvert.DeserializeObject<IEnumerable<Mod>>(jsonString)
                 .Cast<IMod>()
