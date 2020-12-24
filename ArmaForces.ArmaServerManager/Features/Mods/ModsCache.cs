@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
@@ -21,6 +21,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 
         private readonly ISet<IMod> _mods;
 
+        // TODO: Make an asynchronous factory for it
         public ModsCache(
             ISettings settings,
             IModDirectoryFinder modDirectoryFinder,
