@@ -14,6 +14,7 @@ using AutoFixture;
 using CSharpFunctionalExtensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -79,7 +80,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
             settingsMock.Setup(x => x.SteamUser).Returns("");
             settingsMock.Setup(x => x.SteamPassword).Returns("");
             settingsMock.Setup(x => x.ModsDirectory).Returns(workingDirectory);
-            var modsCache = new ModsCache(settingsMock.Object, fileSystemMock);
+            var modDirectoryFinder = new ModDirectoryFinder(settingsMock.Object, new NullLogger<ModDirectoryFinder>(), fileSystemMock);
+            var modsCache = new ModsCache(settingsMock.Object, modDirectoryFinder, fileSystemMock);
             var contentDownloader = new ContentDownloader(settingsMock.Object);
             var contentVerifier = new Mock<IContentVerifier>().Object;
             var modsManager = new ModsManager(contentDownloader, contentVerifier, modsCache);
