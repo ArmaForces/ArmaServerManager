@@ -70,7 +70,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .OnFailureCompensate(() => TryFindModDirectoryByName(mod))
                 .OnFailureCompensate(() => TryFindModDirectoryByNamePrefixedWithAtSign(mod))
                 .OnFailureCompensate(() => TryFindCdlcDirectory(mod))
-                .OnFailureCompensate(() => Result.Failure<string>($"Directory not found for {mod}."));
+                .OnFailureCompensate(() => Result.Failure<string>($"Directory not found for {mod.ToShortString()}."));
 
         private Result<string> TryFindModDirectoryByDirectory(IMod mod)
         {
