@@ -48,7 +48,7 @@ namespace ArmaForces.ArmaServerManager.Features.Missions {
                 .ToHashSet();
 
         private IEnumerable<WebMission> ApiMissionsUpcoming() {
-            var requestUri = string.Format(MissionsUpcomingResourceFormat, DateTime.Today);
+            var requestUri = string.Format(MissionsUpcomingResourceFormat, DateTime.Today.ToString("s"));
             var request = new RestRequest(requestUri);
             return _restClient.ExecuteAndReturnData<List<WebMission>>(request);
         }
