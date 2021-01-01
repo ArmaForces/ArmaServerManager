@@ -105,7 +105,10 @@ namespace ArmaForces.ArmaServerManager
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseHangfireDashboard();
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                IgnoreAntiforgeryToken = true
+            });
 
             app.UseRouting();
             app.UseAuthorization();
