@@ -29,7 +29,7 @@ namespace ArmaForces.Arma.Server.Features.Server
             _logger = logger;
         }
 
-        public bool IsStopped => _serverProcess == null;
+        public bool IsStopped => _serverProcess == null || _serverProcess.HasExited;
         
         public bool IsStartingOrStarted => !IsStopped;
 
