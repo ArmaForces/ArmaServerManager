@@ -64,7 +64,7 @@ namespace ArmaForces.ArmaServerManager.Services
         {
             var server = _serverProvider.GetServer(port);
 
-            if (server is null) return Result.Success();
+            if (server is null || server.IsServerStopped) return Result.Success();
 
             var serverStatus = await server.GetServerStatusAsync(cancellationToken);
 
