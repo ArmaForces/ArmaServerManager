@@ -65,6 +65,7 @@ namespace ArmaForces.ArmaServerManager
             // Mods
             .AddSingleton<IModsCache, ModsCache>()
             .AddSingleton<IModsManager, ModsManager>()
+            .AddSingleton<IModDirectoryFinder, ModDirectoryFinder>()
             .AddSingleton<IApiModsetClient, ApiModsetClient>()
             .AddSingleton<ISteamClient, SteamClient>()
             .AddSingleton<IContentDownloader, ContentDownloader>()

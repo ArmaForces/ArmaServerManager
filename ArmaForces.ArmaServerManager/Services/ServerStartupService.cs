@@ -49,22 +49,19 @@ namespace ArmaForces.ArmaServerManager.Services
 
         public async Task<Result> StartServer(IModset modset, CancellationToken cancellationToken)
         {
-            await _modsUpdateService.UpdateModset(modset, cancellationToken);
-
-            var server = _serverProvider.GetServer(Port, modset);
-
-            return server.IsServerStopped
-                ? server.Start()
-                : server.Modset == modset 
-                    ? Result.Success()
-                    : Result.Failure($"Server is already running with {server.Modset.Name} modset on port {Port}.");
+            return await ShutdownServer(
+                Port,
+                false,
+                cancellationToken)
+                //.Bind(() => _modsUpdateService.UpdateModset(modset, cancellationToken))
+                .Bind(() => _serverProvider.GetServer(Port, modset).Start());
         }
 
         public async Task<Result> ShutdownServer(int port, bool force, CancellationToken cancellationToken)
         {
             var server = _serverProvider.GetServer(port);
 
-            if (server is null) return Result.Success();
+            if (server is null || server.IsServerStopped) return Result.Success();
 
             var serverStatus = await server.GetServerStatusAsync(cancellationToken);
 
