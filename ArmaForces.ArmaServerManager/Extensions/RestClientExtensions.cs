@@ -17,7 +17,7 @@ namespace ArmaForces.ArmaServerManager.Extensions {
             var response = restClient.Execute<T>(request);
             return response.StatusCode == HttpStatusCode.OK
                 ? response.Data
-                : throw new HttpRequestException(response.StatusCode.ToString());
+                : throw new HttpRequestException(response.ErrorMessage + "|" + response.ErrorException + "|" + response.Content);
         }
     }
 }
