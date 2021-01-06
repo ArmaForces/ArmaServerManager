@@ -75,6 +75,10 @@ namespace ArmaForces.ArmaServerManager
             // Mission
             .AddSingleton<IApiMissionsClient, ApiMissionsClient>()
 
+            // Configuration
+            .AddSingleton<ConfigFileCreator>()
+            .AddSingleton<ConfigReplacer>()
+
             // Server
             .AddSingleton<IServerProvider, ServerProvider>()
             .AddSingleton<IServerConfigurationProvider, ServerConfigurationProvider>()
