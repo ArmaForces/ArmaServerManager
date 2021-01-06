@@ -39,6 +39,7 @@ namespace ArmaForces.Arma.Server.Features.Server
 
             try
             {
+                _logger.LogTrace("Starting {executablePath} with {arguments}.", _executablePath, _arguments);
                 _serverProcess = Process.Start(_executablePath, _arguments);
             }
             catch (InvalidOperationException exception)
