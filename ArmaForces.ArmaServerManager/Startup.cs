@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager
 {
@@ -34,6 +35,16 @@ namespace ArmaForces.ArmaServerManager
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging(
+                config =>
+                {
+                    config.AddSimpleConsole(
+                        console =>
+                        {
+                            console.TimestampFormat = "s";
+                        });
+                });
+
             services.AddRazorPages();
 
             // Add REST API Controller
