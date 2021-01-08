@@ -11,23 +11,31 @@ using BytexDigital.Steam.ContentDelivery.Enumerations;
 using BytexDigital.Steam.ContentDelivery.Models;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 {
     public class ContentVerifier : IContentVerifier
     {
         private readonly ISteamClient _steamClient;
+        private readonly ILogger<ContentVerifier> _logger;
         private readonly IFileSystem _fileSystem;
         
-        public ContentVerifier(ISteamClient steamClient, IFileSystem fileSystem = null)
+        public ContentVerifier(
+            ISteamClient steamClient,
+            ILogger<ContentVerifier> logger,
+            IFileSystem fileSystem = null)
         {
             _steamClient = steamClient;
+            _logger = logger;
             _fileSystem = fileSystem ?? new FileSystem();
         }
 
         public static ContentVerifier CreateContentVerifier(IServiceProvider serviceProvider)
         {
-            return new ContentVerifier(serviceProvider.GetService<ISteamClient>());
+            return new ContentVerifier(
+                serviceProvider.GetService<ISteamClient>(),
+                serviceProvider.GetService<ILogger<ContentVerifier>>());
         }
 
         public async Task<Result<ContentItem>> ItemIsUpToDate(ContentItem contentItem, CancellationToken cancellationToken)
