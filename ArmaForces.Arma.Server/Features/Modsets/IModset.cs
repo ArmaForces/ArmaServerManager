@@ -10,5 +10,6 @@ namespace ArmaForces.Arma.Server.Features.Modsets {
         ISet<IMod> Mods { get; }
         ISet<IMod> RequiredMods { get; }
         ISet<IMod> ServerSideMods { get; }
+        ISet<IMod> ClientLoadableMods { get; }
     }
 }
