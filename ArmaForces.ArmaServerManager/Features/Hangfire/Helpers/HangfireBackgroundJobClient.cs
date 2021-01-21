@@ -14,5 +14,8 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
 
         public string Enqueue<T>(Expression<Func<T, Task>> methodCall)
             => _backgroundJobClient.Enqueue(methodCall);
+
+        public string ContinueWith<T>(string parentId, Expression<Func<T, Task>> methodCall)
+            => _backgroundJobClient.ContinueJobWith(parentId, methodCall);
     }
 }

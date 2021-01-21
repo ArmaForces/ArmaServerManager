@@ -30,6 +30,10 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
                 ? ScheduleAt(func, dateTime.Value)
                 : EnqueueImmediately(func);
 
+        /// <inheritdoc cref="IHangfireManager"/>
+        public Result<string> ContinueJobWith<T>(string parentId, Expression<Func<T, Task>> func) where T : class
+            => Result.Success(_backgroundJobClient.ContinueWith(parentId, func));
+
         /// <summary>
         ///     Checks if given <paramref name="job" /> will execute using <typeparamref name="T" />
         ///     and uses the same method as in <paramref name="func" />.
