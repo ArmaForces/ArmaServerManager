@@ -40,18 +40,31 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 
         public async Task<Result<ContentItem>> ItemIsUpToDate(ContentItem contentItem, CancellationToken cancellationToken)
         {
-            if (contentItem.Directory is null) return Result.Failure<ContentItem>("Item not exists.");
+            if (contentItem.Directory is null)
+            {
+                _logger.LogInformation("Item {contentItemId} doesn't have a directory.");
+
+                return Result.Failure<ContentItem>("Item not exists.");
+            }
             
             if (contentItem.ManifestId is null)
             {
                 await GetManifestId(contentItem);
             }
             
+            _logger.LogTrace("Downloading Manifest for item {contentItemId}.", contentItem.Id);
+
             var manifest = await GetManifest(contentItem, cancellationToken);
 
             var incorrectFiles = manifest.Files
                 .SkipWhile(manifestFile => FileIsUpToDate(contentItem.Directory, manifestFile))
                 .ToList();
+
+            _logger.LogDebug(
+                incorrectFiles.Any()
+                    ? "Found incorrect files for item {contentItemId}."
+                    : "All files are correct for item {contentItemId}.",
+                contentItem.Id);
 
             return incorrectFiles
                 .Any()
@@ -64,7 +77,10 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         /// </summary>
         private async Task GetManifestId(ContentItem contentItem)
         {
+            _logger.LogDebug("Downloading ManifestId for item {contentItemId}.", contentItem.Id);
+            
             var errors = 0;
+
             while (errors < 10 && contentItem.ManifestId == null)
             {
                 try
@@ -75,11 +91,14 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 catch (TaskCanceledException)
                 {
                     errors += 1;
+                    _logger.LogTrace("Failed to download ManifestId for item {contentItemId}. Errors = {number}.", contentItem.Id, errors);
                 }
             }
 
             if (errors > 9)
             {
+                _logger.LogError("Could not download ManifestId for item {contentItemId}.", contentItem.Id);
+
                 throw new Exception($"10 errors while attempting to download manifest for {contentItem.Id}");
             }
         }
