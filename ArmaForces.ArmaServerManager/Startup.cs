@@ -1,3 +1,4 @@
+using System;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.Arma.Server.Providers.Keys;
@@ -62,7 +63,7 @@ namespace ArmaForces.ArmaServerManager
                 .UseLiteDbStorage(Configuration.GetConnectionString("HangfireConnection")))
 
             // Add the processing server as IHostedService
-            .AddHangfireServer()
+            .AddHangfireServer(ConfigureHangfireServer())
 
             .AddHostedService<StartupService>()
 
@@ -140,5 +141,11 @@ namespace ArmaForces.ArmaServerManager
                 endpoints.MapControllers();
             });
         }
+
+        private static Action<BackgroundJobServerOptions> ConfigureHangfireServer()
+            => backgroundJobServerOptions =>
+            {
+                backgroundJobServerOptions.WorkerCount = 1;
+            };
     }
 }
