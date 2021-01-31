@@ -74,6 +74,9 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 
         private Result<string> TryFindModDirectoryByDirectory(IMod mod)
         {
+            if (string.IsNullOrWhiteSpace(mod.Directory))
+                return Result.Failure<string>("Mod directory attribute is empty.");
+
             var path = Path.Join(_modsPath, mod.Directory);
             return _fileSystem.Directory.Exists(path)
                 ? Result.Success(path)
@@ -82,6 +85,9 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 
         private Result<string> TryFindModDirectoryByWorkshopId(IMod mod)
         {
+            if (string.IsNullOrWhiteSpace(mod.WorkshopId.ToString()))
+                return Result.Failure<string>("Workshop ID attribute is empty.");
+
             var path = Path.Join(_modsPath, mod.WorkshopId.ToString());
             return _fileSystem.Directory.Exists(path)
                 ? Result.Success(path)
@@ -90,6 +96,9 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 
         private Result<string> TryFindModDirectoryByName(IMod mod)
         {
+            if (string.IsNullOrWhiteSpace(mod.Name))
+                return Result.Failure<string>("Mod name attribute is empty.");
+
             var path = Path.Join(_modsPath, mod.Name);
             return _fileSystem.Directory.Exists(path)
                 ? Result.Success(path)
@@ -98,6 +107,9 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 
         private Result<string> TryFindModDirectoryByNamePrefixedWithAtSign(IMod mod)
         {
+            if (string.IsNullOrWhiteSpace(mod.Name))
+                return Result.Failure<string>("Mod name attribute is empty.");
+
             var path = Path.Join(
                 _modsPath,
                 string.Join(
@@ -111,6 +123,9 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 
         private Result<string> TryFindCdlcDirectory(IMod maybeCdlc)
         {
+            if (string.IsNullOrWhiteSpace(maybeCdlc.Directory))
+                return Result.Failure<string>("cDLC directory attribute is empty.");
+
             var path = Path.Join(_serverPath, maybeCdlc.Directory);
             return _fileSystem.Directory.Exists(path)
                 ? Result.Success(path)
