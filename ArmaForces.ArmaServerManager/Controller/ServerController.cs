@@ -49,9 +49,20 @@ namespace ArmaForces.ArmaServerManager.Controller
         [ApiKey]
         public IActionResult StartServer([FromBody] ServerStartRequest startRequest)
         {
-            var result = _hangfireManager.ScheduleJob<ServerStartupService>(
-                x => x.StartServer(startRequest.ModsetName, CancellationToken.None),
-                startRequest.ScheduleAt);
+            var serverShutdownJob = _hangfireManager
+                .ScheduleJob<ServerStartupService>(
+                    x => x.ShutdownServer(
+                        2302,
+                        false,
+                        CancellationToken.None),
+                    startRequest.ScheduleAt);
+
+            if (serverShutdownJob.IsFailure)
+                return Problem(serverShutdownJob.Error);
+
+            var result = _hangfireManager.ContinueJobWith<ServerStartupService>(
+                serverShutdownJob.Value,
+                x => x.StartServer(startRequest.ModsetName, CancellationToken.None));
 
             return result.Match(
                 onSuccess: Ok,
