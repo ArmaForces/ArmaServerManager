@@ -1,5 +1,6 @@
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Providers.Configuration;
+using ArmaForces.Arma.Server.Providers.Keys;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
@@ -74,6 +75,9 @@ namespace ArmaForces.ArmaServerManager
 
             // Mission
             .AddSingleton<IApiMissionsClient, ApiMissionsClient>()
+
+            // Keys
+            .AddSingleton<IKeysProvider, KeysProvider>()
 
             // Server
             .AddSingleton<IServerProvider, ServerProvider>()
