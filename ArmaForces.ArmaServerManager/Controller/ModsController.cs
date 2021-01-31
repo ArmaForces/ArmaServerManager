@@ -48,7 +48,7 @@ namespace ArmaForces.ArmaServerManager.Controller
                     x => x.UpdateModset(modsUpdateRequest.ModsetName, CancellationToken.None));
 
             return result.Match(
-                onSuccess: Ok,
+                onSuccess: Accepted,
                 onFailure: error => (IActionResult)BadRequest(error));
         }
     }
