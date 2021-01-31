@@ -18,14 +18,18 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 {
     public class ServerProvider : IServerProvider
     {
+        private const string ArmaProcessName = "arma3server";
+
         private readonly ConcurrentDictionary<int, IDedicatedServer> _servers =
             new ConcurrentDictionary<int, IDedicatedServer>();
 
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<ServerProvider> _logger;
 
-        public ServerProvider(IServiceProvider serviceProvider)
+        public ServerProvider(IServiceProvider serviceProvider, ILogger<ServerProvider> logger)
         {
             _serviceProvider = serviceProvider;
+            _logger = logger;
             DiscoverProcesses();
         }
 
@@ -43,6 +47,8 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
         {
             if (!(sender is IDedicatedServer server)) return;
 
+            _logger.LogInformation("Server disposed, removing.");
+
             _ = _servers.TryRemove(server.Port, out _);
         }
 
@@ -51,10 +57,12 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
             const string portString = "port ";
 
             var armaServerProcesses = Process.GetProcesses()
-                .Where(x => x.ProcessName.Contains("arma3server"))
+                .Where(x => x.ProcessName.Contains(ArmaProcessName))
                 .ToList();
 
             if (!armaServerProcesses.Any()) return;
+
+            _logger.LogInformation($"Found {{count}} running {ArmaProcessName} processes.", armaServerProcesses.Count);
 
             var hangfireManager = _serviceProvider.GetService<IHangfireManager>();
 
@@ -66,6 +74,8 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
                 if (!parseSuccess) continue;
 
+                _logger.LogInformation("Found server running on port {port}.", port);
+
                 var unknownModset = new Modset
                 {
                     Name = "Unknown"
@@ -76,16 +86,21 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                 var serverStatus = await server.GetServerStatusAsync(cancellationTokenSource.Token);
                 if (serverStatus.Players == 0)
                 {
-                    server.Shutdown();
+                    _logger.LogInformation("Server is empty, disposing it.");
+                    server.Dispose();
                 }
                 else
                 {
+                    _logger.LogInformation("Server has {playersCount} online, cannot be auto shutdown.", serverStatus.Players);
                     _servers.GetOrAdd(port, server);
                     hangfireManager.ScheduleJob<ServerStartupService>(x => x.ShutdownServer(port, false, CancellationToken.None));
                 }
             }
         }
 
+        /// <summary>
+        /// TODO: Create factory for this, so the IServiceProvider dependency can be removed.
+        /// </summary>
         private IDedicatedServer CreateServer(int port, IModset modset)
         {
             var server = new DedicatedServer(

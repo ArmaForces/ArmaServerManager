@@ -5,6 +5,7 @@ using System.IO.Abstractions;
 using System.Text.Json;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Config
 {
@@ -22,15 +23,22 @@ namespace ArmaForces.Arma.Server.Config
         private readonly IConfig _serverConfig;
         private readonly IFileSystem _fileSystem;
         private readonly ISettings _settings;
+        private readonly ConfigFileCreator _configFileCreator;
+        private readonly ILogger<ModsetConfig> _logger;
 
+        // TODO: Create factory
         public ModsetConfig(
             IConfig serverConfig,
             ISettings settings,
             string modsetName,
+            ConfigFileCreator configFileCreator,
+            ILogger<ModsetConfig> logger,
             IFileSystem fileSystem = null)
         {
             _serverConfig = serverConfig;
             _settings = settings;
+            _configFileCreator = configFileCreator;
+            _logger = logger;
             ModsetName = modsetName;
             _fileSystem = fileSystem ?? new FileSystem();
         }
@@ -109,17 +117,17 @@ namespace ArmaForces.Arma.Server.Config
         private void CreateConfigFiles(
             string serverConfigFilePath,
             string modsetConfigFilePath,
-            IConfigurationRoot modsetConfig)
+            IConfiguration modsetConfig)
         {
             var fileName = Path.GetFileNameWithoutExtension(serverConfigFilePath);
-            Console.WriteLine($"Loading {fileName} for {ModsetName} modset.");
+            _logger.LogDebug("Loading {fileName} for {modsetName} modset.", fileName, ModsetName);
 
-            var cfgFile = ConfigFileCreator.FillCfg(
+            var cfgFile = _configFileCreator.FillCfg(
                 _fileSystem.File.ReadAllText(serverConfigFilePath),
                 modsetConfig.GetSection(fileName));
 
             _fileSystem.File.WriteAllText(modsetConfigFilePath, cfgFile);
-            Console.WriteLine($"{fileName} successfully exported to {DirectoryPath}");
+            _logger.LogDebug("{fileName} successfully exported to {directoryPath}", fileName, DirectoryPath);
         }
     }
 }

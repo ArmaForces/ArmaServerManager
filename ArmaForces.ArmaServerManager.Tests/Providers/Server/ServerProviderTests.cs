@@ -7,6 +7,7 @@ using ArmaForces.ArmaServerManager.Providers.Server;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -19,9 +20,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Providers.Server
         {
             const int serverPort = 2302;
             var testServiceProvider = PrepareTestServiceProvider();
+            var testLogger = new NullLogger<ServerProvider>();
             var modset = ModsetHelpers.CreateEmptyModset(new Fixture());
 
-            var serverProvider = new ServerProvider(testServiceProvider);
+            var serverProvider = new ServerProvider(testServiceProvider, testLogger);
 
             var firstDedicatedServer = serverProvider.GetServer(serverPort, modset);
             var secondDedicatedServer = serverProvider.GetServer(serverPort, modset);
@@ -34,9 +36,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Providers.Server
         {
             const int serverPort = 2302;
             var testServiceProvider = PrepareTestServiceProvider();
+            var testLogger = new NullLogger<ServerProvider>();
             var modset = ModsetHelpers.CreateEmptyModset(new Fixture());
 
-            var serverProvider = new ServerProvider(testServiceProvider);
+            var serverProvider = new ServerProvider(testServiceProvider, testLogger);
 
             var firstDedicatedServer = serverProvider.GetServer(serverPort, modset);
             firstDedicatedServer.Dispose();

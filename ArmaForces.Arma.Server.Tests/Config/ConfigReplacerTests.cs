@@ -4,6 +4,7 @@ using System.Linq;
 using ArmaForces.Arma.Server.Config;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Config {
@@ -11,6 +12,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         private readonly string _cfgFile = File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "test_server.cfg"));
 
         private readonly IConfigurationRoot _modsetConfig;
+        private readonly ConfigReplacer _configReplacer;
 
         public ConfigReplacerTests() {
             // Create configuration from JsonFile string
@@ -19,7 +21,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
                 .AddJsonFile(Path.Join(Directory.GetCurrentDirectory(),"test_common.json"))
                 .Build();
 
-            var jsonString = File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "test_common.json"));
+            _configReplacer = new ConfigReplacer(new NullLogger<ConfigReplacer>());
         }
 
         [Fact]
@@ -30,7 +32,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
             var expectedMatch = $"{key} = \"{value}\";";
 
             // Act
-            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, value);
+            var newCfgFile = _configReplacer.ReplaceValue(_cfgFile, key, value);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
@@ -44,7 +46,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
             var expectedMatch = $"{key} = \"{value}\";";
 
             // Act
-            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, value);
+            var newCfgFile = _configReplacer.ReplaceValue(_cfgFile, key, value);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
@@ -58,7 +60,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
             var expectedMatch = $"{key} = {value};";
 
             // Act
-            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, value);
+            var newCfgFile = _configReplacer.ReplaceValue(_cfgFile, key, value);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
@@ -72,7 +74,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
             var expectedMatch = $"{key} = {value};";
 
             // Act
-            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, value);
+            var newCfgFile = _configReplacer.ReplaceValue(_cfgFile, key, value);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
@@ -87,7 +89,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
             var expectedMatch = $"{key} = {{{stringValue}}};";
 
             // Act
-            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, stringValue);
+            var newCfgFile = _configReplacer.ReplaceValue(_cfgFile, key, stringValue);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
@@ -101,7 +103,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
             var expectedMatch = $"{key} = {{{stringValue}}};";
 
             // Act
-            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, stringValue);
+            var newCfgFile = _configReplacer.ReplaceValue(_cfgFile, key, stringValue);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
@@ -115,7 +117,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
             var expectedMatch = $"\t\t{key} = {stringValue};";
 
             // Act
-            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, stringValue);
+            var newCfgFile = _configReplacer.ReplaceValue(_cfgFile, key, stringValue);
 
             // Assert
             newCfgFile.Should().Contain(expectedMatch);
@@ -128,7 +130,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
             var stringValue = "";
 
             // Act
-            var newCfgFile = ConfigReplacer.ReplaceValue(_cfgFile, key, stringValue);
+            var newCfgFile = _configReplacer.ReplaceValue(_cfgFile, key, stringValue);
 
             // Assert
             newCfgFile.Should().Be(_cfgFile);
