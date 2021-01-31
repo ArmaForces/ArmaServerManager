@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +8,7 @@ using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Server.DTOs;
 using ArmaForces.Arma.Server.Providers.Configuration;
+using ArmaForces.Arma.Server.Providers.Keys;
 using ArmaForces.Arma.Server.Providers.Parameters;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
@@ -20,6 +23,7 @@ namespace ArmaForces.Arma.Server.Features.Server
         private readonly ILogger<ServerProcess> _serverProcessLogger;
         private readonly IServerConfigurationProvider _serverConfigurationProvider;
         private readonly ISettings _settings;
+        private readonly IKeysProvider _keysProvider;
 
         private IServerProcess _headlessProcess;
 
@@ -29,10 +33,18 @@ namespace ArmaForces.Arma.Server.Features.Server
             int port,
             ISettings settings,
             IModset modset,
+            IKeysProvider keysProvider,
             IServerConfigurationProvider serverConfigurationProvider,
             ILogger<DedicatedServer> logger,
             ILogger<ServerProcess> serverProcessLogger,
-            IServerProcess serverProcess) : this(port, settings, modset, serverConfigurationProvider, logger, serverProcessLogger)
+            IServerProcess serverProcess) : this(
+            port,
+            settings,
+            modset,
+            keysProvider,
+            serverConfigurationProvider,
+            logger,
+            serverProcessLogger)
         {
             _serverProcess = serverProcess;
         }
@@ -41,12 +53,14 @@ namespace ArmaForces.Arma.Server.Features.Server
             int port,
             ISettings settings,
             IModset modset,
+            IKeysProvider keysProvider,
             IServerConfigurationProvider serverConfigurationProvider,
             ILogger<DedicatedServer> logger,
             ILogger<ServerProcess> serverProcessLogger)
         {
             Port = port;
             _settings = settings;
+            _keysProvider = keysProvider;
             Modset = modset;
             _serverConfigurationProvider = serverConfigurationProvider;
             _logger = logger;
@@ -80,7 +94,8 @@ namespace ArmaForces.Arma.Server.Features.Server
 
             _logger.LogTrace("Starting server on port {port} with {modsetName} modset.", Port, Modset.Name);
 
-            return _serverProcess.Start()
+            return _keysProvider.PrepareKeysForModset(Modset)
+                .Bind(() => _serverProcess.Start())
                 .Bind(() => _headlessProcess.Start());
         }
 

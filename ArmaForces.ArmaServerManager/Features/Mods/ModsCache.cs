@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
+using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 using Newtonsoft.Json;
@@ -108,7 +109,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private Result<IMod> UpdateModInCache(IMod mod)
         {
             return RemoveModFromCache(mod)
-                .Bind(modInCache => UpdateModData(modInCache, mod))
+                .Bind(modInCache => modInCache.UpdateModData(mod))
                 .Bind(AddModToCache);
         }
 
@@ -150,35 +151,13 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private IMod MapWebModToCacheMod(WebMod webMod)
         {
             var convertedMod = webMod.ConvertForServer();
-            var result = GetModInCache(convertedMod);
+            var result = GetModInCache(convertedMod)
+                .Bind(mod => mod.UpdateModData(convertedMod))
+                .Bind(UpdateModInCache);
 
             return result.IsSuccess
                 ? result.Value
                 : _modDirectoryFinder.TryEnsureModDirectory(convertedMod);
-        }
-
-        /// <summary>
-        /// Updates <paramref name="olderMod"/> with relevant data from <paramref name="newerMod"/>.
-        /// </summary>
-        /// <param name="olderMod">Mod to be updated.</param>
-        /// <param name="newerMod">Mod used as source for updated data.</param>
-        /// <returns>New <see cref="IMod"/> with updated data.</returns>
-        private static Result<IMod> UpdateModData(IMod olderMod, IMod newerMod)
-        {
-            var mod = new Mod
-            {
-                Directory = newerMod.Directory ?? olderMod.Directory,
-                CreatedAt = olderMod.CreatedAt,
-                LastUpdatedAt = newerMod.LastUpdatedAt ?? olderMod.LastUpdatedAt,
-                ManifestId = newerMod.ManifestId ?? olderMod.ManifestId,
-                Name = newerMod.Name,
-                Source = newerMod.Source,
-                Type = newerMod.Type,
-                WebId = newerMod.WebId ?? olderMod.WebId,
-                WorkshopId = newerMod.WorkshopId
-            };
-
-            return Result.Success<IMod>(mod);
         }
 
         /// <summary>

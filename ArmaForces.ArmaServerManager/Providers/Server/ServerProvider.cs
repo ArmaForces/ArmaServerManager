@@ -8,6 +8,7 @@ using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Server;
 using ArmaForces.Arma.Server.Providers.Configuration;
+using ArmaForces.Arma.Server.Providers.Keys;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -106,6 +107,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                 port,
                 _serviceProvider.GetService<ISettings>(),
                 modset,
+                _serviceProvider.GetService<IKeysProvider>(),
                 _serviceProvider.GetService<IServerConfigurationProvider>(),
                 _serviceProvider.GetService<ILogger<DedicatedServer>>(),
                 _serviceProvider.GetService<ILogger<ServerProcess>>());
@@ -123,6 +125,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                 port,
                 _serviceProvider.GetService<ISettings>(),
                 modset,
+                _serviceProvider.GetService<IKeysProvider>(),
                 _serviceProvider.GetService<IServerConfigurationProvider>(),
                 _serviceProvider.GetService<ILogger<DedicatedServer>>(),
                 _serviceProvider.GetService<ILogger<ServerProcess>>(),

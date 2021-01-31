@@ -9,5 +9,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
         string Schedule<T>(Expression<Func<T, Task>> methodCall, DateTimeOffset dateTimeOffset);
 
         string Enqueue<T>(Expression<Func<T, Task>> methodCall);
+
+        string ContinueWith<T>(string parentId, Expression<Func<T, Task>> methodCall);
     }
 }
