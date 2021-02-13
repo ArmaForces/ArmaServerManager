@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Management;
 
-namespace ArmaForces.ArmaServerManager.Extensions
+namespace ArmaForces.Arma.Server.Extensions
 {
     internal static class ProcessExtensions
     {

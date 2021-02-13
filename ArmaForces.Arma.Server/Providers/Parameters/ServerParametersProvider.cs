@@ -29,6 +29,7 @@ namespace ArmaForces.Arma.Server.Providers.Parameters
                 $"\"-cfg={_modsetConfig.BasicCfg}\"",
                 $"-profiles=\"{_modsetConfig.ServerProfileDirectory}\"",
                 GetSpecialParams(),
+                $"-modsetName={_modset.Name}",
                 GetModsStartupParam(_modset));
 
         internal static string GetModsStartupParam(IModset modset) 

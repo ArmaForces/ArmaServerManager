@@ -31,6 +31,7 @@ namespace ArmaForces.Arma.Server.Providers.Parameters
                 $"-password={_modsetConfig.ServerPassword}",
                 $"-profiles=\"{_modsetConfig.HCProfileDirectory}\"",
                 "-limitFPS=100",
+                $"-modsetName={_modset.Name}",
                 GetModsStartupParam(_modset));
 
         internal static string GetModsStartupParam(IModset modset)

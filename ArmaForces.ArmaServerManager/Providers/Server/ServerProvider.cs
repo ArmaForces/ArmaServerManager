@@ -2,14 +2,13 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
+using ArmaForces.Arma.Server.Features.Parameters;
 using ArmaForces.Arma.Server.Features.Server;
 using ArmaForces.Arma.Server.Providers.Configuration;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
-using ArmaForces.ArmaServerManager.Services;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -21,10 +20,17 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
             new ConcurrentDictionary<int, IDedicatedServer>();
 
         private readonly IServiceProvider _serviceProvider;
+        private readonly ParametersExtractor _parametersExtractor;
+        private readonly IModsetProvider _modsetProvider;
 
-        public ServerProvider(IServiceProvider serviceProvider)
+        public ServerProvider(
+            IServiceProvider serviceProvider,
+            ParametersExtractor parametersExtractor,
+            IModsetProvider modsetProvider)
         {
             _serviceProvider = serviceProvider;
+            _parametersExtractor = parametersExtractor;
+            _modsetProvider = modsetProvider;
             DiscoverProcesses();
         }
 
@@ -47,41 +53,21 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
         private async Task DiscoverProcesses()
         {
-            const string portString = "port ";
-
             var armaServerProcesses = Process.GetProcesses()
                 .Where(x => x.ProcessName.Contains("arma3server"))
                 .ToList();
 
             if (!armaServerProcesses.Any()) return;
-
-            var hangfireManager = _serviceProvider.GetService<IHangfireManager>();
-
+            
             foreach (var armaServerProcess in armaServerProcesses)
             {
-                var portStringIndex = armaServerProcess.MainWindowTitle.LastIndexOf(portString, StringComparison.InvariantCulture);
-                var portIntString = armaServerProcess.MainWindowTitle.Substring(portStringIndex + portString.Length);
-                var parseSuccess = int.TryParse(portIntString, out var port);
-
-                if (!parseSuccess) continue;
-
-                var unknownModset = new Modset
-                {
-                    Name = "Unknown"
-                };
-
-                var server = CreateServer(port, unknownModset, armaServerProcess);
-                var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                var serverStatus = await server.GetServerStatusAsync(cancellationTokenSource.Token);
-                if (serverStatus.Players == 0)
-                {
-                    server.Shutdown();
-                }
-                else
-                {
-                    _servers.GetOrAdd(port, server);
-                    hangfireManager.ScheduleJob<ServerStartupService>(x => x.ShutdownServer(port, false, CancellationToken.None));
-                }
+                ServerParameters parameters = null;
+                await _parametersExtractor.ExtractParameters(armaServerProcess)
+                    .Tap(x => parameters = x)
+                    // TODO: Handle assigning HC to server
+                    .Bind(x => _modsetProvider.GetModsetByName(x.ModsetName))
+                    .Bind(modset => Result.Success(CreateServer(parameters.Port, modset, armaServerProcess)))
+                    .Tap(server => _servers.GetOrAdd(parameters.Port, server));
             }
         }
 
