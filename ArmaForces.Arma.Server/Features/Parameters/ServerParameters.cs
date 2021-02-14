@@ -1,4 +1,6 @@
-﻿namespace ArmaForces.Arma.Server.Features.Parameters
+﻿using System.Diagnostics;
+
+namespace ArmaForces.Arma.Server.Features.Parameters
 {
     public class ServerParameters
     {
@@ -52,6 +54,14 @@
             NetLog = netLog;
             LimitFPS = fpsLimit;
             LoadMissionToMemory = loadMissionToMemory;
+        }
+
+        public ProcessStartInfo GetProcessStartInfo() => new ProcessStartInfo(ProcessPath, GetArguments());
+
+        private string GetArguments()
+        {
+            // TODO: Get arguments list here
+            return string.Empty;
         }
     }
 }

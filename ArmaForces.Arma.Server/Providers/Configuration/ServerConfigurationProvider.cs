@@ -12,14 +12,11 @@ namespace ArmaForces.Arma.Server.Providers.Configuration
         }
 
         public IModsetConfig GetModsetConfig(string modsetName)
-        {
-            var serverConfig = new ServerConfig(_settings);
-            serverConfig.LoadConfig();
-            
-            var modsetConfig = new ModsetConfig(serverConfig, _settings, modsetName);
-            modsetConfig.LoadConfig();
+            => new ModsetConfig(
+                GetServerConfig(),
+                _settings,
+                modsetName);
 
-            return modsetConfig;
-        }
+        private IConfig GetServerConfig() => new ServerConfig(_settings);
     }
 }

@@ -22,27 +22,26 @@ namespace ArmaForces.Arma.Server.Config {
         {
             _settings = settings;
             _fileSystem = fileSystem ?? new FileSystem();
+            SetProperties();
         }
 
         /// <summary>
         /// Handles preparation of all config files.
         /// </summary>
         /// <returns></returns>
-        public Result LoadConfig() {
+        public Result CopyConfigFiles() {
             Console.WriteLine("Loading ServerConfig.");
             
-            return SetProperties()
-                .Bind(GetOrCreateServerConfigDir)
-                .Tap(() => Console.WriteLine("ServerConfig loaded."))
-                .OnFailure(error => Console.WriteLine("ServerConfig could not be loaded with {0}.", error));
+            return GetOrCreateServerConfigDir()
+                .Tap(() => Console.WriteLine("ServerConfig files copied."))
+                .OnFailure(error => Console.WriteLine("ServerConfig files could not be copied with {0}.", error));
         }
 
-        private Result SetProperties() {
+        private void SetProperties() {
             DirectoryPath = _settings.ServerConfigDirectory;
             ConfigJson = Path.Join(DirectoryPath, "common.json");
             BasicCfg = Path.Join(DirectoryPath, "basic.cfg");
             ServerCfg = Path.Join(DirectoryPath, "server.cfg");
-            return Result.Success();
         }
 
         /// <summary>

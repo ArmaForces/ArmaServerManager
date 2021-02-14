@@ -23,9 +23,9 @@ namespace ArmaForces.Arma.Server.Config {
         string ServerCfg { get; }
 
         /// <summary>
-        /// Performs config loading.
+        /// Copies and fills config files.
         /// </summary>
         /// <returns>Result</returns>
-        Result LoadConfig();
+        Result CopyConfigFiles();
     }
 }

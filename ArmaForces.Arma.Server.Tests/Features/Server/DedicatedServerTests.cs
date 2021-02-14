@@ -71,9 +71,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
         private DedicatedServer PrepareDedicatedServer()
             => new DedicatedServer(
                 ServerPort,
-                _settingsMock.Object,
                 _modsetMock.Object,
-                _serverConfigurationProvider.Object,
                 new Logger<DedicatedServer>(new NullLoggerFactory()),
                 new Logger<ServerProcess>(new NullLoggerFactory()));
     }

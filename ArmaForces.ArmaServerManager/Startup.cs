@@ -1,5 +1,6 @@
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Parameters;
+using ArmaForces.Arma.Server.Features.Server;
 using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
@@ -80,7 +81,11 @@ namespace ArmaForces.ArmaServerManager
             .AddSingleton<IServerProvider, ServerProvider>()
             .AddSingleton<IServerConfigurationProvider, ServerConfigurationProvider>()
             .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
-            .AddSingleton<ParametersExtractor>()
+            .AddSingleton<IServerProcessFactory, ServerProcessFactory>()
+            .AddSingleton<IDedicatedServerFactory, DedicatedServerFactory>()
+            .AddSingleton<IServerBuilder, ServerBuilder>()
+            .AddSingleton<IServerBuilderFactory, ServerBuilderFactory>()
+            .AddSingleton<IParametersExtractor, ParametersExtractor>()
 
             // Hangfire
             .AddSingleton<IHangfireBackgroundJobClient, HangfireBackgroundJobClient>()

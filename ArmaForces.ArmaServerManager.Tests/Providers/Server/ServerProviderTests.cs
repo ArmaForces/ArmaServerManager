@@ -21,7 +21,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Providers.Server
             var testServiceProvider = PrepareTestServiceProvider();
             var modset = ModsetHelpers.CreateEmptyModset(new Fixture());
 
-            var serverProvider = new ServerProvider(testServiceProvider);
+            var serverProvider = new ServerProvider();
 
             var firstDedicatedServer = serverProvider.GetServer(serverPort, modset);
             var secondDedicatedServer = serverProvider.GetServer(serverPort, modset);
@@ -36,7 +36,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Providers.Server
             var testServiceProvider = PrepareTestServiceProvider();
             var modset = ModsetHelpers.CreateEmptyModset(new Fixture());
 
-            var serverProvider = new ServerProvider(testServiceProvider);
+            var serverProvider = new ServerProvider();
 
             var firstDedicatedServer = serverProvider.GetServer(serverPort, modset);
             firstDedicatedServer.Dispose();

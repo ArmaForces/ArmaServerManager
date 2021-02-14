@@ -33,16 +33,17 @@ namespace ArmaForces.Arma.Server.Config
             _settings = settings;
             ModsetName = modsetName;
             _fileSystem = fileSystem ?? new FileSystem();
+            SetProperties();
         }
 
-        public Result LoadConfig()
+        public Result CopyConfigFiles()
         {
-            return SetProperties()
+            return _serverConfig.CopyConfigFiles()
                 .Bind(GetOrCreateModsetConfigDir)
                 .Bind(PrepareModsetConfig);
         }
 
-        private Result SetProperties()
+        private void SetProperties()
         {
             DirectoryPath = Path.Join(_serverConfig.DirectoryPath, _settings.ModsetConfigDirectoryName, ModsetName);
             ConfigJson = Path.Join(DirectoryPath, "config.json");
@@ -50,7 +51,6 @@ namespace ArmaForces.Arma.Server.Config
             ServerCfg = Path.Join(DirectoryPath, "server.cfg");
             HCProfileDirectory = Path.Join(DirectoryPath, "profiles", "HC");
             ServerProfileDirectory = Path.Join(DirectoryPath, "profiles", "Server");
-            return Result.Success();
         }
 
         /// <summary>

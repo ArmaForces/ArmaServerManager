@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using ArmaForces.Arma.Server.Features.Parameters;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
@@ -14,11 +15,6 @@ namespace ArmaForces.Arma.Server.Features.Server
 
         private Process _serverProcess;
 
-        public ServerProcess(Process process, ILogger<ServerProcess> logger) : this(null, null, logger)
-        {
-            _serverProcess = process;
-        }
-
         public ServerProcess(
             string executablePath,
             string arguments,
@@ -28,6 +24,24 @@ namespace ArmaForces.Arma.Server.Features.Server
             _arguments = arguments;
             _logger = logger;
         }
+
+        public ServerProcess(
+            Process process,
+            ServerParameters serverParameters,
+            ILogger<ServerProcess> logger) : this(serverParameters, logger)
+        {
+            _serverProcess = process;
+        }
+
+        public ServerProcess(
+            ServerParameters serverParameters,
+            ILogger<ServerProcess> logger)
+        {
+            Parameters = serverParameters;
+            _logger = logger;
+        }
+
+        public ServerParameters Parameters { get; }
 
         public bool IsStopped => _serverProcess == null || _serverProcess.HasExited;
         
@@ -39,6 +53,8 @@ namespace ArmaForces.Arma.Server.Features.Server
 
             try
             {
+                // TODO: Use only ServerParameters to avoid issues
+                //_serverProcess = Process.Start(Parameters.GetProcessStartInfo());
                 _serverProcess = Process.Start(_executablePath, _arguments);
             }
             catch (InvalidOperationException exception)

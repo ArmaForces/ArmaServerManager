@@ -50,7 +50,7 @@ namespace ArmaForces.Arma.Server.Tests.Config
                 _settingsMock.Object,
                 _modsetName,
                 _fileSystemMock);
-            var configLoaded = modsetConfig.LoadConfig();
+            var configLoaded = modsetConfig.CopyConfigFiles();
 
             using (new AssertionScope())
             {
