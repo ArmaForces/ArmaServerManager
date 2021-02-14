@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,10 +70,20 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
         }
 
         private DedicatedServer PrepareDedicatedServer()
+        {
+            var serverProcessMock = new Mock<IServerProcess>();
+            serverProcessMock.Setup(x => x.IsStopped).Returns(true);
+            serverProcessMock.Setup(x => x.IsStartingOrStarted).Returns(false);
+            return PrepareDedicatedServer(serverProcessMock.Object);
+        }
+
+        private DedicatedServer PrepareDedicatedServer(IServerProcess serverProcess, IEnumerable<IServerProcess> headlessClients = null)
             => new DedicatedServer(
                 ServerPort,
                 _modsetMock.Object,
+                _modsetConfigMock.Object,
                 new Logger<DedicatedServer>(new NullLoggerFactory()),
-                new Logger<ServerProcess>(new NullLoggerFactory()));
+                serverProcess,
+                headlessClients ?? new List<IServerProcess>());
     }
 }
