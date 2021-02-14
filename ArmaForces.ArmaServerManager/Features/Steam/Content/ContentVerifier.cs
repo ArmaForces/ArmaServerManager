@@ -11,39 +11,60 @@ using BytexDigital.Steam.ContentDelivery.Enumerations;
 using BytexDigital.Steam.ContentDelivery.Models;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 {
     public class ContentVerifier : IContentVerifier
     {
         private readonly ISteamClient _steamClient;
+        private readonly ILogger<ContentVerifier> _logger;
         private readonly IFileSystem _fileSystem;
         
-        public ContentVerifier(ISteamClient steamClient, IFileSystem fileSystem = null)
+        public ContentVerifier(
+            ISteamClient steamClient,
+            ILogger<ContentVerifier> logger,
+            IFileSystem fileSystem = null)
         {
             _steamClient = steamClient;
+            _logger = logger;
             _fileSystem = fileSystem ?? new FileSystem();
         }
 
         public static ContentVerifier CreateContentVerifier(IServiceProvider serviceProvider)
         {
-            return new ContentVerifier(serviceProvider.GetService<ISteamClient>());
+            return new ContentVerifier(
+                serviceProvider.GetService<ISteamClient>(),
+                serviceProvider.GetService<ILogger<ContentVerifier>>());
         }
 
         public async Task<Result<ContentItem>> ItemIsUpToDate(ContentItem contentItem, CancellationToken cancellationToken)
         {
-            if (contentItem.Directory is null) return Result.Failure<ContentItem>("Item not exists.");
+            if (contentItem.Directory is null)
+            {
+                _logger.LogInformation("Item {contentItemId} doesn't have a directory.");
+
+                return Result.Failure<ContentItem>("Item not exists.");
+            }
             
             if (contentItem.ManifestId is null)
             {
                 await GetManifestId(contentItem);
             }
             
+            _logger.LogTrace("Downloading Manifest for item {contentItemId}.", contentItem.Id);
+
             var manifest = await GetManifest(contentItem, cancellationToken);
 
             var incorrectFiles = manifest.Files
                 .SkipWhile(manifestFile => FileIsUpToDate(contentItem.Directory, manifestFile))
                 .ToList();
+
+            _logger.LogDebug(
+                incorrectFiles.Any()
+                    ? "Found incorrect files for item {contentItemId}."
+                    : "All files are correct for item {contentItemId}.",
+                contentItem.Id);
 
             return incorrectFiles
                 .Any()
@@ -56,7 +77,10 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         /// </summary>
         private async Task GetManifestId(ContentItem contentItem)
         {
+            _logger.LogDebug("Downloading ManifestId for item {contentItemId}.", contentItem.Id);
+            
             var errors = 0;
+
             while (errors < 10 && contentItem.ManifestId == null)
             {
                 try
@@ -67,11 +91,14 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 catch (TaskCanceledException)
                 {
                     errors += 1;
+                    _logger.LogTrace("Failed to download ManifestId for item {contentItemId}. Errors = {number}.", contentItem.Id, errors);
                 }
             }
 
             if (errors > 9)
             {
+                _logger.LogError("Could not download ManifestId for item {contentItemId}.", contentItem.Id);
+
                 throw new Exception($"10 errors while attempting to download manifest for {contentItem.Id}");
             }
         }

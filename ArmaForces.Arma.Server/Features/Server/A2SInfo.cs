@@ -68,13 +68,13 @@ namespace ArmaForces.Arma.Server.Features.Server
             // TODO: use logger
             udpClient.Connect(ipEndPoint);
 
-            Console.WriteLine($"Sending UDP request to {ipEndPoint}.");
+            Console.WriteLine($"{DateTime.Now:s} Sending UDP request to {ipEndPoint}.");
 
             await udpClient.SendAsync(
                 Request,
                 Request.Length);
 
-            Console.WriteLine($"UDP request sent to {ipEndPoint}.");
+            Console.WriteLine($"{DateTime.Now:s} UDP request sent to {ipEndPoint}.");
 
             var receiveTask = udpClient.ReceiveAsync();
             while (!receiveTask.IsCompleted)
@@ -83,12 +83,13 @@ namespace ArmaForces.Arma.Server.Features.Server
                 await Task.WhenAny(receiveTask, delayTask);
                 if (cancellationToken.IsCancellationRequested)
                 {
+                    Console.WriteLine($"{DateTime.Now:s} Connection to {ipEndPoint} timed out.");
                     throw new TaskCanceledException($"Connection to {ipEndPoint} timed out");
                 }
             }
 
             var udpReceiveResult = await receiveTask;
-            Console.WriteLine($"UDP request received from {ipEndPoint}. Reading started.");
+            Console.WriteLine($"{DateTime.Now:s} UDP request received from {ipEndPoint}. Reading started.");
 
             await using var memoryStream = new MemoryStream(udpReceiveResult.Buffer); // Saves the received data in a memory buffer
             using var binaryReader = new BinaryReader(memoryStream, Encoding.UTF8); // A binary reader that treats characters as Unicode 8-bit
@@ -130,7 +131,7 @@ namespace ArmaForces.Arma.Server.Features.Server
 
             #endregion
 
-            Console.WriteLine($"Successfully read message from {ipEndPoint}.");
+            Console.WriteLine($"{DateTime.Now:s} Successfully read message from {ipEndPoint}.");
 
             return serverInfo;
         }

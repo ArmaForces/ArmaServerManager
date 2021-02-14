@@ -7,6 +7,7 @@ using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Server;
 using ArmaForces.Arma.Server.Providers.Configuration;
+using ArmaForces.Arma.Server.Providers.Keys;
 using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -24,6 +25,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
         private readonly Mock<ISettings> _settingsMock = new Mock<ISettings>();
         private readonly Mock<IModset> _modsetMock = new Mock<IModset>();
         private readonly Mock<IModsetConfig> _modsetConfigMock = new Mock<IModsetConfig>();
+        private readonly Mock<IKeysProvider> _keysProviderMock = new Mock<IKeysProvider>();
 
         private readonly Mock<IServerConfigurationProvider> _serverConfigurationProvider =
             new Mock<IServerConfigurationProvider>();
@@ -82,8 +84,9 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
                 ServerPort,
                 _modsetMock.Object,
                 _modsetConfigMock.Object,
-                new Logger<DedicatedServer>(new NullLoggerFactory()),
+                _keysProviderMock.Object,
                 serverProcess,
-                headlessClients ?? new List<IServerProcess>());
+                headlessClients ?? new List<IServerProcess>(),
+                new Logger<DedicatedServer>(new NullLoggerFactory()));
     }
 }

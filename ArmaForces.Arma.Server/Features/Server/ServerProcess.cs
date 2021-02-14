@@ -55,6 +55,7 @@ namespace ArmaForces.Arma.Server.Features.Server
             {
                 // TODO: Use only ServerParameters to avoid issues
                 //_serverProcess = Process.Start(Parameters.GetProcessStartInfo());
+                _logger.LogTrace("Starting {executablePath} with {arguments}.", _executablePath, _arguments);
                 _serverProcess = Process.Start(_executablePath, _arguments);
             }
             catch (InvalidOperationException exception)

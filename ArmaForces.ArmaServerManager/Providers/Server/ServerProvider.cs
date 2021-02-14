@@ -7,11 +7,19 @@ using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Parameters;
 using ArmaForces.Arma.Server.Features.Server;
+using ArmaForces.Arma.Server.Providers.Configuration;
+using ArmaForces.Arma.Server.Providers.Keys;
+using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Providers.Server
 {
     public class ServerProvider : IServerProvider
     {
+        private const string ArmaProcessName = "arma3server";
+
         private readonly ConcurrentDictionary<int, IDedicatedServer> _servers =
             new ConcurrentDictionary<int, IDedicatedServer>();
 
@@ -19,17 +27,20 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
         private readonly IModsetProvider _modsetProvider;
         private readonly IServerProcessFactory _serverProcessFactory;
         private readonly IDedicatedServerFactory _dedicatedServerFactory;
+        private readonly ILogger<ServerProvider> _logger;
 
         public ServerProvider(
             IParametersExtractor parametersExtractor,
             IModsetProvider modsetProvider,
             IServerProcessFactory serverProcessFactory,
-            IDedicatedServerFactory dedicatedServerFactory)
+            IDedicatedServerFactory dedicatedServerFactory,
+            ILogger<ServerProvider> logger)
         {
             _parametersExtractor = parametersExtractor;
             _modsetProvider = modsetProvider;
             _serverProcessFactory = serverProcessFactory;
             _dedicatedServerFactory = dedicatedServerFactory;
+            _logger = logger;
             DiscoverProcesses();
         }
 
@@ -47,13 +58,15 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
         {
             if (!(sender is IDedicatedServer server)) return;
 
+            _logger.LogInformation("Server disposed, removing.");
+
             _ = _servers.TryRemove(server.Port, out _);
         }
 
         private async Task DiscoverProcesses()
         {
             var armaServerProcesses = Process.GetProcesses()
-                .Where(x => x.ProcessName.Contains("arma3server"))
+                .Where(x => x.ProcessName.Contains(ArmaProcessName))
                 .ToList();
 
             if (!armaServerProcesses.Any()) return;
@@ -61,6 +74,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
             var servers = new Dictionary<int, IServerProcess>();
             var headlessProcessesDictionary = new Dictionary<int, List<IServerProcess>>();
 
+            _logger.LogInformation($"Found {{count}} running {ArmaProcessName} processes.", armaServerProcesses.Count);
             foreach (var armaServerProcess in armaServerProcesses)
             {
                 var result = await _parametersExtractor.ExtractParameters(armaServerProcess);

@@ -1,7 +1,9 @@
+using System;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Parameters;
 using ArmaForces.Arma.Server.Features.Server;
 using ArmaForces.Arma.Server.Providers.Configuration;
+using ArmaForces.Arma.Server.Providers.Keys;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
@@ -21,6 +23,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager
 {
@@ -36,6 +39,16 @@ namespace ArmaForces.ArmaServerManager
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging(
+                config =>
+                {
+                    config.AddSimpleConsole(
+                        console =>
+                        {
+                            console.TimestampFormat = "s";
+                        });
+                });
+
             services.AddRazorPages();
 
             // Add REST API Controller
@@ -52,7 +65,7 @@ namespace ArmaForces.ArmaServerManager
                 .UseLiteDbStorage(Configuration.GetConnectionString("HangfireConnection")))
 
             // Add the processing server as IHostedService
-            .AddHangfireServer()
+            .AddHangfireServer(ConfigureHangfireServer())
 
             .AddHostedService<StartupService>()
 
@@ -76,6 +89,13 @@ namespace ArmaForces.ArmaServerManager
 
             // Mission
             .AddSingleton<IApiMissionsClient, ApiMissionsClient>()
+
+            // Configuration
+            .AddSingleton<ConfigFileCreator>()
+            .AddSingleton<ConfigReplacer>()
+
+            // Keys
+            .AddSingleton<IKeysProvider, KeysProvider>()
 
             // Server
             .AddSingleton<IServerProvider, ServerProvider>()
@@ -128,5 +148,11 @@ namespace ArmaForces.ArmaServerManager
                 endpoints.MapControllers();
             });
         }
+
+        private static Action<BackgroundJobServerOptions> ConfigureHangfireServer()
+            => backgroundJobServerOptions =>
+            {
+                backgroundJobServerOptions.WorkerCount = 1;
+            };
     }
 }

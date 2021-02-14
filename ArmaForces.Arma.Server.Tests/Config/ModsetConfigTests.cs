@@ -8,6 +8,7 @@ using ArmaForces.Arma.Server.Tests.Helpers;
 using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -45,10 +46,14 @@ namespace ArmaForces.Arma.Server.Tests.Config
             var expectedModsetConfigDirectory = Path.Join(_workingDirectory, _modsetConfigDirName, _modsetName);
             var expectedModsetConfigFiles = new[] { "server.cfg", "basic.cfg", "config.json" };
 
+            var configFileCreator = new ConfigFileCreator(new ConfigReplacer(new NullLogger<ConfigReplacer>()));
+
             IModsetConfig modsetConfig = new ModsetConfig(
                 _configMock.Object,
                 _settingsMock.Object,
                 _modsetName,
+                configFileCreator,
+                new NullLogger<ModsetConfig>(),
                 _fileSystemMock);
             var configLoaded = modsetConfig.CopyConfigFiles();
 

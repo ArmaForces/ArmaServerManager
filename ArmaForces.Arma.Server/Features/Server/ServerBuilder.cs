@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Providers.Configuration;
+using ArmaForces.Arma.Server.Providers.Keys;
 using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Server
 {
     public class ServerBuilder : IServerBuilder
     {
-        private readonly ISettings _settings;
+        private readonly IKeysProvider _keysProvider;
         private readonly IServerConfigurationProvider _serverConfigurationProvider;
         private readonly IServerProcessFactory _serverProcessFactory;
         private readonly ILogger<DedicatedServer> _dedicatedServerLogger;
@@ -21,12 +21,12 @@ namespace ArmaForces.Arma.Server.Features.Server
         private IReadOnlyList<IServerProcess> _headlessClients;
 
         public ServerBuilder(
-            ISettings settings,
+            IKeysProvider keysProvider,
             IServerConfigurationProvider serverConfigurationProvider,
             IServerProcessFactory serverProcessFactory,
             ILogger<DedicatedServer> dedicatedServerLogger)
         {
-            _settings = settings;
+            _keysProvider = keysProvider;
             _serverConfigurationProvider = serverConfigurationProvider;
             _serverProcessFactory = serverProcessFactory;
             _dedicatedServerLogger = dedicatedServerLogger;
@@ -83,9 +83,10 @@ namespace ArmaForces.Arma.Server.Features.Server
                 _port,
                 _modset,
                 modsetConfig,
-                _dedicatedServerLogger,
+                _keysProvider,
                 serverProcess,
-                headlessClients);
+                headlessClients,
+                _dedicatedServerLogger);
         }
     }
 }

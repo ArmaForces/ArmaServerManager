@@ -22,5 +22,10 @@ namespace ArmaForces.Arma.Server.Features.Modsets {
             => Mods
                 .Where(x => x.Type == ModType.ServerSide)
                 .ToHashSet();
+
+        public ISet<IMod> ClientLoadableMods
+            => Mods
+                .Where(x => x.Type > ModType.ServerSide)
+                .ToHashSet();
     }
 }

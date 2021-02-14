@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Server.DTOs;
+using ArmaForces.Arma.Server.Providers.Keys;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
@@ -18,6 +19,7 @@ namespace ArmaForces.Arma.Server.Features.Server
     {
         private readonly IModsetConfig _modsetConfig;
         private readonly ILogger<DedicatedServer> _logger;
+        private readonly IKeysProvider _keysProvider;
 
         private readonly IServerProcess _serverProcess;
         private readonly IReadOnlyList<IServerProcess> _headlessProcesses;
@@ -26,16 +28,18 @@ namespace ArmaForces.Arma.Server.Features.Server
             int port,
             IModset modset,
             IModsetConfig modsetConfig,
-            ILogger<DedicatedServer> logger,
+            IKeysProvider keysProvider,
             IServerProcess serverProcess,
-            IEnumerable<IServerProcess> headlessClients)
+            IEnumerable<IServerProcess> headlessClients,
+            ILogger<DedicatedServer> logger)
         {
             Port = port;
+            _keysProvider = keysProvider;
             Modset = modset;
             _modsetConfig = modsetConfig;
-            _logger = logger;
             _serverProcess = serverProcess;
             _headlessProcesses = headlessClients.ToList();
+            _logger = logger;
         }
 
         public int Port { get; }
@@ -60,6 +64,7 @@ namespace ArmaForces.Arma.Server.Features.Server
             _logger.LogTrace("Starting server on port {port} with {modsetName} modset.", Port, Modset.Name);
 
             return _modsetConfig.CopyConfigFiles()
+                .Bind(() => _keysProvider.PrepareKeysForModset(Modset))
                 .Bind(() => _serverProcess.Start())
                 .Bind(() => _headlessProcesses.Select(x => x.Start())
                     .Combine());

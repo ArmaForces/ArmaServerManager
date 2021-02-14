@@ -31,16 +31,24 @@ namespace ArmaForces.ArmaServerManager.Controller
         [Route("Update")]
         public IActionResult UpdateMods([FromBody] ModsUpdateRequest modsUpdateRequest)
         {
-            var result = modsUpdateRequest.ModsetName is null
-                ? _hangfireManager.ScheduleJob<ModsUpdateService>(
-                    x => x.UpdateAllMods(CancellationToken.None),
-                    modsUpdateRequest.ScheduleAt)
-                : _hangfireManager.ScheduleJob<ModsUpdateService>(
-                    x => x.UpdateModset(modsUpdateRequest.ModsetName, CancellationToken.None),
+            var serverShutdownJob = _hangfireManager
+                .ScheduleJob<ServerStartupService>(
+                    x => x.ShutdownServer(2302, false, CancellationToken.None),
                     modsUpdateRequest.ScheduleAt);
 
+            if (serverShutdownJob.IsFailure)
+                return Problem(serverShutdownJob.Error);
+
+            var result = modsUpdateRequest.ModsetName is null
+                ? _hangfireManager.ContinueJobWith<ModsUpdateService>(
+                    serverShutdownJob.Value,
+                    x => x.UpdateAllMods(CancellationToken.None))
+                : _hangfireManager.ContinueJobWith<ModsUpdateService>(
+                    serverShutdownJob.Value,
+                    x => x.UpdateModset(modsUpdateRequest.ModsetName, CancellationToken.None));
+
             return result.Match(
-                onSuccess: Ok,
+                onSuccess: Accepted,
                 onFailure: error => (IActionResult)BadRequest(error));
         }
     }
