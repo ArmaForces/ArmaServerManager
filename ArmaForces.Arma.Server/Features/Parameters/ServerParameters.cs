@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using ArmaForces.Arma.Server.Constants;
 
 namespace ArmaForces.Arma.Server.Features.Parameters
 {
@@ -37,10 +38,10 @@ namespace ArmaForces.Arma.Server.Features.Parameters
             string profilePath,
             string name,
             string modsetName,
-            bool filePatching = false,
-            bool netLog = false,
-            int fpsLimit = 90,
-            bool loadMissionToMemory = true)
+            bool filePatching = ParametersDefaults.FilePatching,
+            bool netLog = ParametersDefaults.Netlog,
+            int fpsLimit = ParametersDefaults.LimitFPS,
+            bool loadMissionToMemory = ParametersDefaults.LoadMissionToMemory)
         {
             ProcessPath = processPath;
             Client = client;
