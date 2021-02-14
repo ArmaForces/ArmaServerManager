@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Server;
+using ArmaForces.Arma.Server.Features.Server.DTOs;
 using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.Arma.Server.Providers.Keys;
 using AutoFixture;
@@ -52,12 +53,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
             var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
             var serverStatus = await dedicatedServer.GetServerStatusAsync(cancellationTokenSource.Token);
 
-            using (new AssertionScope())
-            {
-                serverStatus.IsServerRunning.Should().BeFalse();
-                serverStatus.IsServerStarting.Should().BeFalse();
-                dedicatedServer.IsServerStopped.Should().BeTrue();
-            }
+            serverStatus.Status.Should().Be(ServerStatusEnum.Stopped);
         }
 
         [Fact]
