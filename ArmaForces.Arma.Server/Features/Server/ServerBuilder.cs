@@ -11,7 +11,7 @@ namespace ArmaForces.Arma.Server.Features.Server
     {
         private readonly IKeysProvider _keysProvider;
         private readonly IServerConfigurationProvider _serverConfigurationProvider;
-        private readonly IServerProcessFactory _serverProcessFactory;
+        private readonly IArmaProcessFactory _armaProcessFactory;
         private readonly ILogger<DedicatedServer> _dedicatedServerLogger;
 
         private int _port;
@@ -23,12 +23,12 @@ namespace ArmaForces.Arma.Server.Features.Server
         public ServerBuilder(
             IKeysProvider keysProvider,
             IServerConfigurationProvider serverConfigurationProvider,
-            IServerProcessFactory serverProcessFactory,
+            IArmaProcessFactory armaProcessFactory,
             ILogger<DedicatedServer> dedicatedServerLogger)
         {
             _keysProvider = keysProvider;
             _serverConfigurationProvider = serverConfigurationProvider;
-            _serverProcessFactory = serverProcessFactory;
+            _armaProcessFactory = armaProcessFactory;
             _dedicatedServerLogger = dedicatedServerLogger;
         }
 
@@ -67,13 +67,13 @@ namespace ArmaForces.Arma.Server.Features.Server
             var modsetConfig = _serverConfigurationProvider.GetModsetConfig(_modset.Name);
 
             var serverProcess = _armaProcess
-                                ?? _serverProcessFactory.CreateServerProcess(
+                                ?? _armaProcessFactory.CreateServerProcess(
                                     _port,
                                     _modset,
                                     modsetConfig);
 
             var headlessClients = _headlessClients
-                                  ?? _serverProcessFactory.CreateHeadlessClients(
+                                  ?? _armaProcessFactory.CreateHeadlessClients(
                                       _port,
                                       _modset,
                                       modsetConfig,

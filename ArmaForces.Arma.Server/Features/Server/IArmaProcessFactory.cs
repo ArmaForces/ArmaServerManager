@@ -6,7 +6,7 @@ using ArmaForces.Arma.Server.Features.Parameters;
 
 namespace ArmaForces.Arma.Server.Features.Server
 {
-    public interface IServerProcessFactory
+    public interface IArmaProcessFactory
     {
         IArmaProcess CreateServerProcess(Process process, ServerParameters parameters = null);
 

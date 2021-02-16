@@ -7,11 +7,6 @@ using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Parameters;
 using ArmaForces.Arma.Server.Features.Server;
-using ArmaForces.Arma.Server.Providers.Configuration;
-using ArmaForces.Arma.Server.Providers.Keys;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
-using ArmaForces.ArmaServerManager.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Providers.Server
@@ -25,20 +20,20 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
         private readonly IParametersExtractor _parametersExtractor;
         private readonly IModsetProvider _modsetProvider;
-        private readonly IServerProcessFactory _serverProcessFactory;
+        private readonly IArmaProcessFactory _armaProcessFactory;
         private readonly IDedicatedServerFactory _dedicatedServerFactory;
         private readonly ILogger<ServerProvider> _logger;
 
         public ServerProvider(
             IParametersExtractor parametersExtractor,
             IModsetProvider modsetProvider,
-            IServerProcessFactory serverProcessFactory,
+            IArmaProcessFactory armaProcessFactory,
             IDedicatedServerFactory dedicatedServerFactory,
             ILogger<ServerProvider> logger)
         {
             _parametersExtractor = parametersExtractor;
             _modsetProvider = modsetProvider;
-            _serverProcessFactory = serverProcessFactory;
+            _armaProcessFactory = armaProcessFactory;
             _dedicatedServerFactory = dedicatedServerFactory;
             _logger = logger;
             DiscoverProcesses();
@@ -81,7 +76,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                 if (result.IsSuccess)
                 {
                     var parameters = result.Value;
-                    var process = _serverProcessFactory.CreateServerProcess(armaServerProcess, parameters);
+                    var process = _armaProcessFactory.CreateServerProcess(armaServerProcess, parameters);
                     if (parameters.Client)
                     {
                         if (headlessProcessesDictionary.ContainsKey(parameters.Port))

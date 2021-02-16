@@ -8,12 +8,12 @@ using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Server
 {
-    public class ServerProcessFactory : IServerProcessFactory
+    public class ArmaProcessFactory : IArmaProcessFactory
     {
         private readonly ISettings _settings;
         private readonly ILogger<ArmaProcess> _serverProcessLogger;
 
-        public ServerProcessFactory(
+        public ArmaProcessFactory(
             ISettings settings,
             ILogger<ArmaProcess> serverProcessLogger)
         {

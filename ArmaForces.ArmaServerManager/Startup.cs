@@ -101,7 +101,7 @@ namespace ArmaForces.ArmaServerManager
             .AddSingleton<IServerProvider, ServerProvider>()
             .AddSingleton<IServerConfigurationProvider, ServerConfigurationProvider>()
             .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
-            .AddSingleton<IServerProcessFactory, ServerProcessFactory>()
+            .AddSingleton<IArmaProcessFactory, ArmaProcessFactory>()
             .AddSingleton<IDedicatedServerFactory, DedicatedServerFactory>()
             .AddSingleton<IServerBuilder, ServerBuilder>()
             .AddSingleton<IServerBuilderFactory, ServerBuilderFactory>()

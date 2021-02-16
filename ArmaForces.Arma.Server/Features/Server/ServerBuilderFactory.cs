@@ -8,18 +8,18 @@ namespace ArmaForces.Arma.Server.Features.Server
     {
         private readonly IKeysProvider _keysProvider;
         private readonly IServerConfigurationProvider _serverConfigurationProvider;
-        private readonly IServerProcessFactory _serverProcessFactory;
+        private readonly IArmaProcessFactory _armaProcessFactory;
         private readonly ILogger<DedicatedServer> _dedicatedServerLogger;
 
         public ServerBuilderFactory(
             IKeysProvider keysProvider,
             IServerConfigurationProvider serverConfigurationProvider,
-            IServerProcessFactory serverProcessFactory,
+            IArmaProcessFactory armaProcessFactory,
             ILogger<DedicatedServer> dedicatedServerLogger)
         {
             _keysProvider = keysProvider;
             _serverConfigurationProvider = serverConfigurationProvider;
-            _serverProcessFactory = serverProcessFactory;
+            _armaProcessFactory = armaProcessFactory;
             _dedicatedServerLogger = dedicatedServerLogger;
         }
 
@@ -28,7 +28,7 @@ namespace ArmaForces.Arma.Server.Features.Server
             return new ServerBuilder(
                 _keysProvider,
                 _serverConfigurationProvider,
-                _serverProcessFactory,
+                _armaProcessFactory,
                 _dedicatedServerLogger);
         }
     }
