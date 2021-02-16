@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
-using ArmaForces.Arma.Server.Features.Parameters;
 using ArmaForces.Arma.Server.Features.Server;
 using Microsoft.Extensions.Logging;
 
@@ -13,27 +11,22 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 {
     public class ServerProvider : IServerProvider
     {
-        private const string ArmaProcessName = "arma3server";
-
         private readonly ConcurrentDictionary<int, IDedicatedServer> _servers =
             new ConcurrentDictionary<int, IDedicatedServer>();
 
-        private readonly IParametersExtractor _parametersExtractor;
         private readonly IModsetProvider _modsetProvider;
-        private readonly IArmaProcessFactory _armaProcessFactory;
+        private readonly IArmaProcessDiscoverer _armaProcessDiscoverer;
         private readonly IDedicatedServerFactory _dedicatedServerFactory;
         private readonly ILogger<ServerProvider> _logger;
 
         public ServerProvider(
-            IParametersExtractor parametersExtractor,
             IModsetProvider modsetProvider,
-            IArmaProcessFactory armaProcessFactory,
+            IArmaProcessDiscoverer armaProcessDiscoverer,
             IDedicatedServerFactory dedicatedServerFactory,
             ILogger<ServerProvider> logger)
         {
-            _parametersExtractor = parametersExtractor;
             _modsetProvider = modsetProvider;
-            _armaProcessFactory = armaProcessFactory;
+            _armaProcessDiscoverer = armaProcessDiscoverer;
             _dedicatedServerFactory = dedicatedServerFactory;
             _logger = logger;
             DiscoverProcesses();
@@ -60,63 +53,17 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
         private async Task DiscoverProcesses()
         {
-            var armaServerProcesses = Process.GetProcesses()
-                .Where(x => x.ProcessName.Contains(ArmaProcessName))
-                .ToList();
-
-            if (!armaServerProcesses.Any()) return;
+            var armaProcesses = await _armaProcessDiscoverer.DiscoverArmaProcesses();
             
-            var servers = new Dictionary<int, IArmaProcess>();
-            var headlessProcessesDictionary = new Dictionary<int, List<IArmaProcess>>();
-
-            _logger.LogInformation($"Found {{count}} running {ArmaProcessName} processes.", armaServerProcesses.Count);
-            foreach (var armaServerProcess in armaServerProcesses)
+            foreach (var serverKeyValuePair in armaProcesses)
             {
-                var result = await _parametersExtractor.ExtractParameters(armaServerProcess);
-                if (result.IsSuccess)
-                {
-                    var parameters = result.Value;
-                    var process = _armaProcessFactory.CreateServerProcess(armaServerProcess, parameters);
-                    if (parameters.Client)
-                    {
-                        if (headlessProcessesDictionary.ContainsKey(parameters.Port))
-                        {
-                            headlessProcessesDictionary[parameters.Port].Add(process);
-                        }
-                        else
-                        {
-                            headlessProcessesDictionary.Add(parameters.Port, new List<IArmaProcess>()
-                            {
-                                process
-                            });
-                        }
-                    }
-                    else
-                    {
-                        if (servers.ContainsKey(parameters.Port))
-                        {
-                            throw new NotImplementedException("There are 2 servers running on the same port.");
-                        }
-
-                        servers.Add(parameters.Port, process);
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException("Parameters extraction from process failed.");
-                }
-            }
-
-            foreach (var serverKeyValuePair in servers)
-            {
-                var (port, server) = serverKeyValuePair;
-                var headlessClients = headlessProcessesDictionary.ContainsKey(port)
-                    ? headlessProcessesDictionary[port]
-                    : new List<IArmaProcess>();
+                var (port, processes) = serverKeyValuePair;
+                var server = processes.SingleOrDefault(x => x.ProcessType == ArmaProcessType.Server);
+                var headlessClients = processes.Where(x => x.ProcessType == ArmaProcessType.HeadlessClient);
 
                 var dedicatedServer = CreateServer(
                     port,
-                    _modsetProvider.GetModsetByName(server.Parameters.ModsetName).Value,
+                    _modsetProvider.GetModsetByName(server?.Parameters.ModsetName).Value,
                     server,
                     headlessClients);
 

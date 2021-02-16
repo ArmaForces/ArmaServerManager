@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using ArmaForces.Arma.Server.Features.Parameters;
 using CSharpFunctionalExtensions;
@@ -42,6 +42,11 @@ namespace ArmaForces.Arma.Server.Features.Server
         }
 
         public ServerParameters Parameters { get; }
+
+        public ArmaProcessType ProcessType => Parameters.Client
+            ? ArmaProcessType.HeadlessClient
+            // TODO: Handle regular client process too to avoid shutting it down
+            : ArmaProcessType.Server;
 
         public bool IsStopped => _serverProcess == null || _serverProcess.HasExited;
         
