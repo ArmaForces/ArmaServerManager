@@ -6,36 +6,36 @@ using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Server
 {
-    public class ServerProcess : IServerProcess
+    public class ArmaProcess : IArmaProcess
     {
         private readonly string _arguments;
         private readonly string _executablePath;
 
-        private readonly ILogger<ServerProcess> _logger;
+        private readonly ILogger<ArmaProcess> _logger;
 
         private Process _serverProcess;
 
-        public ServerProcess(
+        public ArmaProcess(
             string executablePath,
             string arguments,
-            ILogger<ServerProcess> logger)
+            ILogger<ArmaProcess> logger)
         {
             _executablePath = executablePath;
             _arguments = arguments;
             _logger = logger;
         }
 
-        public ServerProcess(
+        public ArmaProcess(
             Process process,
             ServerParameters serverParameters,
-            ILogger<ServerProcess> logger) : this(serverParameters, logger)
+            ILogger<ArmaProcess> logger) : this(serverParameters, logger)
         {
             _serverProcess = process;
         }
 
-        public ServerProcess(
+        public ArmaProcess(
             ServerParameters serverParameters,
-            ILogger<ServerProcess> logger)
+            ILogger<ArmaProcess> logger)
         {
             Parameters = serverParameters;
             _logger = logger;
@@ -54,7 +54,7 @@ namespace ArmaForces.Arma.Server.Features.Server
             try
             {
                 // TODO: Use only ServerParameters to avoid issues
-                //_serverProcess = Process.Start(Parameters.GetProcessStartInfo());
+                //_armaProcess = Process.Start(Parameters.GetProcessStartInfo());
                 _logger.LogTrace("Starting {executablePath} with {arguments}.", _executablePath, _arguments);
                 _serverProcess = Process.Start(_executablePath, _arguments);
             }
@@ -77,7 +77,7 @@ namespace ArmaForces.Arma.Server.Features.Server
                 return Result.Success();
             }
 
-            _logger.LogDebug("Shutting down the {serverProcess}.", _serverProcess);
+            _logger.LogDebug("Shutting down the {armaProcess}.", _serverProcess);
 
             _serverProcess.Kill();
             _serverProcess = null;

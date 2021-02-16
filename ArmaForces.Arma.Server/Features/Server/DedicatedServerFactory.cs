@@ -28,14 +28,14 @@ namespace ArmaForces.Arma.Server.Features.Server
         public IDedicatedServer CreateDedicatedServer(
             int port,
             IModset modset,
-            IServerProcess serverProcess,
-            IEnumerable<IServerProcess> headlessProcesses)
+            IArmaProcess armaProcess,
+            IEnumerable<IArmaProcess> headlessProcesses)
         {
             var builder = _serverBuilderFactory.CreateServerBuilder();
             return builder
                 .OnPort(port)
                 .WithModset(modset)
-                .WithServerProcess(serverProcess)
+                .WithServerProcess(armaProcess)
                 .WithHeadlessClients(headlessProcesses)
                 .Build();
         }

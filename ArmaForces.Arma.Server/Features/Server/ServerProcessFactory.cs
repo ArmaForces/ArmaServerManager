@@ -11,22 +11,22 @@ namespace ArmaForces.Arma.Server.Features.Server
     public class ServerProcessFactory : IServerProcessFactory
     {
         private readonly ISettings _settings;
-        private readonly ILogger<ServerProcess> _serverProcessLogger;
+        private readonly ILogger<ArmaProcess> _serverProcessLogger;
 
         public ServerProcessFactory(
             ISettings settings,
-            ILogger<ServerProcess> serverProcessLogger)
+            ILogger<ArmaProcess> serverProcessLogger)
         {
             _settings = settings;
             _serverProcessLogger = serverProcessLogger;
         }
 
-        public IServerProcess CreateServerProcess(Process process, ServerParameters serverParameters = null)
+        public IArmaProcess CreateServerProcess(Process process, ServerParameters serverParameters = null)
         {
-            return new ServerProcess(process, serverParameters, _serverProcessLogger);
+            return new ArmaProcess(process, serverParameters, _serverProcessLogger);
         }
 
-        public IServerProcess CreateServerProcess(
+        public IArmaProcess CreateServerProcess(
             int port,
             IModset modset,
             IModsetConfig modsetConfig)
@@ -36,13 +36,13 @@ namespace ArmaForces.Arma.Server.Features.Server
                 modset,
                 modsetConfig);
 
-            return new ServerProcess(
+            return new ArmaProcess(
                 _settings.ServerExecutable,
                 parametersProvider.GetStartupParams(),
                 _serverProcessLogger);
         }
 
-        public IEnumerable<IServerProcess> CreateHeadlessClients(
+        public IEnumerable<IArmaProcess> CreateHeadlessClients(
             int port,
             IModset modset,
             IModsetConfig modsetConfig,
@@ -55,7 +55,7 @@ namespace ArmaForces.Arma.Server.Features.Server
 
             for (var i = 0; i < numberOfHeadlessClients; i++)
             {
-                yield return new ServerProcess(
+                yield return new ArmaProcess(
                     _settings.ServerExecutable,
                     parametersProvider.GetStartupParams(),
                     _serverProcessLogger);

@@ -16,9 +16,9 @@ namespace ArmaForces.Arma.Server.Features.Server
 
         private int _port;
         private IModset _modset;
-        private IServerProcess _serverProcess;
+        private IArmaProcess _armaProcess;
         private int _numberOfHeadlessClients;
-        private IReadOnlyList<IServerProcess> _headlessClients;
+        private IReadOnlyList<IArmaProcess> _headlessClients;
 
         public ServerBuilder(
             IKeysProvider keysProvider,
@@ -44,13 +44,13 @@ namespace ArmaForces.Arma.Server.Features.Server
             return this;
         }
 
-        public IServerBuilder WithServerProcess(IServerProcess serverProcess)
+        public IServerBuilder WithServerProcess(IArmaProcess armaProcess)
         {
-            _serverProcess = serverProcess;
+            _armaProcess = armaProcess;
             return this;
         }
 
-        public IServerBuilder WithHeadlessClients(IEnumerable<IServerProcess> headlessClients)
+        public IServerBuilder WithHeadlessClients(IEnumerable<IArmaProcess> headlessClients)
         {
             _headlessClients = headlessClients?.ToList();
             return this;
@@ -66,7 +66,7 @@ namespace ArmaForces.Arma.Server.Features.Server
         {
             var modsetConfig = _serverConfigurationProvider.GetModsetConfig(_modset.Name);
 
-            var serverProcess = _serverProcess
+            var serverProcess = _armaProcess
                                 ?? _serverProcessFactory.CreateServerProcess(
                                     _port,
                                     _modset,

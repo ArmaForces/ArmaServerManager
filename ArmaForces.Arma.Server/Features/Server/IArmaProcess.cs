@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 
 namespace ArmaForces.Arma.Server.Features.Server
 {
-    public interface IServerProcess
+    public interface IArmaProcess
     {
         ServerParameters Parameters { get; }
 

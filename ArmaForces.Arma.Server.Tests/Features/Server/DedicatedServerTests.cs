@@ -73,20 +73,20 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
 
         private DedicatedServer PrepareDedicatedServer()
         {
-            var serverProcessMock = new Mock<IServerProcess>();
+            var serverProcessMock = new Mock<IArmaProcess>();
             serverProcessMock.Setup(x => x.IsStopped).Returns(true);
             serverProcessMock.Setup(x => x.IsStartingOrStarted).Returns(false);
             return PrepareDedicatedServer(serverProcessMock.Object);
         }
 
-        private DedicatedServer PrepareDedicatedServer(IServerProcess serverProcess, IEnumerable<IServerProcess> headlessClients = null)
+        private DedicatedServer PrepareDedicatedServer(IArmaProcess armaProcess, IEnumerable<IArmaProcess> headlessClients = null)
             => new DedicatedServer(
                 ServerPort,
                 _modsetMock.Object,
                 _modsetConfigMock.Object,
                 _keysProviderMock.Object,
-                serverProcess,
-                headlessClients ?? new List<IServerProcess>(),
+                armaProcess,
+                headlessClients ?? new List<IArmaProcess>(),
                 new Logger<DedicatedServer>(new NullLoggerFactory()));
     }
 }

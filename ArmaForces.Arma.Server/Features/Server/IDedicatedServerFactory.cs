@@ -13,7 +13,7 @@ namespace ArmaForces.Arma.Server.Features.Server
         IDedicatedServer CreateDedicatedServer(
             int port,
             IModset modset,
-            IServerProcess serverProcess,
-            IEnumerable<IServerProcess> headlessProcesses);
+            IArmaProcess armaProcess,
+            IEnumerable<IArmaProcess> headlessProcesses);
     }
 }

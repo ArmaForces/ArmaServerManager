@@ -9,9 +9,9 @@ namespace ArmaForces.Arma.Server.Features.Server
 
         IServerBuilder WithModset(IModset modset);
 
-        IServerBuilder WithServerProcess(IServerProcess serverProcess);
+        IServerBuilder WithServerProcess(IArmaProcess armaProcess);
 
-        IServerBuilder WithHeadlessClients(IEnumerable<IServerProcess> headlessClients);
+        IServerBuilder WithHeadlessClients(IEnumerable<IArmaProcess> headlessClients);
 
         IServerBuilder WithHeadlessClients(int numberOfHeadlessClients);
         

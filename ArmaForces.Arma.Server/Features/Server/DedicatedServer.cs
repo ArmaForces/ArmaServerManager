@@ -21,23 +21,23 @@ namespace ArmaForces.Arma.Server.Features.Server
         private readonly ILogger<DedicatedServer> _logger;
         private readonly IKeysProvider _keysProvider;
 
-        private readonly IServerProcess _serverProcess;
-        private readonly IReadOnlyList<IServerProcess> _headlessProcesses;
+        private readonly IArmaProcess _armaProcess;
+        private readonly List<IArmaProcess> _headlessProcesses;
         
         public DedicatedServer(
             int port,
             IModset modset,
             IModsetConfig modsetConfig,
             IKeysProvider keysProvider,
-            IServerProcess serverProcess,
-            IEnumerable<IServerProcess> headlessClients,
+            IArmaProcess armaProcess,
+            IEnumerable<IArmaProcess> headlessClients,
             ILogger<DedicatedServer> logger)
         {
             Port = port;
             _keysProvider = keysProvider;
             Modset = modset;
             _modsetConfig = modsetConfig;
-            _serverProcess = serverProcess;
+            _armaProcess = armaProcess;
             _headlessProcesses = headlessClients.ToList();
             _logger = logger;
         }
@@ -48,14 +48,14 @@ namespace ArmaForces.Arma.Server.Features.Server
 
         public int HeadlessClientsConnected => _headlessProcesses.Count;
 
-        public bool IsServerStopped => _serverProcess?.IsStopped ?? true;
-        
+        public bool IsServerStopped => _armaProcess?.IsStopped ?? true;
+
         public event EventHandler Disposed;
 
         public void Dispose()
         {
             Shutdown();
-            
+
             Disposed?.Invoke(this, EventArgs.Empty);
         }
 
@@ -65,14 +65,14 @@ namespace ArmaForces.Arma.Server.Features.Server
 
             return _modsetConfig.CopyConfigFiles()
                 .Bind(() => _keysProvider.PrepareKeysForModset(Modset))
-                .Bind(() => _serverProcess.Start())
+                .Bind(() => _armaProcess.Start())
                 .Bind(() => _headlessProcesses.Select(x => x.Start())
                     .Combine());
         }
 
         public Result Shutdown()
         {
-            _serverProcess?.Shutdown();
+            _armaProcess?.Shutdown();
             foreach (var headlessProcess in _headlessProcesses)
             {
                 headlessProcess.Shutdown();
@@ -82,6 +82,8 @@ namespace ArmaForces.Arma.Server.Features.Server
 
             return Result.Success();
         }
+
+        
 
         public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken) 
             => await ServerStatus.GetServerStatus(this, cancellationToken);

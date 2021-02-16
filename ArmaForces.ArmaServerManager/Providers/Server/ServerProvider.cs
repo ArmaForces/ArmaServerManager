@@ -71,8 +71,8 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
             if (!armaServerProcesses.Any()) return;
             
-            var servers = new Dictionary<int, IServerProcess>();
-            var headlessProcessesDictionary = new Dictionary<int, List<IServerProcess>>();
+            var servers = new Dictionary<int, IArmaProcess>();
+            var headlessProcessesDictionary = new Dictionary<int, List<IArmaProcess>>();
 
             _logger.LogInformation($"Found {{count}} running {ArmaProcessName} processes.", armaServerProcesses.Count);
             foreach (var armaServerProcess in armaServerProcesses)
@@ -90,7 +90,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                         }
                         else
                         {
-                            headlessProcessesDictionary.Add(parameters.Port, new List<IServerProcess>()
+                            headlessProcessesDictionary.Add(parameters.Port, new List<IArmaProcess>()
                             {
                                 process
                             });
@@ -117,7 +117,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                 var (port, server) = serverKeyValuePair;
                 var headlessClients = headlessProcessesDictionary.ContainsKey(port)
                     ? headlessProcessesDictionary[port]
-                    : new List<IServerProcess>();
+                    : new List<IArmaProcess>();
 
                 var dedicatedServer = CreateServer(
                     port,
@@ -141,16 +141,14 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
         private IDedicatedServer CreateServer(
             int port,
             IModset modset,
-            IServerProcess serverProcess,
-            IEnumerable<IServerProcess> headlessClients = null)
+            IArmaProcess armaProcess,
+            IEnumerable<IArmaProcess> headlessClients = null)
         {
             var server = _dedicatedServerFactory.CreateDedicatedServer(
                 port,
                 modset,
-                serverProcess,
+                armaProcess,
                 headlessClients);
-
-            server.Disposed += OnServerDisposed;
 
             return server;
         }

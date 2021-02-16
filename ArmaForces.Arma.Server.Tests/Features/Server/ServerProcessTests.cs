@@ -15,7 +15,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
             const string exePath = "";
             const string arguments = "";
 
-            var serverProcess = new ServerProcess(
+            var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
                 null);
@@ -32,7 +32,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
             const string exePath = "";
             const string arguments = "";
 
-            var serverProcess = new ServerProcess(
+            var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
                 null);
@@ -50,10 +50,10 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
             const string arguments = "";
             const string expectedError = "Arma 3 Server could not be started.";
 
-            var serverProcess = new ServerProcess(
+            var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
-                new Logger<ServerProcess>(new NullLoggerFactory()));
+                new Logger<ArmaProcess>(new NullLoggerFactory()));
 
             var startServerResult = serverProcess.Start();
 
@@ -71,10 +71,10 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
             const string exePath = "";
             const string arguments = "";
 
-            var serverProcess = new ServerProcess(
+            var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
-                new Logger<ServerProcess>(new NullLoggerFactory()));
+                new Logger<ArmaProcess>(new NullLoggerFactory()));
 
             var startServerResult = serverProcess.Shutdown();
 
