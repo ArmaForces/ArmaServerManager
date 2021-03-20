@@ -26,6 +26,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
         private readonly Mock<IModset> _modsetMock = new Mock<IModset>();
         private readonly Mock<IModsetConfig> _modsetConfigMock = new Mock<IModsetConfig>();
         private readonly Mock<IKeysProvider> _keysProviderMock = new Mock<IKeysProvider>();
+        private readonly Mock<IArmaProcessManager> _armaProcessManagerMock = new Mock<IArmaProcessManager>();
 
         private readonly Mock<IServerConfigurationProvider> _serverConfigurationProvider =
             new Mock<IServerConfigurationProvider>();
@@ -85,6 +86,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
                 _modsetMock.Object,
                 _modsetConfigMock.Object,
                 _keysProviderMock.Object,
+                _armaProcessManagerMock.Object,
                 armaProcess,
                 headlessClients ?? new List<IArmaProcess>(),
                 new Logger<DedicatedServer>(new NullLoggerFactory()));

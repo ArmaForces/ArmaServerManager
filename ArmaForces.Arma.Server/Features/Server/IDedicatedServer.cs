@@ -22,7 +22,9 @@ namespace ArmaForces.Arma.Server.Features.Server
         Result Start();
 
         Result Shutdown();
-        
-        event EventHandler Disposed;
+
+        public event Func<IDedicatedServer, Task> OnServerShutdown;
+
+        public event Func<IDedicatedServer, Task> OnServerRestarted;
     }
 }

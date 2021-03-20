@@ -1,5 +1,7 @@
-using System;
+﻿using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Parameters;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
@@ -49,8 +51,10 @@ namespace ArmaForces.Arma.Server.Features.Server
             : ArmaProcessType.Server;
 
         public bool IsStopped => _serverProcess == null || _serverProcess.HasExited;
-        
+
         public bool IsStartingOrStarted => !IsStopped;
+
+        public event Func<IArmaProcess, Task> OnProcessShutdown;
 
         public Result Start()
         {
@@ -60,14 +64,19 @@ namespace ArmaForces.Arma.Server.Features.Server
             {
                 // TODO: Use only ServerParameters to avoid issues
                 //_armaProcess = Process.Start(Parameters.GetProcessStartInfo());
-                _logger.LogTrace("Starting {executablePath} with {arguments}.", _executablePath, _arguments);
+                _logger.LogTrace(
+                    "Starting {executablePath} with {arguments}.",
+                    _executablePath,
+                    _arguments);
                 _serverProcess = Process.Start(_executablePath, _arguments);
             }
-            catch (InvalidOperationException exception)
+            catch (Exception exception)
             {
-                _logger.LogError(exception, "Arma 3 Server could not be started. Path missing.");
-                return Result.Failure("Arma 3 Server could not be started.");
+                _logger.LogError(exception, "Arma 3 process could not be started.");
+                return Result.Failure("Arma 3 process could not be started.");
             }
+
+            _serverProcess!.Exited += async (sender, args) => await OnShutdown();
 
             _logger.LogInformation("Starting Arma 3 Server");
 
@@ -79,7 +88,7 @@ namespace ArmaForces.Arma.Server.Features.Server
             if (IsStopped)
             {
                 _logger.LogInformation("Server not running.");
-                return Result.Success();
+                return Result.Failure("Server could not be shut down because it's not running.");
             }
 
             _logger.LogDebug("Shutting down the {armaProcess}.", _serverProcess);
@@ -90,6 +99,21 @@ namespace ArmaForces.Arma.Server.Features.Server
             _logger.LogInformation("Server successfully shut down.");
 
             return Result.Success();
+        }
+
+        private async Task OnShutdown()
+        {
+            var handler = OnProcessShutdown;
+
+            if (handler == null)
+            {
+                return;
+            }
+
+            var handlerTasks = handler.GetInvocationList()
+                .Select(@delegate => ((Func<IArmaProcess, Task>) @delegate)(this));
+
+            await Task.WhenAll(handlerTasks);
         }
     }
 }

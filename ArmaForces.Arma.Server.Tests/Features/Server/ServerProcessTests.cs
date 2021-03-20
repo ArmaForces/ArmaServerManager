@@ -48,7 +48,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
         {
             const string exePath = "";
             const string arguments = "";
-            const string expectedError = "Arma 3 Server could not be started.";
+            const string expectedError = "Arma 3 process could not be started.";
 
             var serverProcess = new ArmaProcess(
                 exePath,
@@ -76,11 +76,11 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
                 arguments,
                 new Logger<ArmaProcess>(new NullLoggerFactory()));
 
-            var startServerResult = serverProcess.Shutdown();
+            var shutdownResult = serverProcess.Shutdown();
 
             using (new AssertionScope())
             {
-                startServerResult.IsSuccess.Should().BeTrue();
+                shutdownResult.IsSuccess.Should().BeFalse("Server is not running.");
             }
         }
     }

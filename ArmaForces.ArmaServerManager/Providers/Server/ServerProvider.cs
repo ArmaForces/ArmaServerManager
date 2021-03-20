@@ -40,15 +40,13 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
         }
 
         public IDedicatedServer GetServer(int port, IModset modset)
-            => _servers.GetOrAdd(port, CreateServer(port, modset, 1));
+            => _servers.GetOrAdd(port, serverPort => CreateServer(serverPort, modset, 1));
         
-        private void OnServerDisposed(object sender, EventArgs e)
+        private async Task OnServerDisposed(IDedicatedServer dedicatedServer)
         {
-            if (!(sender is IDedicatedServer server)) return;
-
             _logger.LogInformation("Server disposed, removing.");
 
-            _ = _servers.TryRemove(server.Port, out _);
+            _ = _servers.TryRemove(dedicatedServer.Port, out _);
         }
 
         private async Task DiscoverProcesses()
@@ -75,7 +73,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
         {
             var server = _dedicatedServerFactory.CreateDedicatedServer(port, modset, numberOfHeadlessClients);
 
-            server.Disposed += OnServerDisposed;
+            server.OnServerShutdown += OnServerDisposed;
 
             return server;
         }

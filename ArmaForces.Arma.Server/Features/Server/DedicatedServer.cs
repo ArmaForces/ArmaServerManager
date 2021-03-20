@@ -20,21 +20,24 @@ namespace ArmaForces.Arma.Server.Features.Server
         private readonly IModsetConfig _modsetConfig;
         private readonly ILogger<DedicatedServer> _logger;
         private readonly IKeysProvider _keysProvider;
+        private readonly IArmaProcessManager _armaProcessManager;
 
-        private readonly IArmaProcess _armaProcess;
         private readonly List<IArmaProcess> _headlessProcesses;
-        
+        private IArmaProcess _armaProcess;
+
         public DedicatedServer(
             int port,
             IModset modset,
             IModsetConfig modsetConfig,
             IKeysProvider keysProvider,
+            IArmaProcessManager armaProcessManager,
             IArmaProcess armaProcess,
             IEnumerable<IArmaProcess> headlessClients,
             ILogger<DedicatedServer> logger)
         {
             Port = port;
             _keysProvider = keysProvider;
+            _armaProcessManager = armaProcessManager;
             Modset = modset;
             _modsetConfig = modsetConfig;
             _armaProcess = armaProcess;
@@ -49,14 +52,15 @@ namespace ArmaForces.Arma.Server.Features.Server
         public int HeadlessClientsConnected => _headlessProcesses.Count;
 
         public bool IsServerStopped => _armaProcess?.IsStopped ?? true;
+        
+        public event Func<IDedicatedServer, Task> OnServerShutdown;
 
-        public event EventHandler Disposed;
+        public event Func<IDedicatedServer, Task> OnServerRestarted;
 
         public void Dispose()
         {
             Shutdown();
-
-            Disposed?.Invoke(this, EventArgs.Empty);
+            OnServerShutdown?.Invoke(this);
         }
 
         public Result Start()
@@ -66,26 +70,44 @@ namespace ArmaForces.Arma.Server.Features.Server
             return _modsetConfig.CopyConfigFiles()
                 .Bind(() => _keysProvider.PrepareKeysForModset(Modset))
                 .Bind(() => _armaProcess.Start())
+                .Tap(() => _armaProcess.OnProcessShutdown += OnServerProcessShutdown)
                 .Bind(() => _headlessProcesses.Select(x => x.Start())
                     .Combine());
         }
 
-        public Result Shutdown()
+        private async Task OnServerProcessShutdown(IArmaProcess armaProcess)
         {
-            _armaProcess?.Shutdown();
-            foreach (var headlessProcess in _headlessProcesses)
-            {
-                headlessProcess.Shutdown();
-            }
-
-            _logger.LogTrace("Server shutdown completed");
-
-            return Result.Success();
+            (await _armaProcessManager.CheckServerIsRestarting(armaProcess))
+                .Match(
+                    onSuccess: newArmaProcess =>
+                    {
+                        _logger.LogDebug("Server restart detected.");
+                        _armaProcess = newArmaProcess;
+                    },
+                    onFailure: async _ =>
+                    {
+                        _logger.LogDebug("Server process shutdown itself.");
+                        ShutdownHeadlessClients();
+                        if (OnServerShutdown != null) await OnServerShutdown.Invoke(this);
+                    });
         }
 
-        
+        public Result Shutdown()
+        {
+            return _armaProcess.Shutdown()
+                .Tap(() => _logger.LogTrace("Server shutdown completed."))
+                .Finally(_ => ShutdownHeadlessClients());
+        }
 
         public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken) 
             => await ServerStatus.GetServerStatus(this, cancellationToken);
+
+        private Result ShutdownHeadlessClients()
+        {
+            return _headlessProcesses
+                .Select(x => x.Shutdown())
+                .Combine()
+                .Tap(() => _logger.LogTrace("Headless clients shutdown completed."));
+        }
     }
 }

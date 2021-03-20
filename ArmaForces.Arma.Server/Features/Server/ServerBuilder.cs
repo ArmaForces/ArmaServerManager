@@ -11,6 +11,7 @@ namespace ArmaForces.Arma.Server.Features.Server
     {
         private readonly IKeysProvider _keysProvider;
         private readonly IServerConfigurationProvider _serverConfigurationProvider;
+        private readonly IArmaProcessManager _armaProcessManager;
         private readonly IArmaProcessFactory _armaProcessFactory;
         private readonly ILogger<DedicatedServer> _dedicatedServerLogger;
 
@@ -23,11 +24,13 @@ namespace ArmaForces.Arma.Server.Features.Server
         public ServerBuilder(
             IKeysProvider keysProvider,
             IServerConfigurationProvider serverConfigurationProvider,
+            IArmaProcessManager armaProcessManager,
             IArmaProcessFactory armaProcessFactory,
             ILogger<DedicatedServer> dedicatedServerLogger)
         {
             _keysProvider = keysProvider;
             _serverConfigurationProvider = serverConfigurationProvider;
+            _armaProcessManager = armaProcessManager;
             _armaProcessFactory = armaProcessFactory;
             _dedicatedServerLogger = dedicatedServerLogger;
         }
@@ -84,6 +87,7 @@ namespace ArmaForces.Arma.Server.Features.Server
                 _modset,
                 modsetConfig,
                 _keysProvider,
+                _armaProcessManager,
                 serverProcess,
                 headlessClients,
                 _dedicatedServerLogger);

@@ -1,4 +1,6 @@
-﻿using ArmaForces.Arma.Server.Features.Parameters;
+﻿using System;
+using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Features.Parameters;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.Arma.Server.Features.Server
@@ -7,6 +9,8 @@ namespace ArmaForces.Arma.Server.Features.Server
     {
         ServerParameters Parameters { get; }
 
+        ArmaProcessType ProcessType { get; }
+
         bool IsStopped { get; }
         
         bool IsStartingOrStarted { get; }
@@ -14,5 +18,7 @@ namespace ArmaForces.Arma.Server.Features.Server
         Result Start();
 
         Result Shutdown();
+
+        public event Func<IArmaProcess, Task> OnProcessShutdown;
     }
 }
