@@ -1,6 +1,9 @@
 using System;
 using System.Text.Json.Serialization;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Features.Parameters;
+using ArmaForces.Arma.Server.Features.Processes;
+using ArmaForces.Arma.Server.Features.Servers;
 using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.Arma.Server.Providers.Keys;
 using ArmaForces.ArmaServerManager.Features.Configuration;
@@ -97,10 +100,19 @@ namespace ArmaForces.ArmaServerManager
             // Keys
             .AddSingleton<IKeysProvider, KeysProvider>()
 
+            // Process
+            .AddSingleton<IArmaProcessDiscoverer, ArmaProcessDiscoverer>()
+            .AddSingleton<IArmaProcessFactory, ArmaProcessFactory>()
+            .AddSingleton<IArmaProcessManager, ArmaProcessManager>()
+
             // Server
             .AddSingleton<IServerProvider, ServerProvider>()
             .AddSingleton<IServerConfigurationProvider, ServerConfigurationProvider>()
             .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
+            .AddSingleton<IDedicatedServerFactory, DedicatedServerFactory>()
+            .AddSingleton<IServerBuilder, ServerBuilder>()
+            .AddSingleton<IServerBuilderFactory, ServerBuilderFactory>()
+            .AddSingleton<IParametersExtractor, ParametersExtractor>()
 
             // Hangfire
             .AddSingleton<IHangfireBackgroundJobClient, HangfireBackgroundJobClient>()

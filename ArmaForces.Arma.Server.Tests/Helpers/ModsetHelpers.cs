@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using AutoFixture;
@@ -47,6 +48,17 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             }
 
             return modset;
+        }
+
+        public static Modset CopyModset(Modset modset)
+        {
+            return new Modset
+            {
+                LastUpdatedAt = modset.LastUpdatedAt,
+                Mods = modset.Mods.ToHashSet(),
+                Name = modset.Name,
+                WebId = modset.WebId
+            };
         }
     }
 }

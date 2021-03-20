@@ -55,7 +55,7 @@ namespace ArmaForces.Arma.Server.Tests.Config
                 configFileCreator,
                 new NullLogger<ModsetConfig>(),
                 _fileSystemMock);
-            var configLoaded = modsetConfig.LoadConfig();
+            var configLoaded = modsetConfig.CopyConfigFiles();
 
             using (new AssertionScope())
             {

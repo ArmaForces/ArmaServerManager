@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
-using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Providers.Parameters;
 using ArmaForces.Arma.Server.Tests.Helpers;
 using AutoFixture;
@@ -25,8 +24,8 @@ namespace ArmaForces.Arma.Server.Tests.Providers.Parameters
             var serverPassword = _fixture.Create<string>();
 
             var modset = ModsetHelpers.CreateTestModset(_fixture);
-            var requiredAndServerModsDirectories = modset.Mods
-                .Where(x => x.Type == ModType.Required || x.Type == ModType.ServerSide)
+            var requiredAndServerModsDirectories = modset.ServerSideMods
+                .Concat(modset.RequiredMods)
                 .GetDirectories();
 
             var modsetConfigMock = new Mock<IModsetConfig>();
@@ -40,9 +39,9 @@ namespace ArmaForces.Arma.Server.Tests.Providers.Parameters
                 modset,
                 modsetConfigMock.Object);
 
-            var startupParams = parametersProvider.GetStartupParams();
+            var startupParams = parametersProvider.GetStartupParams(string.Empty);
 
-            startupParams.Should()
+            startupParams.GetProcessStartInfo().Arguments.Should()
                 .Contain("-client")
                 .And.Subject.Should()
                 .Contain("-connect=127.0.0.1")
@@ -53,47 +52,7 @@ namespace ArmaForces.Arma.Server.Tests.Providers.Parameters
                 .And.Subject.Should()
                 .Contain($"-profiles=\"{hcProfileDirectory}\"")
                 .And.Subject.Should()
-                .Contain($"-mod={string.Join(";", requiredAndServerModsDirectories)}");
-        }
-
-        [Fact]
-        public void GetModsStartupParam_EmptyModset_ReturnsStringEmpty()
-        {
-            var modset = ModsetHelpers.CreateEmptyModset(_fixture);
-
-            var modsParams = HeadlessParametersProvider.GetModsStartupParam(modset);
-
-            modsParams.Should().BeNullOrWhiteSpace();
-        }
-
-        [Fact]
-        public void GetModsStartupParam_ModsetWithRequiredMods_ReturnsStringWithModParam()
-        {
-            var modset = ModsetHelpers.CreateTestModsetWithModsOfOneType(_fixture, ModType.Required);
-
-            var modsDirectories = modset.RequiredMods
-                .GetDirectories();
-
-            var modsParams = HeadlessParametersProvider.GetModsStartupParam(modset);
-
-            modsParams.Should()
-                .Contain($"-mod={string.Join(";", modsDirectories)}")
-                .And.Subject.Should()
-                .NotContain("-serverMod=");
-        }
-
-        [Fact]
-        public void GetModsStartupParam_ModsetWithServerMods_ReturnsStringWithServerModParam()
-        {
-            var modset = ModsetHelpers.CreateTestModsetWithModsOfOneType(_fixture, ModType.ServerSide);
-
-            var modsDirectories = modset.ServerSideMods
-                .GetDirectories();
-
-            var modsParams = HeadlessParametersProvider.GetModsStartupParam(modset);
-
-            modsParams.Should()
-                .Contain($"-mod={string.Join(";", modsDirectories)}")
+                .Contain($"-mod={string.Join(";", requiredAndServerModsDirectories)}")
                 .And.Subject.Should()
                 .NotContain("-serverMod=");
         }

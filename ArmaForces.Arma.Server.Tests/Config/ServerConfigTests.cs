@@ -38,7 +38,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
 
             // Act
             IConfig serverConfig = new ServerConfig(settingsMock.Object, _fileSystemMock);
-            var configLoaded = serverConfig.LoadConfig();
+            var configLoaded = serverConfig.CopyConfigFiles();
 
             // Assert
             using (new AssertionScope())

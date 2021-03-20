@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
-using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
+using ArmaForces.Arma.Server.Features.Parameters;
 
 namespace ArmaForces.Arma.Server.Providers.Parameters
 {
@@ -22,26 +22,22 @@ namespace ArmaForces.Arma.Server.Providers.Parameters
             _modsetConfig = modsetConfig;
         }
 
-        public string GetStartupParams()
-            => string.Join(
-                ' ',
-                "-client",
-                "-connect=127.0.0.1",
-                $"-port={_port}",
-                $"-password={_modsetConfig.ServerPassword}",
-                $"-profiles=\"{_modsetConfig.HCProfileDirectory}\"",
-                "-limitFPS=100",
-                GetModsStartupParam(_modset));
-
-        internal static string GetModsStartupParam(IModset modset)
+        public ProcessParameters GetStartupParams(string exePath)
         {
-            var mods = modset.Mods
-                .Where(x => x.Type == ModType.ServerSide || x.Type == ModType.Required)
-                .GetDirectories();
-
-            return mods.Any()
-                ? "-mod=" + string.Join(";", mods)
-                : string.Empty;
+            return new ProcessParameters(
+                exePath,
+                client: true,
+                _port,
+                _modsetConfig.ServerCfg,
+                _modsetConfig.BasicCfg,
+                _modsetConfig.HCProfileDirectory,
+                "HC",
+                _modset.Name,
+                fpsLimit: 100,
+                connectPassword: _modsetConfig.ServerPassword,
+                mods: _modset.ServerSideMods
+                    .Concat(_modset.RequiredMods)
+                    .GetDirectories());
         }
     }
 }

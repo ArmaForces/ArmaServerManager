@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ArmaForces.Arma.Server.Features.Server
+namespace ArmaForces.Arma.Server.Features.Servers
 {
     /// <summary>
     /// Adopted from Valve description: https://developer.valvesoftware.com/wiki/Server_queries#A2S_INFO

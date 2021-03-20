@@ -1,13 +1,13 @@
-﻿using ArmaForces.Arma.Server.Features.Server;
+﻿using ArmaForces.Arma.Server.Features.Processes;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace ArmaForces.Arma.Server.Tests.Features.Server
+namespace ArmaForces.Arma.Server.Tests.Features.Processes
 {
-    public class ServerProcessTests
+    public class ArmaProcessTests
     {
         [Fact]
         public void IsStopped_ServerNotStarted_ReturnsTrue()
@@ -15,7 +15,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
             const string exePath = "";
             const string arguments = "";
 
-            var serverProcess = new ServerProcess(
+            var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
                 null);
@@ -32,7 +32,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
             const string exePath = "";
             const string arguments = "";
 
-            var serverProcess = new ServerProcess(
+            var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
                 null);
@@ -48,12 +48,12 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
         {
             const string exePath = "";
             const string arguments = "";
-            const string expectedError = "Arma 3 Server could not be started.";
+            const string expectedError = "Arma 3 process could not be started.";
 
-            var serverProcess = new ServerProcess(
+            var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
-                new Logger<ServerProcess>(new NullLoggerFactory()));
+                new Logger<ArmaProcess>(new NullLoggerFactory()));
 
             var startServerResult = serverProcess.Start();
 
@@ -71,16 +71,16 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
             const string exePath = "";
             const string arguments = "";
 
-            var serverProcess = new ServerProcess(
+            var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
-                new Logger<ServerProcess>(new NullLoggerFactory()));
+                new Logger<ArmaProcess>(new NullLoggerFactory()));
 
-            var startServerResult = serverProcess.Shutdown();
+            var shutdownResult = serverProcess.Shutdown();
 
             using (new AssertionScope())
             {
-                startServerResult.IsSuccess.Should().BeTrue();
+                shutdownResult.IsSuccess.Should().BeFalse("Server is not running.");
             }
         }
     }

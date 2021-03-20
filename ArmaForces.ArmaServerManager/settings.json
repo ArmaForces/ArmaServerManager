@@ -1,12 +1,14 @@
 {
-	"apiMissionsBaseUrl": "https://boderator.armaforces.com",
-	"apiModsetsBaseUrl": "https://dev.armaforces.com",
-	"modsetConfigDirName": "modsetConfig",
-	"modsDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\Mods",
-	"modsManagerCacheFileName": ".ManagerModsCache",
-	"serverConfigDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\serverConfig",
-	"serverDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3",
-	"serverExecutableName": "arma3server_x64.exe",
-	"steamUserName": "",
-	"steamPassword": ""
+  "ManagerDirectory": "Q:\\GitHub\\Arma 3\\armaforces\\ArmaServerManager\\ArmaForces.ArmaServerManager",
+  "ApiMissionsBaseUrl": "https://boderator.armaforces.com",
+  "ApiModsetsBaseUrl": "https://armaforces.com",
+  "ModsetConfigDirectoryName": "modsetConfig",
+  "ModsDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\Mods",
+  "ModsManagerCacheFileName": ".ManagerModsCache",
+  "ServerConfigDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\serverConfig",
+  "ServerDirectory": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3",
+  "ServerExecutable": "P:\\Program Files (x86)\\SteamLibrary\\steamapps\\common\\Arma 3\\arma3server_x64.exe",
+  "ServerExecutableName": "arma3server_x64.exe",
+  "SteamUser": null,
+  "SteamPassword": null
 }

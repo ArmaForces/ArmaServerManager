@@ -2,10 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
-using ArmaForces.Arma.Server.Features.Server.DTOs;
+using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.Arma.Server.Features.Server
+namespace ArmaForces.Arma.Server.Features.Servers
 {
     public interface IDedicatedServer : IDisposable
     {
@@ -21,8 +21,10 @@ namespace ArmaForces.Arma.Server.Features.Server
 
         Result Start();
 
-        Result Shutdown();
-        
-        event EventHandler Disposed;
+        Task<Result> Shutdown();
+
+        public event Func<IDedicatedServer, Task> OnServerShutdown;
+
+        public event Func<IDedicatedServer, Task> OnServerRestarted;
     }
 }

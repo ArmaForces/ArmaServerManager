@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ArmaForces.Arma.Server.Features.Server.DTOs;
+using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Server.DTOs;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
