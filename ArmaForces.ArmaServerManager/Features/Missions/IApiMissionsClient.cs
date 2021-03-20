@@ -18,6 +18,6 @@ namespace ArmaForces.ArmaServerManager.Features.Missions {
         /// Prepares <seealso cref="ISet{T}"/> of <see cref="WebModset"/> for all upcoming missions counting from today.
         /// </summary>
         /// <returns><seealso cref="ISet{T}"/> of <see cref="WebModset"/></returns>
-        Result<ISet<WebModset>> GetUpcomingMissionsModsets();
+        Result<ISet<string>> GetUpcomingMissionsModsetsNames();
     }
 }

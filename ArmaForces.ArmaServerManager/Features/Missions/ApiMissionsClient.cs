@@ -41,16 +41,16 @@ namespace ArmaForces.ArmaServerManager.Features.Missions {
             => ApiMissionsUpcoming();
 
         /// <inheritdoc />
-        public Result<ISet<WebModset>> GetUpcomingMissionsModsets()
+        public Result<ISet<string>> GetUpcomingMissionsModsetsNames()
         {
             var upcomingMissionsResult = GetUpcomingMissions();
             if (upcomingMissionsResult.IsFailure)
-                return Result.Failure<ISet<WebModset>>("Missions could not be retrieved.");
+                return Result.Failure<ISet<string>>("Missions could not be retrieved.");
 
             return upcomingMissionsResult.Value
                 .GroupBy(x => x.Modlist)
                 .Select(x => x.First())
-                .Select(x => new WebModset {Name = x.Modlist})
+                .Select(x => x.Modlist)
                 .ToHashSet();
         }
 

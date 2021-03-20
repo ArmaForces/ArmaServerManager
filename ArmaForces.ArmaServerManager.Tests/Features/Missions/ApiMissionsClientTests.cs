@@ -33,14 +33,14 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions {
             const int modsetsCount = 3;
             const int missionsCount = 6;
             var modsets = _fixture.CreateMany<WebModset>(modsetsCount).ToList();
-            var expectedModsets = modsets.Select(x => new WebModset {Name = x.Name});
+            var expectedModsets = modsets.Select(x => x.Name);
             var missions = PrepareMissions(missionsCount, modsets);
 
             var restClientMock = new Mock<IRestClient>();
             restClientMock.SetupResponse(HttpStatusCode.OK, missions);
             var apiClient = new ApiMissionsClient(restClientMock.Object);
 
-            var result = apiClient.GetUpcomingMissionsModsets();
+            var result = apiClient.GetUpcomingMissionsModsetsNames();
 
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().BeEquivalentTo(expectedModsets);
