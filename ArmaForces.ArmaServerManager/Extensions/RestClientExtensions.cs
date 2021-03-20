@@ -1,5 +1,6 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http;
+using CSharpFunctionalExtensions;
 using RestSharp;
 
 namespace ArmaForces.ArmaServerManager.Extensions {
@@ -18,6 +19,15 @@ namespace ArmaForces.ArmaServerManager.Extensions {
             return response.StatusCode == HttpStatusCode.OK
                 ? response.Data
                 : throw new HttpRequestException(response.ErrorMessage + "|" + response.ErrorException + "|" + response.Content);
+        }
+
+        public static Result<T> ExecuteAndReturnResult<T>(this IRestClient restClient, IRestRequest request)
+            where T : new()
+        {
+            var response = restClient.Execute<T>(request);
+            return response.IsSuccessful
+                ? Result.Success(response.Data)
+                : Result.Failure<T>(response.ErrorMessage);
         }
     }
 }

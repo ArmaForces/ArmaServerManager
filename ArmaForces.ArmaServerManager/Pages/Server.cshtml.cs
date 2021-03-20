@@ -44,11 +44,8 @@ namespace ArmaForces.ArmaServerManager.Pages
 
         public void OnGet()
         {
-            var modsets = _apiModsetClient.GetModsets();
-            ModsetOptions = new SelectList(modsets, nameof(WebModset.Name), nameof(WebModset.Name));
-
-            var missions = _apiMissionsClient.GetUpcomingMissions();
-            MissionOptions = new SelectList(missions, nameof(WebMission.Title), nameof(WebMission.Title));
+            LoadModsets();
+            LoadMissions();
         }
 
         public async Task OnPost()
@@ -63,6 +60,24 @@ namespace ArmaForces.ArmaServerManager.Pages
                 _hangfireManager.ScheduleJob<ServerStartupService>(
                     x => x.StartServerForMission(MissionTitle, CancellationToken.None));
             }
+
+            // Reload all data to prevent user having to refresh
+            OnGet();
+        }
+
+        private void LoadModsets()
+        {
+            var modsets = _apiModsetClient.GetModsets();
+            ModsetOptions = new SelectList(modsets, nameof(WebModset.Name), nameof(WebModset.Name));
+        }
+
+        private void LoadMissions()
+        {
+            var missionsResult = _apiMissionsClient.GetUpcomingMissions();
+            if (missionsResult.IsFailure) return;
+
+            var missions = missionsResult.Value;
+            MissionOptions = new SelectList(missions, nameof(WebMission.Title), nameof(WebMission.Title));
         }
     }
 }

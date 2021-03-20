@@ -35,7 +35,10 @@ namespace ArmaForces.ArmaServerManager.Services
 
         public async Task<Result> StartServerForMission(string missionTitle, CancellationToken cancellationToken)
         {
-            var mission = _apiMissionsClient.GetUpcomingMissions()
+            var upcomingMissions = _apiMissionsClient.GetUpcomingMissions();
+            if (upcomingMissions.IsFailure) return Result.Failure("Could not retrieve upcoming missions.");
+
+            var mission = upcomingMissions.Value
                 .Single(x => x.Title == missionTitle);
 
             return await StartServer(mission.Modlist, cancellationToken);

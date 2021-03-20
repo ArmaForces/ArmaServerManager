@@ -81,7 +81,9 @@ namespace ArmaForces.ArmaServerManager
             .AddSingleton<ISettings>(Settings.LoadSettings)
 
             // Mods
-            .AddSingleton<IModsCache, ModsCache>()
+            .AddSingleton<ModsCache>()
+            .AddSingleton<IModsCache>(x => x.GetService<ModsCache>())
+            .AddSingleton<IWebModsetMapper>(x => x.GetService<ModsCache>())
             .AddSingleton<IModsManager, ModsManager>()
             .AddSingleton<IModDirectoryFinder, ModDirectoryFinder>()
             .AddSingleton<IApiModsetClient, ApiModsetClient>()

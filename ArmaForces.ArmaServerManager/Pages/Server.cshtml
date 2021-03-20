@@ -25,6 +25,10 @@
                     Select mission to start server:
                     <select name="missionTitle" asp-items="Model.MissionOptions"></select>
                     <br />
+                    @if (Model.MissionOptions is null)
+                    {
+                        <span style="color: red">Missions could not be loaded.</span>
+                    }
                     <br />
                     <input type="submit" value="Start server for mission" />
                 </form>

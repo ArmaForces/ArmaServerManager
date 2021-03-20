@@ -5,6 +5,7 @@ using ArmaForces.Arma.Server.Config;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
+using CSharpFunctionalExtensions;
 using RestSharp;
 
 namespace ArmaForces.ArmaServerManager.Features.Missions {
@@ -36,21 +37,27 @@ namespace ArmaForces.ArmaServerManager.Features.Missions {
         }
 
         /// <inheritdoc />
-        public IEnumerable<WebMission> GetUpcomingMissions()
+        public Result<List<WebMission>> GetUpcomingMissions()
             => ApiMissionsUpcoming();
 
         /// <inheritdoc />
-        public ISet<WebModset> GetUpcomingMissionsModsets()
-            => GetUpcomingMissions()
+        public Result<ISet<WebModset>> GetUpcomingMissionsModsets()
+        {
+            var upcomingMissionsResult = GetUpcomingMissions();
+            if (upcomingMissionsResult.IsFailure)
+                return Result.Failure<ISet<WebModset>>("Missions could not be retrieved.");
+
+            return upcomingMissionsResult.Value
                 .GroupBy(x => x.Modlist)
                 .Select(x => x.First())
-                .Select(x => new WebModset{ Name = x.Modlist })
+                .Select(x => new WebModset {Name = x.Modlist})
                 .ToHashSet();
+        }
 
-        private IEnumerable<WebMission> ApiMissionsUpcoming() {
+        private Result<List<WebMission>> ApiMissionsUpcoming() {
             var requestUri = string.Format(MissionsUpcomingResourceFormat, DateTime.Today.ToString("s"));
             var request = new RestRequest(requestUri);
-            return _restClient.ExecuteAndReturnData<List<WebMission>>(request);
+            return _restClient.ExecuteAndReturnResult<List<WebMission>>(request);
         }
     }
 }

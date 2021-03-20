@@ -10,25 +10,25 @@ namespace ArmaForces.ArmaServerManager.Providers
     public class ModsetProvider : IModsetProvider
     {
         private readonly IApiModsetClient _apiModsetClient;
-        private readonly IModsCache _modsCache;
+        private readonly IWebModsetMapper _webModsetMapper;
 
-        public ModsetProvider(IApiModsetClient apiModsetClient, IModsCache modsCache)
+        public ModsetProvider(IApiModsetClient apiModsetClient, IWebModsetMapper webModsetMapper)
         {
             _apiModsetClient = apiModsetClient;
-            _modsCache = modsCache;
+            _webModsetMapper = webModsetMapper;
         }
 
         public Result<IModset> GetModsetByName(string modsetName)
         {
             var webModset = _apiModsetClient.GetModsetDataByName(modsetName);
 
-            return Result.Success(_modsCache.MapWebModsetToCacheModset(webModset));
+            return Result.Success(_webModsetMapper.MapWebModsetToCacheModset(webModset));
         }
 
         public Result<IEnumerable<IModset>> GetModsets()
         {
             var modsets = _apiModsetClient.GetModsets()
-                .Select(x => _modsCache.MapWebModsetToCacheModset(x));
+                .Select(x => _webModsetMapper.MapWebModsetToCacheModset(x));
 
             return Result.Success(modsets);
         }

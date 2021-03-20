@@ -1,5 +1,7 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Mods;
 using ArmaForces.ArmaServerManager.Providers;
@@ -31,6 +33,11 @@ namespace ArmaForces.ArmaServerManager.Services
         public async Task<Result> UpdateModset(IModset modset, CancellationToken cancellationToken)
         {
             return await _modsManager.PrepareModset(modset, cancellationToken);
+        }
+
+        public async Task UpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken)
+        {
+            await _modsManager.UpdateMods(mods, cancellationToken);
         }
 
         /// <summary>

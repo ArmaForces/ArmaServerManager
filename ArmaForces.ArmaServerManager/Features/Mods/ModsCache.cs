@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Features.Mods
 {
-    public class ModsCache : IModsCache
+    public class ModsCache : IModsCache, IWebModsetMapper
     {
         private readonly IModDirectoryFinder _modDirectoryFinder;
         private readonly IFileSystem _fileSystem;

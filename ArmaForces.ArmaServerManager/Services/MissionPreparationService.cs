@@ -1,8 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Missions.Extensions;
+using ArmaForces.ArmaServerManager.Features.Mods;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Services
@@ -10,15 +14,18 @@ namespace ArmaForces.ArmaServerManager.Services
     public class MissionPreparationService : IMissionPreparationService
     {
         private readonly IApiMissionsClient _apiMissionsClient;
+        private readonly IWebModsetMapper _webModsetMapper;
         private readonly IServerStartupService _serverStartupService;
         private readonly IModsUpdateService _modsUpdateService;
 
         public MissionPreparationService(
             IApiMissionsClient apiMissionsClient,
+            IWebModsetMapper webModsetMapper,
             IServerStartupService serverStartupService,
             IModsUpdateService modsUpdateService)
         {
             _apiMissionsClient = apiMissionsClient;
+            _webModsetMapper = webModsetMapper;
             _serverStartupService = serverStartupService;
             _modsUpdateService = modsUpdateService;
         }
@@ -26,25 +33,28 @@ namespace ArmaForces.ArmaServerManager.Services
         /// <inheritdoc />
         public async Task<Result> PrepareForUpcomingMissions(CancellationToken cancellationToken)
         {
-            var modsetsToPrepare = _apiMissionsClient.GetUpcomingMissionsModsets();
-            foreach (var webModset in modsetsToPrepare)
-            {
-                await _modsUpdateService.UpdateModset(webModset.Name, cancellationToken);
-            }
-
-            return Result.Success();
+            return await _apiMissionsClient.GetUpcomingMissionsModsets()
+                .Bind(GetModsListFromModsets)
+                .Tap(x => _modsUpdateService.UpdateMods(x, cancellationToken))
+                .Bind(_ => Result.Success());
         }
 
         /// <inheritdoc />
         public async Task<Result> StartServerForNearestMission(CancellationToken cancellationToken)
         {
-            var upcomingMission = _apiMissionsClient
+            return await _apiMissionsClient
                 .GetUpcomingMissions()
-                .GetNearestMission();
-            
-            if (upcomingMission is null) return Result.Success();
+                .Bind(x => Result.Success(x.GetNearestMission()))
+                .Bind(nearestMission => _serverStartupService.StartServer(nearestMission.Modlist, cancellationToken));
+        }
 
-            return await _serverStartupService.StartServer(upcomingMission.Modlist, cancellationToken);
+        private Result<ISet<IMod>> GetModsListFromModsets(IEnumerable<WebModset> modsets)
+        {
+            return modsets
+                .Select(x => _webModsetMapper.MapWebModsetToCacheModset(x))
+                .Select(x => x.Mods)
+                .SelectMany(x => x)
+                .ToHashSet(new ModEqualityComparer());
         }
     }
 }

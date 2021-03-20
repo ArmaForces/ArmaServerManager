@@ -35,6 +35,10 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             => await DownloadMods(modset.Mods, cancellationToken);
 
         /// <inheritdoc />
+        public async Task UpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken)
+            => await DownloadMods(mods, cancellationToken);
+
+        /// <inheritdoc />
         public async Task UpdateAllMods(CancellationToken cancellationToken)
             => await DownloadMods(_modsCache.Mods, cancellationToken);
 

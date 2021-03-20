@@ -14,9 +14,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
         /// <param name="mod">Mod to check if it exists.</param>
         /// <returns>True if mod directory is found.</returns>
         Task<bool> ModExists(IMod mod);
-
-        IModset MapWebModsetToCacheModset(WebModset webModset);
-
+        
         /// <summary>
         /// All cached mods.
         /// TODO: Change to IReadOnlySet after migration to newer .NET.
