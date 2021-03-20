@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -16,7 +16,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         public async Task<Result<IArmaProcess>> CheckServerIsRestarting(IArmaProcess armaProcess)
         {
-            await Task.Delay(TimeSpan.FromSeconds(5));
+            await Task.Delay(TimeSpan.FromSeconds(1));
             var armaProcesses = await _armaProcessDiscoverer.DiscoverArmaProcesses();
             var newArmaProcess = armaProcesses
                 .SingleOrDefault(x => x.Value.Exists(process => process.Parameters == armaProcess.Parameters))
