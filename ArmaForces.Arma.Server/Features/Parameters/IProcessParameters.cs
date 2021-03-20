@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace ArmaForces.Arma.Server.Features.Parameters
 {
-    public interface IProcessParameters
+    public interface IProcessParameters : IEquatable<IProcessParameters>
     {
         public string ProcessPath { get; }
 

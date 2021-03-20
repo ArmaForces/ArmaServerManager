@@ -85,6 +85,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
                     {
                         _logger.LogDebug("Server restart detected.");
                         _armaProcess = newArmaProcess;
+                        _armaProcess.OnProcessShutdown += OnServerProcessShutdown;
                         await InvokeOnServerRestarted();
                     },
                     onFailure: async _ =>

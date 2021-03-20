@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using ArmaForces.Arma.Server.Constants;
@@ -137,5 +138,17 @@ namespace ArmaForces.Arma.Server.Features.Parameters
         private string GetFpsLimitString() => LimitFPS != 90 ? "-limitFPS=100" : string.Empty;
 
         private string GetLoadMissionToMemoryString() => LoadMissionToMemory ? "-loadMissionToMemory" : string.Empty;
+
+        public bool Equals(IProcessParameters other) => Port == other?.Port && ModsetName == other.ModsetName;
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((ProcessParameters) obj);
+        }
+
+        public override int GetHashCode() => HashCode.Combine(Port, ModsetName);
     }
 }

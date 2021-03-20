@@ -9,9 +9,6 @@ namespace ArmaForces.Arma.Server.Features.Processes
 {
     public class ArmaProcess : IArmaProcess
     {
-        private readonly string _arguments;
-        private readonly string _executablePath;
-
         private readonly ILogger<ArmaProcess> _logger;
 
         private Process _serverProcess;
@@ -21,8 +18,6 @@ namespace ArmaForces.Arma.Server.Features.Processes
             string arguments,
             ILogger<ArmaProcess> logger)
         {
-            _executablePath = executablePath;
-            _arguments = arguments;
             _logger = logger;
         }
 
@@ -32,6 +27,8 @@ namespace ArmaForces.Arma.Server.Features.Processes
             ILogger<ArmaProcess> logger) : this(processParameters, logger)
         {
             _serverProcess = process;
+            _serverProcess.EnableRaisingEvents = true;
+            _serverProcess.Exited += (sender, args) => InvokeOnProcessShutdown();
         }
 
         public ArmaProcess(
@@ -77,9 +74,9 @@ namespace ArmaForces.Arma.Server.Features.Processes
             }
 
             _serverProcess!.EnableRaisingEvents = true;
-            _serverProcess.Exited += (sender, args) => InvokeOnProcessShutdown(this);
+            _serverProcess.Exited += (sender, args) => InvokeOnProcessShutdown();
 
-            _logger.LogInformation("Starting Arma 3 Server");
+            _logger.LogInformation("Starting Arma 3 {processType}", ProcessType);
 
             return Result.Success();
         }
@@ -102,9 +99,9 @@ namespace ArmaForces.Arma.Server.Features.Processes
             return Result.Success();
         }
 
-        private void InvokeOnProcessShutdown(IArmaProcess armaProcess)
+        private void InvokeOnProcessShutdown()
         {
-            _logger.LogDebug("{processType} process shutdown detected. Invoking OnProcessShutdown event.", armaProcess.ProcessType);
+            _logger.LogDebug("{processType} process shutdown detected. Invoking OnProcessShutdown event.", ProcessType);
             OnProcessShutdown?.Invoke(this);
         }
     }
