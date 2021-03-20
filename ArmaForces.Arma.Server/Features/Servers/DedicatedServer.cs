@@ -59,11 +59,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public event Func<IDedicatedServer, Task> OnServerRestarted;
 
-        public void Dispose()
-        {
-            Shutdown();
-            OnServerShutdown?.Invoke(this);
-        }
+        public void Dispose() => Task.Run(Shutdown);
 
         public Result Start()
         {
@@ -81,26 +77,33 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         private async Task OnServerProcessShutdown(IArmaProcess armaProcess)
         {
-            (await _armaProcessManager.CheckServerIsRestarting(armaProcess))
+            await (await _armaProcessManager.CheckServerIsRestarting(armaProcess))
                 .Match(
-                    onSuccess: newArmaProcess =>
+                    onSuccess: async newArmaProcess =>
                     {
                         _logger.LogDebug("Server restart detected.");
                         _armaProcess = newArmaProcess;
+                        await InvokeOnServerRestarted();
                     },
                     onFailure: async _ =>
                     {
                         _logger.LogDebug("Server process shutdown itself.");
                         ShutdownHeadlessClients();
-                        if (OnServerShutdown != null) await OnServerShutdown.Invoke(this);
+                        await InvokeOnServerShutdown();
                     });
         }
 
-        public Result Shutdown()
+        private async Task InvokeOnServerRestarted()
         {
-            return _armaProcess.Shutdown()
+            if (OnServerRestarted != null) await OnServerRestarted.Invoke(this);
+        }
+
+        public async Task<Result> Shutdown()
+        {
+            return await _armaProcess.Shutdown()
                 .Tap(() => _logger.LogTrace("Server shutdown completed."))
-                .Finally(_ => ShutdownHeadlessClients());
+                .Finally(_ => ShutdownHeadlessClients())
+                .Finally(_ => InvokeOnServerShutdown());
         }
 
         public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken) 
@@ -112,6 +115,12 @@ namespace ArmaForces.Arma.Server.Features.Servers
                 .Select(x => x.Shutdown())
                 .Combine()
                 .Tap(() => _logger.LogTrace("Headless clients shutdown completed."));
+        }
+
+        private async Task<Result> InvokeOnServerShutdown()
+        {
+            if (OnServerShutdown != null) await OnServerShutdown.Invoke(this);
+            return Result.Success();
         }
     }
 }

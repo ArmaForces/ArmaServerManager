@@ -21,7 +21,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         Result Start();
 
-        Result Shutdown();
+        Task<Result> Shutdown();
 
         public event Func<IDedicatedServer, Task> OnServerShutdown;
 

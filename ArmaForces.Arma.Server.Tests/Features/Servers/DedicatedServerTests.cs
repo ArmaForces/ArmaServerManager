@@ -58,7 +58,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
         }
 
         [Fact]
-        public void Dispose_DedicatedServerDisposed_OnServerShutdownInvoked()
+        public void Dispose_ServerDisposed_OnServerShutdownInvoked()
         {
             var dedicatedServer = PrepareDedicatedServer();
 
@@ -132,6 +132,19 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
             startServerAction.Should()
                 .Throw<ServerRunningException>()
                 .WithMessage("Cannot start a running server.");
+        }
+
+        [Fact]
+        public async Task Shutdown_ServerShutdown_OnServerShutdownInvoked()
+        {
+            var dedicatedServer = PrepareDedicatedServer();
+
+            var funcMock = new Mock<Func<IDedicatedServer, Task>>();
+            dedicatedServer.OnServerShutdown += funcMock.Object;
+
+            await dedicatedServer.Shutdown();
+
+            funcMock.Verify(x => x.Invoke(It.IsAny<IDedicatedServer>()), Times.Once);
         }
 
         private DedicatedServer PrepareDedicatedServer()

@@ -38,7 +38,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             return Result.Success();
         }
 
-        public Result Shutdown()
+        public async Task<Result> Shutdown()
         {
             if (IsServerStopped) return Result.Failure("Server not running.");
 

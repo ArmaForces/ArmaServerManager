@@ -28,9 +28,4 @@ namespace ArmaForces.Arma.Server.Features.Processes
                 : Result.Success(newArmaProcess);
         }
     }
-
-    public interface IArmaProcessManager
-    {
-        Task<Result<IArmaProcess>> CheckServerIsRestarting(IArmaProcess armaProcess);
-    }
 }
