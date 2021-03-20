@@ -32,10 +32,10 @@ namespace ArmaForces.Arma.Server.Features.Processes
                 .Where(x => x.ProcessName.Contains(ArmaProcessName))
                 .ToList();
 
-            if (!foundProcesses.Any()) return null;
-
             var armaProcesses = new Dictionary<int, List<IArmaProcess>>();
 
+            if (!foundProcesses.Any()) return armaProcesses;
+            
             _logger.LogInformation($"Found {{count}} running {ArmaProcessName} processes.", foundProcesses.Count);
             foreach (var armaServerProcess in foundProcesses)
             {
