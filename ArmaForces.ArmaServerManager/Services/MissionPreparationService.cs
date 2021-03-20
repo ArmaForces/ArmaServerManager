@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Missions;
+using ArmaForces.ArmaServerManager.Features.Missions.Extensions;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Services
@@ -37,7 +38,9 @@ namespace ArmaForces.ArmaServerManager.Services
         /// <inheritdoc />
         public async Task<Result> StartServerForNearestMission(CancellationToken cancellationToken)
         {
-            var upcomingMission = _apiMissionsClient.GetUpcomingMissions().FirstOrDefault();
+            var upcomingMission = _apiMissionsClient
+                .GetUpcomingMissions()
+                .GetNearestMission();
             
             if (upcomingMission is null) return Result.Success();
 
