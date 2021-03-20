@@ -98,11 +98,15 @@ namespace ArmaForces.ArmaServerManager
             // Keys
             .AddSingleton<IKeysProvider, KeysProvider>()
 
+            // Process
+            .AddSingleton<IArmaProcessDiscoverer, ArmaProcessDiscoverer>()
+            .AddSingleton<IArmaProcessFactory, ArmaProcessFactory>()
+            .AddSingleton<IArmaProcessManager, ArmaProcessManager>()
+
             // Server
             .AddSingleton<IServerProvider, ServerProvider>()
             .AddSingleton<IServerConfigurationProvider, ServerConfigurationProvider>()
             .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
-            .AddSingleton<IArmaProcessFactory, ArmaProcessFactory>()
             .AddSingleton<IDedicatedServerFactory, DedicatedServerFactory>()
             .AddSingleton<IServerBuilder, ServerBuilder>()
             .AddSingleton<IServerBuilderFactory, ServerBuilderFactory>()
