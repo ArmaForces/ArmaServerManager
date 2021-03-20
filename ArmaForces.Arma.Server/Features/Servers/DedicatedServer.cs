@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -51,7 +51,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public IModset Modset { get; }
 
-        public int HeadlessClientsConnected => _headlessProcesses.Count;
+        public int HeadlessClientsConnected => _headlessProcesses.Count(x => x.IsStartingOrStarted);
 
         public bool IsServerStopped => _armaProcess?.IsStopped ?? true;
         
