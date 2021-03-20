@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Exceptions;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
@@ -66,6 +67,8 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public Result Start()
         {
+            if (!IsServerStopped) throw new ServerRunningException();
+
             _logger.LogTrace("Starting server on port {port} with {modsetName} modset.", Port, Modset.Name);
 
             return _modsetConfig.CopyConfigFiles()

@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Exceptions;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
-using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.Arma.Server.Providers.Keys;
+using ArmaForces.Arma.Server.Tests.Helpers;
 using AutoFixture;
+using CSharpFunctionalExtensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
@@ -23,28 +25,20 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
     {
         private const int ServerPort = 2302;
 
-        private readonly Mock<ISettings> _settingsMock = new Mock<ISettings>();
-        private readonly Mock<IModset> _modsetMock = new Mock<IModset>();
         private readonly Mock<IModsetConfig> _modsetConfigMock = new Mock<IModsetConfig>();
         private readonly Mock<IKeysProvider> _keysProviderMock = new Mock<IKeysProvider>();
         private readonly Mock<IArmaProcessManager> _armaProcessManagerMock = new Mock<IArmaProcessManager>();
-
-        private readonly Mock<IServerConfigurationProvider> _serverConfigurationProvider =
-            new Mock<IServerConfigurationProvider>();
+        private readonly IModset _modset;
 
         private readonly Fixture _fixture = new Fixture();
 
         public DedicatedServerTests()
         {
-            var serverConfigDir = Path.Join(Directory.GetCurrentDirectory(), _fixture.Create<string>());
-            _settingsMock.Setup(x => x.ServerDirectory).Returns(Directory.GetCurrentDirectory());
-            _settingsMock.Setup(x => x.ServerConfigDirectory).Returns(serverConfigDir);
-            _settingsMock.Setup(x => x.ServerExecutable).Returns(Directory.GetCurrentDirectory());
+            _modset = ModsetHelpers.CreateTestModset(_fixture);
 
-            var modsetName = _fixture.Create<string>();
-            _modsetMock.Setup(x => x.Name).Returns(modsetName);
-
-            _serverConfigurationProvider.Setup(x => x.GetModsetConfig(modsetName)).Returns(_modsetConfigMock.Object);
+            _modsetConfigMock
+                .Setup(x => x.CopyConfigFiles())
+                .Returns(Result.Success);
         }
 
         [Fact]
@@ -76,6 +70,70 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
             funcMock.Verify(x => x.Invoke(It.IsAny<IDedicatedServer>()), Times.Once);
         }
 
+        [Fact]
+        public void Start_ServerIsStopped_ServerStarted()
+        {
+            var armaProcessMock = new Mock<IArmaProcess>();
+            armaProcessMock
+                .Setup(x => x.Start())
+                .Returns(Result.Success);
+            armaProcessMock
+                .Setup(x => x.IsStopped)
+                .Returns(true);
+
+            var headlessClientsMocks = new List<Mock<IArmaProcess>>
+            {
+                new Mock<IArmaProcess>(),
+                new Mock<IArmaProcess>()
+            };
+            foreach (var headlessClientMock in headlessClientsMocks)
+            {
+                headlessClientMock
+                    .Setup(x => x.Start())
+                    .Returns(Result.Success);
+            }
+
+            var dedicatedServer = PrepareDedicatedServer(
+                armaProcessMock.Object,
+                headlessClientsMocks.Select(x => x.Object));
+
+            var result = dedicatedServer.Start();
+
+            using (new AssertionScope())
+            {
+                result.IsSuccess.Should().BeTrue();
+                _modsetConfigMock.Verify(x => x.CopyConfigFiles(), Times.Once);
+                _keysProviderMock.Verify(x => x.PrepareKeysForModset(_modset), Times.Once);
+                armaProcessMock.Verify(x => x.Start(), Times.Once);
+                foreach (var headlessClientMock in headlessClientsMocks)
+                {
+                    headlessClientMock.Verify(x => x.Start(), Times.Once);
+                }
+            }
+        }
+
+        [Fact]
+        public void Start_ServerIsRunning_ThrowsServerRunningException()
+        {
+            var armaProcessMock = new Mock<IArmaProcess>();
+            armaProcessMock
+                .Setup(x => x.Start())
+                .Returns(Result.Success);
+            armaProcessMock
+                .Setup(x => x.IsStopped)
+                .Returns(false);
+            
+            var dedicatedServer = PrepareDedicatedServer(
+                armaProcessMock.Object,
+                new List<IArmaProcess>());
+
+            Action startServerAction = () => dedicatedServer.Start();
+
+            startServerAction.Should()
+                .Throw<ServerRunningException>()
+                .WithMessage("Cannot start a running server.");
+        }
+
         private DedicatedServer PrepareDedicatedServer()
         {
             var serverProcessMock = new Mock<IArmaProcess>();
@@ -87,7 +145,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
         private DedicatedServer PrepareDedicatedServer(IArmaProcess armaProcess, IEnumerable<IArmaProcess> headlessClients = null)
             => new DedicatedServer(
                 ServerPort,
-                _modsetMock.Object,
+                _modset,
                 _modsetConfigMock.Object,
                 _keysProviderMock.Object,
                 _armaProcessManagerMock.Object,
