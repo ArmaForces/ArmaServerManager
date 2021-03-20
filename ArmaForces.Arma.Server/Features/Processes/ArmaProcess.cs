@@ -76,7 +76,8 @@ namespace ArmaForces.Arma.Server.Features.Processes
                 return Result.Failure("Arma 3 process could not be started.");
             }
 
-            _serverProcess!.Exited += async (sender, args) => await OnShutdown();
+            _serverProcess!.EnableRaisingEvents = true;
+            _serverProcess.Exited += (sender, args) => InvokeOnProcessShutdown(this);
 
             _logger.LogInformation("Starting Arma 3 Server");
 
@@ -101,19 +102,10 @@ namespace ArmaForces.Arma.Server.Features.Processes
             return Result.Success();
         }
 
-        private async Task OnShutdown()
+        private void InvokeOnProcessShutdown(IArmaProcess armaProcess)
         {
-            var handler = OnProcessShutdown;
-
-            if (handler == null)
-            {
-                return;
-            }
-
-            var handlerTasks = handler.GetInvocationList()
-                .Select(@delegate => ((Func<IArmaProcess, Task>) @delegate)(this));
-
-            await Task.WhenAll(handlerTasks);
+            _logger.LogDebug("{processType} process shutdown detected. Invoking OnProcessShutdown event.", armaProcess.ProcessType);
+            OnProcessShutdown?.Invoke(this);
         }
     }
 }
