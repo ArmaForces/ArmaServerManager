@@ -74,6 +74,20 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                 var server = processes.SingleOrDefault(x => x.ProcessType == ArmaProcessType.Server);
                 var headlessClients = processes.Where(x => x.ProcessType == ArmaProcessType.HeadlessClient);
 
+                if (server is null)
+                {
+                    _logger.LogDebug("Server not found on port {port}. Shutting down headless clients for server on this port.", port);
+
+                    foreach (var headlessClient in headlessClients)
+                    {
+                        headlessClient.Shutdown();
+                    }
+
+                    _logger.LogDebug("Headless clients for server on port {port} were shut down.", port);
+
+                    continue;
+                }
+
                 var dedicatedServer = CreateServer(
                     port,
                     _modsetProvider.GetModsetByName(server?.Parameters.ModsetName).Value,
