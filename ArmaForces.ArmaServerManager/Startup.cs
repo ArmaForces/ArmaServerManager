@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.Arma.Server.Providers.Keys;
@@ -53,7 +54,8 @@ namespace ArmaForces.ArmaServerManager
             services.AddControllers();
 
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc()
+                .AddJsonOptions(opt => opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
             // Add Hangfire services.
             services.AddHangfire(configuration => configuration
