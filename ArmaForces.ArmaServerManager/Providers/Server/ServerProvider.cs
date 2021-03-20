@@ -50,7 +50,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                     modset,
                     1));
 
-            return server.Modset == modset
+            return server.Modset.Equals(modset)
                 ? server
                 // TODO: Think of better exception type here
                 : throw new ServerNotStoppedException(
