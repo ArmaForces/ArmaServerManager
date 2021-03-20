@@ -11,8 +11,7 @@ namespace ArmaForces.ArmaServerManager.Extensions
             {
                 Directory = mod.Directory,
                 Id = (uint) mod.WorkshopId,
-                ItemType = ItemType.Mod,
-                ManifestId = mod.ManifestId
+                ItemType = ItemType.Mod
             };
 
         /// <summary>
@@ -28,7 +27,6 @@ namespace ArmaForces.ArmaServerManager.Extensions
                 Directory = newerMod.Directory ?? olderMod.Directory,
                 CreatedAt = olderMod.CreatedAt,
                 LastUpdatedAt = newerMod.LastUpdatedAt ?? olderMod.LastUpdatedAt,
-                ManifestId = newerMod.ManifestId ?? olderMod.ManifestId,
                 Name = newerMod.Name,
                 Source = newerMod.Source,
                 Type = newerMod.Type,

@@ -7,7 +7,6 @@ namespace ArmaForces.Arma.Server.Features.Mods {
         string Name { get; }
         DateTime CreatedAt { get; }
         DateTime? LastUpdatedAt { get; }
-        ulong? ManifestId { get; set; }
         ModSource Source { get; }
         ModType Type { get; }
         long WorkshopId { get; }

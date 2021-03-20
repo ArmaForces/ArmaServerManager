@@ -53,7 +53,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
             return server.Modset.Equals(modset)
                 ? server
                 // TODO: Think of better exception type here
-                : throw new ServerNotStoppedException(
+                : throw new ServerMismatchException(
                     $"Expected to get server with {modset.Name} modset with {modset.Mods.Count} mods on port {port} but found {server.Modset.Name} with {server.Modset.Mods.Count} mods.");
         }
 

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Abstractions;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Constants;
@@ -56,22 +57,34 @@ namespace ArmaForces.Arma.Server.Providers.Keys
             {
                 var directory = mod.Directory;
 
-                var modBikeys = _fileSystem.Directory.GetFiles(
-                    directory,
-                    $"*{KeysConstants.KeyExtension}",
-                    SearchOption.AllDirectories);
-
-                _logger.LogTrace("Found {count} keys for {mod}", modBikeys.Length, mod.ToShortString());
-
-                foreach (var modBikey in modBikeys)
+                try
                 {
-                    var keyName = _fileSystem.Path.GetFileName(modBikey);
-                    var destinationKeyPath = _fileSystem.Path.Join(_keysDirectory, keyName);
-                    _logger.LogTrace("Copying {keyName}.", keyName);
-                    if (!_fileSystem.File.Exists(destinationKeyPath))
+                    var modBikeys = _fileSystem.Directory.GetFiles(
+                        directory,
+                        $"*{KeysConstants.KeyExtension}",
+                        SearchOption.AllDirectories);
+                
+                    _logger.LogTrace("Found {count} keys for {mod}", modBikeys.Length, mod.ToShortString());
+
+                    foreach (var modBikey in modBikeys)
                     {
-                        _fileSystem.File.Copy(modBikey, destinationKeyPath);
+                        var keyName = _fileSystem.Path.GetFileName(modBikey);
+                        var destinationKeyPath = _fileSystem.Path.Join(_keysDirectory, keyName);
+                        _logger.LogTrace("Copying {keyName}.", keyName);
+                        if (!_fileSystem.File.Exists(destinationKeyPath))
+                        {
+                            _fileSystem.File.Copy(modBikey, destinationKeyPath);
+                        }
                     }
+                }
+                catch (ArgumentNullException exception)
+                {
+                    _logger.LogError(
+                        exception,
+                        "Error copying keys for {mod}. Directory: '{directory}'.",
+                        mod.ToShortString(),
+                        directory);
+                    throw;
                 }
             }
 
