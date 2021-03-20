@@ -12,12 +12,13 @@ namespace ArmaForces.Arma.Server.Features.Parameters
 {
     public class ParametersExtractor : IParametersExtractor
     {
-        public async Task<Result<ServerParameters>> ExtractParameters(Process process)
+        public async Task<Result<ProcessParameters>> ExtractParameters(Process process)
             => await ExtractParameters(process.GetCommandLine());
 
-        public async Task<Result<ServerParameters>> ExtractParameters(string commandLine)
+        public async Task<Result<ProcessParameters>> ExtractParameters(string commandLine)
         {
-            var serverParameters = new ServerParameters(
+            // TODO: Read mods too
+            var serverParameters = new ProcessParameters(
                 GetProcessPath(commandLine),
                 GetIsClient(commandLine),
                 await GetServerPort(commandLine),
@@ -29,7 +30,8 @@ namespace ArmaForces.Arma.Server.Features.Parameters
                 GetIsFilePatchingEnabled(commandLine),
                 GetIsNetLogEnabled(commandLine),
                 await GetFpsLimit(commandLine),
-                GetLoadMissionToMemory(commandLine));
+                GetLoadMissionToMemory(commandLine),
+                await GetConnectIpAddress(commandLine));
 
             return Result.Success(serverParameters);
         }
@@ -97,6 +99,11 @@ namespace ArmaForces.Arma.Server.Features.Parameters
 
         private static async Task<string> GetModsetName(string commandLine)
             => await ReadParameterStringValue("modsetName", commandLine);
+
+        private static async Task<string> GetConnectIpAddress(string commandLine)
+        {
+            return await ReadParameterStringValue("connect", commandLine);
+        }
 
         private static bool IsFlagPresent(string flag, string commandLine)
         {

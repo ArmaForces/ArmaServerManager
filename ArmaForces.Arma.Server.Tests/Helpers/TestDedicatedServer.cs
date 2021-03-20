@@ -11,6 +11,15 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
 {
     public class TestDedicatedServer : IDedicatedServer
     {
+        public TestDedicatedServer()
+        {
+        }
+
+        public TestDedicatedServer(IModset modset)
+        {
+            Modset = modset;
+        }
+
         public void Dispose()
         {
             Shutdown();

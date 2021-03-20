@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using ArmaForces.Arma.Server.Config;
-using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Providers.Parameters;
 using ArmaForces.Arma.Server.Tests.Helpers;
 using AutoFixture;
@@ -38,9 +37,9 @@ namespace ArmaForces.Arma.Server.Tests.Providers.Parameters
                 modset,
                 modsetConfigMock.Object);
 
-            var startupParams = parametersProvider.GetStartupParams();
+            var startupParams = parametersProvider.GetStartupParams(string.Empty);
 
-            startupParams.Should()
+            startupParams.GetProcessStartInfo().Arguments.Should()
                 .Contain($"port={port}")
                 .And.Subject.Should()
                 .Contain($"-config={serverCfgPath}")
@@ -52,48 +51,6 @@ namespace ArmaForces.Arma.Server.Tests.Providers.Parameters
                 .Contain($"-mod={string.Join(";", requiredModsDirectories)}")
                 .And.Subject.Should()
                 .Contain($"-serverMod={string.Join(";", serverModsDirectories)}");
-        }
-
-        [Fact]
-        public void GetModsStartupParam_EmptyModset_ReturnsStringEmpty()
-        {
-            var modset = ModsetHelpers.CreateEmptyModset(_fixture);
-
-            var modsParams = ServerParametersProvider.GetModsStartupParam(modset);
-
-            modsParams.Should().BeNullOrWhiteSpace();
-        }
-
-        [Fact]
-        public void GetModsStartupParam_ModsetWithRequiredMods_ReturnsStringWithModParam()
-        {
-            var modset = ModsetHelpers.CreateTestModsetWithModsOfOneType(_fixture, ModType.Required);
-
-            var requiredModsDirectories = modset.RequiredMods
-                .Select(x => x.Directory);
-
-            var modsParams = ServerParametersProvider.GetModsStartupParam(modset);
-
-            modsParams.Should()
-                .Contain($"-mod={string.Join(";", requiredModsDirectories)}")
-                .And.Subject.Should()
-                .NotContain("-serverMod=");
-        }
-
-        [Fact]
-        public void GetModsStartupParam_ModsetWithServerMods_ReturnsStringWithServerModParam()
-        {
-            var modset = ModsetHelpers.CreateTestModsetWithModsOfOneType(_fixture, ModType.ServerSide);
-
-            var serverModsDirectories = modset.ServerSideMods
-                .Select(x => x.Directory);
-
-            var modsParams = ServerParametersProvider.GetModsStartupParam(modset);
-
-            modsParams.Should()
-                .Contain($"-serverMod={string.Join(";", serverModsDirectories)}")
-                .And.Subject.Should()
-                .NotContain("-mod=");
         }
     }
 }

@@ -7,7 +7,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 {
     public interface IArmaProcess
     {
-        ServerParameters Parameters { get; }
+        ProcessParameters Parameters { get; }
 
         ArmaProcessType ProcessType { get; }
 

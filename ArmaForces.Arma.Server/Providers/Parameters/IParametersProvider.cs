@@ -1,7 +1,9 @@
-﻿namespace ArmaForces.Arma.Server.Providers.Parameters
+﻿using ArmaForces.Arma.Server.Features.Parameters;
+
+namespace ArmaForces.Arma.Server.Providers.Parameters
 {
     public interface IParametersProvider
     {
-        string GetStartupParams();
+        ProcessParameters GetStartupParams(string exePath);
     }
 }

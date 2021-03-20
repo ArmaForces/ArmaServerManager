@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Parameters;
 using CSharpFunctionalExtensions;
@@ -29,21 +28,21 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         public ArmaProcess(
             Process process,
-            ServerParameters serverParameters,
-            ILogger<ArmaProcess> logger) : this(serverParameters, logger)
+            ProcessParameters processParameters,
+            ILogger<ArmaProcess> logger) : this(processParameters, logger)
         {
             _serverProcess = process;
         }
 
         public ArmaProcess(
-            ServerParameters serverParameters,
+            ProcessParameters processParameters,
             ILogger<ArmaProcess> logger)
         {
-            Parameters = serverParameters;
+            Parameters = processParameters;
             _logger = logger;
         }
 
-        public ServerParameters Parameters { get; }
+        public ProcessParameters Parameters { get; }
 
         public ArmaProcessType ProcessType => Parameters.Client
             ? ArmaProcessType.HeadlessClient
@@ -62,13 +61,14 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
             try
             {
-                // TODO: Use only ServerParameters to avoid issues
-                //_armaProcess = Process.Start(Parameters.GetProcessStartInfo());
+                var processStartInfo = Parameters.GetProcessStartInfo();
+                
                 _logger.LogTrace(
                     "Starting {executablePath} with {arguments}.",
-                    _executablePath,
-                    _arguments);
-                _serverProcess = Process.Start(_executablePath, _arguments);
+                    processStartInfo.FileName,
+                    processStartInfo.Arguments);
+
+                _serverProcess = Process.Start(processStartInfo);
             }
             catch (Exception exception)
             {

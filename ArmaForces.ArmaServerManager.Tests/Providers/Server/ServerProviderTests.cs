@@ -29,7 +29,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Providers.Server
             var dedicatedServerFactoryMock = new Mock<IDedicatedServerFactory>();
             dedicatedServerFactoryMock
                 .Setup(x => x.CreateDedicatedServer(serverPort, _modset, 1))
-                .Returns(() => new TestDedicatedServer());
+                .Returns(() => new TestDedicatedServer(_modset));
 
             var serverProvider = new ServerProvider(
                 modsetProviderMock.Object,
@@ -54,7 +54,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Providers.Server
             var dedicatedServerFactoryMock = new Mock<IDedicatedServerFactory>();
             dedicatedServerFactoryMock
                 .Setup(x => x.CreateDedicatedServer(serverPort, _modset, 1))
-                .Returns(() => new TestDedicatedServer());
+                .Returns(() => new TestDedicatedServer(_modset));
 
             var serverProvider = new ServerProvider(
                 modsetProviderMock.Object,

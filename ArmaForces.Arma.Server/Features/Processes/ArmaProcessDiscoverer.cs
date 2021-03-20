@@ -63,7 +63,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         private Result<IArmaProcess> CreateArmaProcess(
             Process armaServerProcess,
-            ServerParameters parameters)
+            ProcessParameters parameters)
         {
             return Result.Success(_armaProcessFactory.CreateServerProcess(armaServerProcess, parameters));
         }

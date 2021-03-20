@@ -21,9 +21,9 @@ namespace ArmaForces.Arma.Server.Features.Processes
             _serverProcessLogger = serverProcessLogger;
         }
 
-        public IArmaProcess CreateServerProcess(Process process, ServerParameters serverParameters = null)
+        public IArmaProcess CreateServerProcess(Process process, ProcessParameters processParameters = null)
         {
-            return new ArmaProcess(process, serverParameters, _serverProcessLogger);
+            return new ArmaProcess(process, processParameters, _serverProcessLogger);
         }
 
         public IArmaProcess CreateServerProcess(
@@ -35,10 +35,9 @@ namespace ArmaForces.Arma.Server.Features.Processes
                 port,
                 modset,
                 modsetConfig);
-
+            
             return new ArmaProcess(
-                _settings.ServerExecutable,
-                parametersProvider.GetStartupParams(),
+                parametersProvider.GetStartupParams(_settings.ServerExecutable),
                 _serverProcessLogger);
         }
 
@@ -56,8 +55,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
             for (var i = 0; i < numberOfHeadlessClients; i++)
             {
                 yield return new ArmaProcess(
-                    _settings.ServerExecutable,
-                    parametersProvider.GetStartupParams(),
+                    parametersProvider.GetStartupParams(_settings.ServerExecutable),
                     _serverProcessLogger);
             }
         }

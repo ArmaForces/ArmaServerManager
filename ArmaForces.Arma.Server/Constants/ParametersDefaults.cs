@@ -7,6 +7,8 @@ namespace ArmaForces.Arma.Server.Constants
     /// </summary>
     public class ParametersDefaults
     {
+        public const string ConnectIpAddress = "127.0.0.1";
+
         public const int Port = 2302;
         
         public const bool FilePatching = false;

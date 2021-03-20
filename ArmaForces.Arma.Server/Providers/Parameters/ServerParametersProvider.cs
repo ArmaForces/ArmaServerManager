@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using ArmaForces.Arma.Server.Config;
+﻿using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Modsets;
+using ArmaForces.Arma.Server.Features.Parameters;
 
 namespace ArmaForces.Arma.Server.Providers.Parameters
 {
@@ -21,54 +21,25 @@ namespace ArmaForces.Arma.Server.Providers.Parameters
             _modsetConfig = modsetConfig;
         }
 
-        public string GetStartupParams()
-            => string.Join(
-                ' ',
-                $"-port={_port}",
-                $"\"-config={_modsetConfig.ServerCfg}\"",
-                $"\"-cfg={_modsetConfig.BasicCfg}\"",
-                $"-profiles=\"{_modsetConfig.ServerProfileDirectory}\"",
-                GetSpecialParams(),
-                $"-modsetName={_modset.Name}",
-                GetModsStartupParam(_modset));
-
-        internal static string GetModsStartupParam(IModset modset) 
-            => string.Join(
-                ' ',
-                GetServerModsStartupParam(modset),
-                GetRequiredModsStartupParam(modset));
-
-        private static string GetServerModsStartupParam(IModset modset)
+        public ProcessParameters GetStartupParams(string exePath)
         {
-            var serverMods = modset.ServerSideMods
-                .GetDirectories();
-
-            return serverMods.Any()
-                ? "\"-serverMod=" + string.Join(";", serverMods) + "\""
-                : null;
+            return new ProcessParameters(
+                exePath,
+                client: false,
+                _port,
+                _modsetConfig.ServerCfg,
+                _modsetConfig.BasicCfg,
+                _modsetConfig.ServerProfileDirectory,
+                "server",
+                _modset.Name,
+                filePatching: true,
+                netLog: true,
+                fpsLimit: 100,
+                loadMissionToMemory: true,
+                serverMods: _modset.ServerSideMods
+                    .GetDirectories(),
+                mods: _modset.RequiredMods
+                    .GetDirectories());
         }
-
-        private static string GetRequiredModsStartupParam(IModset modset)
-        {
-            var mods = modset.RequiredMods
-                .GetDirectories();
-
-            return mods.Any()
-                ? "\"-mod=" + string.Join(";", mods) + "\""
-                : null;
-        }
-
-        /// <summary>
-        ///     TODO: Way to specify these
-        /// </summary>
-        /// <returns></returns>
-        private static string GetSpecialParams()
-            => string.Join(
-                ' ',
-                "-name=server",
-                "-filePatching",
-                "-netlog",
-                "-limitFPS=100",
-                "-loadMissionToMemory");
     }
 }
