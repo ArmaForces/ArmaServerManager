@@ -66,6 +66,8 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                     server,
                     headlessClients);
 
+                dedicatedServer.OnServerShutdown += OnServerDisposed;
+
                 _servers.GetOrAdd(port, dedicatedServer);
             }
         }
