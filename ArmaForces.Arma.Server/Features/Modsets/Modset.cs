@@ -27,5 +27,13 @@ namespace ArmaForces.Arma.Server.Features.Modsets {
             => Mods
                 .Where(x => x.Type > ModType.ServerSide)
                 .ToHashSet();
+
+        public bool Equals(IModset modset)
+        {
+            if (modset is null) return false;
+            if (ReferenceEquals(this, modset)) return true;
+            return Name == modset.Name
+                   && Mods == modset.Mods;
+        }
     }
 }

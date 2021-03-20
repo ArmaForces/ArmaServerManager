@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Exceptions;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
@@ -41,8 +42,21 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
         }
 
         public IDedicatedServer GetServer(int port, IModset modset)
-            => _servers.GetOrAdd(port, serverPort => CreateServer(serverPort, modset, 1));
-        
+        {
+            var server = _servers.GetOrAdd(
+                port,
+                serverPort => CreateServer(
+                    serverPort,
+                    modset,
+                    1));
+
+            return server.Modset == modset
+                ? server
+                // TODO: Think of better exception type here
+                : throw new ServerNotStoppedException(
+                    $"Expected to get server with {modset.Name} modset with {modset.Mods.Count} mods on port {port} but found {server.Modset.Name} with {server.Modset.Mods.Count} mods.");
+        }
+
         private async Task OnServerDisposed(IDedicatedServer dedicatedServer)
         {
             _logger.LogInformation("Server disposed, removing.");
