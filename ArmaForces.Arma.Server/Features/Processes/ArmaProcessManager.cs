@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -20,7 +20,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
             var armaProcesses = await _armaProcessDiscoverer.DiscoverArmaProcesses();
             var newArmaProcess = armaProcesses
                 .SingleOrDefault(x => x.Value.Exists(process => process.Parameters == armaProcess.Parameters))
-                .Value
+                .Value?
                 .SingleOrDefault(process => process.ProcessType == ArmaProcessType.Server);
 
             return newArmaProcess is null
