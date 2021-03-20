@@ -8,6 +8,7 @@ using ArmaForces.Arma.Server.Exceptions;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
+using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using ArmaForces.Arma.Server.Providers.Keys;
 using ArmaForces.Arma.Server.Tests.Helpers;
 using AutoFixture;
@@ -51,8 +52,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
 
             using (new AssertionScope())
             {
-                serverStatus.IsServerRunning.Should().BeFalse();
-                serverStatus.IsServerStarting.Should().BeFalse();
+                serverStatus.Status.Should().Be(ServerStatusEnum.Stopped);
                 dedicatedServer.IsServerStopped.Should().BeTrue();
             }
         }
