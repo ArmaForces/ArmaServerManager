@@ -77,6 +77,8 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         private async Task OnServerProcessShutdown(IArmaProcess armaProcess)
         {
+            _logger.LogTrace("Detected server process shutdown on port {port}.", Port);
+
             await (await _armaProcessManager.CheckServerIsRestarting(armaProcess))
                 .Match(
                     onSuccess: async newArmaProcess =>
