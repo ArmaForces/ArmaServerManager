@@ -22,9 +22,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions {
             restClientMock.SetupResponse(HttpStatusCode.OK, expectedMissions);
             var apiClient = new ApiMissionsClient(restClientMock.Object);
 
-            var upcomingMissions = apiClient.GetUpcomingMissions();
+            var result = apiClient.GetUpcomingMissions();
 
-            upcomingMissions.Should().BeEquivalentTo(expectedMissions);
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().BeEquivalentTo(expectedMissions);
         }
 
         [Fact]
@@ -39,9 +40,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions {
             restClientMock.SetupResponse(HttpStatusCode.OK, missions);
             var apiClient = new ApiMissionsClient(restClientMock.Object);
 
-            var upcomingMissionsModsets = apiClient.GetUpcomingMissionsModsets();
+            var result = apiClient.GetUpcomingMissionsModsets();
 
-            upcomingMissionsModsets.Should().BeEquivalentTo(expectedModsets);
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().BeEquivalentTo(expectedModsets);
         }
 
         private List<WebMission> PrepareMissions(int missionsCount, IReadOnlyList<WebModset> modsets) {
