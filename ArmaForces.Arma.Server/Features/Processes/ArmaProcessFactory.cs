@@ -6,7 +6,7 @@ using ArmaForces.Arma.Server.Features.Parameters;
 using ArmaForces.Arma.Server.Providers.Parameters;
 using Microsoft.Extensions.Logging;
 
-namespace ArmaForces.Arma.Server.Features.Server
+namespace ArmaForces.Arma.Server.Features.Processes
 {
     public class ArmaProcessFactory : IArmaProcessFactory
     {

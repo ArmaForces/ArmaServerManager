@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ArmaForces.Arma.Server.Features.Server.DTOs
+namespace ArmaForces.Arma.Server.Features.Servers.DTOs
 {
     public class ServerStatus
     {

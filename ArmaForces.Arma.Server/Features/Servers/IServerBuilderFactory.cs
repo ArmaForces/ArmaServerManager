@@ -1,4 +1,4 @@
-﻿namespace ArmaForces.Arma.Server.Features.Server
+﻿namespace ArmaForces.Arma.Server.Features.Servers
 {
     public interface IServerBuilderFactory
     {

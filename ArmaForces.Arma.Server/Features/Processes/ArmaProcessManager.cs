@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.Arma.Server.Features.Server
+namespace ArmaForces.Arma.Server.Features.Processes
 {
     public class ArmaProcessManager : IArmaProcessManager
     {

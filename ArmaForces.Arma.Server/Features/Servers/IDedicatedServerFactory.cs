@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using ArmaForces.Arma.Server.Features.Modsets;
+using ArmaForces.Arma.Server.Features.Processes;
 
-namespace ArmaForces.Arma.Server.Features.Server
+namespace ArmaForces.Arma.Server.Features.Servers
 {
     public interface IDedicatedServerFactory
     {

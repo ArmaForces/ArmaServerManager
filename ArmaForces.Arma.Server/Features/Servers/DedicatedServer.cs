@@ -6,14 +6,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
-using ArmaForces.Arma.Server.Features.Server.DTOs;
+using ArmaForces.Arma.Server.Features.Processes;
+using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using ArmaForces.Arma.Server.Providers.Keys;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
 [assembly: InternalsVisibleTo("ArmaForces.Arma.Server.Tests")]
 
-namespace ArmaForces.Arma.Server.Features.Server
+namespace ArmaForces.Arma.Server.Features.Servers
 {
     public class DedicatedServer : IDedicatedServer
     {

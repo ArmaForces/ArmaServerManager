@@ -1,13 +1,13 @@
-﻿using ArmaForces.Arma.Server.Features.Server;
+﻿using ArmaForces.Arma.Server.Features.Processes;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace ArmaForces.Arma.Server.Tests.Features.Server
+namespace ArmaForces.Arma.Server.Tests.Features.Processes
 {
-    public class ServerProcessTests
+    public class ArmaProcessTests
     {
         [Fact]
         public void IsStopped_ServerNotStarted_ReturnsTrue()

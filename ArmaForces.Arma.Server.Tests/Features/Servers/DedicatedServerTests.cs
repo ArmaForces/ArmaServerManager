@@ -5,7 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
-using ArmaForces.Arma.Server.Features.Server;
+using ArmaForces.Arma.Server.Features.Processes;
+using ArmaForces.Arma.Server.Features.Servers;
 using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.Arma.Server.Providers.Keys;
 using AutoFixture;
@@ -16,7 +17,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
-namespace ArmaForces.Arma.Server.Tests.Features.Server
+namespace ArmaForces.Arma.Server.Tests.Features.Servers
 {
     public class DedicatedServerTests
     {
@@ -63,13 +64,16 @@ namespace ArmaForces.Arma.Server.Tests.Features.Server
         }
 
         [Fact]
-        public void Dispose_DedicatedServerDisposed_DisposedEventInvoked()
+        public void Dispose_DedicatedServerDisposed_OnServerShutdownInvoked()
         {
             var dedicatedServer = PrepareDedicatedServer();
 
-            using var monitoredServer = dedicatedServer.Monitor();
+            var funcMock = new Mock<Func<IDedicatedServer, Task>>();
+            dedicatedServer.OnServerShutdown += funcMock.Object;
+
             dedicatedServer.Dispose();
-            monitoredServer.Should().Raise("Disposed");
+
+            funcMock.Verify(x => x.Invoke(It.IsAny<IDedicatedServer>()), Times.Once);
         }
 
         private DedicatedServer PrepareDedicatedServer()

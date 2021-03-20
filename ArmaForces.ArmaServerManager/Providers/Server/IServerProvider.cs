@@ -1,5 +1,5 @@
 ﻿using ArmaForces.Arma.Server.Features.Modsets;
-using ArmaForces.Arma.Server.Features.Server;
+using ArmaForces.Arma.Server.Features.Servers;
 
 namespace ArmaForces.ArmaServerManager.Providers.Server
 {

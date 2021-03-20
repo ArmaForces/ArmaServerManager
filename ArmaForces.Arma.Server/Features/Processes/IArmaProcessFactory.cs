@@ -4,7 +4,7 @@ using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Parameters;
 
-namespace ArmaForces.Arma.Server.Features.Server
+namespace ArmaForces.Arma.Server.Features.Processes
 {
     public interface IArmaProcessFactory
     {
