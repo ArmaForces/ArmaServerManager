@@ -33,7 +33,7 @@ namespace ArmaForces.Arma.Server.Features.Modsets {
             if (modset is null) return false;
             if (ReferenceEquals(this, modset)) return true;
             return Name == modset.Name
-                   && Mods == modset.Mods;
+                   && Mods.SetEquals(modset.Mods);
         }
     }
 }
