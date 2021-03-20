@@ -64,7 +64,6 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                         Name = mod.Name,
                         WorkshopId = mod.WorkshopId,
                         Type = mod.Type,
-                        ManifestId = downloadedItem.ManifestId,
                         Source = mod.Source,
                         WebId = mod.WebId
                     };

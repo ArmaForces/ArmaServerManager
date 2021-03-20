@@ -31,11 +31,23 @@ namespace ArmaForces.Arma.Server.Features.Server.DTOs
 
         public int? HeadlessClientsConnected => _dedicatedServer?.HeadlessClientsConnected;
 
-        public bool IsServerStarting => !IsServerRunning && (!_dedicatedServer?.IsServerStopped ?? false);
+        public ServerStatusEnum Status
+        {
+            get
+            {
+                if (!(_serverInfo is null))
+                {
+                    return ServerStatusEnum.Started;
+                }
 
-        public bool IsServerRunning => !(_serverInfo is null);
+                if (!_dedicatedServer?.IsServerStopped ?? false)
+                {
+                    return ServerStatusEnum.Starting;
+                }
 
-        public bool IsServerStopped => _dedicatedServer?.IsServerStopped ?? true;
+                return ServerStatusEnum.Stopped;
+            }
+        }
 
         public string ModsetName => _dedicatedServer?.Modset.Name;
 
