@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -97,7 +97,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         private async Task InvokeOnServerRestarted()
         {
-            _logger.LogTrace("Attempt to invoke OnServerRestarted event on {port} port.", Port);
+            _logger.LogTrace("Invoking OnServerRestarted event on port {port}.", Port);
             if (OnServerRestarted != null) await OnServerRestarted.Invoke(this);
         }
 
@@ -122,7 +122,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         private async Task<Result> InvokeOnServerShutdown()
         {
-            _logger.LogTrace("Attempt to invoke OnServerShutdown event on {port} port.", Port);
+            _logger.LogTrace("Invoking OnServerShutdown event on port {port}.", Port);
             if (OnServerShutdown != null) await OnServerShutdown.Invoke(this);
             return Result.Success();
         }
