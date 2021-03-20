@@ -6,6 +6,8 @@ using System.Text.Json;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace ArmaForces.Arma.Server.Config
 {
@@ -59,6 +61,28 @@ namespace ArmaForces.Arma.Server.Config
             ServerCfg = Path.Join(DirectoryPath, "server.cfg");
             HCProfileDirectory = Path.Join(DirectoryPath, "profiles", "HC");
             ServerProfileDirectory = Path.Join(DirectoryPath, "profiles", "Server");
+            ServerPassword = LoadServerPassword();
+        }
+
+        private string LoadServerPassword()
+        {
+            if (_fileSystem.File.Exists(ConfigJson))
+            {
+                var modsetConfigModel =
+                    JsonConvert.DeserializeObject<ConfigSimpleModel>(_fileSystem.File.ReadAllText(ConfigJson));
+                if (modsetConfigModel.Server?.Password != null)
+                {
+                    return modsetConfigModel.Server.Password;
+                }
+            }
+
+            if (!_fileSystem.File.Exists(_serverConfig.ConfigJson)) return string.Empty;
+
+            var serverConfigModel =
+                JsonConvert.DeserializeObject<ConfigSimpleModel>(
+                    _fileSystem.File.ReadAllText(_serverConfig.ConfigJson));
+
+            return serverConfigModel.Server?.Password ?? string.Empty;
         }
 
         /// <summary>
