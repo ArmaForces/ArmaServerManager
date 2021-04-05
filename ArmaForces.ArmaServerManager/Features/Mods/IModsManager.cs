@@ -31,6 +31,13 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
         Task<Result<List<IMod>>> CheckModsUpdated(IEnumerable<IMod> modsList, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Updates given <paramref name="mods"/>.
+        /// </summary>
+        /// <param name="mods">List of mods to update.</param>
+        /// <param name="cancellationToken"><see cref="CancellationToken"/> used for task cancellation.</param>
+        Task UpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Updates all installed mods.
         /// </summary>
         /// <param name="cancellationToken"><see cref="CancellationToken"/> used for task cancellation.</param>

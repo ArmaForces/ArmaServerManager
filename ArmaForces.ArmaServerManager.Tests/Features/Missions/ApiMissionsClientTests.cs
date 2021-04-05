@@ -22,9 +22,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions {
             restClientMock.SetupResponse(HttpStatusCode.OK, expectedMissions);
             var apiClient = new ApiMissionsClient(restClientMock.Object);
 
-            var upcomingMissions = apiClient.GetUpcomingMissions();
+            var result = apiClient.GetUpcomingMissions();
 
-            upcomingMissions.Should().BeEquivalentTo(expectedMissions);
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().BeEquivalentTo(expectedMissions);
         }
 
         [Fact]
@@ -32,16 +33,17 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions {
             const int modsetsCount = 3;
             const int missionsCount = 6;
             var modsets = _fixture.CreateMany<WebModset>(modsetsCount).ToList();
-            var expectedModsets = modsets.Select(x => new WebModset {Name = x.Name});
+            var expectedModsets = modsets.Select(x => x.Name);
             var missions = PrepareMissions(missionsCount, modsets);
 
             var restClientMock = new Mock<IRestClient>();
             restClientMock.SetupResponse(HttpStatusCode.OK, missions);
             var apiClient = new ApiMissionsClient(restClientMock.Object);
 
-            var upcomingMissionsModsets = apiClient.GetUpcomingMissionsModsets();
+            var result = apiClient.GetUpcomingMissionsModsetsNames();
 
-            upcomingMissionsModsets.Should().BeEquivalentTo(expectedModsets);
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().BeEquivalentTo(expectedModsets);
         }
 
         private List<WebMission> PrepareMissions(int missionsCount, IReadOnlyList<WebModset> modsets) {
