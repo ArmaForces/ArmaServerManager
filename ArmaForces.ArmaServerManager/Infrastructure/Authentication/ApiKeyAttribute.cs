@@ -36,8 +36,9 @@ namespace ArmaForces.ArmaServerManager.Infrastructure.Authentication
         private static IEnumerable<string> GetApiKeys(ActionContext context)
         {
             return context.HttpContext.RequestServices
-                .GetService<IApiKeyProvider>()
-                .GetAcceptedApiKeys();
+                    // This should never be null
+                    .GetService<IApiKeyProvider>()!
+                    .GetAcceptedApiKeys();
         }
 
         private static ContentResult CreateFailedResult(HttpStatusCode statusCode, string errorMessage)
@@ -53,7 +54,7 @@ namespace ArmaForces.ArmaServerManager.Infrastructure.Authentication
 
         private class ErrorContent
         {
-            public string ErrorMessage { get; set; }
+            public string ErrorMessage { get; set; } = string.Empty;
         }
     }
 }

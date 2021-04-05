@@ -159,7 +159,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
         }
 
         public void Dispose() {
-            if (_workingDirectory != null) _fileSystemMock.Directory.Delete(_workingDirectory, true);
+            _fileSystemMock.Directory.Delete(_workingDirectory, true);
         }
     }
 }

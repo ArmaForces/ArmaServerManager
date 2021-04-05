@@ -17,10 +17,11 @@ namespace ArmaForces.Arma.Server.Features.Servers
         private readonly ILogger<DedicatedServer> _dedicatedServerLogger;
 
         private int _port;
-        private IModset _modset;
-        private IArmaProcess _armaProcess;
         private int _numberOfHeadlessClients;
-        private IReadOnlyList<IArmaProcess> _headlessClients;
+
+        private IModset? _modset;
+        private IArmaProcess? _armaProcess;
+        private IReadOnlyList<IArmaProcess>? _headlessClients;
 
         public ServerBuilder(
             IKeysProvider keysProvider,
@@ -54,7 +55,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
             return this;
         }
 
-        public IServerBuilder WithHeadlessClients(IEnumerable<IArmaProcess> headlessClients)
+        public IServerBuilder WithHeadlessClients(IEnumerable<IArmaProcess>? headlessClients = null)
         {
             _headlessClients = headlessClients?.ToList();
             return this;

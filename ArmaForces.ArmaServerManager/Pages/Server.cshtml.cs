@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
@@ -20,15 +21,15 @@ namespace ArmaForces.ArmaServerManager.Pages
         private readonly IHangfireManager _hangfireManager;
         private readonly ILogger<ServerModel> _logger;
         
-        public SelectList ModsetOptions { get; set; }
+        public SelectList? ModsetOptions { get; set; }
       
-        public SelectList MissionOptions { get; set; }
+        public SelectList? MissionOptions { get; set; }
 
         [BindProperty]
-        public string ModsetName { get; set; }
+        public string? ModsetName { get; set; }
 
         [BindProperty]
-        public string MissionTitle { get; set; }
+        public string? MissionTitle { get; set; }
 
         public ServerModel(
             IApiModsetClient apiModsetClient,
@@ -57,6 +58,11 @@ namespace ArmaForces.ArmaServerManager.Pages
             }
             else
             {
+                if (MissionTitle is null)
+                {
+                    throw new Exception("Mission with no name selected.");
+                }
+
                 _hangfireManager.ScheduleJob<ServerStartupService>(
                     x => x.StartServerForMission(MissionTitle, CancellationToken.None));
             }

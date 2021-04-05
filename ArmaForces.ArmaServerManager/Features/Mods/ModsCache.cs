@@ -26,7 +26,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         public ModsCache(
             ISettings settings,
             IModDirectoryFinder modDirectoryFinder,
-            IFileSystem fileSystem = null)
+            IFileSystem? fileSystem = null)
         {
             _modDirectoryFinder = modDirectoryFinder;
             _fileSystem = fileSystem ?? new FileSystem();

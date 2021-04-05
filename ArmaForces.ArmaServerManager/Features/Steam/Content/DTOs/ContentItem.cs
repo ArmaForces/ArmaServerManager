@@ -4,7 +4,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs
 {
     public class ContentItem
     {
-        public string Directory { get; set; }
+        public string? Directory { get; set; }
 
         public uint Id { get; set; }
 

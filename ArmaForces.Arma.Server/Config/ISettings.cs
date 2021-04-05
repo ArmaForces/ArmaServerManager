@@ -7,11 +7,13 @@ namespace ArmaForces.Arma.Server.Config {
         /// <summary>
         /// Base address for missions API
         /// </summary>
+        /// TODO: Handle no missions API
         string ApiMissionsBaseUrl { get; }
 
         /// <summary>
         /// Base address for modsets API
         /// </summary>
+        /// TODO: Handle no modsets API
         string ApiModsetsBaseUrl { get; }
 
         /// <summary>
@@ -44,7 +46,6 @@ namespace ArmaForces.Arma.Server.Config {
         /// </summary>
         string ServerDirectory { get; }
 
-
         /// <summary>
         /// Path to server executable file.
         /// </summary>
@@ -58,11 +59,13 @@ namespace ArmaForces.Arma.Server.Config {
         /// <summary>
         /// User name for Steam downloading.
         /// </summary>
+        /// TODO: Handle no steam username
         string SteamUser { get; }
 
         /// <summary>
         /// Password for Steam downloading.
         /// </summary>
+        /// TODO: Handle no steam password
         string SteamPassword { get; }
 
         /// <summary>

@@ -11,9 +11,12 @@ namespace ArmaForces.Arma.Server.Features.Processes
     {
         private readonly ILogger<ArmaProcess> _logger;
 
-        private Process _serverProcess;
+        private Process? _serverProcess;
 
+        // TODO: Remove after replacing tests
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public ArmaProcess(
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
             string executablePath,
             string arguments,
             ILogger<ArmaProcess> logger)
@@ -50,7 +53,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         public bool IsStartingOrStarted => !IsStopped;
 
-        public event Func<IArmaProcess, Task> OnProcessShutdown;
+        public event Func<IArmaProcess, Task>? OnProcessShutdown;
 
         public Result Start()
         {
@@ -83,7 +86,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         public Result Shutdown()
         {
-            if (IsStopped)
+            if (IsStopped || _serverProcess is null)
             {
                 _logger.LogInformation("Server not running.");
                 return Result.Failure("Server could not be shut down because it's not running.");

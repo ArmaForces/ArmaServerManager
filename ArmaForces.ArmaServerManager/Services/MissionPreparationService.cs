@@ -48,7 +48,7 @@ namespace ArmaForces.ArmaServerManager.Services
         {
             return await _apiMissionsClient
                 .GetUpcomingMissions()
-                .Bind(x => Result.Success(x.GetNearestMission()))
+                .Bind(x => x.GetNearestMission())
                 .Bind(nearestMission => _serverStartupService.StartServer(nearestMission.Modlist, cancellationToken));
         }
 

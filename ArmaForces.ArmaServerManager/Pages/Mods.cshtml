@@ -10,53 +10,58 @@
     <div class="text-center">
         <h1>Mods can be browsed here.</h1>
         <div>
+            @if (Model.Mods is null)
+            {
+                <span style="color: red">Mods cache could not be loaded.</span>
+                return;
+            }
             <table style="border: black thin solid;">
                 <thead>
-                <tr>
-                    <th>
-                        @nameof(IMod.Name)
-                    </th>
-                    <th>
-                        @nameof(IMod.Type)
-                    </th>
-                    <th>
-                        @nameof(IMod.Source)
-                    </th>
-                    <th>
-                        @nameof(IMod.WorkshopId)
-                    </th>
-                    <th>
-                        @nameof(IMod.LastUpdatedAt)
-                    </th>
-                    <th>
-                        @nameof(IMod.Directory)
-                    </th>
-                </tr>
+                    <tr>
+                        <th>
+                            @nameof(IMod.Name)
+                        </th>
+                        <th>
+                            @nameof(IMod.Type)
+                        </th>
+                        <th>
+                            @nameof(IMod.Source)
+                        </th>
+                        <th>
+                            @nameof(IMod.WorkshopId)
+                        </th>
+                        <th>
+                            @nameof(IMod.LastUpdatedAt)
+                        </th>
+                        <th>
+                            @nameof(IMod.Directory)
+                        </th>
+                    </tr>
                 </thead>
                 <tbody>
-                @foreach (var mod in Model.Mods)
-                {
-                    <tr>
-                        <td>
-                            @mod.Name
-                        </td>
-                        <td>
-                            @mod.Type
-                        </td>
-                        <td>
-                            @mod.Source
-                        </td>
-                        <td>
-                            @mod.WorkshopId
-                        </td>
-                        <td>
-                            @mod.LastUpdatedAt
-                        </td>
-                        <td>
-                            @mod.Directory
-                        </td>
-                    </tr>
-                }
+                    @foreach (var mod in Model.Mods)
+                    {
+                        <tr>
+                            <td>
+                                @mod.Name
+                            </td>
+                            <td>
+                                @mod.Type
+                            </td>
+                            <td>
+                                @mod.Source
+                            </td>
+                            <td>
+                                @mod.WorkshopId
+                            </td>
+                            <td>
+                                @mod.LastUpdatedAt
+                            </td>
+                            <td>
+                                @mod.Directory
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>

@@ -52,7 +52,7 @@ namespace ArmaForces.ArmaServerManager.Controller
             var serverShutdownJob = _hangfireManager
                 .ScheduleJob<ServerStartupService>(
                     x => x.ShutdownServer(
-                        2302,
+                        startRequest.Port,
                         false,
                         CancellationToken.None),
                     startRequest.ScheduleAt);

@@ -4,7 +4,6 @@ using System.Linq;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
-using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 using RestSharp;
 

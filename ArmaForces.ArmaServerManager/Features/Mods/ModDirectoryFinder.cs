@@ -19,7 +19,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         public ModDirectoryFinder(
             ISettings settings,
             ILogger<ModDirectoryFinder> logger,
-            IFileSystem fileSystem = null)
+            IFileSystem? fileSystem = null)
         {
             _serverPath = settings.ServerDirectory;
             _modsPath = settings.ModsDirectory;
@@ -59,7 +59,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                     onFailure: error =>
                     {
                         _logger.LogInformation(error);
-                        return null;
+                        return null!;
                     });
             return mod;
         }

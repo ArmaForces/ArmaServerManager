@@ -2,7 +2,6 @@
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using AutoFixture;
-using BytexDigital.Steam.Core.Structs;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;

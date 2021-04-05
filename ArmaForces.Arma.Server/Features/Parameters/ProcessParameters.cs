@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using ArmaForces.Arma.Server.Constants;
+using ArmaForces.Arma.Server.Extensions;
 
 namespace ArmaForces.Arma.Server.Features.Parameters
 {
@@ -14,7 +15,7 @@ namespace ArmaForces.Arma.Server.Features.Parameters
 
         public string ConnectIpAddress { get; }
 
-        public string ConnectPassword { get; }
+        public string? ConnectPassword { get; }
 
         public int Port { get; }
 
@@ -54,9 +55,9 @@ namespace ArmaForces.Arma.Server.Features.Parameters
             int fpsLimit = ParametersDefaults.LimitFPS,
             bool loadMissionToMemory = ParametersDefaults.LoadMissionToMemory,
             string connectIpAddress = ParametersDefaults.ConnectIpAddress,
-            string connectPassword = null,
-            IEnumerable<string> serverMods = null,
-            IEnumerable<string> mods = null)
+            string? connectPassword = null,
+            IEnumerable<string?>? serverMods = null,
+            IEnumerable<string?>? mods = null)
         {
             ProcessPath = processPath;
             Client = client;
@@ -72,8 +73,9 @@ namespace ArmaForces.Arma.Server.Features.Parameters
             LoadMissionToMemory = loadMissionToMemory;
             ConnectIpAddress = connectIpAddress;
             ConnectPassword = connectPassword;
-            ServerMod = serverMods?.ToList() ?? new List<string>();
-            Mod = mods?.ToList() ?? new List<string>();
+            // TODO: Verify if removing null mod directories is correct
+            ServerMod = serverMods?.WhereNotNull().ToList() ?? new List<string>();
+            Mod = mods?.WhereNotNull().ToList() ?? new List<string>();
         }
 
         public ProcessStartInfo GetProcessStartInfo() => new ProcessStartInfo(ProcessPath, GetArguments());
@@ -97,12 +99,12 @@ namespace ArmaForces.Arma.Server.Features.Parameters
                 GetServerModsStartupParamString(),
                 GetRequiredModsStartupParamString());
 
-        private string GetServerModsStartupParamString()
+        private string? GetServerModsStartupParamString()
             => ServerMod.Any()
                 ? "\"-serverMod=" + string.Join(";", ServerMod) + "\""
                 : null;
 
-        private string GetRequiredModsStartupParamString()
+        private string? GetRequiredModsStartupParamString()
             => Mod.Any()
                 ? "\"-mod=" + string.Join(";", Mod) + "\""
                 : null;
@@ -139,9 +141,9 @@ namespace ArmaForces.Arma.Server.Features.Parameters
 
         private string GetLoadMissionToMemoryString() => LoadMissionToMemory ? "-loadMissionToMemory" : string.Empty;
 
-        public bool Equals(IProcessParameters other) => Port == other?.Port && ModsetName == other.ModsetName;
+        public bool Equals(IProcessParameters? other) => Port == other?.Port && ModsetName == other.ModsetName;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;

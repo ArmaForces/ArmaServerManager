@@ -3,10 +3,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 
 namespace ArmaForces.Arma.Server.Features.Mods {
-    public class Mod : IMod {
-        public string WebId { get; set; }
+    public class Mod : IMod
+    {
+        public string? WebId { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; }
 
@@ -18,15 +19,15 @@ namespace ArmaForces.Arma.Server.Features.Mods {
 
         public long WorkshopId { get; set; }
 
-        public string Directory { get; set; }
+        public string? Directory { get; set; }
 
-        public bool Exists(IFileSystem fileSystem = null) {
+        public bool Exists(IFileSystem? fileSystem = null) {
             fileSystem ??= new FileSystem();
             return !(Directory is null) 
                    && fileSystem.Directory.Exists(Directory);
         }
 
-        public bool Equals(IMod mod) {
+        public bool Equals(IMod? mod) {
             if (mod is null) return false;
             if (ReferenceEquals(this, mod)) return true;
             return Source == ModSource.SteamWorkshop

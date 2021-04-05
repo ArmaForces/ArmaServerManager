@@ -15,6 +15,6 @@ namespace ArmaForces.Arma.Server.Features.Servers
             int port,
             IModset modset,
             IArmaProcess armaProcess,
-            IEnumerable<IArmaProcess> headlessProcesses);
+            IEnumerable<IArmaProcess>? headlessProcesses = null);
     }
 }

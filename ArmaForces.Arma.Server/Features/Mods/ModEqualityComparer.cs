@@ -4,7 +4,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
 {
     public class ModEqualityComparer : IEqualityComparer<IMod>
     {
-        public bool Equals(IMod x, IMod y)
+        public bool Equals(IMod? x, IMod? y)
         {
             if (ReferenceEquals(x, y)) return true;
             if (x is null) return false;

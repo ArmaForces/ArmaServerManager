@@ -16,18 +16,20 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
         private readonly DateTime _modsetCreatedAt;
         private readonly DateTime _modsetLastUpdatedAt;
 
-        private Dictionary<string, object> _jsonDictionary;
+        private readonly Dictionary<string, object> _jsonDictionary;
 
         public WebModsetDeserializationTests() {
             _modsetId = _fixture.Create<string>();
             _modsetName = _fixture.Create<string>();
             _modsetCreatedAt = _fixture.Create<DateTime>();
             _modsetLastUpdatedAt = _fixture.Create<DateTime>();
-            _jsonDictionary = new Dictionary<string, object>();
-            _jsonDictionary.Add("id", _modsetId);
-            _jsonDictionary.Add("name", _modsetName);
-            _jsonDictionary.Add("createdAt", _modsetCreatedAt.ToString(ApiDateTimeFormat));
-            _jsonDictionary.Add("lastUpdatedAt", _modsetLastUpdatedAt.ToString(ApiDateTimeFormat));
+            _jsonDictionary = new Dictionary<string, object>
+            {
+                {"id", _modsetId},
+                {"name", _modsetName},
+                {"createdAt", _modsetCreatedAt.ToString(ApiDateTimeFormat)},
+                {"lastUpdatedAt", _modsetLastUpdatedAt.ToString(ApiDateTimeFormat)}
+            };
         }
 
         [Fact]
@@ -40,7 +42,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
             modset.Name.Should().Be(_modsetName);
             modset.CreatedAt.GetType().Should().Be<DateTime>();
             modset.CreatedAt.Should().BeCloseTo(_modsetCreatedAt, TimeSpan.FromSeconds(1));
-            modset.LastUpdatedAt.GetType().Should().Be<DateTime>();
+            modset.LastUpdatedAt!.GetType().Should().Be<DateTime>();
             modset.LastUpdatedAt.Should().BeCloseTo(_modsetLastUpdatedAt, TimeSpan.FromSeconds(1));
         }
 
@@ -62,9 +64,6 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
             return modsList;
         }
         
-        private Dictionary<string, object> CreateModDictionary() {
-            Dictionary<string, object> mod = new Dictionary<string, object>();
-            return mod;
-        }
+        private static Dictionary<string, object> CreateModDictionary() => new Dictionary<string, object>();
     }
 }

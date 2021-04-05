@@ -14,6 +14,10 @@
                     Select modset to start server:
                     <select name="modsetName" asp-items="Model.ModsetOptions"></select>
                     <br />
+                    @if (Model.ModsetOptions is null)
+                    {
+                        <span style="color: red">Modsets could not be loaded.</span>
+                    }
                     <br />
                     <input type="submit" value="Start server with modset" />
                 </form>

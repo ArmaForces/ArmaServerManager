@@ -28,14 +28,16 @@ namespace ArmaForces.Arma.Server.Config
         private readonly ConfigFileCreator _configFileCreator;
         private readonly ILogger<ModsetConfig> _logger;
 
-        // TODO: Create factory
+        // TODO: Create factory, it will be easier to get rid of nullable warnings
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public ModsetConfig(
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
             IConfig serverConfig,
             ISettings settings,
             string modsetName,
             ConfigFileCreator configFileCreator,
             ILogger<ModsetConfig> logger,
-            IFileSystem fileSystem = null)
+            IFileSystem? fileSystem = null)
         {
             _serverConfig = serverConfig;
             _settings = settings;
