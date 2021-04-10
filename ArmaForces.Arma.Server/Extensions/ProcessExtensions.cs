@@ -12,14 +12,17 @@ namespace ArmaForces.Arma.Server.Extensions
         /// </summary>
         /// <param name="process">Process to get it's command line.</param>
         /// <returns>Command line string or null.</returns>
-        public static string GetCommandLine(this Process process)
+        public static string? GetCommandLine(this Process process)
         {
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 using var searcher = new ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + process.Id);
                 using var objects = searcher.Get();
 
-                return objects.Cast<ManagementBaseObject>().SingleOrDefault()?["CommandLine"]?.ToString();
+                return objects
+                    .Cast<ManagementBaseObject>()
+                    .SingleOrDefault()?["CommandLine"]?
+                    .ToString();
             }
 
             // TODO: Add for Linux

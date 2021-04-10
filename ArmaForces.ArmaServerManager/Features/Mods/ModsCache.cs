@@ -26,11 +26,11 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         public ModsCache(
             ISettings settings,
             IModDirectoryFinder modDirectoryFinder,
-            IFileSystem fileSystem = null)
+            IFileSystem? fileSystem = null)
         {
             _modDirectoryFinder = modDirectoryFinder;
             _fileSystem = fileSystem ?? new FileSystem();
-            _modsPath = settings.ModsDirectory;
+            _modsPath = settings.ModsDirectory!;
             _cacheFilePath = $"{_modsPath}\\{settings.ModsManagerCacheFileName}.json";
 
             // Blocking on asynchronous code as it's only done once at app startup

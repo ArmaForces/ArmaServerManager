@@ -15,28 +15,29 @@ namespace ArmaForces.Arma.Server.Config
 
         public string ManagerDirectory { get; } = Directory.GetCurrentDirectory();
 
-        public string ApiMissionsBaseUrl { get; set; }
-        public string ApiModsetsBaseUrl { get; set; }
+        public string? ApiMissionsBaseUrl { get; set; }
+        public string? ApiModsetsBaseUrl { get; set; }
         public string ModsetConfigDirectoryName { get; set; } = "modsetConfig";
-        public string ModsDirectory { get; set; }
+        public string? ModsDirectory { get; set; }
         public string ModsManagerCacheFileName { get; set; } = ".ManagerModsCache";
-        public string ServerConfigDirectory { get; set; }
-        public string ServerDirectory { get; set; }
-        public string ServerExecutable { get; set; }
+        public string? ServerConfigDirectory { get; set; }
+        public string? ServerDirectory { get; set; }
+        public string? ServerExecutable { get; set; }
         public string ServerExecutableName { get; set; } = "arma3server_x64.exe";
-        public string SteamUser { get; set; }
-        public string SteamPassword { get; set; }
+        public string? SteamUser { get; set; }
+        public string? SteamPassword { get; set; }
 
         private readonly IFileSystem _fileSystem;
         private readonly IRegistryReader _registryReader;
         private IConfigurationRoot _config;
 
+        // TODO: Create factory for this too
         public Settings():this(null, null, null){}
 
         public Settings(
-            IConfigurationRoot config = null,
-            IFileSystem fileSystem = null,
-            IRegistryReader registryReader = null)
+            IConfigurationRoot? config = null,
+            IFileSystem? fileSystem = null,
+            IRegistryReader? registryReader = null)
         {
             _fileSystem = fileSystem ?? new FileSystem();
             _config = config ?? LoadConfigFile();
@@ -118,7 +119,7 @@ namespace ArmaForces.Arma.Server.Config
             return Result.Success();
         }
 
-        private string GetServerPathFromConfig()
+        private string? GetServerPathFromConfig()
         {
             var serverPath = _config["serverDirectory"];
             return _fileSystem.Directory.Exists(serverPath)
@@ -126,13 +127,14 @@ namespace ArmaForces.Arma.Server.Config
                 : null;
         }
 
-        private string GetServerPathFromRegistry()
+        private string? GetServerPathFromRegistry()
         {
             try
             {
                 var serverPath = _registryReader
-                    .GetValueFromLocalMachine(@"SOFTWARE\WOW6432Node\bohemia interactive\arma 3", "main")
+                    .GetValueFromLocalMachine(@"SOFTWARE\WOW6432Node\bohemia interactive\arma 3", "main")?
                     .ToString();
+
                 return _fileSystem.Directory.Exists(serverPath)
                     ? serverPath
                     : null;

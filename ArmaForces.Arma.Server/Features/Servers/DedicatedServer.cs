@@ -55,9 +55,9 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public bool IsServerStopped => _armaProcess?.IsStopped ?? true;
         
-        public event Func<IDedicatedServer, Task> OnServerShutdown;
+        public event Func<IDedicatedServer, Task>? OnServerShutdown;
 
-        public event Func<IDedicatedServer, Task> OnServerRestarted;
+        public event Func<IDedicatedServer, Task>? OnServerRestarted;
 
         public void Dispose() => Task.Run(Shutdown);
 

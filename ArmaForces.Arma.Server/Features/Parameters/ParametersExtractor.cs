@@ -15,8 +15,13 @@ namespace ArmaForces.Arma.Server.Features.Parameters
         public async Task<Result<ProcessParameters>> ExtractParameters(Process process)
             => await ExtractParameters(process.GetCommandLine());
 
-        public async Task<Result<ProcessParameters>> ExtractParameters(string commandLine)
+        public async Task<Result<ProcessParameters>> ExtractParameters(string? commandLine)
         {
+            if (commandLine is null)
+            {
+                return Result.Failure<ProcessParameters>("Command line is null, not possible to extract parameters.");
+            }
+
             // TODO: Read mods too
             var serverParameters = new ProcessParameters(
                 GetProcessPath(commandLine),

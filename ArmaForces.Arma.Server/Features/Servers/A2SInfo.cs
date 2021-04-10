@@ -16,10 +16,10 @@ namespace ArmaForces.Arma.Server.Features.Servers
     {
         public byte Header { get; protected set; } // I
         public byte Protocol { get; protected set; }
-        public string Name { get; protected set; }
-        public string Map { get; protected set; }
-        public string Folder { get; protected set; }
-        public string Game { get; protected set; }
+        public string? Name { get; protected set; }
+        public string? Map { get; protected set; }
+        public string? Folder { get; protected set; }
+        public string? Game { get; protected set; }
         public short Id { get; protected set; }
         public byte Players { get; protected set; }
         public byte MaxPlayers { get; protected set; }
@@ -28,7 +28,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         public EnvironmentFlags Environment { get; protected set; }
         public VisibilityFlags Visibility { get; protected set; }
         public VACFlags VAC { get; protected set; }
-        public string Version { get; protected set; }
+        public string? Version { get; protected set; }
 
         public ExtraDataFlags ExtraDataFlag { get; set; }
 
@@ -39,7 +39,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
             0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x00
         };
 
-        public static async Task<A2SInfo> GetServerInfoAsync(IPEndPoint ipEndPoint, CancellationToken cancellationToken)
+        public static async Task<A2SInfo?> GetServerInfoAsync(IPEndPoint ipEndPoint, CancellationToken cancellationToken)
         {
             using var udpClient = new UdpClient();
 
@@ -200,8 +200,8 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public ulong GameId { get; protected set; } //0x01
         public ulong SteamId { get; protected set; } //0x10
-        public string Keywords { get; protected set; } //0x20
-        public string Spectator { get; protected set; } //0x40
+        public string? Keywords { get; protected set; } //0x20
+        public string? Spectator { get; protected set; } //0x40
         public short SpectatorPort { get; protected set; } //0x40
         public short Port { get; protected set; } //0x80
 

@@ -5,13 +5,13 @@ using ArmaForces.Arma.Server.Features.Mods;
 
 namespace ArmaForces.Arma.Server.Features.Modsets {
     public class Modset : IModset {
-        public string WebId { get; set; }
+        public string? WebId { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public DateTime? LastUpdatedAt { get; set; }
 
-        public ISet<IMod> Mods { get; set; }
+        public ISet<IMod> Mods { get; set; } = new HashSet<IMod>();
 
         public ISet<IMod> RequiredMods
             => Mods
@@ -28,7 +28,7 @@ namespace ArmaForces.Arma.Server.Features.Modsets {
                 .Where(x => x.Type > ModType.ServerSide)
                 .ToHashSet();
 
-        public bool Equals(IModset modset)
+        public bool Equals(IModset? modset)
         {
             if (modset is null) return false;
             if (ReferenceEquals(this, modset)) return true;

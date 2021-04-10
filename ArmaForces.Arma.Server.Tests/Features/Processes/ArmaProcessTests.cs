@@ -1,7 +1,6 @@
 ﻿using ArmaForces.Arma.Server.Features.Processes;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
@@ -18,7 +17,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Processes
             var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
-                null);
+                new NullLogger<ArmaProcess>());
 
             using (new AssertionScope())
             {
@@ -35,7 +34,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Processes
             var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
-                null);
+                new NullLogger<ArmaProcess>());
 
             using (new AssertionScope())
             {
@@ -53,7 +52,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Processes
             var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
-                new Logger<ArmaProcess>(new NullLoggerFactory()));
+                new NullLogger<ArmaProcess>());
 
             var startServerResult = serverProcess.Start();
 
@@ -74,7 +73,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Processes
             var serverProcess = new ArmaProcess(
                 exePath,
                 arguments,
-                new Logger<ArmaProcess>(new NullLoggerFactory()));
+                new NullLogger<ArmaProcess>());
 
             var shutdownResult = serverProcess.Shutdown();
 

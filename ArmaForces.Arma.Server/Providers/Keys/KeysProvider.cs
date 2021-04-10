@@ -20,7 +20,7 @@ namespace ArmaForces.Arma.Server.Providers.Keys
         public KeysProvider(
             ISettings settings,
             ILogger<KeysProvider> logger,
-            IFileSystem fileSystem = null)
+            IFileSystem? fileSystem = null)
         {
             _logger = logger;
             _fileSystem = fileSystem ?? new FileSystem();

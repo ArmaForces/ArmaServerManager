@@ -12,7 +12,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         IServerBuilder WithServerProcess(IArmaProcess armaProcess);
 
-        IServerBuilder WithHeadlessClients(IEnumerable<IArmaProcess> headlessClients);
+        IServerBuilder WithHeadlessClients(IEnumerable<IArmaProcess>? headlessClients = null);
 
         IServerBuilder WithHeadlessClients(int numberOfHeadlessClients);
         

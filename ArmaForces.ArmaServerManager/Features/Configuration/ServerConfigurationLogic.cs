@@ -24,7 +24,7 @@ namespace ArmaForces.ArmaServerManager.Features.Configuration
 
         internal ServerConfigurationLogic(ISettings settings, IFileSystem fileSystem)
         {
-            ServerConfigPath = settings.ServerConfigDirectory;
+            ServerConfigPath = settings.ServerConfigDirectory!;
             ModsetConfigsPath = Path.Join(settings.ServerConfigDirectory, settings.ModsetConfigDirectoryName);
             _fileSystem = fileSystem;
         }

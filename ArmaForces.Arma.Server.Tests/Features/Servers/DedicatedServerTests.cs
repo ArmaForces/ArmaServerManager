@@ -155,7 +155,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
             return PrepareDedicatedServer(serverProcessMock.Object);
         }
 
-        private DedicatedServer PrepareDedicatedServer(IArmaProcess armaProcess, IEnumerable<IArmaProcess> headlessClients = null)
+        private DedicatedServer PrepareDedicatedServer(IArmaProcess armaProcess, IEnumerable<IArmaProcess>? headlessClients = null)
             => new DedicatedServer(
                 ServerPort,
                 _modset,

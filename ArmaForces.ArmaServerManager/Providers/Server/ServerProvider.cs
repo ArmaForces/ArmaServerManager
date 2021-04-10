@@ -34,7 +34,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
             DiscoverProcesses();
         }
 
-        public IDedicatedServer GetServer(int port)
+        public IDedicatedServer? GetServer(int port)
         {
             return _servers.TryGetValue(port, out var server)
                 ? server
@@ -90,7 +90,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
                 var dedicatedServer = CreateServer(
                     port,
-                    _modsetProvider.GetModsetByName(server?.Parameters.ModsetName).Value,
+                    _modsetProvider.GetModsetByName(server.Parameters.ModsetName).Value,
                     server,
                     headlessClients);
 
@@ -113,7 +113,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
             int port,
             IModset modset,
             IArmaProcess armaProcess,
-            IEnumerable<IArmaProcess> headlessClients = null)
+            IEnumerable<IArmaProcess>? headlessClients = null)
         {
             var server = _dedicatedServerFactory.CreateDedicatedServer(
                 port,

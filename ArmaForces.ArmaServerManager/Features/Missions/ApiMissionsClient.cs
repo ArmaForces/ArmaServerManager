@@ -4,7 +4,6 @@ using System.Linq;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
-using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 using RestSharp;
 
@@ -23,7 +22,8 @@ namespace ArmaForces.ArmaServerManager.Features.Missions {
             _restClient = restClient;
         }
 
-        public ApiMissionsClient(ISettings settings):this(settings.ApiMissionsBaseUrl){}
+        // TODO: Handle no missions URL
+        public ApiMissionsClient(ISettings settings):this(settings.ApiMissionsBaseUrl!){}
 
         /// <inheritdoc cref="ApiMissionsClient"/>
         /// <param name="baseUrl">Base API url.</param>

@@ -24,7 +24,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         private readonly string _modsDirectory;
         private readonly ISteamClient _steamClient;
 
-        public ContentDownloader(ISettings settings) : this(new SteamClient(settings), settings.ModsDirectory)
+        public ContentDownloader(ISettings settings) : this(new SteamClient(settings), settings.ModsDirectory!)
         {
         }
 
@@ -101,8 +101,8 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         
         public static ContentDownloader CreateContentDownloader(IServiceProvider serviceProvider)
         {
-            var modsDirectory = serviceProvider.GetService<ISettings>().ModsDirectory;
-            return new ContentDownloader(serviceProvider.GetService<ISteamClient>(), modsDirectory);
+            var modsDirectory = serviceProvider.GetService<ISettings>()!.ModsDirectory!;
+            return new ContentDownloader(serviceProvider.GetService<ISteamClient>()!, modsDirectory);
         }
 
         /// <summary>

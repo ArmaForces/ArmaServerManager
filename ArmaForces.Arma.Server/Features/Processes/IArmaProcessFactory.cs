@@ -8,7 +8,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 {
     public interface IArmaProcessFactory
     {
-        IArmaProcess CreateServerProcess(Process process, ProcessParameters parameters = null);
+        IArmaProcess CreateServerProcess(Process process, ProcessParameters parameters);
 
         IArmaProcess CreateServerProcess(
             int port,

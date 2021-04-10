@@ -2,10 +2,11 @@
 using ArmaForces.Arma.Server.Features.Mods;
 
 namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
-    public class WebMod {
-        public string Id { get; set; }
+    public class WebMod
+    {
+        public string Id { get; set; } = string.Empty;
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; }
 
@@ -17,7 +18,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
 
         public long ItemId { get; set; }
 
-        public string Directory { get; set; }
+        public string? Directory { get; set; }
 
         public Mod ConvertForServer() 
             => new Mod

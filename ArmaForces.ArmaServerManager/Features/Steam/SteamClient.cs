@@ -16,7 +16,8 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
 
         /// <inheritdoc />
         /// <param name="settings">Settings containing steam user, password and mods directory.</param>
-        public SteamClient(ISettings settings) : this(settings.SteamUser, settings.SteamPassword)
+        /// TODO: Handle no Steam User/Password
+        public SteamClient(ISettings settings) : this(settings.SteamUser!, settings.SteamPassword!)
         {
         }
 

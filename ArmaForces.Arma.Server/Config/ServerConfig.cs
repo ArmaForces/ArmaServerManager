@@ -18,7 +18,10 @@ namespace ArmaForces.Arma.Server.Config {
         /// Class prepares server configuration for given modset
         /// </summary>
         /// <param name="settings">Server Settings Object</param>
-        public ServerConfig(ISettings settings, IFileSystem fileSystem = null)
+        /// TODO: Make factory, just as for ModsetConfig
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+        public ServerConfig(ISettings settings, IFileSystem? fileSystem = null)
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             _settings = settings;
             _fileSystem = fileSystem ?? new FileSystem();
@@ -38,7 +41,7 @@ namespace ArmaForces.Arma.Server.Config {
         }
 
         private void SetProperties() {
-            DirectoryPath = _settings.ServerConfigDirectory;
+            DirectoryPath = _settings.ServerConfigDirectory!;
             ConfigJson = Path.Join(DirectoryPath, "common.json");
             BasicCfg = Path.Join(DirectoryPath, "basic.cfg");
             ServerCfg = Path.Join(DirectoryPath, "server.cfg");

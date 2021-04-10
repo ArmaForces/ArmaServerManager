@@ -81,7 +81,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
 
         [Fact]
         public void Settings_ServerDirectoryFromRegistry_Correct() {
-            _configurationMock.Setup(x => x["serverDirectory"]).Returns(() => null);
+            _configurationMock.Setup(x => x["serverDirectory"]).Returns(() => null!);
             var expectedServerDirectory = _workingDirectory;
             var registryReaderMock = new Mock<IRegistryReader>();
             registryReaderMock.Setup(
@@ -95,7 +95,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
 
         [Fact]
         public void Settings_ServerDirectoryNoCorrect_ThrowsServerNotFound() {
-            _configurationMock.Setup(x => x["serverDirectory"]).Returns(() => null);
+            _configurationMock.Setup(x => x["serverDirectory"]).Returns(() => null!);
             var registryReaderMock = new Mock<IRegistryReader>();
 
             Action action = () => PrepareSettings(_configurationMock, _fileSystemMock, registryReaderMock);
@@ -149,7 +149,7 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         private ISettings PrepareSettings(
             Mock<IConfigurationRoot> configurationMock,
             IFileSystem fileSystemMock,
-            Mock<IRegistryReader> registryReaderMock = null) {
+            Mock<IRegistryReader>? registryReaderMock = null) {
             ISettings settings = registryReaderMock is null
                 ? new Settings(configurationMock.Object, fileSystemMock)
                 : new Settings(configurationMock.Object, fileSystemMock, registryReaderMock.Object);

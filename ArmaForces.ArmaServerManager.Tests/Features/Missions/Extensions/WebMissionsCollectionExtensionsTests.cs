@@ -15,9 +15,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions.Extensions
         {
             var missions = new List<WebMission>();
 
-            var nearestMission = missions.GetNearestMission();
+            var result = missions.GetNearestMission();
 
-            nearestMission.Should().BeNull();
+            result.IsSuccess.Should().BeFalse();
         }
 
         [Fact]
@@ -29,9 +29,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions.Extensions
                 .OrderBy(x => x.Date)
                 .First();
 
-            var nearestMission = missions.GetNearestMission();
+            var result = missions.GetNearestMission();
 
-            nearestMission.Should().BeEquivalentTo(expectedMission);
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().BeEquivalentTo(expectedMission);
         }
     }
 }

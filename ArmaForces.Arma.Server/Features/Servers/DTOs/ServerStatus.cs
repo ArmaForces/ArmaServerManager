@@ -6,14 +6,14 @@ namespace ArmaForces.Arma.Server.Features.Servers.DTOs
 {
     public class ServerStatus
     {
-        private readonly IDedicatedServer _dedicatedServer;
-        private readonly A2SInfo _serverInfo;
+        private readonly IDedicatedServer? _dedicatedServer;
+        private readonly A2SInfo? _serverInfo;
 
         public ServerStatus()
         {
         }
 
-        public ServerStatus(IDedicatedServer dedicatedServer, A2SInfo serverInfo)
+        public ServerStatus(IDedicatedServer dedicatedServer, A2SInfo? serverInfo)
         {
             _dedicatedServer = dedicatedServer;
             _serverInfo = serverInfo;
@@ -49,11 +49,11 @@ namespace ArmaForces.Arma.Server.Features.Servers.DTOs
             }
         }
 
-        public string ModsetName => _dedicatedServer?.Modset.Name;
+        public string? ModsetName => _dedicatedServer?.Modset.Name;
 
-        public string Name => _serverInfo?.Name;
+        public string? Name => _serverInfo?.Name;
 
-        public string Map => _serverInfo?.Map;
+        public string? Map => _serverInfo?.Map;
 
         public int Players => _serverInfo?.Players ?? 0;
 

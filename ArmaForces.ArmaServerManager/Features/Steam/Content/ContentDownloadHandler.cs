@@ -6,8 +6,8 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 {
     public class ContentDownloadHandler : IContentDownloadHandler
     {
-        private readonly MultipleFilesHandler _multipleFilesHandler;
-        private readonly IDownloadHandler _downloadHandler;
+        private readonly MultipleFilesHandler? _multipleFilesHandler;
+        private readonly IDownloadHandler? _downloadHandler;
 
         public ContentDownloadHandler(IDownloadHandler downloadHandler)
         {
@@ -21,10 +21,10 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             }
         }
 
-        public double TotalProgress => _multipleFilesHandler?.TotalProgress ?? _downloadHandler.TotalProgress;
+        public double TotalProgress => _multipleFilesHandler?.TotalProgress ?? _downloadHandler!.TotalProgress;
 
         public async Task DownloadChangesToFolderAsync(string directory, CancellationToken cancellationToken) 
             => await (_multipleFilesHandler?.DownloadChangesToFolderAsync(directory, cancellationToken) ??
-                      _downloadHandler.DownloadToFolderAsync(directory, cancellationToken));
+                      _downloadHandler!.DownloadToFolderAsync(directory, cancellationToken));
     }
 }

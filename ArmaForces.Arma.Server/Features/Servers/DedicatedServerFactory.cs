@@ -30,7 +30,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
             int port,
             IModset modset,
             IArmaProcess armaProcess,
-            IEnumerable<IArmaProcess> headlessProcesses)
+            IEnumerable<IArmaProcess>? headlessProcesses = null)
         {
             var builder = _serverBuilderFactory.CreateServerBuilder();
             return builder

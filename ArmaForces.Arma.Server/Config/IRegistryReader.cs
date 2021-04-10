@@ -6,6 +6,6 @@
         /// <param name="subKey"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        object GetValueFromLocalMachine(string subKey, string value);
+        object? GetValueFromLocalMachine(string subKey, string value);
     }
 }
