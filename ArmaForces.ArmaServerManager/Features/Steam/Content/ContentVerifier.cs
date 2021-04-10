@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -98,7 +98,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         private async Task<Manifest> GetManifest(ContentItem contentItem, CancellationToken cancellationToken)
             => await _steamClient.ContentClient.GetManifestAsync(
                 SteamConstants.ArmaAppId,
-                SteamConstants.ArmaDepotId,
+                SteamConstants.ArmaWorkshopDepotId,
                 contentItem.ManifestId!.Value,
                 cancellationToken);
 

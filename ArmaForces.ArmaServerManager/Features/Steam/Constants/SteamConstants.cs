@@ -6,6 +6,8 @@
 
         public const int ArmaDepotId = ArmaAppId + 1;
 
+        public const int ArmaWorkshopDepotId = ArmaAppId;
+
         public const int ArmaServerAppId = 233780;
 
         public const int ArmaServerDepotId = ArmaServerAppId + 1;
