@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace ArmaForces.Arma.Server.Features.Servers.DTOs
 {
@@ -29,36 +30,43 @@ namespace ArmaForces.Arma.Server.Features.Servers.DTOs
             return new ServerStatus(dedicatedServer, serverInfo);
         }
 
-        public int? HeadlessClientsConnected => _dedicatedServer?.HeadlessClientsConnected;
+        [JsonProperty(Required = Required.Always)]
+        public ServerStatusEnum Status => GetServerStatusEnum();
 
-        public ServerStatusEnum Status
-        {
-            get
-            {
-                if (!(_serverInfo is null))
-                {
-                    return ServerStatusEnum.Started;
-                }
-
-                if (!_dedicatedServer?.IsServerStopped ?? false)
-                {
-                    return ServerStatusEnum.Starting;
-                }
-
-                return ServerStatusEnum.Stopped;
-            }
-        }
-
-        public string? ModsetName => _dedicatedServer?.Modset.Name;
-
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string? Name => _serverInfo?.Name;
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string? ModsetName => _dedicatedServer?.Modset.Name;
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string? Map => _serverInfo?.Map;
 
-        public int Players => _serverInfo?.Players ?? 0;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? Players => _serverInfo?.Players;
 
-        public int PlayersMax => _serverInfo?.MaxPlayers ?? 0;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? PlayersMax => _serverInfo?.MaxPlayers;
 
-        public int Port => _dedicatedServer?.Port ?? 0;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? Port => _dedicatedServer?.Port;
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? HeadlessClientsConnected => _dedicatedServer?.HeadlessClientsConnected;
+
+        private ServerStatusEnum GetServerStatusEnum()
+        {
+            if (!(_serverInfo is null))
+            {
+                return ServerStatusEnum.Started;
+            }
+
+            if (!_dedicatedServer?.IsServerStopped ?? false)
+            {
+                return ServerStatusEnum.Starting;
+            }
+
+            return ServerStatusEnum.Stopped;
+        }
     }
 }
