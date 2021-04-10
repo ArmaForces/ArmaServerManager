@@ -32,7 +32,7 @@ namespace ArmaForces.ArmaServerManager.Services
         /// <returns></returns>
         Task<Result> ShutdownServer(
             int port,
-            bool force,
-            CancellationToken cancellationToken);
+            bool force = false,
+            CancellationToken? cancellationToken = null);
     }
 }

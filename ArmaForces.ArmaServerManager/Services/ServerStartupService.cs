@@ -63,21 +63,23 @@ namespace ArmaForces.ArmaServerManager.Services
                 .Bind(() => _serverProvider.GetServer(Port, modset).Start());
         }
 
-        public async Task<Result> ShutdownServer(int port, bool force, CancellationToken cancellationToken)
+        public async Task<Result> ShutdownServer(
+            int port,
+            bool force = false,
+            CancellationToken? cancellationToken = null)
         {
             var server = _serverProvider.GetServer(port);
 
             if (server is null || server.IsServerStopped) return Result.Success();
 
-            var serverStatus = await server.GetServerStatusAsync(cancellationToken);
+            var serverStatus = await server.GetServerStatusAsync(cancellationToken ?? CancellationToken.None);
 
-            if (serverStatus.Players != 0 && !force)
+            if (serverStatus.Players.HasValue && serverStatus.Players != 0 && !force)
             {
                 return Result.Failure($"Server cannot be shut down, there are {serverStatus.Players} online.");
             }
 
-            server.Shutdown();
-            return Result.Success();
+            return await server.Shutdown();
         }
     }
 }
