@@ -55,8 +55,8 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             return Result.Success();
         }
 
-        public event Func<IDedicatedServer, Task> OnServerShutdown;
+        public event Func<IDedicatedServer, Task> OnServerShutdown = null!;
 
-        public event Func<IDedicatedServer, Task> OnServerRestarted;
+        public event Func<IDedicatedServer, Task> OnServerRestarted = null!;
     }
 }

@@ -22,7 +22,8 @@ namespace ArmaForces.ArmaServerManager.Features.Missions {
             _restClient = restClient;
         }
 
-        public ApiMissionsClient(ISettings settings):this(settings.ApiMissionsBaseUrl){}
+        // TODO: Handle no missions URL
+        public ApiMissionsClient(ISettings settings):this(settings.ApiMissionsBaseUrl!){}
 
         /// <inheritdoc cref="ApiMissionsClient"/>
         /// <param name="baseUrl">Base API url.</param>

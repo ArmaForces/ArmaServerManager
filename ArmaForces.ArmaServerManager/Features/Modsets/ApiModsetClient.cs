@@ -16,7 +16,8 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets {
             _restClient = restClient;
         }
 
-        public ApiModsetClient(ISettings settings) : this(settings.ApiModsetsBaseUrl)
+        // TODO: Handle no modsets URL
+        public ApiModsetClient(ISettings settings) : this(settings.ApiModsetsBaseUrl!)
         {
         }
 

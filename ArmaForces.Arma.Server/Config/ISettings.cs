@@ -8,13 +8,13 @@ namespace ArmaForces.Arma.Server.Config {
         /// Base address for missions API
         /// </summary>
         /// TODO: Handle no missions API
-        string ApiMissionsBaseUrl { get; }
+        string? ApiMissionsBaseUrl { get; }
 
         /// <summary>
         /// Base address for modsets API
         /// </summary>
         /// TODO: Handle no modsets API
-        string ApiModsetsBaseUrl { get; }
+        string? ApiModsetsBaseUrl { get; }
 
         /// <summary>
         /// Path to Manager directory.
@@ -29,7 +29,7 @@ namespace ArmaForces.Arma.Server.Config {
         /// <summary>
         /// Path to mods directory.
         /// </summary>
-        string ModsDirectory { get; }
+        string? ModsDirectory { get; }
 
         /// <summary>
         /// Name for mods cache file.
@@ -39,17 +39,17 @@ namespace ArmaForces.Arma.Server.Config {
         /// <summary>
         /// Path to server configuration files directory.
         /// </summary>
-        string ServerConfigDirectory { get; }
+        string? ServerConfigDirectory { get; }
 
         /// <summary>
         /// Path pointing to server root folder.
         /// </summary>
-        string ServerDirectory { get; }
+        string? ServerDirectory { get; }
 
         /// <summary>
         /// Path to server executable file.
         /// </summary>
-        string ServerExecutable { get; }
+        string? ServerExecutable { get; }
 
         /// <summary>
         /// Server executable file name, eg. "arma3server_x64.exe".
@@ -60,13 +60,13 @@ namespace ArmaForces.Arma.Server.Config {
         /// User name for Steam downloading.
         /// </summary>
         /// TODO: Handle no steam username
-        string SteamUser { get; }
+        string? SteamUser { get; }
 
         /// <summary>
         /// Password for Steam downloading.
         /// </summary>
         /// TODO: Handle no steam password
-        string SteamPassword { get; }
+        string? SteamPassword { get; }
 
         /// <summary>
         /// Loads settings from configuration.

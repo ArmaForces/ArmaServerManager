@@ -6,7 +6,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
 {
     public class MockedFileSystemHelpers
     {
-        public static void CopyExampleFilesToMockedFileSystem(IFileSystem fileSystemMock, string baseDirectory = null)
+        public static void CopyExampleFilesToMockedFileSystem(IFileSystem fileSystemMock, string? baseDirectory = null)
         {
             baseDirectory ??= Directory.GetCurrentDirectory();
 
@@ -20,7 +20,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             }
         }
 
-        public static void CopyTestFilesToMockedFileSystem(IFileSystem fileSystemMock, string baseDirectory = null)
+        public static void CopyTestFilesToMockedFileSystem(IFileSystem fileSystemMock, string? baseDirectory = null)
         {
             baseDirectory ??= Directory.GetCurrentDirectory();
 
@@ -38,8 +38,8 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
         private static void CopyFileToMockedFileSystem(
             IFileSystem fileSystemMock,
             string filePath,
-            string mockedFilePath = null,
-            string baseDirectory = null)
+            string? mockedFilePath = null,
+            string? baseDirectory = null)
         {
             baseDirectory ??= fileSystemMock.Directory.GetCurrentDirectory();
 

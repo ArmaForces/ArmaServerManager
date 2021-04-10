@@ -2,8 +2,10 @@
 using System.Linq;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
+using ArmaForces.Arma.Server.Features.Servers.Exceptions;
 using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.Arma.Server.Providers.Keys;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Servers
@@ -16,7 +18,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         private readonly IArmaProcessFactory _armaProcessFactory;
         private readonly ILogger<DedicatedServer> _dedicatedServerLogger;
 
-        private int _port;
+        private int? _port;
         private int _numberOfHeadlessClients;
 
         private IModset? _modset;
@@ -69,23 +71,30 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public IDedicatedServer Build()
         {
-            var modsetConfig = _serverConfigurationProvider.GetModsetConfig(_modset.Name);
+            var validationResult = ValidateServerParameters();
+
+            if (validationResult.IsFailure)
+            {
+                throw new ServerBuilderException(validationResult.Error);
+            }
+
+            var modsetConfig = _serverConfigurationProvider.GetModsetConfig(_modset!.Name);
 
             var serverProcess = _armaProcess
                                 ?? _armaProcessFactory.CreateServerProcess(
-                                    _port,
+                                    _port!.Value,
                                     _modset,
                                     modsetConfig);
 
             var headlessClients = _headlessClients
                                   ?? _armaProcessFactory.CreateHeadlessClients(
-                                      _port,
+                                      _port!.Value,
                                       _modset,
                                       modsetConfig,
                                       _numberOfHeadlessClients);
 
             return new DedicatedServer(
-                _port,
+                _port!.Value,
                 _modset,
                 modsetConfig,
                 _keysProvider,
@@ -93,6 +102,21 @@ namespace ArmaForces.Arma.Server.Features.Servers
                 serverProcess,
                 headlessClients,
                 _dedicatedServerLogger);
+        }
+
+        private Result ValidateServerParameters()
+        {
+            if (_modset is null)
+            {
+                return Result.Failure("No modset specified.");
+            }
+
+            if (_port is null)
+            {
+                return Result.Failure("No port specified");
+            }
+
+            return Result.Success();
         }
     }
 }

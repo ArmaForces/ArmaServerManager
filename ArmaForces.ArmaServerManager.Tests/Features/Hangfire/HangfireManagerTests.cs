@@ -261,10 +261,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
         private static TJob PrepareQueuedOrScheduledJob<TJob>(Job job, DateTime dateTime) where TJob : class, new()
         {
             if (typeof(TJob) == typeof(ScheduledJobDto))
-                return PrepareScheduledJob(job, dateTime) as TJob;
+                return PrepareScheduledJob(job, dateTime) as TJob ?? throw new InvalidOperationException();
 
             if (typeof(TJob) == typeof(EnqueuedJobDto))
-                return PrepareQueuedJob(job, dateTime) as TJob;
+                return PrepareQueuedJob(job, dateTime) as TJob ?? throw new InvalidOperationException();
 
             return new TJob();
         }

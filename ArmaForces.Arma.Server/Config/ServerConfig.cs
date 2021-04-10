@@ -41,7 +41,7 @@ namespace ArmaForces.Arma.Server.Config {
         }
 
         private void SetProperties() {
-            DirectoryPath = _settings.ServerConfigDirectory;
+            DirectoryPath = _settings.ServerConfigDirectory!;
             ConfigJson = Path.Join(DirectoryPath, "common.json");
             BasicCfg = Path.Join(DirectoryPath, "basic.cfg");
             ServerCfg = Path.Join(DirectoryPath, "server.cfg");

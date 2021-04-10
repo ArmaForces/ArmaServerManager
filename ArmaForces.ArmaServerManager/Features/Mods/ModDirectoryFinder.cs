@@ -21,8 +21,8 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             ILogger<ModDirectoryFinder> logger,
             IFileSystem? fileSystem = null)
         {
-            _serverPath = settings.ServerDirectory;
-            _modsPath = settings.ModsDirectory;
+            _serverPath = settings.ServerDirectory!;
+            _modsPath = settings.ModsDirectory!;
             _fileSystem = fileSystem ?? new FileSystem();
             _logger = logger;
         }
