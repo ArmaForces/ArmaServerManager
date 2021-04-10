@@ -11,6 +11,7 @@ using BytexDigital.Steam.ContentDelivery.Enumerations;
 using BytexDigital.Steam.ContentDelivery.Models;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
+using SteamKit2;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 {
@@ -19,7 +20,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         private readonly ISteamClient _steamClient;
         private readonly ILogger<ContentVerifier> _logger;
         private readonly IFileSystem _fileSystem;
-        
+
         public ContentVerifier(
             ISteamClient steamClient,
             ILogger<ContentVerifier> logger,
@@ -30,7 +31,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             _fileSystem = fileSystem ?? new FileSystem();
         }
 
-        public async Task<Result<ContentItem>> ItemIsUpToDate(ContentItem contentItem, CancellationToken cancellationToken)
+        public async Task<Result<ContentItem>> ItemIsUpToDate(
+            ContentItem contentItem,
+            CancellationToken cancellationToken)
         {
             if (contentItem.Directory is null)
             {
@@ -38,12 +41,12 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 
                 return Result.Failure<ContentItem>("Item not exists.");
             }
-            
+
             if (contentItem.ManifestId is null)
             {
                 await GetManifestId(contentItem);
             }
-            
+
             _logger.LogTrace("Downloading Manifest for item {contentItemId}.", contentItem.Id);
 
             var manifest = await GetManifest(contentItem, cancellationToken);
@@ -70,28 +73,41 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         private async Task GetManifestId(ContentItem contentItem)
         {
             _logger.LogDebug("Downloading ManifestId for item {contentItemId}.", contentItem.Id);
-            
+
             var errors = 0;
 
-            while (errors < 10 && contentItem.ManifestId == null)
+            while (contentItem.ManifestId == null)
             {
                 try
                 {
-                    contentItem.ManifestId = (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItem.Id))
+                    contentItem.ManifestId =
+                        (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItem.Id))
                         .hcontent_file;
                 }
-                catch (TaskCanceledException)
+                catch (TaskCanceledException exception)
                 {
-                    errors += 1;
-                    _logger.LogTrace("Failed to download ManifestId for item {contentItemId}. Errors = {number}.", contentItem.Id, errors);
+                    errors++;
+                    LogManifestIdDownloadFailure(contentItem, exception, errors);
+
+                    if (errors >= SteamContentConstants.MaximumRetryCount)
+                    {
+                        throw CreateManifestDownloadException(errors, contentItem, exception);
+                    }
+
+                    await Task.Delay(TimeSpan.FromSeconds(5));
                 }
-            }
+                catch (AsyncJobFailedException exception)
+                {
+                    errors++;
+                    LogManifestIdDownloadFailure(contentItem, exception, errors);
 
-            if (errors > 9)
-            {
-                _logger.LogError("Could not download ManifestId for item {contentItemId}.", contentItem.Id);
+                    if (errors >= SteamContentConstants.MaximumRetryCount)
+                    {
+                        throw CreateManifestDownloadException(errors, contentItem, exception);
+                    }
 
-                throw new Exception($"10 errors while attempting to download manifest for {contentItem.Id}");
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                }
             }
         }
 
@@ -120,6 +136,44 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             var localFileHash = sha1.ComputeHash(bufferedStream);
 
             return localFileHash.SequenceEqual(file.FileHash);
+        }
+
+        private void LogManifestIdDownloadFailure(
+            ContentItem contentItem,
+            Exception exception,
+            int errors)
+            => _logger.LogTrace(
+                exception,
+                "Failed to download ManifestId for item {contentItemId}. Errors = {number}.",
+                contentItem.Id,
+                errors);
+
+        private Exception CreateManifestDownloadException(
+            int errors,
+            ContentItem contentItem,
+            Exception? innerException = null)
+        {
+            var newException = new Exception(
+                $"{errors} errors while attempting to download manifest for {contentItem.Id}",
+                innerException);
+
+            if (innerException is null)
+            {
+                _logger.LogError(
+                    newException,
+                    "Could not download ManifestId for item {contentItemId}.",
+                    contentItem.Id);
+            }
+            else
+            {
+                _logger.LogError(
+                    newException,
+                    "Could not download ManifestId for item {contentItemId}, error message {message}.",
+                    contentItem.Id,
+                    innerException.Message);
+            }
+
+            return newException;
         }
     }
 }
