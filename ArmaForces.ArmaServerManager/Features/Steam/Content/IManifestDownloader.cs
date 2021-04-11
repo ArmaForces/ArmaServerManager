@@ -1,12 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
-using CSharpFunctionalExtensions;
+using BytexDigital.Steam.ContentDelivery.Models;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 {
-    internal interface IContentVerifier
+    internal interface IManifestDownloader
     {
-        Task<Result<ContentItem>> ItemIsUpToDate(ContentItem contentItem, CancellationToken cancellationToken);
+        Task<Manifest> GetManifest(ContentItem contentItem, CancellationToken cancellationToken);
     }
 }

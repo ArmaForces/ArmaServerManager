@@ -1,58 +1,123 @@
-using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using ArmaForces.ArmaServerManager.Features.Steam.Constants;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using BytexDigital.Steam.ContentDelivery.Enumerations;
 using BytexDigital.Steam.ContentDelivery.Models;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
-using SteamKit2;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 {
-    public class ContentVerifier : IContentVerifier
+    internal interface IContentFileVerifier
     {
-        private readonly ISteamClient _steamClient;
-        private readonly ILogger<ContentVerifier> _logger;
+        Result<ContentItem> EnsureDirectoryExists(ContentItem contentItem);
+
+        void RemoveRedundantFiles(string directory, Manifest manifest);
+
+        bool FileIsUpToDate(string directory, ManifestFile file);
+    }
+
+    internal class ContentFileVerifier : IContentFileVerifier
+    {
+        private readonly ILogger<ContentFileVerifier> _logger;
         private readonly IFileSystem _fileSystem;
 
-        public ContentVerifier(
-            ISteamClient steamClient,
-            ILogger<ContentVerifier> logger,
-            IFileSystem? fileSystem = null)
+        public ContentFileVerifier(ILogger<ContentFileVerifier> logger, IFileSystem fileSystem)
         {
-            _steamClient = steamClient;
             _logger = logger;
-            _fileSystem = fileSystem ?? new FileSystem();
+            _fileSystem = fileSystem;
+        }
+
+        public Result<ContentItem> EnsureDirectoryExists(ContentItem contentItem)
+        {
+            if (contentItem.Directory != null && _fileSystem.Directory.Exists(contentItem.Directory))
+            {
+                return Result.Success(contentItem);
+            }
+
+            _logger.LogInformation("Item {contentItemId} doesn't have a directory.");
+            return Result.Failure<ContentItem>("Item not exists.");
+        }
+
+        public void RemoveRedundantFiles(string directory, Manifest manifest)
+        {
+            var filesAndDirectories = manifest.Files
+                .Select(x => x.FileName)
+                .ToList();
+
+            RemoveRedundantFiles(directory, filesAndDirectories);
+        }
+
+        public void RemoveRedundantFiles(string directory, IReadOnlyCollection<string> expectedFilesAndDirectories)
+        {
+            var expectedFiles = expectedFilesAndDirectories
+                .Select(x => Path.Join(directory, x))
+                .ToList();
+
+            var redundantFiles = _fileSystem.Directory.GetFiles(directory, "*", SearchOption.AllDirectories)
+                .Where(x => !expectedFiles.Contains(x))
+                .ToList();
+
+            foreach (var file in redundantFiles)
+            {
+                _fileSystem.File.Delete(file);
+            }
+        }
+
+        public bool FileIsUpToDate(string directory, ManifestFile file)
+        {
+            if (file.Flags == ManifestFileFlag.Directory)
+            {
+                return _fileSystem.Directory.Exists(Path.Join(directory, file.FileName));
+            }
+
+            var filePath = _fileSystem.Path.Combine(directory, file.FileName);
+
+            if (!_fileSystem.File.Exists(filePath)) return false;
+
+            using var fileStream = _fileSystem.FileStream.Create(filePath, FileMode.Open);
+            using var bufferedStream = new BufferedStream(fileStream);
+            using var sha1 = new SHA1Managed();
+
+            var localFileHash = sha1.ComputeHash(bufferedStream);
+
+            return localFileHash.SequenceEqual(file.FileHash);
+        }
+    }
+
+    internal class ContentVerifier : IContentVerifier
+    {
+        private readonly IManifestDownloader _manifestDownloader;
+        private readonly ILogger<ContentVerifier> _logger;
+        private readonly IContentFileVerifier _contentFileVerifier;
+
+        public ContentVerifier(
+            IManifestDownloader manifestDownloader,
+            IContentFileVerifier contentFileVerifier,
+            ILogger<ContentVerifier> logger)
+        {
+            _contentFileVerifier = contentFileVerifier;
+            _manifestDownloader = manifestDownloader;
+            _logger = logger;
         }
 
         public async Task<Result<ContentItem>> ItemIsUpToDate(
             ContentItem contentItem,
             CancellationToken cancellationToken)
         {
-            if (contentItem.Directory is null)
-            {
-                _logger.LogInformation("Item {contentItemId} doesn't have a directory.");
-
-                return Result.Failure<ContentItem>("Item not exists.");
-            }
-
-            if (contentItem.ManifestId is null)
-            {
-                await GetManifestId(contentItem);
-            }
-
-            _logger.LogTrace("Downloading Manifest for item {contentItemId}.", contentItem.Id);
-
-            var manifest = await GetManifest(contentItem, cancellationToken);
+            await _contentFileVerifier.EnsureDirectoryExists(contentItem)
+                .Bind(x => Result.Success(_manifestDownloader.GetManifest(x, cancellationToken)))
+                .Tap(x => x);
+            
+            var manifest = await _manifestDownloader.GetManifest(contentItem, cancellationToken);
 
             var incorrectFiles = manifest.Files
-                .SkipWhile(manifestFile => FileIsUpToDate(contentItem.Directory, manifestFile))
+                .SkipWhile(manifestFile => _contentFileVerifier.FileIsUpToDate(contentItem.Directory, manifestFile))
                 .ToList();
 
             _logger.LogDebug(
@@ -65,115 +130,6 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 .Any()
                 ? Result.Failure<ContentItem>("One or more files are either missing or require update.")
                 : Result.Success(contentItem);
-        }
-
-        /// <summary>
-        /// TODO: Do it better
-        /// </summary>
-        private async Task GetManifestId(ContentItem contentItem)
-        {
-            _logger.LogDebug("Downloading ManifestId for item {contentItemId}.", contentItem.Id);
-
-            var errors = 0;
-
-            while (contentItem.ManifestId == null)
-            {
-                try
-                {
-                    contentItem.ManifestId =
-                        (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItem.Id))
-                        .hcontent_file;
-                }
-                catch (TaskCanceledException exception)
-                {
-                    errors++;
-                    LogManifestIdDownloadFailure(contentItem, exception, errors);
-
-                    if (errors >= SteamContentConstants.MaximumRetryCount)
-                    {
-                        throw CreateManifestDownloadException(errors, contentItem, exception);
-                    }
-
-                    await Task.Delay(TimeSpan.FromSeconds(5));
-                }
-                catch (AsyncJobFailedException exception)
-                {
-                    errors++;
-                    LogManifestIdDownloadFailure(contentItem, exception, errors);
-
-                    if (errors >= SteamContentConstants.MaximumRetryCount)
-                    {
-                        throw CreateManifestDownloadException(errors, contentItem, exception);
-                    }
-
-                    await Task.Delay(TimeSpan.FromSeconds(5));
-                }
-            }
-        }
-
-        private async Task<Manifest> GetManifest(ContentItem contentItem, CancellationToken cancellationToken)
-            => await _steamClient.ContentClient.GetManifestAsync(
-                SteamConstants.ArmaAppId,
-                SteamConstants.ArmaWorkshopDepotId,
-                contentItem.ManifestId!.Value,
-                cancellationToken);
-
-        private bool FileIsUpToDate(string directory, ManifestFile file)
-        {
-            if (file.Flags == ManifestFileFlag.Directory)
-            {
-                return _fileSystem.Directory.Exists(Path.Join(directory, file.FileName));
-            }
-
-            var filePath = _fileSystem.Path.Combine(directory, file.FileName);
-
-            if (!_fileSystem.File.Exists(filePath)) return false;
-
-            using var fileStream = new FileStream(filePath, FileMode.Open);
-            using var bufferedStream = new BufferedStream(fileStream);
-            using var sha1 = new SHA1Managed();
-
-            var localFileHash = sha1.ComputeHash(bufferedStream);
-
-            return localFileHash.SequenceEqual(file.FileHash);
-        }
-
-        private void LogManifestIdDownloadFailure(
-            ContentItem contentItem,
-            Exception exception,
-            int errors)
-            => _logger.LogTrace(
-                exception,
-                "Failed to download ManifestId for item {contentItemId}. Errors = {number}.",
-                contentItem.Id,
-                errors);
-
-        private Exception CreateManifestDownloadException(
-            int errors,
-            ContentItem contentItem,
-            Exception? innerException = null)
-        {
-            var newException = new Exception(
-                $"{errors} errors while attempting to download manifest for {contentItem.Id}",
-                innerException);
-
-            if (innerException is null)
-            {
-                _logger.LogError(
-                    newException,
-                    "Could not download ManifestId for item {contentItemId}.",
-                    contentItem.Id);
-            }
-            else
-            {
-                _logger.LogError(
-                    newException,
-                    "Could not download ManifestId for item {contentItemId}, error message {message}.",
-                    contentItem.Id,
-                    innerException.Message);
-            }
-
-            return newException;
         }
     }
 }
