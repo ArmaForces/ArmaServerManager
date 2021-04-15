@@ -88,8 +88,10 @@ namespace ArmaForces.ArmaServerManager
             .AddSingleton<IModDirectoryFinder, ModDirectoryFinder>()
             .AddSingleton<IApiModsetClient, ApiModsetClient>()
             .AddSingleton<ISteamClient, SteamClient>()
+            .AddSingleton<IManifestDownloader, ManifestDownloader>()
             .AddSingleton<IContentDownloader, ContentDownloader>()
             .AddSingleton<IContentVerifier, ContentVerifier>()
+            .AddSingleton<IContentFileVerifier, ContentFileVerifier>()
             .AddSingleton<IModsetProvider, ModsetProvider>()
 
             // Mission

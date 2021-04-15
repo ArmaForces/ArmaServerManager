@@ -13,7 +13,7 @@ using CSharpFunctionalExtensions;
 namespace ArmaForces.ArmaServerManager.Features.Mods
 {
     /// <inheritdoc />
-    public class ModsManager : IModsManager
+    internal class ModsManager : IModsManager
     {
         private readonly IContentDownloader _contentDownloader;
         private readonly IContentVerifier _contentVerifier;
