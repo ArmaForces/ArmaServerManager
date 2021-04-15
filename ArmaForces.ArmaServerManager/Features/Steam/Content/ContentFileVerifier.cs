@@ -16,10 +16,10 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         private readonly ILogger<ContentFileVerifier> _logger;
         private readonly IFileSystem _fileSystem;
 
-        public ContentFileVerifier(ILogger<ContentFileVerifier> logger, IFileSystem fileSystem)
+        public ContentFileVerifier(ILogger<ContentFileVerifier> logger, IFileSystem? fileSystem = null)
         {
             _logger = logger;
-            _fileSystem = fileSystem;
+            _fileSystem = fileSystem ?? new FileSystem();
         }
 
         public Result<ContentItem> EnsureDirectoryExists(ContentItem contentItem)
