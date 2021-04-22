@@ -1,13 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-namespace ArmaForces.ArmaServerManager.Controller
+namespace ArmaForces.ArmaServerManager.Api.Configuration
 {
     [Route("api/configuration")]
     [ApiController]
@@ -61,6 +60,18 @@ namespace ArmaForces.ArmaServerManager.Controller
             return result.Match(
                 onSuccess: Ok,
                 onFailure: error => (IActionResult) BadRequest(error));
+        }
+
+        [HttpGet("server/cbaSettings")]
+        public IActionResult GetServerCbaSettings()
+        {
+            throw new NotImplementedException("Downloading server CBA Settings is not supported yet.");
+        }
+
+        [HttpGet("server/cbaSettings")]
+        public IActionResult PutServerCbaSettings([FromForm] IFormFile file)
+        {
+            throw new NotImplementedException("Uploading server CBA Settings is not supported yet.");
         }
     }
 }
