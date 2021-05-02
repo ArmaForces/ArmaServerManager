@@ -74,6 +74,11 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         }
 
         [HttpPost]
+        [Route("{port}/headless/start")]
+        [ApiKey]
+        public IActionResult StartHeadlessClient(int port) => throw new NotImplementedException("Starting headless client is not supported yet.");
+
+        [HttpPost]
         [Route("{port}/restart")]
         [ApiKey]
         public IActionResult RestartServer(int port, ServerRestartRequestDto serverRestartRequestDto)
@@ -102,6 +107,12 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                 onSuccess: Accepted,
                 onFailure: error => (IActionResult)BadRequest(error));
         }
+
+        [HttpPost]
+        [Route("{port}/headless/shutdown")]
+        [ApiKey]
+        public IActionResult ShutdownHeadlessClients(int port)
+            => throw new NotImplementedException("Shutting down headless clients is not supported yet.");
 
         [HttpPost]
         [Route("{port}/shutdown")]
