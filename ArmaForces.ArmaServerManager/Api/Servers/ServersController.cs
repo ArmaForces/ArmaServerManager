@@ -70,7 +70,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
 
             return result.Match(
                 onSuccess: Accepted,
-                onFailure: error => (IActionResult)BadRequest((object) error));
+                onFailure: error => (IActionResult)BadRequest(error));
         }
 
         [HttpPost]
