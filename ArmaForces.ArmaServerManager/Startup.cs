@@ -1,11 +1,11 @@
 using System;
 using System.Text.Json.Serialization;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Features.Keys;
 using ArmaForces.Arma.Server.Features.Parameters;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
 using ArmaForces.Arma.Server.Providers.Configuration;
-using ArmaForces.Arma.Server.Providers.Keys;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
@@ -102,7 +102,7 @@ namespace ArmaForces.ArmaServerManager
             .AddSingleton<ConfigReplacer>()
 
             // Keys
-            .AddSingleton<IKeysProvider, KeysProvider>()
+            .AddSingleton<IKeysPreparer, KeysPreparer>()
 
             // Process
             .AddSingleton<IArmaProcessDiscoverer, ArmaProcessDiscoverer>()

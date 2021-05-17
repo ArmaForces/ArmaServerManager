@@ -5,11 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Exceptions;
+using ArmaForces.Arma.Server.Features.Keys;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
-using ArmaForces.Arma.Server.Providers.Keys;
 using ArmaForces.Arma.Server.Tests.Helpers;
 using AutoFixture;
 using CSharpFunctionalExtensions;
@@ -27,7 +27,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
         private const int ServerPort = 2302;
 
         private readonly Mock<IModsetConfig> _modsetConfigMock = new Mock<IModsetConfig>();
-        private readonly Mock<IKeysProvider> _keysProviderMock = new Mock<IKeysProvider>();
+        private readonly Mock<IKeysPreparer> _keysProviderMock = new Mock<IKeysPreparer>();
         private readonly Mock<IArmaProcessManager> _armaProcessManagerMock = new Mock<IArmaProcessManager>();
         private readonly IModset _modset;
 

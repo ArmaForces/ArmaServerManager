@@ -10,19 +10,19 @@ using ArmaForces.Arma.Server.Features.Modsets;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
-namespace ArmaForces.Arma.Server.Providers.Keys
+namespace ArmaForces.Arma.Server.Features.Keys
 {
-    public class KeysProvider : IKeysProvider
+    public class KeysPreparer : IKeysPreparer
     {
-        private readonly ILogger<KeysProvider> _logger;
+        private readonly ILogger<KeysPreparer> _logger;
         private readonly IFileSystem _fileSystem;
 
         private readonly string _keysDirectory;
         private readonly string _managerDirectory;
 
-        public KeysProvider(
+        public KeysPreparer(
             ISettings settings,
-            ILogger<KeysProvider> logger,
+            ILogger<KeysPreparer> logger,
             IFileSystem? fileSystem = null)
         {
             _logger = logger;
