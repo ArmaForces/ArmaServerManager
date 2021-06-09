@@ -5,6 +5,9 @@ using System.IO.Abstractions;
 using System.Linq;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Constants;
+using ArmaForces.Arma.Server.Features.Keys.Finder;
+using ArmaForces.Arma.Server.Features.Keys.IO;
+using ArmaForces.Arma.Server.Features.Keys.Models;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using CSharpFunctionalExtensions;
@@ -14,6 +17,8 @@ namespace ArmaForces.Arma.Server.Features.Keys
 {
     public class KeysPreparer : IKeysPreparer
     {
+        private readonly IKeysFinder _keysFinder;
+        private readonly IKeysCopier _keysCopier;
         private readonly ILogger<KeysPreparer> _logger;
         private readonly IFileSystem _fileSystem;
 
@@ -22,9 +27,13 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
         public KeysPreparer(
             ISettings settings,
+            IKeysFinder keysFinder,
+            IKeysCopier keysCopier,
             ILogger<KeysPreparer> logger,
             IFileSystem? fileSystem = null)
         {
+            _keysFinder = keysFinder;
+            _keysCopier = keysCopier;
             _logger = logger;
             _fileSystem = fileSystem ?? new FileSystem();
 
@@ -39,18 +48,12 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
         private Result RemoveOldKeys()
         {
-            var oldKeys = GetKeysFromDirectory(_keysDirectory)
+            var oldKeys = _keysFinder.GetKeysFromDirectory(_keysDirectory)
                 .ToList();
 
             _logger.LogDebug("Found {count} old keys.", oldKeys.Count);
 
-            foreach (var oldKey in oldKeys)
-            {
-                _logger.LogTrace("Removing {keyName} key.", _fileSystem.Path.GetFileName(oldKey));
-                _fileSystem.File.Delete(oldKey);
-            }
-
-            return Result.Success();
+            return _keysCopier.DeleteKeys(oldKeys);
         }
 
         private Result CopyNewKeys(IModset modset)
@@ -93,7 +96,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
                     modBikeys.Count,
                     mod.ToShortString());
 
-                return CopyKeys(modBikeys);
+                return _keysCopier.CopyKeys(_keysDirectory, modBikeys);
             }
             // TODO: Remove if does not occur anymore
             catch (ArgumentNullException exception)
@@ -106,62 +109,15 @@ namespace ArmaForces.Arma.Server.Features.Keys
             }
         }
 
-        private IEnumerable<string> GetKeysFromMod(IMod mod)
+        private IEnumerable<BikeyFile> GetKeysFromMod(IMod mod)
         {
-            return GetKeysFromDirectory(mod.Directory);
+            return _keysFinder.GetKeysFromDirectory(mod.Directory);
         }
         
-        private IEnumerable<string> GetExternalKeys(IMod mod)
+        private IEnumerable<BikeyFile> GetExternalKeys(IMod mod)
         {
             // TODO: Get directory path of external keys for mod
-            return GetKeysFromDirectory(mod.Directory);
-        }
-
-        private IEnumerable<string> GetKeysFromDirectory(string? directory)
-        {
-            _logger.LogTrace("Looking for keys in {directory}.", directory);
-
-            var keyFiles = directory is null
-                ? new string[0]
-                : _fileSystem.Directory.GetFiles(
-                    directory,
-                    $"*{KeysConstants.KeyExtension}",
-                    SearchOption.AllDirectories);
-
-            if (keyFiles.Any())
-            {
-                _logger.LogDebug(
-                    "Found {count} keys in {directory}.",
-                    keyFiles.Length,
-                    directory);
-            }
-            else
-            {
-                _logger.LogDebug("No keys found in {directory}.", directory);
-            }
-
-            return keyFiles;
-        }
-
-        private Result CopyKeys(IReadOnlyCollection<string> modBikeysPaths)
-        {
-            if (!modBikeysPaths.Any())
-            {
-                return Result.Failure("No keys found.");
-            }
-
-            foreach (var modBikey in modBikeysPaths)
-            {
-                var keyName = _fileSystem.Path.GetFileName(modBikey);
-                var destinationKeyPath = _fileSystem.Path.Join(_keysDirectory, keyName);
-                _logger.LogTrace("Copying {keyName}.", keyName);
-                if (!_fileSystem.File.Exists(destinationKeyPath))
-                {
-                    _fileSystem.File.Copy(modBikey, destinationKeyPath);
-                }
-            }
-
-            return Result.Success();
+            return _keysFinder.GetKeysFromDirectory(mod.Directory);
         }
 
         /// <summary>
