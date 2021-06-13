@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ArmaForces.Arma.Server.Features.Dlcs;
 using ArmaForces.Arma.Server.Features.Mods;
 
 namespace ArmaForces.Arma.Server.Features.Modsets {
@@ -12,6 +13,8 @@ namespace ArmaForces.Arma.Server.Features.Modsets {
         public DateTime? LastUpdatedAt { get; set; }
 
         public ISet<IMod> Mods { get; set; } = new HashSet<IMod>();
+
+        public ISet<IDlc> Dlcs { get; set; } = new HashSet<IDlc>();
 
         public ISet<IMod> RequiredMods
             => Mods
