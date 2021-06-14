@@ -21,6 +21,11 @@
         /// Path to bikey file.
         /// </summary>
         public string Path { get; }
+
+        /// <summary>
+        /// Bikey file name.
+        /// </summary>
+        public string FileName => System.IO.Path.GetFileName(Path);
         
         /// <summary>
         /// Indicates what the bikey is for.
