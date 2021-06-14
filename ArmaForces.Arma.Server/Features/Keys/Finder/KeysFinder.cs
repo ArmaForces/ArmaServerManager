@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Keys.Finder
 {
-    public class KeysFinder : IKeysFinder
+    internal class KeysFinder : IKeysFinder
     {
         private readonly ILogger<KeysFinder> _logger;
         private readonly IFileSystem _fileSystem;

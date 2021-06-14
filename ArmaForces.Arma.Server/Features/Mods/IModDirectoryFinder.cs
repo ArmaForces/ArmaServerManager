@@ -1,6 +1,4 @@
-﻿using ArmaForces.Arma.Server.Features.Mods;
-
-namespace ArmaForces.ArmaServerManager.Features.Mods
+﻿namespace ArmaForces.Arma.Server.Features.Mods
 {
     public interface IModDirectoryFinder
     {

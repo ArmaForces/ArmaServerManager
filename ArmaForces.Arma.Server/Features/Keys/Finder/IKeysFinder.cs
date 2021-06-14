@@ -3,7 +3,7 @@ using ArmaForces.Arma.Server.Features.Keys.Models;
 
 namespace ArmaForces.Arma.Server.Features.Keys.Finder
 {
-    public interface IKeysFinder
+    internal interface IKeysFinder
     {
         List<BikeyFile> GetKeysFromDirectory(string? directory);
     }

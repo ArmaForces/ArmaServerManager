@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Keys.IO
 {
-    public class KeysCopier : IKeysCopier
+    internal class KeysCopier : IKeysCopier
     {
         private readonly ILogger<KeysCopier> _logger;
         private readonly IFileSystem _fileSystem;

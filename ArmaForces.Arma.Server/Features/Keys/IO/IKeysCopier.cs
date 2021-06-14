@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 
 namespace ArmaForces.Arma.Server.Features.Keys.IO
 {
-    public interface IKeysCopier
+    internal interface IKeysCopier
     {
         Result DeleteKeys(IReadOnlyCollection<BikeyFile> bikeyFiles);
         Result CopyKeys(string targetDirectory, IReadOnlyCollection<BikeyFile> bikeyFiles);

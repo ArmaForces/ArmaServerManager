@@ -3,13 +3,12 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using ArmaForces.Arma.Server.Config;
-using ArmaForces.Arma.Server.Features.Mods;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
-namespace ArmaForces.ArmaServerManager.Features.Mods
+namespace ArmaForces.Arma.Server.Features.Mods
 {
-    public class ModDirectoryFinder : IModDirectoryFinder
+    internal class ModDirectoryFinder : IModDirectoryFinder
     {
         private readonly ILogger<ModDirectoryFinder> _logger;
         private readonly IFileSystem _fileSystem;

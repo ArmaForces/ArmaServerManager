@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Constants;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Keys.Finder;
 using ArmaForces.Arma.Server.Features.Keys.IO;
 using ArmaForces.Arma.Server.Features.Keys.Models;
@@ -15,8 +15,9 @@ using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Keys
 {
-    public class KeysPreparer : IKeysPreparer
+    internal class KeysPreparer : IKeysPreparer
     {
+        private readonly IModDirectoryFinder _modDirectoryFinder;
         private readonly IKeysFinder _keysFinder;
         private readonly IKeysCopier _keysCopier;
         private readonly ILogger<KeysPreparer> _logger;
@@ -24,20 +25,25 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
         private readonly string _keysDirectory;
         private readonly string _managerDirectory;
+        private readonly string _modsetConfigDirectoryPath;
 
         public KeysPreparer(
             ISettings settings,
+            IModsetConfig modsetConfig,
+            IModDirectoryFinder modDirectoryFinder,
             IKeysFinder keysFinder,
             IKeysCopier keysCopier,
             ILogger<KeysPreparer> logger,
             IFileSystem? fileSystem = null)
         {
+            _modDirectoryFinder = modDirectoryFinder;
             _keysFinder = keysFinder;
             _keysCopier = keysCopier;
             _logger = logger;
             _fileSystem = fileSystem ?? new FileSystem();
 
             _keysDirectory = _fileSystem.Path.Join(settings.ServerDirectory, "Keys");
+            _modsetConfigDirectoryPath = modsetConfig.DirectoryPath;
             _managerDirectory = settings.ManagerDirectory;
         }
 
@@ -116,8 +122,9 @@ namespace ArmaForces.Arma.Server.Features.Keys
         
         private IEnumerable<BikeyFile> GetExternalKeys(IMod mod)
         {
-            // TODO: Get directory path of external keys for mod
-            return _keysFinder.GetKeysFromDirectory(mod.Directory);
+            // TODO: Use IModDirectoryFinder to support multiple directory name patterns
+            var externalKeysDirectory = _fileSystem.Path.Join(_modsetConfigDirectoryPath, mod.Name);
+            return _keysFinder.GetKeysFromDirectory(externalKeysDirectory);
         }
 
         /// <summary>
@@ -126,17 +133,11 @@ namespace ArmaForces.Arma.Server.Features.Keys
         private Result CopyArmaKey()
         {
             var armaKeyPath = _fileSystem.Path.Join(_managerDirectory, KeysConstants.ArmaKey);
+            var bikeyFile = new BikeyFile(armaKeyPath);
 
-            if (!_fileSystem.File.Exists(armaKeyPath))
-            {
-                return Result.Failure($"{KeysConstants.ArmaKey} not found in Manager directory.");
-            }
-
-            var targetFileName = _fileSystem.Path.Join(_keysDirectory, KeysConstants.ArmaKey);
-
-            _fileSystem.File.Copy(armaKeyPath, targetFileName);
-            
-            return Result.Success();
+            return !_fileSystem.File.Exists(bikeyFile.Path)
+                ? Result.Failure($"{KeysConstants.ArmaKey} not found in Manager directory.")
+                : _keysCopier.CopyKeys(_keysDirectory, bikeyFile.AsList());
         }
     }
 }
