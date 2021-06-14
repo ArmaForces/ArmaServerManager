@@ -8,6 +8,7 @@ using ArmaForces.Arma.Server.Features.Servers;
 using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Filters;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
 using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Mods;
@@ -61,14 +62,16 @@ namespace ArmaForces.ArmaServerManager
                 .AddJsonOptions(opt => opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
             // Add Hangfire services.
-            services.AddHangfire(configuration => configuration
+            services.AddHangfire((provider, configuration) => configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
+                .UseFilter(provider.GetService<FailOnResultFailureAttribute>())
                 .UseLiteDbStorage(Configuration.GetConnectionString("HangfireConnection")))
 
             // Add the processing server as IHostedService
             .AddHangfireServer(ConfigureHangfireServer())
+            .AddTransient<FailOnResultFailureAttribute>()
 
             .AddHostedService<StartupService>()
 
