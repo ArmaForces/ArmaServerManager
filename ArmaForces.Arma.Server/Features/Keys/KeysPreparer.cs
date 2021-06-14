@@ -25,11 +25,11 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
         private readonly string _keysDirectory;
         private readonly string _managerDirectory;
-        private readonly string _modsetConfigDirectoryPath;
+        private readonly string _serverConfigDirectoryPath;
 
         public KeysPreparer(
             ISettings settings,
-            IModsetConfig modsetConfig,
+            IConfig serverConfig,
             IModDirectoryFinder modDirectoryFinder,
             IKeysFinder keysFinder,
             IKeysCopier keysCopier,
@@ -42,8 +42,8 @@ namespace ArmaForces.Arma.Server.Features.Keys
             _logger = logger;
             _fileSystem = fileSystem ?? new FileSystem();
 
-            _keysDirectory = _fileSystem.Path.Join(settings.ServerDirectory, "Keys");
-            _modsetConfigDirectoryPath = modsetConfig.DirectoryPath;
+            _keysDirectory = _fileSystem.Path.Join(settings.ServerDirectory, KeysConstants.KeysDirectoryName);
+            _serverConfigDirectoryPath = _fileSystem.Path.Join(serverConfig.DirectoryPath, KeysConstants.KeysDirectoryName);
             _managerDirectory = settings.ManagerDirectory;
         }
 
@@ -54,8 +54,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
         private Result RemoveOldKeys()
         {
-            var oldKeys = _keysFinder.GetKeysFromDirectory(_keysDirectory)
-                .ToList();
+            var oldKeys = _keysFinder.GetKeysFromDirectory(_keysDirectory);
 
             _logger.LogDebug("Found {count} old keys.", oldKeys.Count);
 
@@ -73,15 +72,11 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
             foreach (var mod in clientLoadableMods)
             {
-                var copyKeysForMod = CopyKeysForMod(mod);
-
-                if (copyKeysForMod.IsFailure)
-                {
-                    _logger.LogWarning(
+                CopyKeysForMod(mod)
+                    .OnFailure(error => _logger.LogWarning(
                         "Copying keys for mod {mod} failed with error: {error}", 
                         mod,
-                        copyKeysForMod.Error);
-                }
+                        error));
             }
 
             _logger.LogDebug("Keys copying finished for modset {modsetName}.", modset.Name);
@@ -122,9 +117,11 @@ namespace ArmaForces.Arma.Server.Features.Keys
         
         private IEnumerable<BikeyFile> GetExternalKeys(IMod mod)
         {
-            // TODO: Use IModDirectoryFinder to support multiple directory name patterns
-            var externalKeysDirectory = _fileSystem.Path.Join(_modsetConfigDirectoryPath, mod.Name);
-            return _keysFinder.GetKeysFromDirectory(externalKeysDirectory);
+            var modDirectoryResult = _modDirectoryFinder.TryFindModDirectory(mod, _serverConfigDirectoryPath);
+            
+            return modDirectoryResult.IsSuccess
+                ? _keysFinder.GetKeysFromDirectory(modDirectoryResult.Value)
+                : new List<BikeyFile>();
         }
 
         /// <summary>

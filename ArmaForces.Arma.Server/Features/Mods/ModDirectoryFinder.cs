@@ -52,7 +52,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
         public IMod TryEnsureModDirectory(IMod mod)
         {
             if (mod.Exists(_fileSystem)) return mod;
-            mod.Directory = TryFindModDirectory(mod)
+            mod.Directory = TryFindModDirectory(mod, _modsPath)
                 .Match(
                     onSuccess: directory => directory,
                     onFailure: error =>
@@ -63,54 +63,54 @@ namespace ArmaForces.Arma.Server.Features.Mods
             return mod;
         }
 
-        private Result<string> TryFindModDirectory(IMod mod) 
-            => TryFindModDirectoryByDirectory(mod)
-                .OnFailureCompensate(() => TryFindModDirectoryByWorkshopId(mod))
-                .OnFailureCompensate(() => TryFindModDirectoryByName(mod))
-                .OnFailureCompensate(() => TryFindModDirectoryByNamePrefixedWithAtSign(mod))
+        public Result<string> TryFindModDirectory(IMod mod, string directoryToSearch)
+            => TryFindModDirectoryByDirectory(mod, directoryToSearch)
+                .OnFailureCompensate(() => TryFindModDirectoryByWorkshopId(mod, directoryToSearch))
+                .OnFailureCompensate(() => TryFindModDirectoryByName(mod, directoryToSearch))
+                .OnFailureCompensate(() => TryFindModDirectoryByNamePrefixedWithAtSign(mod, directoryToSearch))
                 .OnFailureCompensate(() => TryFindCdlcDirectory(mod))
                 .OnFailureCompensate(() => Result.Failure<string>($"Directory not found for {mod.ToShortString()}."));
 
-        private Result<string> TryFindModDirectoryByDirectory(IMod mod)
+        private Result<string> TryFindModDirectoryByDirectory(IMod mod, string directoryToSearch)
         {
             if (string.IsNullOrWhiteSpace(mod.Directory))
                 return Result.Failure<string>("Mod directory attribute is empty.");
 
-            var path = Path.Join(_modsPath, mod.Directory);
+            var path = Path.Join(directoryToSearch, mod.Directory);
             return _fileSystem.Directory.Exists(path)
                 ? Result.Success(path)
                 : Result.Failure<string>("Mod directory not found using its directory.");
         }
 
-        private Result<string> TryFindModDirectoryByWorkshopId(IMod mod)
+        private Result<string> TryFindModDirectoryByWorkshopId(IMod mod, string directoryToSearch)
         {
             if (string.IsNullOrWhiteSpace(mod.WorkshopId.ToString()))
                 return Result.Failure<string>("Workshop ID attribute is empty.");
 
-            var path = Path.Join(_modsPath, mod.WorkshopId.ToString());
+            var path = Path.Join(directoryToSearch, mod.WorkshopId.ToString());
             return _fileSystem.Directory.Exists(path)
                 ? Result.Success(path)
                 : Result.Failure<string>("Mod directory not found using its workshopId.");
         }
 
-        private Result<string> TryFindModDirectoryByName(IMod mod)
+        private Result<string> TryFindModDirectoryByName(IMod mod, string directoryToSearch)
         {
             if (string.IsNullOrWhiteSpace(mod.Name))
                 return Result.Failure<string>("Mod name attribute is empty.");
 
-            var path = Path.Join(_modsPath, mod.Name);
+            var path = Path.Join(directoryToSearch, mod.Name);
             return _fileSystem.Directory.Exists(path)
                 ? Result.Success(path)
                 : Result.Failure<string>("Mod directory not found using its name.");
         }
 
-        private Result<string> TryFindModDirectoryByNamePrefixedWithAtSign(IMod mod)
+        private Result<string> TryFindModDirectoryByNamePrefixedWithAtSign(IMod mod, string directoryToSearch)
         {
             if (string.IsNullOrWhiteSpace(mod.Name))
                 return Result.Failure<string>("Mod name attribute is empty.");
 
             var path = Path.Join(
-                _modsPath,
+                directoryToSearch,
                 string.Join(
                     "",
                     "@",
@@ -125,6 +125,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
             if (string.IsNullOrWhiteSpace(maybeCdlc.Directory))
                 return Result.Failure<string>("cDLC directory attribute is empty.");
 
+            // TODO: Parametrize directory to search
             var path = Path.Join(_serverPath, maybeCdlc.Directory);
             return _fileSystem.Directory.Exists(path)
                 ? Result.Success(path)
