@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ArmaForces.Arma.Server.Tests.Helpers
 {
-    public class MockedFileSystemHelpers
+    public static class MockedFileSystemHelpers
     {
         public static void CopyExampleFilesToMockedFileSystem(IFileSystem fileSystemMock, string? baseDirectory = null)
         {
