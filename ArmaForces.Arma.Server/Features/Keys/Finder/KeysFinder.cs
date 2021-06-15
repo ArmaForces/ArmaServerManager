@@ -27,7 +27,7 @@ namespace ArmaForces.Arma.Server.Features.Keys.Finder
                 ? new string[0]
                 : _fileSystem.Directory.GetFiles(
                     directory,
-                    $"*{KeysConstants.KeyExtension}",
+                    KeysConstants.KeyExtensionSearchPattern,
                     SearchOption.AllDirectories);
 
             if (keyFiles.Any())

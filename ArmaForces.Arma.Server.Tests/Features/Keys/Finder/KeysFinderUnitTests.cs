@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using ArmaForces.Arma.Server.Features.Keys.Models;
+using ArmaForces.Arma.Server.Tests.Helpers;
+using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -92,47 +94,14 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys.Finder
             int count = 1)
         {
             return _fixture.CreateMany<string>(count)
-                .Select(fileName => CreateBikeyFileInFileSystem(fileSystem, directory, fileName))
+                .Select(fileName => fileSystem.CreateBikeyFileInFileSystem(directory, fileName))
                 .ToList();
-        }
-
-        private static BikeyFile CreateBikeyFileInFileSystem(
-            IFileSystem fileSystem,
-            string directory,
-            string fileName,
-            string fileExtension = "bikey")
-        {
-            var drive = MockUnixSupport.Path("C:\\");
-            var fileNameWithExtension = $"{fileName}.{fileExtension}";
-            var filePath = fileSystem.Path.Join(drive, directory, fileNameWithExtension);
-
-            var bikeyFile = new BikeyFile(filePath);
-            CreateFileInFileSystem(fileSystem, filePath);
-
-            return bikeyFile;
         }
 
         private void CreateRandomFileInDirectory(IFileSystem fileSystem, string directory)
         {
-            var filePath = Path.Join(directory, _fixture.Create<string>());
-            CreateFileInFileSystem(fileSystem, filePath);
-        }
-
-        private static void CreateFileInFileSystem(IFileSystem fileSystem, string filePath)
-        {
-            var separator = MockUnixSupport.Path("\\");
-            
-            var directory = filePath
-                .Split(separator)
-                .SkipLast(1)
-                .Aggregate((x, y) => $"{x}{separator}{y}");
-            
-            if (!fileSystem.Directory.Exists(directory))
-            {
-                fileSystem.Directory.CreateDirectory(directory);
-            }
-            
-            fileSystem.File.Create(filePath);
+            var filePath = Path.Join(directory, _fixture.CreateFileName());
+            fileSystem.CreateFileInFileSystem(filePath);
         }
 
         private static IKeysFinder CreateKeysFinder(IFileSystem fileSystem)

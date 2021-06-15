@@ -10,7 +10,6 @@ using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Keys;
 using ArmaForces.Arma.Server.Features.Keys.Models;
 using ArmaForces.Arma.Server.Features.Mods;
-using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Tests.Helpers;
 using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using AutoFixture;
@@ -25,96 +24,120 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys
     public class KeysPreparerIntegrationTests
     {
         private readonly Fixture _fixture = new Fixture();
+        private readonly ISettings _settings = new TestSettings();
+        private readonly IFileSystem _fileSystem;
+        private readonly IServiceProvider _serviceProvider;
+
+        private readonly string _keysDirectory;
+        private readonly string _externalKeysDirectory;
+        private readonly string _modsDirectory;
+
+        public KeysPreparerIntegrationTests()
+        {
+            _fileSystem = CreateFileSystemMock(_settings);
+            var config = new ServerConfig(_settings, _fileSystem);
+            _serviceProvider = CreateServiceProvider(_settings, config, _fileSystem);
+
+            _keysDirectory = MockUnixSupport.Path($"{_settings.ServerDirectory}\\{KeysConstants.KeysDirectoryName}");
+            _externalKeysDirectory = MockUnixSupport.Path($"{_settings.ServerConfigDirectory}\\{KeysConstants.KeysDirectoryName}");
+            _modsDirectory = _settings.ModsDirectory!;
+        }
         
         [Fact, Trait("Category", "Integration")]
         public void PrepareKeysForModset_MultipleModTypesAllWithBikeys_CorrectBikeysCopied()
         {
-            var settings = new TestSettings();
-            var fileSystem = CreateFileSystemMock(settings);
-            var keysDirectory = MockUnixSupport.Path($"{settings.ServerDirectory}\\{KeysConstants.KeysDirectoryName}");
-            var modsDirectory = settings.ModsDirectory!;
-
-            var config = new ServerConfig(settings, fileSystem);
-            var modset = ModsetHelpers.CreateTestModset(_fixture, modsDirectory);
+            var modset = ModsetHelpers.CreateTestModset(_fixture, _modsDirectory);
             foreach (var mod in modset.Mods)
             {
-                CreateDirectoryForMod(fileSystem, mod);
+                CreateDirectoryForMod(_fileSystem, mod);
             }
-
-            var serviceProvider = CreateServiceProvider(settings, config, fileSystem);
-
-            var keysPreparer = serviceProvider.GetService<IKeysPreparer>()!;
+            
+            var keysPreparer = _serviceProvider.GetService<IKeysPreparer>()!;
 
             var result = keysPreparer.PrepareKeysForModset(modset);
 
             using (new AssertionScope())
             {
                 result.ShouldBeSuccess();
-                if (result.IsFailure)
-                {
-                    result.Error.Should().BeNullOrEmpty();
-                }
                 
-                var expectedBikeyNames = GetBikeysForMods(fileSystem, modset.ClientLoadableMods)
-                    .Append(new BikeyFile("a3.bikey"))
+                var expectedBikeyNames = GetBikeysForMods(_fileSystem, modset.ClientLoadableMods)
+                    .Append(new BikeyFile(KeysConstants.ArmaKey))
                     .Select(x => x.FileName)
                     .ToList();
 
-                var copiedBikeys = GetCopiedBikeys(fileSystem, keysDirectory)
-                    .Select(x => x.FileName)
-                    .ToList();
-
-                copiedBikeys.Should().BeEquivalentTo(expectedBikeyNames);
+                AssertCorrectBikeysInDirectory(
+                    _fileSystem,
+                    _keysDirectory,
+                    expectedBikeyNames);
             }
         }
 
         [Fact, Trait("Category", "Integration")]
         public void PrepareKeysForModset_SingleModWithoutKeyWithExternalKey_ExternalBikeyCopied()
         {
-            var settings = new TestSettings();
-            var fileSystem = CreateFileSystemMock(settings);
-            var keysDirectory = MockUnixSupport.Path($"{settings.ServerDirectory}\\{KeysConstants.KeysDirectoryName}");
-            var modsDirectory = settings.ModsDirectory!;
-            var externalKeysDirectory = MockUnixSupport.Path($"{settings.ServerConfigDirectory}\\{KeysConstants.KeysDirectoryName}");
-
-            var config = new ServerConfig(settings, fileSystem);
             var mod = ModHelpers.CreateTestMod(
                 _fixture,
                 ModType.Required,
-                modsDirectory);
-            CreateDirectoryForMod(fileSystem, mod, createBikey: false);
+                _modsDirectory);
+            CreateDirectoryForMod(_fileSystem, mod, createBikey: false);
             
             var modset = ModsetHelpers.CreateModsetWithMods(_fixture, mod.AsList());
-            CreateExternalKeyForMod(fileSystem, externalKeysDirectory, mod);
+            CreateExternalKeyForMod(_fileSystem, _externalKeysDirectory, mod);
 
-            var serviceProvider = CreateServiceProvider(settings, config, fileSystem);
-
-            var keysPreparer = serviceProvider.GetService<IKeysPreparer>()!;
+            var keysPreparer = _serviceProvider.GetService<IKeysPreparer>()!;
 
             var result = keysPreparer.PrepareKeysForModset(modset);
 
             using (new AssertionScope())
             {
                 result.ShouldBeSuccess();
-                if (result.IsFailure)
-                {
-                    result.Error.Should().BeNullOrEmpty();
-                }
                 
-                var expectedBikeyNames = new List<BikeyFile>
+                var expectedBikeyNames = new List<string>
                 {
-                    new BikeyFile("a3.bikey"),
-                    new BikeyFile($"{mod.Name}{KeysConstants.KeyExtension}")
-                }
-                    .Select(x => x.FileName)
-                    .ToList();
+                    KeysConstants.ArmaKey,
+                    $"{mod.Name}{KeysConstants.KeyExtension}"
+                };
 
-                var copiedBikeys = GetCopiedBikeys(fileSystem, keysDirectory)
-                    .Select(x => x.FileName)
-                    .ToList();
-
-                copiedBikeys.Should().BeEquivalentTo(expectedBikeyNames);
+                AssertCorrectBikeysInDirectory(
+                    _fileSystem,
+                    _keysDirectory,
+                    expectedBikeyNames);
             }
+        }
+        
+        [Fact, Trait("Category", "Integration")]
+        public void PrepareKeysForModset_NoModsArmaBikeyOnly_RemovesOldKeysFromKeysDirectory()
+        {
+            var modset = ModsetHelpers.CreateEmptyModset(_fixture);
+            _fileSystem.CreateBikeyFileInFileSystem(_keysDirectory, _fixture.CreateFileName(KeysConstants.KeyExtension));
+
+            var keysPreparer = _serviceProvider.GetService<IKeysPreparer>()!;
+
+            var result = keysPreparer.PrepareKeysForModset(modset);
+
+            using (new AssertionScope())
+            {
+                result.ShouldBeSuccess();
+
+                var expectedBikeyNames = KeysConstants.ArmaKey.AsList();
+
+                AssertCorrectBikeysInDirectory(
+                    _fileSystem,
+                    _keysDirectory,
+                    expectedBikeyNames);
+            }
+        }
+
+        private void AssertCorrectBikeysInDirectory(
+            IFileSystem fileSystem,
+            string keysDirectory,
+            IReadOnlyCollection<string>? expectedBikeyNames)
+        {
+            var copiedBikeys = GetCopiedBikeys(fileSystem, keysDirectory)
+                .Select(x => x.FileName)
+                .ToList();
+
+            copiedBikeys.Should().BeEquivalentTo(expectedBikeyNames);
         }
 
         private static void CreateExternalKeyForMod(
@@ -158,7 +181,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys
             return mods
                 .Select(mod => fileSystem.Directory.GetFiles(
                     mod.Directory,
-                    $"*{KeysConstants.KeyExtension}",
+                    KeysConstants.KeyExtensionSearchPattern,
                     SearchOption.AllDirectories))
                 .SelectMany(x => x)
                 .Select(x => new BikeyFile(x))
@@ -180,7 +203,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys
             {
                 var bikeyFilePath = fileSystem.Path.Join(
                     modKeysPath,
-                    $"{_fixture.Create<string>()}{KeysConstants.KeyExtension}");
+                    _fixture.CreateFileName(KeysConstants.KeyExtension));
                 fileSystem.File.Create(bikeyFilePath);
             }
         }
