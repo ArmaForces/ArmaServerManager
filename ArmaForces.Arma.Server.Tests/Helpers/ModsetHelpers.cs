@@ -9,9 +9,23 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
 {
     public static class ModsetHelpers
     {
-        public static Modset CreateEmptyModset(Fixture fixture) => CreateTestModset(fixture, 0);
+        public static Modset CreateEmptyModset(Fixture fixture) => CreateTestModset(fixture, eachModTypeNumber: 0);
 
-        public static Modset CreateTestModset(Fixture fixture, int eachModTypeNumber = 5)
+        public static Modset CreateModsetWithMods(Fixture fixture, IReadOnlyCollection<IMod> mods)
+        {
+            return new Modset
+            {
+                Mods = mods.ToHashSet(),
+                LastUpdatedAt = fixture.Create<DateTime>(),
+                Name = fixture.Create<string>(),
+                WebId = fixture.Create<string>()
+            };
+        }
+        
+        public static Modset CreateTestModset(
+            Fixture fixture,
+            string? modsDirectory = null,
+            int eachModTypeNumber = 5)
         {
             var modset = new Modset
             {
@@ -23,10 +37,10 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
 
             for (var i = 0; i < eachModTypeNumber; i++)
             {
-                modset.Mods.Add(ModHelpers.CreateTestMod(fixture, ModType.ServerSide));
-                modset.Mods.Add(ModHelpers.CreateTestMod(fixture, ModType.ClientSide));
-                modset.Mods.Add(ModHelpers.CreateTestMod(fixture, ModType.Optional));
-                modset.Mods.Add(ModHelpers.CreateTestMod(fixture, ModType.Required));
+                modset.Mods.Add(ModHelpers.CreateTestMod(fixture, ModType.ServerSide, modsDirectory));
+                modset.Mods.Add(ModHelpers.CreateTestMod(fixture, ModType.ClientSide, modsDirectory));
+                modset.Mods.Add(ModHelpers.CreateTestMod(fixture, ModType.Optional, modsDirectory));
+                modset.Mods.Add(ModHelpers.CreateTestMod(fixture, ModType.Required, modsDirectory));
             }
 
             return modset;

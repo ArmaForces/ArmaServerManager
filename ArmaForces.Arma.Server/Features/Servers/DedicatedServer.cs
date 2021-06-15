@@ -6,10 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Exceptions;
+using ArmaForces.Arma.Server.Features.Keys;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
-using ArmaForces.Arma.Server.Providers.Keys;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +21,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
     {
         private readonly IModsetConfig _modsetConfig;
         private readonly ILogger<DedicatedServer> _logger;
-        private readonly IKeysProvider _keysProvider;
+        private readonly IKeysPreparer _keysPreparer;
         private readonly IArmaProcessManager _armaProcessManager;
 
         private readonly List<IArmaProcess> _headlessProcesses;
@@ -31,14 +31,14 @@ namespace ArmaForces.Arma.Server.Features.Servers
             int port,
             IModset modset,
             IModsetConfig modsetConfig,
-            IKeysProvider keysProvider,
+            IKeysPreparer keysPreparer,
             IArmaProcessManager armaProcessManager,
             IArmaProcess armaProcess,
             IEnumerable<IArmaProcess> headlessClients,
             ILogger<DedicatedServer> logger)
         {
             Port = port;
-            _keysProvider = keysProvider;
+            _keysPreparer = keysPreparer;
             _armaProcessManager = armaProcessManager;
             Modset = modset;
             _modsetConfig = modsetConfig;
@@ -68,7 +68,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
             _logger.LogTrace("Starting server on port {port} with {modsetName} modset.", Port, Modset.Name);
 
             return _modsetConfig.CopyConfigFiles()
-                .Bind(() => _keysProvider.PrepareKeysForModset(Modset))
+                .Bind(() => _keysPreparer.PrepareKeysForModset(Modset))
                 .Bind(() => _armaProcess.Start())
                 .Tap(() => _armaProcess.OnProcessShutdown += OnServerProcessShutdown)
                 .Bind(() => _headlessProcesses.Select(x => x.Start())
