@@ -25,7 +25,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
         private readonly string _keysDirectory;
         private readonly string _managerDirectory;
-        private readonly string _serverConfigDirectoryPath;
+        private readonly string _externalKeysDirectoryPath;
 
         public KeysPreparer(
             ISettings settings,
@@ -43,7 +43,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
             _fileSystem = fileSystem ?? new FileSystem();
 
             _keysDirectory = _fileSystem.Path.Join(settings.ServerDirectory, KeysConstants.KeysDirectoryName);
-            _serverConfigDirectoryPath = _fileSystem.Path.Join(serverConfig.DirectoryPath, KeysConstants.KeysDirectoryName);
+            _externalKeysDirectoryPath = _fileSystem.Path.Join(serverConfig.DirectoryPath, KeysConstants.ExternalKeysDirectoryName);
             _managerDirectory = settings.ManagerDirectory;
         }
 
@@ -117,7 +117,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
         
         private IEnumerable<BikeyFile> GetExternalKeys(IMod mod)
         {
-            var modDirectoryResult = _modDirectoryFinder.TryFindModDirectory(mod, _serverConfigDirectoryPath);
+            var modDirectoryResult = _modDirectoryFinder.TryFindModDirectory(mod, _externalKeysDirectoryPath);
             
             return modDirectoryResult.IsSuccess
                 ? _keysFinder.GetKeysFromDirectory(modDirectoryResult.Value)

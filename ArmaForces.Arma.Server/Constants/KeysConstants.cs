@@ -3,6 +3,8 @@
     internal static class KeysConstants
     {
         public const string KeysDirectoryName = "Keys";
+
+        public const string ExternalKeysDirectoryName = "External" + KeysDirectoryName;
         
         public const string KeyExtension = ".bikey";
 

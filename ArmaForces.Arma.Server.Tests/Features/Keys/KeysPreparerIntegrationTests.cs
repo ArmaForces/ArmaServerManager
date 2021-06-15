@@ -39,7 +39,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys
             _serviceProvider = CreateServiceProvider(_settings, config, _fileSystem);
 
             _keysDirectory = MockUnixSupport.Path($"{_settings.ServerDirectory}\\{KeysConstants.KeysDirectoryName}");
-            _externalKeysDirectory = MockUnixSupport.Path($"{_settings.ServerConfigDirectory}\\{KeysConstants.KeysDirectoryName}");
+            _externalKeysDirectory = MockUnixSupport.Path($"{_settings.ServerConfigDirectory}\\{KeysConstants.ExternalKeysDirectoryName}");
             _modsDirectory = _settings.ModsDirectory!;
         }
         
