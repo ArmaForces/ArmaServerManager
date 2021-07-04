@@ -11,7 +11,7 @@ namespace ArmaForces.Arma.Server.Features.Dlcs
         
         public new ModType Type => ModType.Required;
         
-        public new long WorkshopId => (long) AppId;
+        public override long WorkshopId => (long) AppId;
         
         public DlcAppId AppId { get; set; }
     }

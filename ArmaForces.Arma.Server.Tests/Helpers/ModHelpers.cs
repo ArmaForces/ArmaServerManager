@@ -27,7 +27,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             };
         }
 
-        public static List<Mod> CreateModsList(Fixture fixture, int modsNumber)
+        public static List<Mod> CreateModsList(Fixture fixture, int modsNumber = 3)
         {
             var modsList = new List<Mod>();
 

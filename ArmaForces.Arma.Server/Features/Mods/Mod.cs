@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 
 namespace ArmaForces.Arma.Server.Features.Mods {
-    public class Mod : IMod
+    public class Mod : IMod, IEquatable<Mod>
     {
         public string? WebId { get; set; }
 
@@ -17,7 +17,7 @@ namespace ArmaForces.Arma.Server.Features.Mods {
 
         public ModType Type { get; set; }
 
-        public long WorkshopId { get; set; }
+        public virtual long WorkshopId { get; set; }
 
         public string? Directory { get; set; }
 
@@ -28,6 +28,15 @@ namespace ArmaForces.Arma.Server.Features.Mods {
         }
 
         public bool Equals(IMod? mod) {
+            if (mod is null) return false;
+            if (ReferenceEquals(this, mod)) return true;
+            return Source == ModSource.SteamWorkshop
+                ? IsWorkshopModEqual(mod)
+                : IsLocalModEqual(mod);
+        }
+
+        public bool Equals(Mod? mod)
+        {
             if (mod is null) return false;
             if (ReferenceEquals(this, mod)) return true;
             return Source == ModSource.SteamWorkshop
