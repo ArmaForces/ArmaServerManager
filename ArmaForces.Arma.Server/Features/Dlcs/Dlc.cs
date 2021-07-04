@@ -1,17 +1,18 @@
-﻿using System;
+﻿using ArmaForces.Arma.Server.Features.Dlcs.Constants;
+using ArmaForces.Arma.Server.Features.Mods;
 
 namespace ArmaForces.Arma.Server.Features.Dlcs
 {
-    public class Dlc : IDlc
+    public class Dlc : Mod
     {
         public string Id { get; set; } = string.Empty;
-
-        public string Name { get; set; } = string.Empty;
         
-        public DateTime CreatedAt { get; set; }
+        public new ModSource Source => ModSource.SteamWorkshop;
         
-        public DateTime LastUpdatedAt { get; set; }
+        public new ModType Type => ModType.Required;
         
-        public int AppId { get; set; }
+        public new long WorkshopId => (long) AppId;
+        
+        public DlcAppId AppId { get; set; }
     }
 }

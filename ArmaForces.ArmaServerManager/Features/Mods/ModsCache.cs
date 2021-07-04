@@ -4,6 +4,8 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Features.Dlcs;
+using ArmaForces.Arma.Server.Features.Dlcs.Constants;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Extensions;
@@ -19,6 +21,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private readonly IFileSystem _fileSystem;
         private readonly string _cacheFilePath;
         private readonly string _modsPath;
+        private readonly string _armaPath;
 
         private readonly ISet<IMod> _mods;
 
@@ -31,6 +34,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             _modDirectoryFinder = modDirectoryFinder;
             _fileSystem = fileSystem ?? new FileSystem();
             _modsPath = settings.ModsDirectory!;
+            _armaPath = settings.ServerDirectory!;
             _cacheFilePath = $"{_modsPath}\\{settings.ModsManagerCacheFileName}.json";
 
             // Blocking on asynchronous code as it's only done once at app startup
@@ -66,11 +70,16 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .Select(MapWebModToCacheMod)
                 .ToHashSet();
 
+            var mappedDlcs = webModset.Dlcs
+                .Select(MapWebDlcToCacheDlc)
+                .ToHashSet();
+
             return new Modset
             {
                 Name = webModset.Name,
                 WebId = webModset.Id,
-                Mods = mappedMods
+                Mods = mappedMods,
+                Dlcs = mappedDlcs
             };
         }
 
@@ -158,6 +167,19 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             return result.IsSuccess
                 ? result.Value
                 : _modDirectoryFinder.TryEnsureModDirectory(convertedMod);
+        }
+
+        private Dlc MapWebDlcToCacheDlc(WebDlc webDlc)
+        {
+            return new Dlc
+            {
+                Name = webDlc.Name,
+                WebId = webDlc.Id,
+                CreatedAt = webDlc.CreatedAt,
+                LastUpdatedAt = webDlc.LastUpdatedAt,
+                AppId = (DlcAppId) webDlc.AppId,
+                Directory = _fileSystem.Path.Join(_armaPath, webDlc.Directory)
+            };
         }
 
         /// <summary>
