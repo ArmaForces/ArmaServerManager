@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ArmaForces.Arma.Server.Features.Keys;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers.Exceptions;
 using ArmaForces.Arma.Server.Providers.Configuration;
-using ArmaForces.Arma.Server.Providers.Keys;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +12,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 {
     public class ServerBuilder : IServerBuilder
     {
-        private readonly IKeysProvider _keysProvider;
+        private readonly IKeysPreparer _keysPreparer;
         private readonly IServerConfigurationProvider _serverConfigurationProvider;
         private readonly IArmaProcessManager _armaProcessManager;
         private readonly IArmaProcessFactory _armaProcessFactory;
@@ -26,13 +26,13 @@ namespace ArmaForces.Arma.Server.Features.Servers
         private IReadOnlyList<IArmaProcess>? _headlessClients;
 
         public ServerBuilder(
-            IKeysProvider keysProvider,
+            IKeysPreparer keysPreparer,
             IServerConfigurationProvider serverConfigurationProvider,
             IArmaProcessManager armaProcessManager,
             IArmaProcessFactory armaProcessFactory,
             ILogger<DedicatedServer> dedicatedServerLogger)
         {
-            _keysProvider = keysProvider;
+            _keysPreparer = keysPreparer;
             _serverConfigurationProvider = serverConfigurationProvider;
             _armaProcessManager = armaProcessManager;
             _armaProcessFactory = armaProcessFactory;
@@ -97,7 +97,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
                 _port!.Value,
                 _modset,
                 modsetConfig,
-                _keysProvider,
+                _keysPreparer,
                 _armaProcessManager,
                 serverProcess,
                 headlessClients,
