@@ -1,11 +1,11 @@
 using System;
 using System.Text.Json.Serialization;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Parameters;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
 using ArmaForces.Arma.Server.Providers.Configuration;
-using ArmaForces.Arma.Server.Providers.Keys;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Filters;
@@ -37,7 +37,7 @@ namespace ArmaForces.ArmaServerManager
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -83,12 +83,14 @@ namespace ArmaForces.ArmaServerManager
 
             .AddSingleton<ISettings>(Settings.LoadSettings)
 
+            // Arma Server
+            .AddArmaServer()
+            
             // Mods
             .AddSingleton<ModsCache>()
-            .AddSingleton<IModsCache>(x => x.GetService<ModsCache>()!)
-            .AddSingleton<IWebModsetMapper>(x => x.GetService<ModsCache>()!)
+            .AddSingleton<IModsCache, ModsCache>()
+            .AddSingleton<IWebModsetMapper, ModsCache>()
             .AddSingleton<IModsManager, ModsManager>()
-            .AddSingleton<IModDirectoryFinder, ModDirectoryFinder>()
             .AddSingleton<IApiModsetClient, ApiModsetClient>()
             .AddSingleton<ISteamClient, SteamClient>()
             .AddSingleton<IManifestDownloader, ManifestDownloader>()
@@ -103,9 +105,6 @@ namespace ArmaForces.ArmaServerManager
             // Configuration
             .AddSingleton<ConfigFileCreator>()
             .AddSingleton<ConfigReplacer>()
-
-            // Keys
-            .AddSingleton<IKeysProvider, KeysProvider>()
 
             // Process
             .AddSingleton<IArmaProcessDiscoverer, ArmaProcessDiscoverer>()
