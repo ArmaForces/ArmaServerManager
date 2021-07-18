@@ -9,6 +9,7 @@ using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Features.Modsets
 {
+    [Trait("Category", "Unit")]
     public class ModsetTests
     {
         private readonly Fixture _fixture = new Fixture();

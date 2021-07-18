@@ -8,6 +8,7 @@ using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Missions.Extensions
 {
+    [Trait("Category", "Unit")]
     public class WebMissionsCollectionExtensionsTests
     {
         [Fact]

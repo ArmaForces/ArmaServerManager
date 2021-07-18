@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -12,6 +12,7 @@ using RestSharp;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets {
+    [Trait("Category", "Unit")]
     public class ApiModsetClientTests {
         private readonly Fixture _fixture = new Fixture();
 

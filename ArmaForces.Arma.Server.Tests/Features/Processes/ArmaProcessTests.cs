@@ -6,6 +6,7 @@ using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Features.Processes
 {
+    [Trait("Category", "Unit")]
     public class ArmaProcessTests
     {
         [Fact]

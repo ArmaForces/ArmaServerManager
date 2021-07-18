@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using ArmaForces.ArmaServerManager.Features.Missions;
@@ -12,6 +12,7 @@ using RestSharp;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Missions {
+    [Trait("Category", "Unit")]
     public class ApiMissionsClientTests {
         private readonly Fixture _fixture = new Fixture();
 

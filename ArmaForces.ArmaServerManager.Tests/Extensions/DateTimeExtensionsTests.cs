@@ -7,6 +7,7 @@ using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Extensions
 {
+    [Trait("Category", "Unit")]
     public class DateTimeExtensionsTests
     {
         [Theory]

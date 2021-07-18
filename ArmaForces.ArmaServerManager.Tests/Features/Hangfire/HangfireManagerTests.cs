@@ -15,6 +15,7 @@ using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 {
+    [Trait("Category", "Unit")]
     public class HangfireManagerTests
     {
         private const string DummyClassFirstMethodName = "DoNothing";

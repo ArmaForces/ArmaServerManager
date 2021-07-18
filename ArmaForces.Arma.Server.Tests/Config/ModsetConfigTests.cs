@@ -14,6 +14,7 @@ using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Config
 {
+    [Trait("Category", "Unit")]
     public class ModsetConfigTests
     {
         private readonly string _workingDirectory = Directory.GetCurrentDirectory();

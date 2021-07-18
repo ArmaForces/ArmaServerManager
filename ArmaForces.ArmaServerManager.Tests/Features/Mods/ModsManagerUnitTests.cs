@@ -12,6 +12,7 @@ using Moq;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
+    [Trait("Category", "Unit")]
     public class ModsManagerUnitTests {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<IModsCache> _modsCacheMock = new Mock<IModsCache>();

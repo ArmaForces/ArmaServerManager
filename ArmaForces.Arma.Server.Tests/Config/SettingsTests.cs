@@ -11,6 +11,7 @@ using Moq;
 using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Config {
+    [Trait("Category", "Unit")]
     public class SettingsTests {
         private const string DefaultServerExecutable = "arma3server_x64.exe";
         private Mock<IConfigurationRoot> _configurationMock = new Mock<IConfigurationRoot>();

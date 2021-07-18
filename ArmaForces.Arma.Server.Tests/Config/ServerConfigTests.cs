@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -12,6 +12,7 @@ using Moq;
 using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Config {
+    [Trait("Category", "Unit")]
     public class ServerConfigTests
     {
         private readonly string _workingDirectory = Directory.GetCurrentDirectory();

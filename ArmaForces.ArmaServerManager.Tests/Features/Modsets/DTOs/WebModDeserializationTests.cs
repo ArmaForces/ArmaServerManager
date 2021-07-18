@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using AutoFixture;
@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
+    [Trait("Category", "Unit")]
     public class WebModDeserializationTests {
         const string ApiDateTimeFormat = "yyyy-MM-ddTHH:mm:sszzz";
         private readonly Fixture _fixture = new Fixture();

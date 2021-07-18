@@ -22,6 +22,7 @@ using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Features.Servers
 {
+    [Trait("Category", "Unit")]
     public class DedicatedServerTests
     {
         private const int ServerPort = 2302;

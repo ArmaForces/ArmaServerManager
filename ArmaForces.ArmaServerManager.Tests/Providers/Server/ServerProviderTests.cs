@@ -15,6 +15,7 @@ using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Providers.Server
 {
+    [Trait("Category", "Unit")]
     public class ServerProviderTests
     {
         private readonly IModset _modset = ModsetHelpers.CreateEmptyModset(new Fixture());

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using ArmaForces.Arma.Server.Config;
@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Config {
+    [Trait("Category", "Unit")]
     public class ConfigReplacerTests {
         private readonly string _cfgFile = File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "test_server.cfg"));
 

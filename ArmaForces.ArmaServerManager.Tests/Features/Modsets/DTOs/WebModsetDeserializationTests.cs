@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
+    [Trait("Category", "Unit")]
     public class WebModsetDeserializationTests {
 
         const string ApiDateTimeFormat = "yyyy-MM-ddTHH:mm:sszzz";
