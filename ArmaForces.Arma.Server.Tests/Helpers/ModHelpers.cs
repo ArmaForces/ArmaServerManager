@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using ArmaForces.Arma.Server.Features.Mods;
 using AutoFixture;
 
@@ -11,15 +12,20 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
         {
             return fixture.Create<Mod>();
         }
-
-        public static Mod CreateTestMod(Fixture fixture, ModType modType)
+       
+        public static Mod CreateTestMod(
+            Fixture fixture,
+            ModType modType,
+            string? modBaseDirectory = null)
         {
+            var modName = fixture.Create<string>();
+            
             return new Mod
             {
                 CreatedAt = fixture.Create<DateTime>(),
-                Directory = fixture.Create<string>(),
+                Directory = Path.Join(modBaseDirectory, modName),
                 LastUpdatedAt = fixture.Create<DateTime>(),
-                Name = fixture.Create<string>(),
+                Name = modName,
                 Source = fixture.Create<ModSource>(),
                 Type = modType,
                 WebId = fixture.Create<string>(),

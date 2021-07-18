@@ -2,8 +2,14 @@
 {
     internal static class KeysConstants
     {
+        public const string KeysDirectoryName = "Keys";
+
+        public const string ExternalKeysDirectoryName = "External" + KeysDirectoryName;
+        
         public const string KeyExtension = ".bikey";
 
-        public static string ArmaKey => $"a3{KeyExtension}";
+        public const string KeyExtensionSearchPattern = "*" + KeyExtension;
+
+        public const string ArmaKey = "a3" + KeyExtension;
     }
 }
