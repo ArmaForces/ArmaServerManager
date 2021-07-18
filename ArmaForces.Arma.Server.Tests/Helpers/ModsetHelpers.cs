@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ArmaForces.Arma.Server.Features.Dlcs;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using AutoFixture;
@@ -30,6 +31,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             var modset = new Modset
             {
                 Mods = new HashSet<IMod>(),
+                Dlcs = new HashSet<Dlc>(),
                 LastUpdatedAt = fixture.Create<DateTime>(),
                 Name = fixture.Create<string>(),
                 WebId = fixture.Create<string>()
@@ -70,6 +72,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             {
                 LastUpdatedAt = modset.LastUpdatedAt,
                 Mods = modset.Mods.ToHashSet(),
+                Dlcs = modset.Dlcs.ToHashSet(),
                 Name = modset.Name,
                 WebId = modset.WebId
             };
