@@ -25,7 +25,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Modsets
         }
 
         [Fact]
-        public void _ModsAndDlcs_Matches()
+        public void RequiredMods_ModsAndDlcs_Matches()
         {
             var modsList = ModHelpers.CreateModsList(_fixture);
             var dlcsList = DlcHelpers.CreateDlcsList(_fixture);
