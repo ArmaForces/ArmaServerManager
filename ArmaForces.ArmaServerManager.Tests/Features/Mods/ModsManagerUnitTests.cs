@@ -11,9 +11,11 @@ using CSharpFunctionalExtensions;
 using Moq;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
+{
     [Trait("Category", "Unit")]
-    public class ModsManagerUnitTests {
+    public class ModsManagerUnitTests
+    {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<IModsCache> _modsCacheMock = new Mock<IModsCache>();
         private readonly Mock<IContentVerifier> _contentVerifierMock = new Mock<IContentVerifier>();
@@ -21,16 +23,19 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
         private readonly ModsManager _modsManager;
         private readonly IModset _modset;
 
-        public ModsManagerUnitTests() {
-            _modset = new Modset {
+        public ModsManagerUnitTests()
+        {
+            _modset = new Modset
+            {
                 Mods = new HashSet<IMod> { FixtureCreateMod() }
             };
 
             _modsManager = new ModsManager(_downloaderMock.Object, _contentVerifierMock.Object, _modsCacheMock.Object);
         }
 
-        [Fact, Trait("Category", "Unit")]
-        public async Task PrepareModset_ModNotExists_DownloadsMod() {
+        [Fact]
+        public async Task PrepareModset_ModNotExists_DownloadsMod()
+        {
             _downloaderMock.Setup(x => x.DownloadOrUpdateMods(It.IsAny<IEnumerable<IMod>>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new List<Result<IMod>> { Result.Success((IMod) new Mod()) }));
 
@@ -44,9 +49,11 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
                 It.IsAny<CancellationToken>()));
         }
 
-        [Fact, Trait("Category", "Unit")]
-        public async Task PrepareModset_ModExists_DownloadsMod() {
-            foreach (var mod in _modset.Mods) {
+        [Fact]
+        public async Task PrepareModset_ModExists_DownloadsMod()
+        {
+            foreach (var mod in _modset.Mods)
+            {
                 _modsCacheMock.Setup(x => x.ModExists(It.IsAny<IMod>())).Returns(Task.FromResult(false));
                 _modsCacheMock.Setup(x => x.ModExists(mod)).Returns(Task.FromResult(true));
             }
@@ -64,7 +71,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
                 It.IsAny<CancellationToken>()));
         }
 
-        private IMod FixtureCreateMod() {
+        private IMod FixtureCreateMod()
+        {
             return _fixture.Create<Mod>();
         }
     }

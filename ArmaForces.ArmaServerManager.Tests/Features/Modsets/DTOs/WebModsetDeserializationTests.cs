@@ -6,10 +6,11 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
+{
     [Trait("Category", "Unit")]
-    public class WebModsetDeserializationTests {
-
+    public class WebModsetDeserializationTests
+    {
         const string ApiDateTimeFormat = "yyyy-MM-ddTHH:mm:sszzz";
         private readonly Fixture _fixture = new Fixture();
         private readonly string _modsetId;
@@ -19,7 +20,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
 
         private readonly Dictionary<string, object> _jsonDictionary;
 
-        public WebModsetDeserializationTests() {
+        public WebModsetDeserializationTests()
+        {
             _modsetId = _fixture.Create<string>();
             _modsetName = _fixture.Create<string>();
             _modsetCreatedAt = _fixture.Create<DateTime>();
@@ -34,7 +36,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
         }
 
         [Fact]
-        public void Modset_DeserializeWithoutMods_Successfull() {
+        public void Modset_DeserializeWithoutMods_Successfull()
+        {
             var json = JsonConvert.SerializeObject(_jsonDictionary);
 
             var modset = JsonConvert.DeserializeObject<WebModset>(json);
@@ -48,7 +51,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
         }
 
         [Fact]
-        public void Modset_DeserializeWithMods_Successfull() {
+        public void Modset_DeserializeWithMods_Successfull()
+        {
             var modsList = CreateModsList();
             _jsonDictionary.Add("mods", modsList);
             var json = JsonConvert.SerializeObject(_jsonDictionary);
@@ -59,7 +63,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
             modset.Mods.Count.Should().Be(1);
         }
 
-        private List<object> CreateModsList() {
+        private List<object> CreateModsList()
+        {
             List<object> modsList = new List<object>();
             modsList.Add(CreateModDictionary());
             return modsList;

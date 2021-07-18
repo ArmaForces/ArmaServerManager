@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -11,7 +11,8 @@ using FluentAssertions.Execution;
 using Moq;
 using Xunit;
 
-namespace ArmaForces.Arma.Server.Tests.Config {
+namespace ArmaForces.Arma.Server.Tests.Config
+{
     [Trait("Category", "Unit")]
     public class ServerConfigTests
     {
@@ -28,7 +29,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void ServerConfig_LoadConfig_Success() {
+        public void ServerConfig_LoadConfig_Success()
+        {
             // Arrange
             var settingsMock = new Mock<ISettings>();
             var serverConfigDirPath = Path.Join(_workingDirectory, _serverConfigDirName);

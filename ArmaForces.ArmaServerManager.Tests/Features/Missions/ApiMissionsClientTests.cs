@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using ArmaForces.ArmaServerManager.Features.Missions;
@@ -11,13 +11,16 @@ using Moq;
 using RestSharp;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Features.Missions {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Missions
+{
     [Trait("Category", "Unit")]
-    public class ApiMissionsClientTests {
+    public class ApiMissionsClientTests
+    {
         private readonly Fixture _fixture = new Fixture();
 
         [Fact]
-        public void GetUpcomingMissions_StatusOk_MissionsRetrieved() {
+        public void GetUpcomingMissions_StatusOk_MissionsRetrieved()
+        {
             var expectedMissions = new List<WebMission> { _fixture.Create<WebMission>() };
             var restClientMock = new Mock<IRestClient>();
             restClientMock.SetupResponse(HttpStatusCode.OK, expectedMissions);
@@ -30,7 +33,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions {
         }
 
         [Fact]
-        public void GetUpcomingMissionsModsets_StatusOk_ModsetsRetrieved() {
+        public void GetUpcomingMissionsModsets_StatusOk_ModsetsRetrieved()
+        {
             const int modsetsCount = 3;
             const int missionsCount = 6;
             var modsets = _fixture.CreateMany<WebModset>(modsetsCount).ToList();
@@ -47,10 +51,12 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions {
             result.Value.Should().BeEquivalentTo(expectedModsets);
         }
 
-        private List<WebMission> PrepareMissions(int missionsCount, IReadOnlyList<WebModset> modsets) {
+        private List<WebMission> PrepareMissions(int missionsCount, IReadOnlyList<WebModset> modsets)
+        {
             var missions = _fixture.CreateMany<WebMission>(missionsCount).ToList();
             var j = 0;
-            foreach (var webMission in missions) {
+            foreach (var webMission in missions)
+            {
                 webMission.Modlist = modsets[j].Name;
                 j = j < modsets.Count - 1
                     ? j + 1

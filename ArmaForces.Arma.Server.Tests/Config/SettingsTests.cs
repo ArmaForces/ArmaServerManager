@@ -10,23 +10,27 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
-namespace ArmaForces.Arma.Server.Tests.Config {
+namespace ArmaForces.Arma.Server.Tests.Config
+{
     [Trait("Category", "Unit")]
-    public class SettingsTests {
+    public class SettingsTests
+    {
         private const string DefaultServerExecutable = "arma3server_x64.exe";
         private Mock<IConfigurationRoot> _configurationMock = new Mock<IConfigurationRoot>();
         private Fixture _fixture = new Fixture();
         private MockFileSystem _fileSystemMock = new MockFileSystem();
         private readonly string _workingDirectory;
 
-        public SettingsTests() {
+        public SettingsTests()
+        {
             _workingDirectory = Path.Join(Directory.GetCurrentDirectory(), _fixture.Create<string>());
             _configurationMock.Setup(x => x["serverDirectory"]).Returns(_workingDirectory);
             _fileSystemMock.AddDirectory(_workingDirectory);
         }
         
         [Fact]
-        public void Settings_LoadSettings_Success() {
+        public void Settings_LoadSettings_Success()
+        {
             ISettings settings = new Settings(_configurationMock.Object, _fileSystemMock);
 
             var loaded = settings.LoadSettings();
@@ -35,7 +39,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void Settings_ModsDirectoryCustom_Correct() {
+        public void Settings_ModsDirectoryCustom_Correct()
+        {
             var expectedModsDirectory = Path.Join(_workingDirectory, _fixture.Create<string>());
             _configurationMock.Setup(x => x["modsDirectory"]).Returns(expectedModsDirectory);
 
@@ -45,7 +50,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void Settings_ModsDirectoryDefault_Correct() {
+        public void Settings_ModsDirectoryDefault_Correct()
+        {
             var expectedModsDirectory = Path.Join(_workingDirectory, "mods");
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
@@ -54,7 +60,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void Settings_ServerConfigDirectoryCustom_Correct() {
+        public void Settings_ServerConfigDirectoryCustom_Correct()
+        {
             var expectedServerConfigDirectory = Path.Join(_workingDirectory, _fixture.Create<string>());
             _configurationMock.Setup(x => x["serverConfigDirectory"]).Returns(expectedServerConfigDirectory);
 
@@ -64,7 +71,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void Settings_ServerConfigDirectoryDefault_Correct() {
+        public void Settings_ServerConfigDirectoryDefault_Correct()
+        {
             var expectedServerConfigDirectory = Path.Join(_workingDirectory, "serverConfig");
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
@@ -73,7 +81,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void Settings_ServerDirectoryFromConfig_Correct() {
+        public void Settings_ServerDirectoryFromConfig_Correct()
+        {
             var expectedServerDirectory = _workingDirectory;
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
 
@@ -81,7 +90,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void Settings_ServerDirectoryFromRegistry_Correct() {
+        public void Settings_ServerDirectoryFromRegistry_Correct()
+        {
             _configurationMock.Setup(x => x["serverDirectory"]).Returns(() => null!);
             var expectedServerDirectory = _workingDirectory;
             var registryReaderMock = new Mock<IRegistryReader>();
@@ -95,7 +105,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void Settings_ServerDirectoryNoCorrect_ThrowsServerNotFound() {
+        public void Settings_ServerDirectoryNoCorrect_ThrowsServerNotFound()
+        {
             _configurationMock.Setup(x => x["serverDirectory"]).Returns(() => null!);
             var registryReaderMock = new Mock<IRegistryReader>();
 
@@ -105,7 +116,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void Settings_ServerDirectory_FoundOrThrewException() {
+        public void Settings_ServerDirectory_FoundOrThrewException()
+        {
             try {
                 var settings = PrepareSettings(_configurationMock, _fileSystemMock);
 
@@ -116,7 +128,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
         
         [Fact]
-        public void Settings_ServerExecutableDefault_Correct() {
+        public void Settings_ServerExecutableDefault_Correct()
+        {
             var expectedServerExecutable = Path.Join(_workingDirectory, DefaultServerExecutable);
 
             var settings = PrepareSettings(_configurationMock, _fileSystemMock);
@@ -125,7 +138,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void Settings_ServerExecutableCustom_Correct() {
+        public void Settings_ServerExecutableCustom_Correct()
+        {
             var serverExecutableName = _fixture.Create<string>();
             var expectedServerExecutable = Path.Join(_workingDirectory, serverExecutableName);
             _configurationMock.Setup(x => x["serverExecutableName"]).Returns(serverExecutableName);
@@ -137,7 +151,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         }
 
         [Fact]
-        public void Settings_ServerExecutableCustomIncorrect_FallsBackToDefault() {
+        public void Settings_ServerExecutableCustomIncorrect_FallsBackToDefault()
+        {
             var serverExecutableName = _fixture.Create<string>();
             var expectedServerExecutable = Path.Join(_workingDirectory, DefaultServerExecutable);
             _configurationMock.Setup(x => x["serverExecutableName"]).Returns(serverExecutableName);
@@ -150,7 +165,8 @@ namespace ArmaForces.Arma.Server.Tests.Config {
         private ISettings PrepareSettings(
             Mock<IConfigurationRoot> configurationMock,
             IFileSystem fileSystemMock,
-            Mock<IRegistryReader>? registryReaderMock = null) {
+            Mock<IRegistryReader>? registryReaderMock = null)
+        {
             ISettings settings = registryReaderMock is null
                 ? new Settings(configurationMock.Object, fileSystemMock)
                 : new Settings(configurationMock.Object, fileSystemMock, registryReaderMock.Object);

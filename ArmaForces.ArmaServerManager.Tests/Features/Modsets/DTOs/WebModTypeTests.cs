@@ -1,11 +1,13 @@
-using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
+﻿using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using ArmaForces.ArmaServerManager.Tests.Helpers;
 using FluentAssertions;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
+{
     [Trait("Category", "Unit")]
-    public class WebModTypeTests {
+    public class WebModTypeTests
+    {
         [Fact]
         public void ModType_ApiServerSide_ParsedSuccessfully()
         {
