@@ -7,9 +7,9 @@ namespace ArmaForces.Arma.Server.Features.Dlcs
     {
         public string Id { get; set; } = string.Empty;
         
-        public new ModSource Source => ModSource.SteamWorkshop;
+        public override ModSource Source => ModSource.SteamWorkshop;
         
-        public new ModType Type => ModType.Required;
+        public override ModType Type => ModType.Required;
         
         public override long WorkshopId => (long) AppId;
         

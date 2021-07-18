@@ -13,9 +13,9 @@ namespace ArmaForces.Arma.Server.Features.Mods {
 
         public DateTime? LastUpdatedAt { get; set; }
         
-        public ModSource Source { get; set; }
+        public virtual ModSource Source { get; set; }
 
-        public ModType Type { get; set; }
+        public virtual ModType Type { get; set; }
 
         public virtual long WorkshopId { get; set; }
 
