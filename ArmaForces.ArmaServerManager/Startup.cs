@@ -1,11 +1,7 @@
 using System;
+using System.IO.Abstractions;
 using System.Text.Json.Serialization;
-using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
-using ArmaForces.Arma.Server.Features.Parameters;
-using ArmaForces.Arma.Server.Features.Processes;
-using ArmaForces.Arma.Server.Features.Servers;
-using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Filters;
@@ -27,6 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace ArmaForces.ArmaServerManager
 {
@@ -126,6 +123,8 @@ namespace ArmaForces.ArmaServerManager
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseSerilogRequestLogging();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
