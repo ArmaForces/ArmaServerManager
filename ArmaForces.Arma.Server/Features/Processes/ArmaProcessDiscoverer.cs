@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Parameters;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
             var armaProcesses = new Dictionary<int, List<IArmaProcess>>();
 
-            if (!foundProcesses.Any()) return armaProcesses;
+            if (foundProcesses.IsEmpty()) return armaProcesses;
             
             _logger.LogInformation($"Found {{count}} running {ArmaProcessName} processes.", foundProcesses.Count);
             foreach (var armaServerProcess in foundProcesses)

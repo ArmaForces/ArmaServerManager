@@ -22,7 +22,7 @@ namespace ArmaForces.ArmaServerManager.Services
         /// <inheritdoc />
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            RecurringJob.AddOrUpdate<MaintenanceService>(x => x.PerformMaintenance(CancellationToken.None), Cron.Daily(4));
+            //RecurringJob.AddOrUpdate<MaintenanceService>(x => x.PerformMaintenance(CancellationToken.None), Cron.Daily(4));
 
             // Initialize provider
             // TODO: Find a better way

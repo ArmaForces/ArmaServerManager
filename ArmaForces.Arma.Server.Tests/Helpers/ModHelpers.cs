@@ -26,7 +26,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
                 Directory = Path.Join(modBaseDirectory, modName),
                 LastUpdatedAt = fixture.Create<DateTime>(),
                 Name = modName,
-                Source = fixture.Create<ModSource>(),
+                Source = ModSource.SteamWorkshop,
                 Type = modType,
                 WebId = fixture.Create<string>(),
                 WorkshopId = fixture.Create<int>()

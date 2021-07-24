@@ -12,7 +12,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
     /// </summary>
     public interface IContentDownloader
     {
-        Task<List<Result<IMod>>> DownloadOrUpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken);
+        Task<List<Result<IMod>>> DownloadOrUpdateMods(
+            IReadOnlyCollection<IMod> mods,
+            CancellationToken cancellationToken);
         
         Task<List<Result<ContentItem>>> DownloadOrUpdate(IEnumerable<ContentItem> items, CancellationToken cancellationToken);
 

@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using ArmaForces.Arma.Server.Config;
@@ -61,7 +60,7 @@ namespace ArmaForces.Arma.Server.Tests.Config
         public void ReplaceValue_NoQuotesFromConfiguration_Match()
         {
             // Arrange
-            var key = "verifySignatures"; // It has it's value as number with no quotes
+            const string key = "verifySignatures"; // It has it's value as number with no quotes
             var value = _modsetConfig.GetSection("server")[key];
             var expectedMatch = $"{key} = {value};";
 
@@ -76,7 +75,7 @@ namespace ArmaForces.Arma.Server.Tests.Config
         public void ReplaceValue_NoQuotes_Match()
         {
             // Arrange
-            var key = "verifySignatures"; // It has it's value as number with no quotes
+            const string key = "verifySignatures"; // It has it's value as number with no quotes
             var value = 3.ToString();
             var expectedMatch = $"{key} = {value};";
 
@@ -91,9 +90,9 @@ namespace ArmaForces.Arma.Server.Tests.Config
         public void ReplaceValue_ArrayFromConfiguration_Match()
         {
             // Arrange
-            var key = "admins[]"; // It has array value with {} as array brackets
+            const string key = "admins[]"; // It has array value with {} as array brackets
             var value = _modsetConfig.GetSection("server").GetSection(key).GetChildren().ToList();
-            var stringValue = String.Join(", ", value.Select(p => p.Value.ToString()));
+            var stringValue = string.Join(", ", value.Select(p => p.Value.ToString()));
             var expectedMatch = $"{key} = {{{stringValue}}};";
 
             // Act
@@ -107,8 +106,8 @@ namespace ArmaForces.Arma.Server.Tests.Config
         public void ReplaceValue_ArrayString_Match()
         {
             // Arrange
-            var key = "admins[]"; // It has array value with {} as array brackets
-            var stringValue = "\"123\", \"456\"";
+            const string key = "admins[]"; // It has array value with {} as array brackets
+            const string stringValue = "\"123\", \"456\"";
             var expectedMatch = $"{key} = {{{stringValue}}};";
 
             // Act
@@ -122,8 +121,8 @@ namespace ArmaForces.Arma.Server.Tests.Config
         public void ReplaceValue_Template_Match()
         {
             // Arrange
-            var key = "template"; // It
-            var stringValue = "SomeMission.SomeMapCode";
+            const string key = "template"; // It
+            const string stringValue = "SomeMission.SomeMapCode";
             var expectedMatch = $"\t\t{key} = {stringValue};";
 
             // Act
@@ -137,8 +136,8 @@ namespace ArmaForces.Arma.Server.Tests.Config
         public void ReplaceValue_NoMatch_ConfigUnchanged()
         {
             // Arrange
-            var key = "nonexistence"; // It doesn't exist
-            var stringValue = "";
+            const string key = "nonexistence"; // It doesn't exist
+            const string stringValue = "";
 
             // Act
             var newCfgFile = _configReplacer.ReplaceValue(_cfgFile, key, stringValue);

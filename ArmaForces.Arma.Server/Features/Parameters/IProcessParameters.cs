@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace ArmaForces.Arma.Server.Features.Parameters
 {
+    // TODO: Remove interface for model
     public interface IProcessParameters : IEquatable<IProcessParameters>
     {
         public string ProcessPath { get; }

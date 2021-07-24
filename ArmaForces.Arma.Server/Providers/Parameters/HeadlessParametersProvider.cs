@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Constants;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Parameters;
@@ -34,6 +35,7 @@ namespace ArmaForces.Arma.Server.Providers.Parameters
                 "HC",
                 _modset.Name,
                 fpsLimit: 100,
+                connectIpAddress: ParametersDefaults.ConnectIpAddress,
                 connectPassword: _modsetConfig.ServerPassword,
                 mods: _modset.ServerSideMods
                     .Concat(_modset.RequiredMods)

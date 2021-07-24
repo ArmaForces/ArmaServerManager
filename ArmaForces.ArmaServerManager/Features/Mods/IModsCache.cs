@@ -28,6 +28,6 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
         ///     Adds <paramref name="mods"/> to mods cache or updates them if they already exists.
         /// </summary>
         /// <param name="mods">List of mods to be added or updated.</param>
-        Task<Result<List<IMod>>> AddOrUpdateModsInCache(IEnumerable<IMod> mods);
+        Task<Result<List<IMod>>> AddOrUpdateModsInCache(IReadOnlyCollection<IMod> mods);
     }
 }

@@ -11,6 +11,7 @@ using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using ArmaForces.Arma.Server.Tests.Helpers;
+using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using AutoFixture;
 using CSharpFunctionalExtensions;
 using FluentAssertions;
@@ -74,26 +75,14 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
         [Fact]
         public void Start_ServerIsStopped_ServerStarted()
         {
-            var armaProcessMock = new Mock<IArmaProcess>();
-            armaProcessMock
-                .Setup(x => x.Start())
-                .Returns(Result.Success);
-            armaProcessMock
-                .Setup(x => x.IsStopped)
-                .Returns(true);
+            var armaProcessMock = CreateArmaProcessMock();
 
             var headlessClientsMocks = new List<Mock<IArmaProcess>>
             {
-                new Mock<IArmaProcess>(),
-                new Mock<IArmaProcess>()
+                CreateArmaProcessMock(),
+                CreateArmaProcessMock()
             };
-            foreach (var headlessClientMock in headlessClientsMocks)
-            {
-                headlessClientMock
-                    .Setup(x => x.Start())
-                    .Returns(Result.Success);
-            }
-
+            
             var dedicatedServer = PrepareDedicatedServer(
                 armaProcessMock.Object,
                 headlessClientsMocks.Select(x => x.Object));
@@ -102,9 +91,11 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
 
             using (new AssertionScope())
             {
-                result.IsSuccess.Should().BeTrue();
+                result.ShouldBeSuccess();
+                
                 _modsetConfigMock.Verify(x => x.CopyConfigFiles(), Times.Once);
                 _keysProviderMock.Verify(x => x.PrepareKeysForModset(_modset), Times.Once);
+                
                 armaProcessMock.Verify(x => x.Start(), Times.Once);
                 foreach (var headlessClientMock in headlessClientsMocks)
                 {
@@ -148,13 +139,25 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
             funcMock.Verify(x => x.Invoke(It.IsAny<IDedicatedServer>()), Times.Once);
         }
 
-        private DedicatedServer PrepareDedicatedServer()
+        private static Mock<IArmaProcess> CreateArmaProcessMock()
         {
-            var serverProcessMock = new Mock<IArmaProcess>();
-            serverProcessMock.Setup(x => x.IsStopped).Returns(true);
-            serverProcessMock.Setup(x => x.IsStartingOrStarted).Returns(false);
-            return PrepareDedicatedServer(serverProcessMock.Object);
+            var armaProcessMock = new Mock<IArmaProcess>();
+            
+            armaProcessMock
+                .Setup(x => x.Start())
+                .Returns(Result.Success);
+            armaProcessMock
+                .Setup(x => x.IsStopped)
+                .Returns(true);
+            armaProcessMock
+                .Setup(x => x.IsStartingOrStarted)
+                .Returns(false);
+            
+            return armaProcessMock;
         }
+
+        private DedicatedServer PrepareDedicatedServer()
+            => PrepareDedicatedServer(CreateArmaProcessMock().Object);
 
         private DedicatedServer PrepareDedicatedServer(IArmaProcess armaProcess, IEnumerable<IArmaProcess>? headlessClients = null)
             => new DedicatedServer(

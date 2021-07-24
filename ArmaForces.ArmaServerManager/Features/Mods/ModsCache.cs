@@ -87,7 +87,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             => await _fileSystem.File.WriteAllTextAsync(_cacheFilePath, JsonConvert.SerializeObject(_mods));
 
         /// <inheritdoc />
-        public async Task<Result<List<IMod>>> AddOrUpdateModsInCache(IEnumerable<IMod> mods)
+        public async Task<Result<List<IMod>>> AddOrUpdateModsInCache(IReadOnlyCollection<IMod> mods)
         {
             var cacheMods = mods.Select(x => AddOrUpdateModInCache(x).Value).ToList();
             await SaveCache();

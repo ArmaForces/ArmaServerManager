@@ -3,7 +3,6 @@ using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using AutoFixture;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Extensions
@@ -17,31 +16,31 @@ namespace ArmaForces.ArmaServerManager.Tests.Extensions
         public void AsContentItem_ModWithAllData_ContentItemMatches()
         {
             var mod = _fixture.Create<Mod>();
+            var expectedContentItem = CreateExpectedContentItem(mod);
 
             var contentItem = mod.AsContentItem();
 
-            using (new AssertionScope())
-            {
-                contentItem.ItemType.Should().BeEquivalentTo(ItemType.Mod);
-                contentItem.Id.Should().Be((uint) mod.WorkshopId);
-                contentItem.Directory.Should().BeEquivalentTo(mod.Directory);
-            }
+            contentItem.Should().BeEquivalentTo(expectedContentItem);
         }
 
         [Fact]
         public void AsContentItem_ModWithMissingDirectory_ContentItemMatches()
         {
-            var mod = _fixture.Create<Mod>();
-            mod.Directory = null;
+            var mod = _fixture.Build<Mod>()
+                .Without(x => x.Directory)
+                .Create();
+            var expectedContentItem = CreateExpectedContentItem(mod);
 
             var contentItem = mod.AsContentItem();
 
-            using (new AssertionScope())
-            {
-                contentItem.ItemType.Should().BeEquivalentTo(ItemType.Mod);
-                contentItem.Id.Should().Be((uint) mod.WorkshopId);
-                contentItem.Directory.Should().BeNullOrWhiteSpace();
-            }
+            contentItem.Should().BeEquivalentTo(expectedContentItem);
         }
+
+        private static ContentItem CreateExpectedContentItem(Mod mod) => new ContentItem
+        {
+            Id = (uint) mod.WorkshopId,
+            ItemType = ItemType.Mod,
+            Directory = mod.Directory
+        };
     }
 }

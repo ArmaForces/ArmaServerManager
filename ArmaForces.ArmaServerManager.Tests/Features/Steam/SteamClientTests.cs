@@ -10,9 +10,10 @@ using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Steam
 {
+    [Trait("Category", "Integration")]
     public class SteamClientTests
     {
-        [Fact, Trait("Category", "Integration")]
+        [Fact]
         public void Connect_CancellationRequested_TaskCancelled()
         {
             var settingsMock = new Mock<ISettings>();
@@ -29,7 +30,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Steam
             action.Should().Throw<OperationCanceledException>();
         }
 
-        [Fact, Trait("Category", "Integration")]
+        [Fact]
         public void Connect_InvalidCredentials_ThrowsInvalidCredentialsException()
         {
             var settingsMock = new Mock<ISettings>();

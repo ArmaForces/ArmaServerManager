@@ -28,7 +28,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
         /// </summary>
         /// <param name="modsList">List of mods to check.</param>
         /// <returns><see cref="Result{T}"/> with outdated mods.</returns>
-        Task<Result<List<IMod>>> CheckModsUpdated(IEnumerable<IMod> modsList, CancellationToken cancellationToken);
+        Task<Result<List<IMod>>> CheckModsUpdated(IReadOnlyCollection<IMod> modsList, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates given <paramref name="mods"/>.

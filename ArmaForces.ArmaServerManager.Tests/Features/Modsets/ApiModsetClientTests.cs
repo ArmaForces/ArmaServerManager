@@ -62,7 +62,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets
             restClientMock.SetupResponse(HttpStatusCode.NotFound, new WebModset());
             var apiClient = new ApiModsetClient(restClientMock.Object);
 
-            Action action = () => apiClient.GetModsetDataByName("");
+            Action action = () => apiClient.GetModsetDataByName(string.Empty);
 
             action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
         }
@@ -74,7 +74,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets
             restClientMock.SetupResponse(HttpStatusCode.NotFound, new WebModset());
             var apiClient = new ApiModsetClient(restClientMock.Object);
 
-            Action action = () => apiClient.GetModsetDataById("");
+            Action action = () => apiClient.GetModsetDataById(string.Empty);
 
             action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
         }

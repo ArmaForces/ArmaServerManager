@@ -66,7 +66,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Steam.Content
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        internal class ContentFileVerifierTestsDataProvider : IEnumerable<object[]>
+        private class ContentFileVerifierTestsDataProvider : IEnumerable<object[]>
         {
             private readonly IEnumerable<object[]> _enumerableImplementation;
 

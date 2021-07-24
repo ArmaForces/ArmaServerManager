@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Extensions;
@@ -23,7 +24,10 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// <param name="contentDownloader">Client for mods download and updating.</param>
         /// <param name="contentVerifier">Client for verifying whether mods are up to date and correct.</param>
         /// <param name="modsCache">Installed mods cache.</param>
-        public ModsManager(IContentDownloader contentDownloader, IContentVerifier contentVerifier, IModsCache modsCache)
+        public ModsManager(
+            IContentDownloader contentDownloader,
+            IContentVerifier contentVerifier,
+            IModsCache modsCache)
         {
             _contentDownloader = contentDownloader;
             _contentVerifier = contentVerifier;
@@ -32,15 +36,15 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 
         /// <inheritdoc />
         public async Task<Result> PrepareModset(IModset modset, CancellationToken cancellationToken)
-            => await DownloadMods(modset.Mods, cancellationToken);
+            => await CheckUpdatesAndDownloadMods(modset.Mods, cancellationToken);
 
         /// <inheritdoc />
         public async Task UpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken)
-            => await DownloadMods(mods, cancellationToken);
+            => await CheckUpdatesAndDownloadMods(mods, cancellationToken);
 
         /// <inheritdoc />
         public async Task UpdateAllMods(CancellationToken cancellationToken)
-            => await DownloadMods(_modsCache.Mods, cancellationToken);
+            => await CheckUpdatesAndDownloadMods(_modsCache.Mods, cancellationToken);
 
         /// <inheritdoc />
         public Result<IEnumerable<IMod>> CheckModsExist(IEnumerable<IMod> modsList)
@@ -53,8 +57,13 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         /// <inheritdoc />
-        public async Task<Result<List<IMod>>> CheckModsUpdated(IEnumerable<IMod> modsList, CancellationToken cancellationToken)
+        public async Task<Result<List<IMod>>> CheckModsUpdated(IReadOnlyCollection<IMod> modsList, CancellationToken cancellationToken)
         {
+            if (modsList.IsEmpty())
+            {
+                return Result.Success(new List<IMod>());
+            }
+            
             var modsRequireUpdate = new ConcurrentBag<IMod>();
 
             await foreach (var mod in modsList.Where(x => x.Source == ModSource.SteamWorkshop)
@@ -69,20 +78,33 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
         
         /// <summary>
-        ///     Invokes <see cref="ISteamClient" /> to download given list of mods.
+        /// Checks which mods require updates, downloads them and updates in cache.
         /// </summary>
         /// <param name="modsToDownload">Mods to download.</param>
-        /// ///
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods download safe cancelling.</param>
-        private async Task<Result> DownloadMods(IEnumerable<IMod> modsToDownload, CancellationToken cancellationToken)
+        private async Task<Result> CheckUpdatesAndDownloadMods(IEnumerable<IMod> modsToDownload, CancellationToken cancellationToken)
         {
-            var modsMissingOrOutdated = await CheckModsUpdated(modsToDownload, cancellationToken);
+            return await CheckModsUpdated(modsToDownload.ToList(), cancellationToken)
+                .Bind(modsMissingOrOutdated => DownloadMods(modsMissingOrOutdated, cancellationToken));
+        }
 
-            var downloadResults = await _contentDownloader.DownloadOrUpdateMods(modsMissingOrOutdated.Value, cancellationToken);
+        private async Task<Result> DownloadMods(
+            IReadOnlyCollection<IMod> modsToDownload,
+            CancellationToken cancellationToken)
+        {
+            if (modsToDownload.IsEmpty())
+            {
+                return Result.Success();
+            }
+            
+            var downloadResults = await _contentDownloader.DownloadOrUpdateMods(
+                modsToDownload,
+                cancellationToken);
 
             var successfullyDownloadedMods = downloadResults
                 .Where(x => x.IsSuccess)
-                .Select(x => x.Value);
+                .Select(x => x.Value)
+                .ToList();
 
             await _modsCache.AddOrUpdateModsInCache(successfullyDownloadedMods)
                 .Tap(() => _modsCache.SaveCache());

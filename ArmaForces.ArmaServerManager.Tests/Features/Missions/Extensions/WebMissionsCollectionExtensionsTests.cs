@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using ArmaForces.ArmaServerManager.Features.Missions.Extensions;
 using ArmaForces.ArmaServerManager.Tests.Helpers.Missions;
@@ -14,9 +15,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions.Extensions
         [Fact]
         public void GetNearestMission_CollectionEmpty_ReturnsNull()
         {
-            var missions = new List<WebMission>();
-
-            var result = missions.GetNearestMission();
+            var result = new List<WebMission>()
+                .GetNearestMission();
 
             result.IsSuccess.Should().BeFalse();
         }
@@ -32,8 +32,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions.Extensions
 
             var result = missions.GetNearestMission();
 
-            result.IsSuccess.Should().BeTrue();
-            result.Value.Should().BeEquivalentTo(expectedMission);
+            result.ShouldBeSuccess(expectedMission);
         }
     }
 }
