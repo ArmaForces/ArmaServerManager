@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Mods;
+using ArmaForces.Arma.Server.Tests.Helpers;
+using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Mods;
 using AutoFixture;
@@ -42,7 +45,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
                 .AddSingleton(_fileSystemMock)
                 .BuildServiceProvider();
 
-            _mod = FixtureCreateMod();
+            _mod = ModHelpers.CreateTestMod(_fixture);
         }
 
         [Fact]
@@ -158,6 +161,27 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             }
         }
 
+        [Fact]
+        public async Task AddOrUpdateModsInCache_SomeModsDataChanged_CacheUpdated()
+        {
+            var mods = ModHelpers.CreateModsList(_fixture);
+            
+            foreach (var mod in mods)
+            {
+                _fileSystemMock.Directory.CreateDirectory(mod.Directory);
+                mod.Directory = _fixture.Create<string>();
+            }
+
+            var newMods = ModHelpers.CreateModsList(_fixture);
+            var allMods = mods.Concat(newMods).ToList();
+
+            var modsCache = GetModsCache();
+
+            var result = await modsCache.AddOrUpdateModsInCache(allMods);
+
+            result.ShouldBeSuccess(allMods.Cast<IMod>().ToList());
+        }
+
         private ISettings CreateSettings()
         {
             var settingsMock = new Mock<ISettings>();
@@ -167,11 +191,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
 
             return settingsMock.Object;
         }
-
-        private IMod FixtureCreateMod() {
-            return _fixture.Create<Mod>();
-        }
-
+        
         private IModsCache GetModsCache() {
             return _testServiceProvider.GetService<IModsCache>()!;
         }

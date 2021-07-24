@@ -106,8 +106,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .Select(x => x.Value)
                 .ToList();
 
-            await _modsCache.AddOrUpdateModsInCache(successfullyDownloadedMods)
-                .Tap(() => _modsCache.SaveCache());
+            await _modsCache.AddOrUpdateModsInCache(successfullyDownloadedMods);
 
             return downloadResults.Combine();
         }

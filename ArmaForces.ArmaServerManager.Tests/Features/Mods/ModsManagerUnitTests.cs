@@ -45,7 +45,6 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             
             VerifyModsNotDownloadedOrUpdated();
             VerifyModsCacheNotUpdated();
-            VerifyModsCacheSaved(Times.Never());
         }
 
         [Fact]
@@ -69,7 +68,6 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
 
             VerifyModsDownloadedOrUpdated(missingMods, cancellationToken);
             VerifyModsCacheUpdated(missingMods);
-            VerifyModsCacheSaved();
         }
 
         [Fact]
@@ -93,7 +91,6 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             
             VerifyModsDownloadedOrUpdated(outdatedMods, cancellationToken);
             VerifyModsCacheUpdated(outdatedMods);
-            VerifyModsCacheSaved();
         }
 
         private void VerifyModsDownloadedOrUpdated(
@@ -108,10 +105,6 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             x => x.AddOrUpdateModsInCache(
                 It.Is<IReadOnlyCollection<IMod>>(mods => mods.All(modsShouldBeUpdated.Contains))),
             Times.Once);
-
-        private void VerifyModsCacheSaved(Times? times = null) => _modsCacheMock.Verify(
-            x => x.SaveCache(),
-            times ?? Times.Once());
 
         private void VerifyModsCacheNotUpdated() => _modsCacheMock.Verify(
             x => x.AddOrUpdateModsInCache(It.IsAny<IReadOnlyCollection<IMod>>()),
