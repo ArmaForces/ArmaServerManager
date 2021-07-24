@@ -14,7 +14,7 @@ using BytexDigital.Steam.ContentDelivery.Exceptions;
 using BytexDigital.Steam.ContentDelivery.Models.Downloading;
 using BytexDigital.Steam.Core.Enumerations;
 using CSharpFunctionalExtensions;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 {
@@ -23,19 +23,28 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
     {
         private readonly string _modsDirectory;
         private readonly ISteamClient _steamClient;
+        private readonly ILogger<ContentDownloader> _logger;
 
-        public ContentDownloader(ISettings settings) : this(new SteamClient(settings), settings.ModsDirectory!)
+        public ContentDownloader(
+            ISettings settings,
+            ISteamClient steamClient,
+            ILogger<ContentDownloader> contentDownloader)
+            : this(steamClient, settings.ModsDirectory!,
+                contentDownloader)
         {
         }
 
         /// <inheritdoc cref="ContentDownloader" />
         /// <param name="steamClient">Client used for connection.</param>
         /// <param name="modsDirectory">Directory where mods should be stored.</param>
-        public ContentDownloader(
+        /// <param name="logger">Logger</param>
+        private ContentDownloader(
             ISteamClient steamClient,
-            string modsDirectory)
+            string modsDirectory,
+            ILogger<ContentDownloader> logger)
         {
             _steamClient = steamClient;
+            _logger = logger;
             _modsDirectory = modsDirectory;
         }
 
@@ -43,9 +52,13 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             IReadOnlyCollection<IMod> mods,
             CancellationToken cancellationToken)
         {
-            await _steamClient.EnsureConnected(cancellationToken);
-            var workshopMods = mods.Where(x => x.Source == ModSource.SteamWorkshop);
+            var workshopMods = mods
+                .Where(x => x.Source == ModSource.SteamWorkshop)
+                .ToList();
+            _logger.LogTrace("Downloading {Count} items: {ItemsIds}", workshopMods.Count, workshopMods);
 
+            await _steamClient.EnsureConnected(cancellationToken);
+            
             var results = new List<Result<IMod>>();
             foreach (var mod in workshopMods)
             {
@@ -67,6 +80,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                         Source = mod.Source,
                         WebId = mod.WebId
                     };
+                    
+                    _logger.LogTrace("Downloaded mod data: {Mod}", updatedMod);
+                    
                     results.Add(Result.Success(updatedMod));
                 }
                 else
@@ -78,37 +94,19 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             return results;
         }
 
-        public async Task<List<Result<ContentItem>>> DownloadOrUpdate(
-            IEnumerable<ContentItem> items,
-            CancellationToken cancellationToken)
-        {
-            await _steamClient.EnsureConnected(cancellationToken);
-
-            var results = new List<Result<ContentItem>>();
-            foreach (var item in items)
-            {
-                if (cancellationToken.IsCancellationRequested) CancelDownload();
-                results.Add(await DownloadOrUpdate(item, cancellationToken));
-            }
-
-            return results;
-        }
-
-        public async Task<Result<ContentItem>> DownloadOrUpdate(
+        private async Task<Result<ContentItem>> DownloadOrUpdate(
             ContentItem contentItem,
             CancellationToken cancellationToken)
             => await Download(contentItem, cancellationToken);
         
-        public static ContentDownloader CreateContentDownloader(IServiceProvider serviceProvider)
-        {
-            var modsDirectory = serviceProvider.GetService<ISettings>()!.ModsDirectory!;
-            return new ContentDownloader(serviceProvider.GetService<ISteamClient>()!, modsDirectory);
-        }
-
         /// <summary>
-        ///     Safely cancels download process.
+        /// Safely cancels download process.
         /// </summary>
-        private void CancelDownload() => throw new OperationCanceledException();
+        private void CancelDownload()
+        {
+            _logger.LogWarning("Download cancelled");
+            throw new OperationCanceledException();
+        }
 
         /// <summary>
         ///     Handles download process
@@ -160,6 +158,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 }
                 catch (SteamAppAccessTokenDeniedException exception)
                 {
+                    _logger.LogError(exception, "Workshop item with id {Id} does not exist", contentItem.Id);
                     throw new WorkshopItemNotExistsException(contentItem.Id, exception);
                 }
             }
@@ -172,7 +171,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             IContentDownloadHandler contentDownloadHandler,
             CancellationToken cancellationToken)
         {
-            Console.WriteLine($"Starting download of {contentItem}");
+            _logger.LogDebug("Starting download of {ContentItem}", contentItem);
 
             var downloadDirectory = GetModDownloadDirectory(contentItem);
             var downloadTask = contentDownloadHandler.DownloadChangesToFolderAsync(downloadDirectory, cancellationToken);
@@ -197,18 +196,23 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             while (!downloadTask.IsCompleted)
             {
                 var delayTask = Task.Delay(1000, cancellationToken);
-                var completedTask = await Task.WhenAny(delayTask, downloadTask);
+                await Task.WhenAny(delayTask, downloadTask);
+                // TODO: Replace console with something more reasonable (but logging every second or so is not the best idea)
                 Console.WriteLine($"Progress {contentDownloadHandler.TotalProgress * 100:00.00}%");
             }
 
             await downloadTask;
 
-            Console.WriteLine(
-                downloadTask.IsCompletedSuccessfully
-                    ? $"Downloaded {itemId}."
-                    : $"Aborted {itemId} download.");
-
-            return Result.Success();
+            if (downloadTask.IsCompletedSuccessfully)
+            {
+                _logger.LogInformation("Downloaded {ItemId}", itemId);
+                return Result.Success();
+            }
+            else
+            {
+                _logger.LogInformation("Aborted {ItemId} download", itemId);
+                return Result.Failure($"Download of {itemId} was aborted.");
+            }
         }
     }
 }
