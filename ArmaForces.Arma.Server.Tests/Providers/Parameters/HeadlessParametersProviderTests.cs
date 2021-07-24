@@ -10,6 +10,7 @@ using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Providers.Parameters
 {
+    [Trait("Category", "Unit")]
     public class HeadlessParametersProviderTests
     {
         private readonly Fixture _fixture = new Fixture();

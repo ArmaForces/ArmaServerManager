@@ -2,6 +2,7 @@ using System;
 using System.IO.Abstractions;
 
 namespace ArmaForces.Arma.Server.Features.Mods {
+    // TODO: Remove this interface
     public interface IMod : IEquatable<IMod> {
         string? WebId { get; }
         string Name { get; }

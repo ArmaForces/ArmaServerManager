@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Features.Dlcs;
+using ArmaForces.Arma.Server.Features.Dlcs.Constants;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Extensions;
@@ -19,6 +20,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private readonly IFileSystem _fileSystem;
         private readonly string _cacheFilePath;
         private readonly string _modsPath;
+        private readonly string _armaPath;
 
         private readonly ISet<IMod> _mods;
 
@@ -31,6 +33,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             _modDirectoryFinder = modDirectoryFinder;
             _fileSystem = fileSystem ?? new FileSystem();
             _modsPath = settings.ModsDirectory!;
+            _armaPath = settings.ServerDirectory!;
             _cacheFilePath = $"{_modsPath}\\{settings.ModsManagerCacheFileName}.json";
 
             // Blocking on asynchronous code as it's only done once at app startup
@@ -66,24 +69,26 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .Select(MapWebModToCacheMod)
                 .ToHashSet();
 
+            var mappedDlcs = webModset.Dlcs
+                .Select(MapWebDlcToCacheDlc)
+                .ToHashSet();
+
             return new Modset
             {
                 Name = webModset.Name,
                 WebId = webModset.Id,
-                Mods = mappedMods
+                Mods = mappedMods,
+                Dlcs = mappedDlcs
             };
         }
 
         /// <inheritdoc />
-        public async Task SaveCache() 
-            => await _fileSystem.File.WriteAllTextAsync(_cacheFilePath, JsonConvert.SerializeObject(_mods));
-
-        /// <inheritdoc />
-        public async Task<Result<List<IMod>>> AddOrUpdateModsInCache(IEnumerable<IMod> mods)
+        public async Task<Result<List<IMod>>> AddOrUpdateModsInCache(IReadOnlyCollection<IMod> mods)
         {
-            var cacheMods = mods.Select(x => AddOrUpdateModInCache(x).Value).ToList();
-            await SaveCache();
-            return Result.Success(cacheMods);
+            return await mods.Select(AddOrUpdateModInCache)
+                .Combine()
+                .Bind(x => Result.Success(x.ToList()))
+                .Tap(async _ => await SaveCache());
         }
 
         /// <summary>
@@ -160,6 +165,19 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 : _modDirectoryFinder.TryEnsureModDirectory(convertedMod);
         }
 
+        private Dlc MapWebDlcToCacheDlc(WebDlc webDlc)
+        {
+            return new Dlc
+            {
+                Name = webDlc.Name,
+                WebId = webDlc.Id,
+                CreatedAt = webDlc.CreatedAt,
+                LastUpdatedAt = webDlc.LastUpdatedAt,
+                AppId = (DlcAppId) webDlc.AppId,
+                Directory = _fileSystem.Path.Join(_armaPath, webDlc.Directory)
+            };
+        }
+
         /// <summary>
         /// Tries to add <paramref name="mod"/> to cache and if it already exists, updates it.
         /// </summary>
@@ -167,7 +185,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private Result<IMod> AddOrUpdateModInCache(IMod mod)
         {
             return AddModToCache(mod)
-                .OnFailureCompensate(error => UpdateModInCache(mod));
+                .OnFailureCompensate(_ => UpdateModInCache(mod));
         }
 
         /// <summary>
@@ -184,7 +202,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 ? Result.Failure<IMod>("Mod directory could not be found.")
                 : Result.Success(mod);
         }
-        
+
         /// <summary>
         /// Performs cache loading from cache file.
         /// After loading the file performs quick filtering to exclude non-existing mods.
@@ -227,5 +245,11 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .ToHashSet();
             return Result.Success<ISet<IMod>>(mods);
         }
+
+        /// <summary>
+        /// Saves cache to file.
+        /// </summary>
+        private async Task SaveCache() 
+            => await _fileSystem.File.WriteAllTextAsync(_cacheFilePath, JsonConvert.SerializeObject(_mods));
     }
 }

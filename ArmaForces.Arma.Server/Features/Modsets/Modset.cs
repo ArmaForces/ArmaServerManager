@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ArmaForces.Arma.Server.Features.Dlcs;
 using ArmaForces.Arma.Server.Features.Mods;
 
 namespace ArmaForces.Arma.Server.Features.Modsets {
@@ -13,9 +14,12 @@ namespace ArmaForces.Arma.Server.Features.Modsets {
 
         public ISet<IMod> Mods { get; set; } = new HashSet<IMod>();
 
+        public ISet<Dlc> Dlcs { get; set; } = new HashSet<Dlc>();
+
         public ISet<IMod> RequiredMods
             => Mods
                 .Where(x => x.Type == ModType.Required)
+                .Concat(Dlcs)
                 .ToHashSet();
 
         public ISet<IMod> ServerSideMods
@@ -25,6 +29,7 @@ namespace ArmaForces.Arma.Server.Features.Modsets {
 
         public ISet<IMod> ClientLoadableMods
             => Mods
+                .Concat(Dlcs)
                 .Where(x => x.Type > ModType.ServerSide)
                 .ToHashSet();
 

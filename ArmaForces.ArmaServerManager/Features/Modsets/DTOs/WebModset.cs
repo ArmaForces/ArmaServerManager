@@ -13,5 +13,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
         public DateTime? LastUpdatedAt { get; set; }
 
         public List<WebMod> Mods { get; set; } = new List<WebMod>();
+
+        public List<WebDlc> Dlcs { get; set; } = new List<WebDlc>();
     }
 }

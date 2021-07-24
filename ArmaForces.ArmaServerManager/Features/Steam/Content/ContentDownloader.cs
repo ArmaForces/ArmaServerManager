@@ -40,7 +40,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         }
 
         public async Task<List<Result<IMod>>> DownloadOrUpdateMods(
-            IEnumerable<IMod> mods,
+            IReadOnlyCollection<IMod> mods,
             CancellationToken cancellationToken)
         {
             await _steamClient.EnsureConnected(cancellationToken);

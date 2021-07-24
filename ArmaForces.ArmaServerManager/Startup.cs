@@ -1,13 +1,14 @@
 using System;
 using System.Text.Json.Serialization;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Parameters;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
 using ArmaForces.Arma.Server.Providers.Configuration;
-using ArmaForces.Arma.Server.Providers.Keys;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Filters;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
 using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Mods;
@@ -36,7 +37,7 @@ namespace ArmaForces.ArmaServerManager
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -61,14 +62,16 @@ namespace ArmaForces.ArmaServerManager
                 .AddJsonOptions(opt => opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
             // Add Hangfire services.
-            services.AddHangfire(configuration => configuration
+            services.AddHangfire((provider, configuration) => configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
+                .UseFilter(provider.GetService<FailOnResultFailureAttribute>())
                 .UseLiteDbStorage(Configuration.GetConnectionString("HangfireConnection")))
 
             // Add the processing server as IHostedService
             .AddHangfireServer(ConfigureHangfireServer())
+            .AddTransient<FailOnResultFailureAttribute>()
 
             .AddHostedService<StartupService>()
 
@@ -78,14 +81,14 @@ namespace ArmaForces.ArmaServerManager
             .AddSingleton<IModsUpdateService, ModsUpdateService>()
             .AddSingleton<IServerStartupService, ServerStartupService>()
 
-            .AddSingleton<ISettings>(Settings.LoadSettings)
-
+            // Arma Server
+            .AddArmaServer()
+            
             // Mods
             .AddSingleton<ModsCache>()
-            .AddSingleton<IModsCache>(x => x.GetService<ModsCache>()!)
-            .AddSingleton<IWebModsetMapper>(x => x.GetService<ModsCache>()!)
+            .AddSingleton<IModsCache, ModsCache>()
+            .AddSingleton<IWebModsetMapper, ModsCache>()
             .AddSingleton<IModsManager, ModsManager>()
-            .AddSingleton<IModDirectoryFinder, ModDirectoryFinder>()
             .AddSingleton<IApiModsetClient, ApiModsetClient>()
             .AddSingleton<ISteamClient, SteamClient>()
             .AddSingleton<IManifestDownloader, ManifestDownloader>()
@@ -97,26 +100,9 @@ namespace ArmaForces.ArmaServerManager
             // Mission
             .AddSingleton<IApiMissionsClient, ApiMissionsClient>()
 
-            // Configuration
-            .AddSingleton<ConfigFileCreator>()
-            .AddSingleton<ConfigReplacer>()
-
-            // Keys
-            .AddSingleton<IKeysProvider, KeysProvider>()
-
-            // Process
-            .AddSingleton<IArmaProcessDiscoverer, ArmaProcessDiscoverer>()
-            .AddSingleton<IArmaProcessFactory, ArmaProcessFactory>()
-            .AddSingleton<IArmaProcessManager, ArmaProcessManager>()
-
             // Server
             .AddSingleton<IServerProvider, ServerProvider>()
-            .AddSingleton<IServerConfigurationProvider, ServerConfigurationProvider>()
             .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
-            .AddSingleton<IDedicatedServerFactory, DedicatedServerFactory>()
-            .AddSingleton<IServerBuilder, ServerBuilder>()
-            .AddSingleton<IServerBuilderFactory, ServerBuilderFactory>()
-            .AddSingleton<IParametersExtractor, ParametersExtractor>()
 
             // Hangfire
             .AddSingleton<IHangfireBackgroundJobClient, HangfireBackgroundJobClient>()

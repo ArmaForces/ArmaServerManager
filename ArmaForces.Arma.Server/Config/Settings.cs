@@ -18,6 +18,7 @@ namespace ArmaForces.Arma.Server.Config
         public string? ApiMissionsBaseUrl { get; set; }
         public string? ApiModsetsBaseUrl { get; set; }
         public string ModsetConfigDirectoryName { get; set; } = "modsetConfig";
+        // TODO: Extract to IModsConfig or something
         public string? ModsDirectory { get; set; }
         public string ModsManagerCacheFileName { get; set; } = ".ManagerModsCache";
         public string? ServerConfigDirectory { get; set; }

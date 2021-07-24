@@ -11,12 +11,16 @@ using Moq;
 using RestSharp;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets {
-    public class ApiModsetClientTests {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets
+{
+    [Trait("Category", "Unit")]
+    public class ApiModsetClientTests
+    {
         private readonly Fixture _fixture = new Fixture();
 
         [Fact]
-        public void GetModsets_StatusOk_ModsetsRetrieved() {
+        public void GetModsets_StatusOk_ModsetsRetrieved()
+        {
             var expectedModsets = new List<WebModset>{_fixture.Create<WebModset>()};
             var restClientMock = new Mock<IRestClient>();
             restClientMock.SetupResponse(HttpStatusCode.OK, expectedModsets);
@@ -28,7 +32,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets {
         }
 
         [Fact]
-        public void GetModsets_StatusNotFound_ThrowsHttpRequestException() {
+        public void GetModsets_StatusNotFound_ThrowsHttpRequestException()
+        {
             var restClientMock = new Mock<IRestClient>();
             restClientMock.SetupResponse(HttpStatusCode.NotFound, new List<WebModset>());
             var apiClient = new ApiModsetClient(restClientMock.Object);
@@ -39,7 +44,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets {
         }
 
         [Fact]
-        public void GetModsets_StatusInternalError_ThrowsHttpRequestException() {
+        public void GetModsets_StatusInternalError_ThrowsHttpRequestException()
+        {
             var restClientMock = new Mock<IRestClient>();
             restClientMock.SetupResponse(HttpStatusCode.InternalServerError, new List<WebModset>());
             var apiClient = new ApiModsetClient(restClientMock.Object);
@@ -50,29 +56,32 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets {
         }
 
         [Fact]
-        public void GetModsetDataByName_StatusNotFound_ThrowsHttpRequestException() {
+        public void GetModsetDataByName_StatusNotFound_ThrowsHttpRequestException()
+        {
             var restClientMock = new Mock<IRestClient>();
             restClientMock.SetupResponse(HttpStatusCode.NotFound, new WebModset());
             var apiClient = new ApiModsetClient(restClientMock.Object);
 
-            Action action = () => apiClient.GetModsetDataByName("");
+            Action action = () => apiClient.GetModsetDataByName(string.Empty);
 
             action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
         }
 
         [Fact]
-        public void GetModsetDataById_StatusNotFound_ThrowsHttpRequestException() {
+        public void GetModsetDataById_StatusNotFound_ThrowsHttpRequestException()
+        {
             var restClientMock = new Mock<IRestClient>();
             restClientMock.SetupResponse(HttpStatusCode.NotFound, new WebModset());
             var apiClient = new ApiModsetClient(restClientMock.Object);
 
-            Action action = () => apiClient.GetModsetDataById("");
+            Action action = () => apiClient.GetModsetDataById(string.Empty);
 
             action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
         }
 
         [Fact]
-        public void GetModsetDataByModset_StatusNotFound_ThrowsHttpRequestException() {
+        public void GetModsetDataByModset_StatusNotFound_ThrowsHttpRequestException()
+        {
             var modset = _fixture.Create<WebModset>();
             var restClientMock = new Mock<IRestClient>();
             restClientMock.SetupResponse(HttpStatusCode.NotFound, new WebModset());

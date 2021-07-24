@@ -3,8 +3,11 @@ using ArmaForces.ArmaServerManager.Tests.Helpers;
 using FluentAssertions;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
-    public class WebModTypeTests {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
+{
+    [Trait("Category", "Unit")]
+    public class WebModTypeTests
+    {
         [Fact]
         public void ModType_ApiServerSide_ParsedSuccessfully()
         {
