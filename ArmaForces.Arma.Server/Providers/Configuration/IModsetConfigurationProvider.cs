@@ -2,7 +2,7 @@
 
 namespace ArmaForces.Arma.Server.Providers.Configuration
 {
-    public interface IServerConfigurationProvider
+    public interface IModsetConfigurationProvider
     {
         IModsetConfig GetModsetConfig(string modsetName);
     }

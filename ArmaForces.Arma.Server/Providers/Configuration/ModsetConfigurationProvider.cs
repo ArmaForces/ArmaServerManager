@@ -3,13 +3,13 @@ using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Providers.Configuration
 {
-    public class ServerConfigurationProvider : IServerConfigurationProvider
+    public class ModsetConfigurationProvider : IModsetConfigurationProvider
     {
         private readonly ISettings _settings;
         private readonly ConfigFileCreator _configFileCreator;
         private readonly ILogger<ModsetConfig> _modsetConfigLogger;
 
-        public ServerConfigurationProvider(ISettings settings, ConfigFileCreator configFileCreator, ILogger<ModsetConfig> modsetConfigLogger)
+        public ModsetConfigurationProvider(ISettings settings, ConfigFileCreator configFileCreator, ILogger<ModsetConfig> modsetConfigLogger)
         {
             _settings = settings;
             _configFileCreator = configFileCreator;
