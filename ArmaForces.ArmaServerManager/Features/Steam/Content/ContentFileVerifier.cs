@@ -29,7 +29,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 return Result.Success(contentItem);
             }
 
-            _logger.LogInformation("Item {contentItemId} doesn't have a directory.");
+            _logger.LogInformation("Item {ContentItemId} doesn't have a directory", contentItem.Id);
             return Result.Failure<ContentItem>("Item not exists.");
         }
 
