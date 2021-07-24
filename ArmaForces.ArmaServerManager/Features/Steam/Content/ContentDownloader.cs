@@ -55,6 +55,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             var workshopMods = mods
                 .Where(x => x.Source == ModSource.SteamWorkshop)
                 .ToList();
+            
             _logger.LogTrace("Downloading {Count} items: {@ItemsIds}", workshopMods.Count, workshopMods);
 
             await _steamClient.EnsureConnected(cancellationToken);
@@ -63,32 +64,10 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             foreach (var mod in workshopMods)
             {
                 if (cancellationToken.IsCancellationRequested) CancelDownload();
-                var item = mod.AsContentItem();
-                var result = await DownloadOrUpdate(item, cancellationToken);
-
-                if (result.IsSuccess)
-                {
-                    var downloadedItem = result.Value;
-                    var updatedMod = (IMod) new Mod
-                    {
-                        Directory = mod.Directory ?? downloadedItem.Directory,
-                        CreatedAt = mod.CreatedAt,
-                        LastUpdatedAt = DateTime.Now,
-                        Name = mod.Name,
-                        WorkshopId = mod.WorkshopId,
-                        Type = mod.Type,
-                        Source = mod.Source,
-                        WebId = mod.WebId
-                    };
-                    
-                    _logger.LogTrace("Downloaded mod data: {@Mod}", updatedMod);
-                    
-                    results.Add(Result.Success(updatedMod));
-                }
-                else
-                {
-                    results.Add(Result.Failure<IMod>(result.Error));
-                }
+                
+                await DownloadOrUpdate(mod.AsContentItem(), cancellationToken)
+                    .Bind(downloadedItem => UpdateModData(mod, downloadedItem))
+                    .Finally(modUpdateResult => results.Add(modUpdateResult));
             }
 
             return results;
@@ -98,7 +77,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             ContentItem contentItem,
             CancellationToken cancellationToken)
             => await Download(contentItem, cancellationToken);
-        
+
         /// <summary>
         /// Safely cancels download process.
         /// </summary>
@@ -132,7 +111,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 onSuccess: () => Result.Success(contentItem),
                 onFailure: error => Result.Failure<ContentItem>($"Failed downloading {contentItem}. Error: {error}"));
         }
-        
+
         /// <summary>
         /// TODO: Do it better
         /// </summary>
@@ -213,6 +192,25 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 _logger.LogInformation("Aborted {ItemId} download", itemId);
                 return Result.Failure($"Download of {itemId} was aborted.");
             }
+        }
+
+        private Result<IMod> UpdateModData(IMod mod, ContentItem downloadedItem)
+        {
+            var updatedMod = (IMod) new Mod
+            {
+                Directory = mod.Directory ?? downloadedItem.Directory,
+                CreatedAt = mod.CreatedAt,
+                LastUpdatedAt = DateTime.Now,
+                Name = mod.Name,
+                WorkshopId = mod.WorkshopId,
+                Type = mod.Type,
+                Source = mod.Source,
+                WebId = mod.WebId
+            };
+            
+            _logger.LogTrace("Downloaded mod data: {@Mod}", updatedMod);
+
+            return Result.Success(updatedMod);
         }
     }
 }
