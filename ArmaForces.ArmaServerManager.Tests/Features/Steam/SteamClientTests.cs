@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.ArmaServerManager.Features.Steam;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -20,7 +21,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Steam
             settingsMock.Setup(x => x.SteamUser).Returns("");
             settingsMock.Setup(x => x.SteamPassword).Returns("");
             settingsMock.Setup(x => x.ModsDirectory).Returns("");
-            using var steamClient = new SteamClient(settingsMock.Object);
+            using var steamClient = new SteamClient(settingsMock.Object, NullLogger<SteamClient>.Instance);
             var cancellationTokenSource = new CancellationTokenSource();
 
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(1));
@@ -37,7 +38,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Steam
             settingsMock.Setup(x => x.SteamUser).Returns("");
             settingsMock.Setup(x => x.SteamPassword).Returns("");
             settingsMock.Setup(x => x.ModsDirectory).Returns("");
-            using var steamClient = new SteamClient(settingsMock.Object);
+            using var steamClient = new SteamClient(settingsMock.Object, NullLogger<SteamClient>.Instance);
 
             // ReSharper disable once AccessToDisposedClosure - steamClient should not be disposed here
             Func<Task> action = async () => await steamClient.EnsureConnected(CancellationToken.None);
