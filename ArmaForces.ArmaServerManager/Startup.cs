@@ -81,8 +81,6 @@ namespace ArmaForces.ArmaServerManager
             .AddSingleton<IModsUpdateService, ModsUpdateService>()
             .AddSingleton<IServerStartupService, ServerStartupService>()
 
-            .AddSingleton<ISettings>(Settings.LoadSettings)
-
             // Arma Server
             .AddArmaServer()
             
@@ -102,23 +100,9 @@ namespace ArmaForces.ArmaServerManager
             // Mission
             .AddSingleton<IApiMissionsClient, ApiMissionsClient>()
 
-            // Configuration
-            .AddSingleton<ConfigFileCreator>()
-            .AddSingleton<ConfigReplacer>()
-
-            // Process
-            .AddSingleton<IArmaProcessDiscoverer, ArmaProcessDiscoverer>()
-            .AddSingleton<IArmaProcessFactory, ArmaProcessFactory>()
-            .AddSingleton<IArmaProcessManager, ArmaProcessManager>()
-
             // Server
             .AddSingleton<IServerProvider, ServerProvider>()
-            .AddSingleton<IServerConfigurationProvider, ServerConfigurationProvider>()
             .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
-            .AddSingleton<IDedicatedServerFactory, DedicatedServerFactory>()
-            .AddSingleton<IServerBuilder, ServerBuilder>()
-            .AddSingleton<IServerBuilderFactory, ServerBuilderFactory>()
-            .AddSingleton<IParametersExtractor, ParametersExtractor>()
 
             // Hangfire
             .AddSingleton<IHangfireBackgroundJobClient, HangfireBackgroundJobClient>()

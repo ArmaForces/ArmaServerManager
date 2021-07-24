@@ -13,7 +13,7 @@ namespace ArmaForces.Arma.Server.Features.Parameters
 
         public bool Client { get; }
 
-        public string ConnectIpAddress { get; }
+        public string? ConnectIpAddress { get; }
 
         public string? ConnectPassword { get; }
 
@@ -54,7 +54,7 @@ namespace ArmaForces.Arma.Server.Features.Parameters
             bool netLog = ParametersDefaults.Netlog,
             int fpsLimit = ParametersDefaults.LimitFPS,
             bool loadMissionToMemory = ParametersDefaults.LoadMissionToMemory,
-            string connectIpAddress = ParametersDefaults.ConnectIpAddress,
+            string? connectIpAddress = null,
             string? connectPassword = null,
             IEnumerable<string?>? serverMods = null,
             IEnumerable<string?>? mods = null)

@@ -6,12 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
+using ArmaForces.Arma.Server.Tests.Helpers;
+using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Mods;
 using ArmaForces.ArmaServerManager.Features.Steam.Content;
+using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using Xunit;
 
@@ -19,6 +21,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
 {
     public class ModsManagerIntegrationTests
     {
+        private readonly Fixture _fixture = new Fixture();
         private readonly IServiceProvider _serviceProvider;
 
         public ModsManagerIntegrationTests()
@@ -28,7 +31,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             _serviceProvider = CreateServiceProvider(CreateSettingsMock(workingDirectory), fileSystemMock);
         }
 
-        [Fact, Trait("Category", "Integration")]
+        [Fact(Skip = "Uses actual connection to Steam"), Trait("Category", "Integration")]
         public void UpdateAllMods_CancellationRequested_TaskCancelled()
         {
             var cancellationTokenSource = new CancellationTokenSource();
@@ -54,29 +57,48 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             return fileSystemMock;
         }
 
-        private static IServiceProvider CreateServiceProvider(
+        private IServiceProvider CreateServiceProvider(
             ISettings settings,
             IFileSystem fileSystem)
         {
             return new ServiceCollection()
                 .AddLogging()
                 .AddArmaServer()
-                .Replace(new ServiceDescriptor(typeof(ISettings), settings))
+                .AddOrReplaceSingleton(settings)
                 .AddSingleton(fileSystem)
-                .AddTransient<IModsCache, ModsCache>()
+                .AddTransient(_ => PrepareMockedModsCache())
                 .AddTransient<IContentDownloader, ContentDownloader>()
                 .AddTransient(_ => Mock.Of<IContentVerifier>())
                 .AddTransient<IModsManager, ModsManager>()
                 .BuildServiceProvider();
+        }
+        
+        private IModsCache PrepareMockedModsCache()
+        {
+            var mock = new Mock<ModsCache>();
+
+            var mods = ModHelpers.CreateModsList(_fixture);
+
+            mock
+                .Setup(x => x.Mods)
+                .Returns(mods);
+
+            return mock.Object;
         }
 
         private static ISettings CreateSettingsMock(string workingDirectory)
         {
             var settingsMock = new Mock<ISettings>();
             
-            settingsMock.Setup(x => x.SteamUser).Returns("");
-            settingsMock.Setup(x => x.SteamPassword).Returns("");
-            settingsMock.Setup(x => x.ModsDirectory).Returns(workingDirectory);
+            settingsMock
+                .Setup(x => x.SteamUser)
+                .Returns(string.Empty);
+            settingsMock
+                .Setup(x => x.SteamPassword)
+                .Returns(string.Empty);
+            settingsMock
+                .Setup(x => x.ModsDirectory)
+                .Returns(workingDirectory);
 
             return settingsMock.Object;
         }

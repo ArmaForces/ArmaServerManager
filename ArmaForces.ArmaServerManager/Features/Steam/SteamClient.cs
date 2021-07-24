@@ -9,8 +9,8 @@ using BytexSteamClient = BytexDigital.Steam.Core.SteamClient;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam
 {
-    /// <inheritdoc />
-    public class SteamClient : ISteamClient
+    /// <inheritdoc cref="ISteamClient" />
+    public class SteamClient : ISteamClient, IDisposable
     {
         private readonly BytexSteamClient _bytexSteamClient;
 
@@ -58,6 +58,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
                 throw new InvalidCredentialException("Invalid Steam Credentials");
             }
         }
+
+        // TODO: Consider 'using' when operating on SteamClient, probably limit it to job scope 
+        public void Dispose() => Disconnect();
 
         /// <inheritdoc />
         public void Disconnect() => _bytexSteamClient.Shutdown();

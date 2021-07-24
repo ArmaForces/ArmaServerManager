@@ -9,6 +9,7 @@ using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Providers.Parameters
 {
+    [Trait("Category", "Unit")]
     public class ServerParametersProviderTests
     {
         private readonly Fixture _fixture = new Fixture();

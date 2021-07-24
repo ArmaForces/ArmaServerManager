@@ -6,8 +6,11 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
-    public class WebModDeserializationTests {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
+{
+    [Trait("Category", "Unit")]
+    public class WebModDeserializationTests
+    {
         const string ApiDateTimeFormat = "yyyy-MM-ddTHH:mm:sszzz";
         private readonly Fixture _fixture = new Fixture();
         private string? _modId;
@@ -20,7 +23,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
         private string? _directory;
         
         [Fact]
-        public void Mod_Deserialize_Successfull() {
+        public void Mod_Deserialize_Successfull()
+        {
             var jsonDictionary = PrepareModDictionary();
             var json = JsonConvert.SerializeObject(jsonDictionary);
 
@@ -40,7 +44,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs {
             mod.Directory.Should().Be(_directory);
         }
         
-        private Dictionary<string, object> PrepareModDictionary() {
+        private Dictionary<string, object> PrepareModDictionary()
+        {
             _modId = _fixture.Create<string>();
             _modName = _fixture.Create<string>();
             _modCreatedAt = _fixture.Create<DateTime>();

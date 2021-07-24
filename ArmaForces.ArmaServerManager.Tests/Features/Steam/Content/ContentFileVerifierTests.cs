@@ -11,11 +11,12 @@ using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Steam.Content
 {
+    [Trait("Category", "Unit")]
     public class ContentFileVerifierTests
     {
         private readonly string _baseDirectory = Directory.GetCurrentDirectory();
 
-        [Theory, Trait("Category", "Unit")]
+        [Theory]
         [ClassData(typeof(ContentFileVerifierTestsDataProvider))]
         public void RemoveRedundantFiles(IReadOnlyCollection<string> filesPresent, IReadOnlyCollection<string> filesExpected)
         {
@@ -65,7 +66,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Steam.Content
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        internal class ContentFileVerifierTestsDataProvider : IEnumerable<object[]>
+        private class ContentFileVerifierTestsDataProvider : IEnumerable<object[]>
         {
             private readonly IEnumerable<object[]> _enumerableImplementation;
 

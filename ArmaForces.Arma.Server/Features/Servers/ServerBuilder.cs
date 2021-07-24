@@ -13,7 +13,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
     public class ServerBuilder : IServerBuilder
     {
         private readonly IKeysPreparer _keysPreparer;
-        private readonly IServerConfigurationProvider _serverConfigurationProvider;
+        private readonly IModsetConfigurationProvider _modsetConfigurationProvider;
         private readonly IArmaProcessManager _armaProcessManager;
         private readonly IArmaProcessFactory _armaProcessFactory;
         private readonly ILogger<DedicatedServer> _dedicatedServerLogger;
@@ -27,13 +27,13 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public ServerBuilder(
             IKeysPreparer keysPreparer,
-            IServerConfigurationProvider serverConfigurationProvider,
+            IModsetConfigurationProvider modsetConfigurationProvider,
             IArmaProcessManager armaProcessManager,
             IArmaProcessFactory armaProcessFactory,
             ILogger<DedicatedServer> dedicatedServerLogger)
         {
             _keysPreparer = keysPreparer;
-            _serverConfigurationProvider = serverConfigurationProvider;
+            _modsetConfigurationProvider = modsetConfigurationProvider;
             _armaProcessManager = armaProcessManager;
             _armaProcessFactory = armaProcessFactory;
             _dedicatedServerLogger = dedicatedServerLogger;
@@ -78,7 +78,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
                 throw new ServerBuilderException(validationResult.Error);
             }
 
-            var modsetConfig = _serverConfigurationProvider.GetModsetConfig(_modset!.Name);
+            var modsetConfig = _modsetConfigurationProvider.GetModsetConfig(_modset!.Name);
 
             var serverProcess = _armaProcess
                                 ?? _armaProcessFactory.CreateServerProcess(

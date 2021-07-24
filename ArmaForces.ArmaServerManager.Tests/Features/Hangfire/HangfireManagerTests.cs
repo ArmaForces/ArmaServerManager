@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
 using ArmaForces.ArmaServerManager.Tests.Helpers.Dummy;
-using FluentAssertions;
 using FluentAssertions.Execution;
 using Hangfire.Common;
 using Hangfire.Storage;
@@ -15,6 +15,7 @@ using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 {
+    [Trait("Category", "Unit")]
     public class HangfireManagerTests
     {
         private const string DummyClassFirstMethodName = "DoNothing";
@@ -48,15 +49,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 
             using (new AssertionScope())
             {
-                result.IsSuccess.Should().BeTrue();
-                _backgroundJobClientMock.Verify(
-                    x => x.Schedule<DummyClass>(
-                        x => x.DoNothing(CancellationToken.None),
-                        It.IsAny<DateTimeOffset>()),
-                    Times.Never);
-                _backgroundJobClientMock.Verify(
-                    x => x.Enqueue<DummyClass>(x => x.DoNothing(CancellationToken.None)),
-                    Times.Once);
+                result.ShouldBeSuccess();
+                AssertScheduleCalled(Times.Never());
+                AssertEnqueueCalled();
             }
         }
 
@@ -78,15 +73,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 
             using (new AssertionScope())
             {
-                result.IsSuccess.Should().BeTrue();
-                _backgroundJobClientMock.Verify(
-                    x => x.Schedule<DummyClass>(
-                        x => x.DoNothing(CancellationToken.None),
-                        It.IsAny<DateTimeOffset>()),
-                    Times.Never);
-                _backgroundJobClientMock.Verify(
-                    x => x.Enqueue<DummyClass>(x => x.DoNothing(CancellationToken.None)),
-                    Times.Never);
+                result.ShouldBeSuccess();
+                AssertScheduleCalled(Times.Never());
+                AssertEnqueueCalled(Times.Never());
             }
         }
 
@@ -102,15 +91,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 
             using (new AssertionScope())
             {
-                result.IsSuccess.Should().BeTrue();
-                _backgroundJobClientMock.Verify(
-                    x => x.Schedule<DummyClass>(
-                        x => x.DoNothing(CancellationToken.None),
-                        It.IsAny<DateTimeOffset>()),
-                    Times.Never);
-                _backgroundJobClientMock.Verify(
-                    x => x.Enqueue<DummyClass>(x => x.DoNothing(CancellationToken.None)),
-                    Times.Never);
+                result.ShouldBeSuccess();
+                AssertEnqueueCalled(Times.Never());
+                AssertEnqueueCalled(Times.Never());
             }
         }
 
@@ -130,15 +113,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 
             using (new AssertionScope())
             {
-                result.IsSuccess.Should().BeTrue();
-                _backgroundJobClientMock.Verify(
-                    x => x.Schedule<DummyClass>(
-                        x => x.DoNothing(CancellationToken.None),
-                        It.IsAny<DateTimeOffset>()),
-                    Times.Never);
-                _backgroundJobClientMock.Verify(
-                    x => x.Enqueue<DummyClass>(x => x.DoNothing(CancellationToken.None)),
-                    Times.Never);
+                result.ShouldBeSuccess();
+                AssertScheduleCalled(Times.Never());
+                AssertEnqueueCalled(Times.Never());
             }
         }
 
@@ -158,15 +135,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 
             using (new AssertionScope())
             {
-                result.IsSuccess.Should().BeTrue();
-                _backgroundJobClientMock.Verify(
-                    x => x.Schedule<DummyClass>(
-                        x => x.DoNothing(CancellationToken.None),
-                        It.IsAny<DateTimeOffset>()),
-                    Times.Once);
-                _backgroundJobClientMock.Verify(
-                    x => x.Enqueue<DummyClass>(x => x.DoNothing(CancellationToken.None)),
-                    Times.Never);
+                result.ShouldBeSuccess();
+                AssertScheduleCalled();
+                AssertEnqueueCalled(Times.Never());
             }
         }
 
@@ -182,15 +153,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 
             using (new AssertionScope())
             {
-                result.IsSuccess.Should().BeTrue();
-                _backgroundJobClientMock.Verify(
-                    x => x.Schedule<DummyClass>(
-                        x => x.DoNothing(CancellationToken.None),
-                        It.IsAny<DateTimeOffset>()),
-                    Times.Never);
-                _backgroundJobClientMock.Verify(
-                    x => x.Enqueue<DummyClass>(x => x.DoNothing(CancellationToken.None)),
-                    Times.Never);
+                result.ShouldBeSuccess();
+                AssertScheduleCalled(Times.Never());
+                AssertEnqueueCalled(Times.Never());
             }
         }
 
@@ -210,17 +175,23 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 
             using (new AssertionScope())
             {
-                result.IsSuccess.Should().BeTrue();
-                _backgroundJobClientMock.Verify(
-                    x => x.Schedule<DummyClass>(
-                        x => x.DoNothing(CancellationToken.None),
-                        It.IsAny<DateTimeOffset>()),
-                    Times.Never);
-                _backgroundJobClientMock.Verify(
-                    x => x.Enqueue<DummyClass>(x => x.DoNothing(CancellationToken.None)),
-                    Times.Never);
+                result.ShouldBeSuccess();
+                AssertEnqueueCalled(Times.Never());
+                AssertEnqueueCalled(Times.Never());
             }
         }
+
+        private void AssertEnqueueCalled(Times? times = null)
+            => _backgroundJobClientMock.Verify(
+                x => x.Enqueue<DummyClass>(dummyClass => dummyClass.DoNothing(CancellationToken.None)),
+                times ?? Times.Once());
+
+        private void AssertScheduleCalled(Times? times = null)
+            => _backgroundJobClientMock.Verify(
+                x => x.Schedule<DummyClass>(
+                    dummyClass => dummyClass.DoNothing(CancellationToken.None),
+                    It.IsAny<DateTimeOffset>()),
+                times ?? Times.Once());
 
         private static Mock<IMonitoringApi> PrepareMonitoringApiMock()
         {

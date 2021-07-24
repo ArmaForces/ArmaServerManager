@@ -65,7 +65,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
         {
             var clientLoadableMods = modset.ClientLoadableMods;
 
-            if (!clientLoadableMods.Any())
+            if (clientLoadableMods.IsEmpty())
             {
                 _logger.LogInformation("No client loadable mods found in modset {modsetName}.", modset.Name);
             }

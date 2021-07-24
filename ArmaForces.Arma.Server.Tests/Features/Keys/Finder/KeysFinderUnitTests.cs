@@ -15,6 +15,7 @@ using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Features.Keys.Finder
 {
+    [Trait("Category", "Unit")]
     public class KeysFinderUnitTests
     {
         private readonly Fixture _fixture = new Fixture();
@@ -25,7 +26,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys.Finder
             _workingDirectory = _fixture.Create<string>();
         }
         
-        [Fact, Trait("Category", "Unit")]
+        [Fact]
         public void GetKeysFromDirectory_NoKeys_ReturnsEmptyList()
         {
             var mockedFileSystem = CreateMockedFileSystem(_workingDirectory);
@@ -38,7 +39,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys.Finder
             keysFromDirectory.Should().BeEmpty();
         }
         
-        [Fact, Trait("Category", "Unit")]
+        [Fact]
         public void GetKeysFromDirectory_OneKeyIncluded_ReturnsListWithOneKey()
         {
             var mockedFileSystem = CreateMockedFileSystem(_workingDirectory);
@@ -57,7 +58,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys.Finder
             }
         }
         
-        [Fact, Trait("Category", "Unit")]
+        [Fact]
         public void GetKeysFromDirectory_MultipleKeysInSubfolders_ReturnsAllKeys()
         {
             var mockedFileSystem = CreateMockedFileSystem(_workingDirectory);

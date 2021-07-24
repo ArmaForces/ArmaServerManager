@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Keys.Models;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
@@ -32,7 +33,7 @@ namespace ArmaForces.Arma.Server.Features.Keys.IO
 
         public Result CopyKeys(string targetDirectory, IReadOnlyCollection<BikeyFile> bikeyFiles)
         {
-            if (!bikeyFiles.Any())
+            if (bikeyFiles.IsEmpty())
             {
                 return Result.Failure("No keys found.");
             }

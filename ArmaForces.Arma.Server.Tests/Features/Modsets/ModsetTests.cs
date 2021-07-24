@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Tests.Helpers;
@@ -9,6 +8,7 @@ using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Features.Modsets
 {
+    [Trait("Category", "Unit")]
     public class ModsetTests
     {
         private readonly Fixture _fixture = new Fixture();

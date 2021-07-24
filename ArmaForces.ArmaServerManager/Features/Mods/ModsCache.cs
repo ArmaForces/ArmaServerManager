@@ -83,15 +83,12 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         /// <inheritdoc />
-        public async Task SaveCache() 
-            => await _fileSystem.File.WriteAllTextAsync(_cacheFilePath, JsonConvert.SerializeObject(_mods));
-
-        /// <inheritdoc />
-        public async Task<Result<List<IMod>>> AddOrUpdateModsInCache(IEnumerable<IMod> mods)
+        public async Task<Result<List<IMod>>> AddOrUpdateModsInCache(IReadOnlyCollection<IMod> mods)
         {
-            var cacheMods = mods.Select(x => AddOrUpdateModInCache(x).Value).ToList();
-            await SaveCache();
-            return Result.Success(cacheMods);
+            return await mods.Select(AddOrUpdateModInCache)
+                .Combine()
+                .Bind(x => Result.Success(x.ToList()))
+                .Tap(async _ => await SaveCache());
         }
 
         /// <summary>
@@ -188,7 +185,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private Result<IMod> AddOrUpdateModInCache(IMod mod)
         {
             return AddModToCache(mod)
-                .OnFailureCompensate(error => UpdateModInCache(mod));
+                .OnFailureCompensate(_ => UpdateModInCache(mod));
         }
 
         /// <summary>
@@ -205,7 +202,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 ? Result.Failure<IMod>("Mod directory could not be found.")
                 : Result.Success(mod);
         }
-        
+
         /// <summary>
         /// Performs cache loading from cache file.
         /// After loading the file performs quick filtering to exclude non-existing mods.
@@ -248,5 +245,11 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .ToHashSet();
             return Result.Success<ISet<IMod>>(mods);
         }
+
+        /// <summary>
+        /// Saves cache to file.
+        /// </summary>
+        private async Task SaveCache() 
+            => await _fileSystem.File.WriteAllTextAsync(_cacheFilePath, JsonConvert.SerializeObject(_mods));
     }
 }

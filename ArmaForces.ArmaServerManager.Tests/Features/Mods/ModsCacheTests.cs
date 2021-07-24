@@ -3,22 +3,28 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Mods;
+using ArmaForces.Arma.Server.Tests.Helpers;
+using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
+using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Mods;
 using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
-    public class ModsCacheTests: IDisposable {
+namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
+{
+    [Trait("Category", "Integration")]
+    public class ModsCacheTests: IDisposable
+    {
         private readonly Fixture _fixture = new Fixture();
         private readonly string _workingDirectory = Path.Join(Directory.GetCurrentDirectory(), "mods");
         private readonly ISettings _settingsMock;
@@ -35,14 +41,14 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
                 .AddLogging()
                 .AddArmaServer()
                 .AddTransient<IModsCache, ModsCache>()
-                .Replace(new ServiceDescriptor(typeof(ISettings), _settingsMock))
+                .AddOrReplaceSingleton(_settingsMock)
                 .AddSingleton(_fileSystemMock)
                 .BuildServiceProvider();
 
-            _mod = FixtureCreateMod();
+            _mod = ModHelpers.CreateTestMod(_fixture);
         }
 
-        [Fact, Trait("Category", "Integration")]
+        [Fact]
         public async Task ModExists_DirectoryNotExists_ReturnsFalse() {
             var modsCache = GetModsCache();
             
@@ -53,7 +59,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
             }
         }
 
-        [Fact, Trait("Category", "Integration")]
+        [Fact]
         public async Task ModExists_DirectoryNamedIdExists_ReturnsTrue() {
             var modsCache = GetModsCache();
             var modDirectory = Path.Join(_workingDirectory, _mod.WorkshopId.ToString());
@@ -66,7 +72,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
             }
         }
 
-        [Fact, Trait("Category", "Integration")]
+        [Fact]
         public async Task ModExists_DirectoryNamedNameExists_ReturnsTrue() {
             var modsCache = GetModsCache();
             var modDirectory = Path.Join(_workingDirectory, _mod.Name);
@@ -79,7 +85,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
             }
         }
 
-        [Fact, Trait("Category", "Integration")]
+        [Fact]
         public async Task ModExists_DirectoryNamedWithAtExists_ReturnsTrue() {
             var modsCache = GetModsCache();
             var modDirectory = Path.Join(_workingDirectory, string.Join("", "@", _mod.Name));
@@ -92,7 +98,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
             }
         }
 
-        [Fact, Trait("Category", "Integration")]
+        [Fact]
         public async Task ModExists_CacheInvalidDirectoryRenamed_ReturnsTrue() {
             var oldModDirectory = Path.Join(_workingDirectory, _mod.WorkshopId.ToString());
             var newModDirectory = Path.Join(_workingDirectory, _mod.Name);
@@ -109,7 +115,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
             }
         }
 
-        [Fact, Trait("Category", "Integration")]
+        [Fact]
         public async Task ModExists_BuildCacheDirectoryNamedNameExists_ReturnsTrue() {
             var modDirectory = Path.Join(_workingDirectory, _mod.Name);
             _fileSystemMock.Directory.CreateDirectory(modDirectory); 
@@ -122,7 +128,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
             }
         }
 
-        [Fact, Trait("Category", "Integration")]
+        [Fact]
         public async Task ModExists_LoadCacheModCachedNoDirectory_ReturnsFalse() {
             var cacheFilePath = $"{_settingsMock.ModsDirectory}\\{_settingsMock.ModsManagerCacheFileName}.json";
             ISet<IMod> mods = new HashSet<IMod>();
@@ -137,8 +143,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
                 modsCache.Mods.Should().NotContain(_mod);
             }
         }
-
-        [Fact, Trait("Category", "Integration")]
+        
+        [Fact]
         public async Task ModExists_LoadCacheModCachedDirectoryPresent_ReturnsTrue() {
             var cacheFilePath = $"{_settingsMock.ModsDirectory}\\{_settingsMock.ModsManagerCacheFileName}.json";
             ISet<IMod> mods = new HashSet<IMod>();
@@ -155,6 +161,27 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
             }
         }
 
+        [Fact]
+        public async Task AddOrUpdateModsInCache_SomeModsDataChanged_CacheUpdated()
+        {
+            var mods = ModHelpers.CreateModsList(_fixture);
+            
+            foreach (var mod in mods)
+            {
+                _fileSystemMock.Directory.CreateDirectory(mod.Directory);
+                mod.Directory = _fixture.Create<string>();
+            }
+
+            var newMods = ModHelpers.CreateModsList(_fixture);
+            var allMods = mods.Concat(newMods).ToList();
+
+            var modsCache = GetModsCache();
+
+            var result = await modsCache.AddOrUpdateModsInCache(allMods);
+
+            result.ShouldBeSuccess(allMods.Cast<IMod>().ToList());
+        }
+
         private ISettings CreateSettings()
         {
             var settingsMock = new Mock<ISettings>();
@@ -164,11 +191,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods {
 
             return settingsMock.Object;
         }
-
-        private IMod FixtureCreateMod() {
-            return _fixture.Create<Mod>();
-        }
-
+        
         private IModsCache GetModsCache() {
             return _testServiceProvider.GetService<IModsCache>()!;
         }

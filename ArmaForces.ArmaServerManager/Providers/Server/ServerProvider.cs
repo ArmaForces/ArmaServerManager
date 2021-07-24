@@ -89,6 +89,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
                 var dedicatedServer = CreateServer(
                     port,
+                    // TODO: Handle the result of GetModsetByName
                     _modsetProvider.GetModsetByName(server.Parameters.ModsetName).Value,
                     server,
                     headlessClients);
