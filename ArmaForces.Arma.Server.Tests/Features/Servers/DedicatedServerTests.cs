@@ -60,7 +60,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
         }
 
         [Fact]
-        public void Dispose_ServerDisposed_OnServerShutdownInvoked()
+        public async Task Dispose_ServerDisposed_OnServerShutdownInvoked()
         {
             var dedicatedServer = PrepareDedicatedServer();
 
@@ -69,7 +69,10 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
 
             dedicatedServer.Dispose();
 
-            funcMock.Verify(x => x.Invoke(It.IsAny<IDedicatedServer>()), Times.Once);
+            // Delay as Dispose starts async task
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
+
+            funcMock.Verify(x => x.Invoke(dedicatedServer), Times.Once);
         }
 
         [Fact]
