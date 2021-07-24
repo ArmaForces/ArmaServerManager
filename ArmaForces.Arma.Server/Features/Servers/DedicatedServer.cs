@@ -42,7 +42,8 @@ namespace ArmaForces.Arma.Server.Features.Servers
             _armaProcessManager = armaProcessManager;
             Modset = modset;
             _modsetConfig = modsetConfig;
-            _armaProcess = armaProcess;
+            _armaProcess = InitializeArmaProcess(armaProcess);
+
             _headlessProcesses = headlessClients.ToList();
             _logger = logger;
         }
@@ -54,7 +55,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         public int HeadlessClientsConnected => _headlessProcesses.Count(x => x.IsStartingOrStarted);
 
         public bool IsServerStopped => _armaProcess?.IsStopped ?? true;
-        
+
         public event Func<IDedicatedServer, Task>? OnServerShutdown;
 
         public event Func<IDedicatedServer, Task>? OnServerRestarted;
@@ -73,6 +74,27 @@ namespace ArmaForces.Arma.Server.Features.Servers
                 .Tap(() => _armaProcess.OnProcessShutdown += OnServerProcessShutdown)
                 .Bind(() => _headlessProcesses.Select(x => x.Start())
                     .Combine());
+        }
+
+        public async Task<Result> Shutdown()
+        {
+            return await _armaProcess.Shutdown()
+                .Tap(() => _logger.LogTrace("Server shutdown completed."))
+                .Finally(_ => ShutdownHeadlessClients())
+                .Finally(_ => InvokeOnServerShutdown());
+        }
+
+        public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken) 
+            => await ServerStatus.GetServerStatus(this, cancellationToken);
+
+        private IArmaProcess InitializeArmaProcess(IArmaProcess armaProcess)
+        {
+            if (armaProcess.IsStartingOrStarted)
+            {
+                armaProcess.OnProcessShutdown += OnServerProcessShutdown;
+            }
+
+            return armaProcess;
         }
 
         private async Task OnServerProcessShutdown(IArmaProcess armaProcess)
@@ -101,17 +123,6 @@ namespace ArmaForces.Arma.Server.Features.Servers
             _logger.LogTrace("Invoking OnServerRestarted event on port {port}.", Port);
             if (OnServerRestarted != null) await OnServerRestarted.Invoke(this);
         }
-
-        public async Task<Result> Shutdown()
-        {
-            return await _armaProcess.Shutdown()
-                .Tap(() => _logger.LogTrace("Server shutdown completed."))
-                .Finally(_ => ShutdownHeadlessClients())
-                .Finally(_ => InvokeOnServerShutdown());
-        }
-
-        public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken) 
-            => await ServerStatus.GetServerStatus(this, cancellationToken);
 
         private Result ShutdownHeadlessClients()
         {
