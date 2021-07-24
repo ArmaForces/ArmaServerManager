@@ -56,7 +56,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
         {
             var oldKeys = _keysFinder.GetKeysFromDirectory(_keysDirectory);
 
-            _logger.LogDebug("Found {count} old keys.", oldKeys.Count);
+            _logger.LogDebug("Found {Count} old keys", oldKeys.Count);
 
             return _keysCopier.DeleteKeys(oldKeys);
         }
@@ -67,19 +67,19 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
             if (clientLoadableMods.IsEmpty())
             {
-                _logger.LogInformation("No client loadable mods found in modset {modsetName}.", modset.Name);
+                _logger.LogInformation("No client loadable mods found in modset {ModsetName}", modset.Name);
             }
 
             foreach (var mod in clientLoadableMods)
             {
                 CopyKeysForMod(mod)
                     .OnFailure(error => _logger.LogWarning(
-                        "Copying keys for mod {mod} failed with error: {error}", 
+                        "Copying keys for mod {@Mod} failed with error: {Error}", 
                         mod,
                         error));
             }
 
-            _logger.LogDebug("Keys copying finished for modset {modsetName}.", modset.Name);
+            _logger.LogDebug("Keys copying finished for modset {ModsetName}", modset.Name);
 
             return Result.Success();
         }
@@ -93,9 +93,9 @@ namespace ArmaForces.Arma.Server.Features.Keys
                     .ToList();
 
                 _logger.LogTrace(
-                    "Found {count} keys for {mod}",
+                    "Found {Count} keys for {@Mod}",
                     modBikeys.Count,
-                    mod.ToShortString());
+                    mod);
 
                 return _keysCopier.CopyKeys(_keysDirectory, modBikeys);
             }
@@ -104,8 +104,8 @@ namespace ArmaForces.Arma.Server.Features.Keys
             {
                 _logger.LogError(
                     exception,
-                    "Error copying keys for {mod}.",
-                    mod.ToShortString());
+                    "Error copying keys for {@Mod}",
+                    mod);
                 throw;
             }
         }

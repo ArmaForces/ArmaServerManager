@@ -55,7 +55,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             var workshopMods = mods
                 .Where(x => x.Source == ModSource.SteamWorkshop)
                 .ToList();
-            _logger.LogTrace("Downloading {Count} items: {ItemsIds}", workshopMods.Count, workshopMods);
+            _logger.LogTrace("Downloading {Count} items: {@ItemsIds}", workshopMods.Count, workshopMods);
 
             await _steamClient.EnsureConnected(cancellationToken);
             
@@ -81,7 +81,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                         WebId = mod.WebId
                     };
                     
-                    _logger.LogTrace("Downloaded mod data: {Mod}", updatedMod);
+                    _logger.LogTrace("Downloaded mod data: {@Mod}", updatedMod);
                     
                     results.Add(Result.Success(updatedMod));
                 }
