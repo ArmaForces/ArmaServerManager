@@ -6,7 +6,7 @@ namespace ArmaForces.ArmaServerManager.Extensions
 {
     internal static class ResultExtensions
     {
-        public static async Task Finally<T>(this Task<Result<T>> taskResult, Action<Result<T>> action)
+        public static async Task TapOnBoth<T>(this Task<Result<T>> taskResult, Action<Result<T>> action)
         {
             action(await taskResult);
         }

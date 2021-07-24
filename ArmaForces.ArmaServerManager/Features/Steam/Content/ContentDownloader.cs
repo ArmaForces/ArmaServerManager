@@ -67,7 +67,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 
                 await DownloadOrUpdate(mod.AsContentItem(), cancellationToken)
                     .Bind(downloadedItem => UpdateModData(mod, downloadedItem))
-                    .Finally(modUpdateResult => results.Add(modUpdateResult));
+                    .TapOnBoth(modUpdateResult => results.Add(modUpdateResult));
             }
 
             return results;
