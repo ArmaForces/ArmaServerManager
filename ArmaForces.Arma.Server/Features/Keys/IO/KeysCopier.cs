@@ -22,7 +22,7 @@ namespace ArmaForces.Arma.Server.Features.Keys.IO
         {
             foreach (var bikeyFile in bikeyFiles)
             {
-                _logger.LogTrace("Removing {KeyName} key", bikeyFile.FileName);
+                _logger.LogDebug("Removing {KeyName}", bikeyFile.FileName);
                 
                 _fileSystem.File.Delete(bikeyFile.Path);
             }
@@ -41,7 +41,7 @@ namespace ArmaForces.Arma.Server.Features.Keys.IO
             {
                 var destinationKeyPath = _fileSystem.Path.Join(targetDirectory, modBikey.FileName);
                 
-                _logger.LogTrace("Copying {KeyName}", modBikey.FileName);
+                _logger.LogDebug("Copying {KeyName}", modBikey.FileName);
                 
                 if (!_fileSystem.File.Exists(destinationKeyPath))
                 {
