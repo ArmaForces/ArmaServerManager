@@ -6,6 +6,7 @@ using ArmaForces.Arma.Server.Exceptions;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Providers.Server
@@ -56,11 +57,26 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                     $"Expected to get server with {modset.Name} modset with {modset.Mods.Count} mods on port {port} but found {server.Modset.Name} with {server.Modset.Mods.Count} mods.");
         }
 
+        private Result TryRemoveServer(IDedicatedServer dedicatedServer)
+        {
+            var server = GetServer(dedicatedServer.Port);
+            
+            if (server == dedicatedServer)
+            {
+                _ = _servers.TryRemove(dedicatedServer.Port, out _);
+                _logger.LogDebug("Server removed on port {Port}", dedicatedServer.Port);
+                return Result.Success();
+            }
+
+            _logger.LogDebug("Server not removed on port {Port}. Other server is already running", dedicatedServer.Port);
+            return Result.Failure($"Other server is already running on port {dedicatedServer.Port}.");
+        }
+
         private async Task OnServerDisposed(IDedicatedServer dedicatedServer)
         {
             _logger.LogInformation("Server disposed, removing.");
 
-            _ = _servers.TryRemove(dedicatedServer.Port, out _);
+            TryRemoveServer(dedicatedServer);
         }
 
         private async Task DiscoverProcesses()
