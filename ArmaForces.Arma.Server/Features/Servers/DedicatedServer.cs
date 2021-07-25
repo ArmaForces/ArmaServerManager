@@ -47,14 +47,14 @@ namespace ArmaForces.Arma.Server.Features.Servers
             _headlessProcesses = headlessClients.ToList();
             _logger = logger;
         }
-
+        
         public int Port { get; }
 
         public IModset Modset { get; }
 
         public int HeadlessClientsConnected => _headlessProcesses.Count(x => x.IsStartingOrStarted);
 
-        public bool IsServerStopped => _armaProcess?.IsStopped ?? true;
+        public bool IsServerStopped => _armaProcess.IsStopped;
 
         public event Func<IDedicatedServer, Task>? OnServerShutdown;
 
@@ -66,8 +66,8 @@ namespace ArmaForces.Arma.Server.Features.Servers
         {
             if (!IsServerStopped) throw new ServerRunningException();
 
-            _logger.LogTrace("Starting server on port {port} with {modsetName} modset.", Port, Modset.Name);
-
+            _logger.LogInformation("Starting server on port {Port} with {ModsetName} modset", Port, Modset.Name);
+            
             return _modsetConfig.CopyConfigFiles()
                 .Bind(() => _keysPreparer.PrepareKeysForModset(Modset))
                 .Bind(() => _armaProcess.Start())
@@ -79,7 +79,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         public async Task<Result> Shutdown()
         {
             return await _armaProcess.Shutdown()
-                .Tap(() => _logger.LogTrace("Server shutdown completed."))
+                .Tap(() => _logger.LogInformation("Server shutdown completed on port {Port}", Port))
                 .Finally(_ => ShutdownHeadlessClients())
                 .Finally(_ => InvokeOnServerShutdown());
         }
@@ -99,20 +99,20 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         private async Task OnServerProcessShutdown(IArmaProcess armaProcess)
         {
-            _logger.LogTrace("Detected server process shutdown on port {port}.", Port);
+            _logger.LogDebug("Detected server process shutdown on port {Port}", Port);
 
             await (await _armaProcessManager.CheckServerIsRestarting(armaProcess))
                 .Match(
                     onSuccess: async newArmaProcess =>
                     {
-                        _logger.LogDebug("Server restart detected.");
+                        _logger.LogDebug("Server restart detected");
                         _armaProcess = newArmaProcess;
                         _armaProcess.OnProcessShutdown += OnServerProcessShutdown;
                         await InvokeOnServerRestarted();
                     },
                     onFailure: async _ =>
                     {
-                        _logger.LogDebug("Server process shutdown itself.");
+                        _logger.LogDebug("Server process shutdown itself");
                         ShutdownHeadlessClients();
                         await InvokeOnServerShutdown();
                     });
@@ -120,7 +120,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         private async Task InvokeOnServerRestarted()
         {
-            _logger.LogTrace("Invoking OnServerRestarted event on port {port}.", Port);
+            _logger.LogDebug("Invoking OnServerRestarted event on port {Port}", Port);
             if (OnServerRestarted != null) await OnServerRestarted.Invoke(this);
         }
 
@@ -129,12 +129,12 @@ namespace ArmaForces.Arma.Server.Features.Servers
             return _headlessProcesses
                 .Select(x => x.Shutdown())
                 .Combine()
-                .Tap(() => _logger.LogTrace("Headless clients shutdown completed."));
+                .Tap(() => _logger.LogDebug("Headless clients shutdown completed"));
         }
 
         private async Task<Result> InvokeOnServerShutdown()
         {
-            _logger.LogTrace("Invoking OnServerShutdown event on port {port}.", Port);
+            _logger.LogDebug("Invoking OnServerShutdown event on port {Port}", Port);
             if (OnServerShutdown != null) await OnServerShutdown.Invoke(this);
             return Result.Success();
         }

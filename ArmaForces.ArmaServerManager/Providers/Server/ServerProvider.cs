@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -58,7 +58,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
         private async Task OnServerDisposed(IDedicatedServer dedicatedServer)
         {
-            _logger.LogInformation(
+            _logger.LogDebug(
                 "Server with {ModsetName} disposed on port {Port}, removing",
                 dedicatedServer.Modset.Name,
                 dedicatedServer.Port);

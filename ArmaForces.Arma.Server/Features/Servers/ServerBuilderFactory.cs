@@ -11,6 +11,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         private readonly IModsetConfigurationProvider _modsetConfigurationProvider;
         private readonly IArmaProcessManager _armaProcessManager;
         private readonly IArmaProcessFactory _armaProcessFactory;
+        private readonly ILogger<ServerBuilder> _serverBuilderLogger;
         private readonly ILogger<DedicatedServer> _dedicatedServerLogger;
 
         public ServerBuilderFactory(
@@ -18,12 +19,14 @@ namespace ArmaForces.Arma.Server.Features.Servers
             IModsetConfigurationProvider modsetConfigurationProvider,
             IArmaProcessManager armaProcessManager,
             IArmaProcessFactory armaProcessFactory,
+            ILogger<ServerBuilder> serverBuilderLogger,
             ILogger<DedicatedServer> dedicatedServerLogger)
         {
             _keysPreparer = keysPreparer;
             _modsetConfigurationProvider = modsetConfigurationProvider;
             _armaProcessManager = armaProcessManager;
             _armaProcessFactory = armaProcessFactory;
+            _serverBuilderLogger = serverBuilderLogger;
             _dedicatedServerLogger = dedicatedServerLogger;
         }
 
@@ -34,6 +37,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
                 _modsetConfigurationProvider,
                 _armaProcessManager,
                 _armaProcessFactory,
+                _serverBuilderLogger,
                 _dedicatedServerLogger);
         }
     }

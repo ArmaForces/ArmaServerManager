@@ -16,6 +16,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         private readonly IModsetConfigurationProvider _modsetConfigurationProvider;
         private readonly IArmaProcessManager _armaProcessManager;
         private readonly IArmaProcessFactory _armaProcessFactory;
+        private readonly ILogger<ServerBuilder> _logger;
         private readonly ILogger<DedicatedServer> _dedicatedServerLogger;
 
         private int? _port;
@@ -30,12 +31,14 @@ namespace ArmaForces.Arma.Server.Features.Servers
             IModsetConfigurationProvider modsetConfigurationProvider,
             IArmaProcessManager armaProcessManager,
             IArmaProcessFactory armaProcessFactory,
+            ILogger<ServerBuilder> logger,
             ILogger<DedicatedServer> dedicatedServerLogger)
         {
             _keysPreparer = keysPreparer;
             _modsetConfigurationProvider = modsetConfigurationProvider;
             _armaProcessManager = armaProcessManager;
             _armaProcessFactory = armaProcessFactory;
+            _logger = logger;
             _dedicatedServerLogger = dedicatedServerLogger;
         }
 
@@ -75,7 +78,9 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
             if (validationResult.IsFailure)
             {
-                throw new ServerBuilderException(validationResult.Error);
+                var exception = new ServerBuilderException(validationResult.Error); 
+                _logger.LogError(exception, "Could not build dedicated server");
+                throw exception;
             }
 
             var modsetConfig = _modsetConfigurationProvider.GetModsetConfig(_modset!.Name);
