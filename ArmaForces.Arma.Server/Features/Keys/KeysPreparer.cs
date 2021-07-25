@@ -136,7 +136,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
             var result = _modDirectoryFinder.TryFindModDirectory(mod, _externalKeysDirectoryPath);
 
             return result.IsSuccess
-                ? _keysFinder.GetKeysFromDirectory(mod.Directory)
+                ? _keysFinder.GetKeysFromDirectory(result.Value)
                     .Select(path => new BikeyFile(path, mod.ToShortString()))
                     .ToList()
                 : new List<BikeyFile>();
