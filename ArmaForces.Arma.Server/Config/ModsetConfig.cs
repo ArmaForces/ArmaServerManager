@@ -145,14 +145,14 @@ namespace ArmaForces.Arma.Server.Config
             IConfiguration modsetConfig)
         {
             var fileName = Path.GetFileNameWithoutExtension(serverConfigFilePath);
-            _logger.LogDebug("Loading {fileName} for {modsetName} modset.", fileName, ModsetName);
+            _logger.LogDebug("Loading {FileName} for {ModsetName} modset", fileName, ModsetName);
 
             var cfgFile = _configFileCreator.FillCfg(
                 _fileSystem.File.ReadAllText(serverConfigFilePath),
                 modsetConfig.GetSection(fileName));
 
             _fileSystem.File.WriteAllText(modsetConfigFilePath, cfgFile);
-            _logger.LogDebug("{fileName} successfully exported to {directoryPath}", fileName, DirectoryPath);
+            _logger.LogDebug("{FileName} successfully exported to {Directory}", fileName, DirectoryPath);
         }
     }
 }
