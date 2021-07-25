@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
@@ -77,12 +77,13 @@ namespace ArmaForces.Arma.Server.Features.Keys
             {
                 CopyKeysForMod(mod)
                     .Tap(modBikeys => modBikeysList.Add(modBikeys))
-                    .OnFailure(error => LogKeysCopyError(mod, error));
+                    .OnFailure(error => LogKeysCopyError(mod, error))
+                    .OnFailure(_ => modBikeysList.Add(new ModBikeys(mod)));
             }
 
             _logger.LogInformation(
                 "Copied {Count} keys for modset {ModsetName}", 
-                modBikeysList.Count,
+                modBikeysList.Count(x => x.BikeyFiles.Any()),
                 modset.Name);
 
             LogKeysNotFound(modBikeysList);
@@ -183,6 +184,8 @@ namespace ArmaForces.Arma.Server.Features.Keys
         {
             public IReadOnlyCollection<BikeyFile> BikeyFiles { get; }
             public IMod Mod { get; }
+
+            public ModBikeys(IMod mod) : this(mod, new List<BikeyFile>()) {}
 
             public ModBikeys(IMod mod, IReadOnlyCollection<BikeyFile> bikeyFiles)
             {
