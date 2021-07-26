@@ -1,63 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.ArmaServerManager.Common;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using CSharpFunctionalExtensions;
 using RestSharp;
 
-namespace ArmaForces.ArmaServerManager.Features.Missions {
-    /// <inheritdoc />
-    public class ApiMissionsClient : IApiMissionsClient {
+namespace ArmaForces.ArmaServerManager.Features.Missions
+{
+    /// <inheritdoc cref="IApiMissionsClient" />
+    internal class ApiMissionsClient : HttpClientBase, IApiMissionsClient
+    {
         // TODO: it should not be like this
+        private const string ClientName = "MissionsClient";
         private const string MissionsUpcomingResourceFormat = @"api/missions?includeArchive=true&fromDateTime={0}";
 
-        private readonly IRestClient _restClient;
-
         /// <inheritdoc cref="ApiMissionsClient"/>
-        /// <param name="restClient">SteamClient used for connections.</param>
-        public ApiMissionsClient(IRestClient restClient)
+        public ApiMissionsClient(
+            IHttpClientFactory httpClientFactory,
+            ISettings settings)
+            : base(
+                httpClientFactory,
+                // TODO: Handle no missions URL
+                settings.ApiMissionsBaseUrl,
+                ClientName)
         {
-            _restClient = restClient;
-        }
-
-        // TODO: Handle no missions URL
-        public ApiMissionsClient(ISettings settings):this(settings.ApiMissionsBaseUrl!){}
-
-        /// <inheritdoc cref="ApiMissionsClient"/>
-        /// <param name="baseUrl">Base API url.</param>
-        private ApiMissionsClient(string baseUrl) : this(new Uri(baseUrl)) {
-        }
-
-        /// <inheritdoc cref="ApiMissionsClient"/>
-        /// <param name="baseUri">Base API uri.</param>
-        private ApiMissionsClient(Uri baseUri) {
-            _restClient = new RestClient(baseUri);
         }
 
         /// <inheritdoc />
-        public Result<List<WebMission>> GetUpcomingMissions()
-            => ApiMissionsUpcoming();
+        public async Task<Result<List<WebMission>>> GetUpcomingMissions()
+            => await ApiMissionsUpcoming();
 
         /// <inheritdoc />
-        public Result<ISet<string>> GetUpcomingMissionsModsetsNames()
+        public async Task<Result<HashSet<string>>> GetUpcomingMissionsModsetsNames()
         {
-            var upcomingMissionsResult = GetUpcomingMissions();
-            if (upcomingMissionsResult.IsFailure)
-                return Result.Failure<ISet<string>>("Missions could not be retrieved.");
+            return await GetUpcomingMissions()
+                .Bind(GetMissionModsets)
+                .OnFailure(error => Result.Failure<ISet<string>>($"Upcoming missions modsets names could not be retrieved, error: {error}"));
+        }
 
-            return upcomingMissionsResult.Value
+        private Result<HashSet<string>> GetMissionModsets(IReadOnlyCollection<WebMission> missions)
+            => missions
                 .GroupBy(x => x.Modlist)
                 .Select(x => x.First())
                 .Select(x => x.Modlist)
                 .ToHashSet();
-        }
 
-        private Result<List<WebMission>> ApiMissionsUpcoming() {
+        private async Task<Result<List<WebMission>>> ApiMissionsUpcoming() {
             var requestUri = string.Format(MissionsUpcomingResourceFormat, DateTime.Today.ToString("s"));
-            var request = new RestRequest(requestUri);
-            return _restClient.ExecuteAndReturnResult<List<WebMission>>(request);
+            return await HttpGetAsync<List<WebMission>>(requestUri);
         }
     }
 }

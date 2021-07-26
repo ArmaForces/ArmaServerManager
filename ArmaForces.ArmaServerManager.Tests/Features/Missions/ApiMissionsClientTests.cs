@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
@@ -19,19 +20,19 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions
         private readonly Fixture _fixture = new Fixture();
 
         [Fact]
-        public void GetUpcomingMissions_StatusOk_MissionsRetrieved()
+        public async Task GetUpcomingMissions_StatusOk_MissionsRetrieved()
         {
             var expectedMissions = new List<WebMission> { _fixture.Create<WebMission>() };
             var mockedRestClient = CreateMockedRestClient(expectedMissions);
             var apiClient = new ApiMissionsClient(mockedRestClient);
 
-            var result = apiClient.GetUpcomingMissions();
+            var result = await apiClient.GetUpcomingMissions();
 
             result.ShouldBeSuccess(expectedMissions);
         }
 
         [Fact]
-        public void GetUpcomingMissionsModsets_StatusOk_ModsetsRetrieved()
+        public async Task GetUpcomingMissionsModsets_StatusOk_ModsetsRetrieved()
         {
             const int modsetsCount = 3;
             const int missionsCount = 6;
@@ -44,7 +45,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions
             var mockedRestClient = CreateMockedRestClient(missions);
             var apiClient = new ApiMissionsClient(mockedRestClient);
 
-            var result = apiClient.GetUpcomingMissionsModsetsNames();
+            var result = await apiClient.GetUpcomingMissionsModsetsNames();
 
             result.ShouldBeSuccess(expectedModsets);
         }
