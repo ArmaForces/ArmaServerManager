@@ -1,29 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using ArmaForces.Arma.Server.Config;
 using ArmaForces.ArmaServerManager.Common;
-using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
-using RestSharp;
 
 namespace ArmaForces.ArmaServerManager.Features.Modsets
 {
     /// <inheritdoc cref="IApiModsetClient" />
     internal class ApiModsetClient : HttpClientBase, IApiModsetClient
     {
-        private const string ClientName = "ModsetsClient";
-
         /// <inheritdoc cref="ApiModsetClient" />
-        public ApiModsetClient(
-            IHttpClientFactory httpClientFactory,
-            ISettings settings)
-            : base(
-                httpClientFactory,
-                settings.ApiModsetsBaseUrl,
-                ClientName) { }
+        public ApiModsetClient(HttpClient httpClient) : base(httpClient) { }
 
         /// <inheritdoc />
         public async Task<Result<List<WebModset>>> GetModsets()

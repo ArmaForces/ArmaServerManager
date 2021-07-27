@@ -1,30 +1,33 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
-using ArmaForces.ArmaServerManager.Tests.Helpers.Extensions;
+using ArmaForces.ArmaServerManager.Tests.Features.Missions.TestingHelpers;
 using AutoFixture;
-using Moq;
-using RestSharp;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Missions
 {
-    [Trait("Category", "Unit")]
-    public class ApiMissionsClientTests
+    [Trait("Category", "Integration")]
+    public class ApiMissionsClientTests : IClassFixture<MissionsTestApiFixture>
     {
         private readonly Fixture _fixture = new Fixture();
+        private readonly HttpClient _httpClient;
+
+        public ApiMissionsClientTests(MissionsTestApiFixture missionsTestApiFixture)
+        {
+            _httpClient = missionsTestApiFixture.HttpClient;
+        }
 
         [Fact]
         public async Task GetUpcomingMissions_StatusOk_MissionsRetrieved()
         {
             var expectedMissions = new List<WebMission> { _fixture.Create<WebMission>() };
-            var mockedRestClient = CreateMockedRestClient(expectedMissions);
-            var apiClient = new ApiMissionsClient(mockedRestClient);
+            var apiClient = new ApiMissionsClient(_httpClient);
 
             var result = await apiClient.GetUpcomingMissions();
 
@@ -42,8 +45,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions
                 .ToHashSet();
             var missions = PrepareMissions(missionsCount, modsets);
 
-            var mockedRestClient = CreateMockedRestClient(missions);
-            var apiClient = new ApiMissionsClient(mockedRestClient);
+            var apiClient = new ApiMissionsClient(_httpClient);
 
             var result = await apiClient.GetUpcomingMissionsModsetsNames();
 
@@ -63,15 +65,6 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions
             }
 
             return missions;
-        }
-
-        private static IRestClient CreateMockedRestClient(List<WebMission> missions)
-        {
-            var restClientMock = new Mock<IRestClient>();
-            
-            restClientMock.SetupResponse(HttpStatusCode.OK, missions);
-            
-            return restClientMock.Object;
         }
     }
 }

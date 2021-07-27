@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using ArmaForces.Arma.Server.Config;
 using ArmaForces.ArmaServerManager.Common;
-using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using CSharpFunctionalExtensions;
-using RestSharp;
 
 namespace ArmaForces.ArmaServerManager.Features.Missions
 {
@@ -16,20 +13,10 @@ namespace ArmaForces.ArmaServerManager.Features.Missions
     internal class ApiMissionsClient : HttpClientBase, IApiMissionsClient
     {
         // TODO: it should not be like this
-        private const string ClientName = "MissionsClient";
         private const string MissionsUpcomingResourceFormat = @"api/missions?includeArchive=true&fromDateTime={0}";
 
         /// <inheritdoc cref="ApiMissionsClient"/>
-        public ApiMissionsClient(
-            IHttpClientFactory httpClientFactory,
-            ISettings settings)
-            : base(
-                httpClientFactory,
-                // TODO: Handle no missions URL
-                settings.ApiMissionsBaseUrl,
-                ClientName)
-        {
-        }
+        public ApiMissionsClient(HttpClient httpClient) : base(httpClient) { }
 
         /// <inheritdoc />
         public async Task<Result<List<WebMission>>> GetUpcomingMissions()
