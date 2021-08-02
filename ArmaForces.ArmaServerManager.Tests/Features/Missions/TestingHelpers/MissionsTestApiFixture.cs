@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json.Serialization;
+using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +20,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions.TestingHelpers
 
         public HttpClient HttpClient { get; }
 
+        public MissionsStorage MissionsStorage { get; }
+
         public MissionsTestApiFixture()
         {
             _socketsHttpHandler = new SocketsHttpHandler();
@@ -29,7 +33,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions.TestingHelpers
             _host = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(ConfigureWebBuilder())
                 .Build();
-
+            
+            MissionsStorage = _host.Services.GetRequiredService<MissionsStorage>();
+            
             _host.Start();
         }
 
@@ -49,6 +55,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions.TestingHelpers
         private class Startup
         {
             public void ConfigureServices(IServiceCollection services) => services
+                .AddSingleton(new MissionsStorage())
                 .AddMvcCore(options => options.EnableEndpointRouting = false)
                 .AddJsonOptions(
                     x => x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));

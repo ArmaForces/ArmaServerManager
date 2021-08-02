@@ -17,16 +17,19 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions
     {
         private readonly Fixture _fixture = new Fixture();
         private readonly HttpClient _httpClient;
+        private readonly MissionsStorage _missionsStorage;
 
         public ApiMissionsClientTests(MissionsTestApiFixture missionsTestApiFixture)
         {
             _httpClient = missionsTestApiFixture.HttpClient;
+            _missionsStorage = missionsTestApiFixture.MissionsStorage;
         }
 
         [Fact]
         public async Task GetUpcomingMissions_StatusOk_MissionsRetrieved()
         {
             var expectedMissions = new List<WebMission> { _fixture.Create<WebMission>() };
+            _missionsStorage.Missions = expectedMissions;
             var apiClient = new ApiMissionsClient(_httpClient);
 
             var result = await apiClient.GetUpcomingMissions();
