@@ -14,6 +14,6 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs
 
         public int AppId { get; set; }
         
-        public string Directory { set; get; }
+        public string? Directory { set; get; }
     }
 }

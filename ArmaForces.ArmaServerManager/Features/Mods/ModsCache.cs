@@ -174,7 +174,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 CreatedAt = webDlc.CreatedAt,
                 LastUpdatedAt = webDlc.LastUpdatedAt,
                 AppId = (DlcAppId) webDlc.AppId,
-                Directory = _fileSystem.Path.Join(_armaPath, webDlc.Directory)
+                Directory = _fileSystem.Path.Join(_armaPath, webDlc.Directory ?? DlcDirectoryName.GetName((DlcAppId) webDlc.AppId))
             };
         }
 
