@@ -127,6 +127,8 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
         private List<BikeyFile> GetKeysFromMod(IMod mod)
         {
+            _logger.LogDebug("Looking for standard keys for {Mod}", mod.ToShortString());
+            
             return _keysFinder.GetKeysFromDirectory(mod.Directory)
                 .Select(path => new BikeyFile(path, mod.ToShortString()))
                 .ToList();
@@ -134,7 +136,8 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
         private List<BikeyFile> GetExternalKeys(IMod mod)
         {
-            var result = _modDirectoryFinder.TryFindModDirectory(mod, _externalKeysDirectoryPath);
+            var result = _modDirectoryFinder.TryFindModDirectory(mod, _externalKeysDirectoryPath)
+                .Tap(_ => _logger.LogDebug("Looking for external keys for {Mod}", mod.ToShortString()));
 
             return result.IsSuccess
                 ? _keysFinder.GetKeysFromDirectory(result.Value)

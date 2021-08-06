@@ -20,7 +20,7 @@ namespace ArmaForces.Arma.Server.Features.Keys.Finder
 
         public List<string> GetKeysFromDirectory(string? directory)
         {
-            _logger.LogDebug("Looking for keys in {Directory}", directory);
+            _logger.LogTrace("Looking for keys in {Directory}", directory);
 
             var keyFiles = directory is null
                 ? new string[0]
@@ -31,7 +31,7 @@ namespace ArmaForces.Arma.Server.Features.Keys.Finder
 
             if (keyFiles.Any())
             {
-                _logger.LogDebug(
+                _logger.LogTrace(
                     "Found {Count} keys in {Directory}",
                     keyFiles.Length,
                     directory);
