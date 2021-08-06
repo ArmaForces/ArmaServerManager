@@ -3,6 +3,9 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Exceptions;
+using ArmaForces.Arma.Server.Features.Dlcs;
+using ArmaForces.Arma.Server.Features.Dlcs.Constants;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
@@ -69,7 +72,8 @@ namespace ArmaForces.Arma.Server.Features.Mods
                 .OnFailureCompensate(() => TryFindModDirectoryByName(mod, directoryToSearch))
                 .OnFailureCompensate(() => TryFindModDirectoryByNamePrefixedWithAtSign(mod, directoryToSearch))
                 .OnFailureCompensate(() => TryFindCdlcDirectory(mod))
-                .OnFailureCompensate(() => Result.Failure<string>($"Directory not found for {mod.ToShortString()}."));
+                .OnFailureCompensate(() => Result.Failure<string>($"Directory not found for {mod.ToShortString()}."))
+                .Bind(directory => AssertFoundDirectoryIsNotServerDirectory(mod, directory));
 
         private Result<string> TryFindModDirectoryByDirectory(IMod mod, string directoryToSearch)
         {
@@ -122,14 +126,41 @@ namespace ArmaForces.Arma.Server.Features.Mods
 
         private Result<string> TryFindCdlcDirectory(IMod maybeCdlc)
         {
-            if (string.IsNullOrWhiteSpace(maybeCdlc.Directory))
-                return Result.Failure<string>("cDLC directory attribute is empty.");
+            if (!(maybeCdlc is Dlc cdlc))
+                return Result.Failure<string>("Mod is not a cDLC.");
+            
+            if (string.IsNullOrWhiteSpace(cdlc.Directory))
+            {
+                cdlc.Directory = DlcDirectoryName.GetName(cdlc.AppId);
+            }
 
             // TODO: Parametrize directory to search
-            var path = Path.Join(_serverPath, maybeCdlc.Directory);
+            var path = Path.Join(_serverPath, cdlc.Directory);
             return _fileSystem.Directory.Exists(path)
                 ? Result.Success(path)
                 : Result.Failure<string>("cDLC directory not found.");
+        }
+
+        /// <summary>
+        /// Checks if <paramref name="foundDirectory"/> equals to main arma server directory and throws an exception then.
+        /// This prevents any fuck ups in server directory.
+        /// This is just a failsafe, it should never be called actually.
+        /// Might be removed when 100% sure it won't happen again.
+        /// </summary>
+        /// <param name="mod">Mod for which the <paramref name="foundDirectory"/> was found.</param>
+        /// <param name="foundDirectory">Directory path to mod.</param>
+        /// <returns>Mod directory path.</returns>
+        /// <exception cref="ModNotFoundException">Thrown when <paramref name="foundDirectory"/> equals to server directory.</exception>
+        private Result<string> AssertFoundDirectoryIsNotServerDirectory(IMod mod, string foundDirectory)
+        {
+            if (foundDirectory != _serverPath)
+            {
+                return Result.Success(foundDirectory);
+            }
+            
+            _logger.LogError("Directory for mod {@Mod} equals server directory while it should not!", mod);
+            
+            throw new ModNotFoundException(mod.ToShortString(), $"Directory for {mod.ToShortString()} equals server directory while it should not!");
         }
     }
 }
