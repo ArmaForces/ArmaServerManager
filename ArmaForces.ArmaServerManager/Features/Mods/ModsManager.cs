@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,9 +7,9 @@ using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Extensions;
-using ArmaForces.ArmaServerManager.Features.Steam;
 using ArmaForces.ArmaServerManager.Features.Steam.Content;
 using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Features.Mods
 {
@@ -19,32 +19,39 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private readonly IContentDownloader _contentDownloader;
         private readonly IContentVerifier _contentVerifier;
         private readonly IModsCache _modsCache;
+        private readonly ILogger<ModsManager> _logger;
 
         /// <inheritdoc cref="ModsManager" />
         /// <param name="contentDownloader">Client for mods download and updating.</param>
         /// <param name="contentVerifier">Client for verifying whether mods are up to date and correct.</param>
         /// <param name="modsCache">Installed mods cache.</param>
+        /// <param name="logger">Logger.</param>
         public ModsManager(
             IContentDownloader contentDownloader,
             IContentVerifier contentVerifier,
-            IModsCache modsCache)
+            IModsCache modsCache,
+            ILogger<ModsManager> logger)
         {
             _contentDownloader = contentDownloader;
             _contentVerifier = contentVerifier;
             _modsCache = modsCache;
+            _logger = logger;
         }
 
         /// <inheritdoc />
         public async Task<Result> PrepareModset(IModset modset, CancellationToken cancellationToken)
-            => await CheckUpdatesAndDownloadMods(modset.Mods, cancellationToken);
+            => await CheckUpdatesAndDownloadMods(modset.Mods, cancellationToken)
+                .Tap(() => _logger.LogInformation("Preparation of {ModsetName} modset finished", modset.Name));
 
         /// <inheritdoc />
-        public async Task UpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken)
-            => await CheckUpdatesAndDownloadMods(mods, cancellationToken);
+        public async Task UpdateMods(IReadOnlyCollection<IMod> mods, CancellationToken cancellationToken)
+            => await CheckUpdatesAndDownloadMods(mods, cancellationToken)
+                .Tap(() => _logger.LogInformation("Update of {Count} mods finished", mods.Count));
 
         /// <inheritdoc />
         public async Task UpdateAllMods(CancellationToken cancellationToken)
-            => await CheckUpdatesAndDownloadMods(_modsCache.Mods, cancellationToken);
+            => await CheckUpdatesAndDownloadMods(_modsCache.Mods, cancellationToken)
+                .Tap(() => _logger.LogInformation("Update of all mods finished"));
 
         /// <inheritdoc />
         public Result<IEnumerable<IMod>> CheckModsExist(IEnumerable<IMod> modsList)
