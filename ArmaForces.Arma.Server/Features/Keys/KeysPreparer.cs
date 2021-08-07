@@ -83,7 +83,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
             _logger.LogInformation(
                 "Copied {Count} keys for modset {ModsetName}", 
-                modBikeysList.Count(x => x.BikeyFiles.Any()),
+                modBikeysList.Sum(x => x.BikeyFiles.Count),
                 modset.Name);
 
             LogKeysNotFound(modBikeysList);
