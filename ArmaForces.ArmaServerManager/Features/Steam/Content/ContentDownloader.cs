@@ -21,6 +21,8 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
     /// <inheritdoc />
     public class ContentDownloader : IContentDownloader
     {
+        private static TimeSpan ProgressLogInterval { get; } = TimeSpan.FromSeconds(5);
+        
         private readonly string _modsDirectory;
         private readonly ISteamClient _steamClient;
         private readonly ILogger<ContentDownloader> _logger;
@@ -171,13 +173,13 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             Task downloadTask,
             CancellationToken cancellationToken)
         {
+            await Task.Delay(ProgressLogInterval, cancellationToken);
             
             while (!downloadTask.IsCompleted)
             {
-                var delayTask = Task.Delay(1000, cancellationToken);
+                _logger.LogDebug("Item {ItemId} download progress {Progress:00.00}%", itemId, contentDownloadHandler.TotalProgress * 100);
+                var delayTask = Task.Delay(ProgressLogInterval, cancellationToken);
                 await Task.WhenAny(delayTask, downloadTask);
-                // TODO: Replace console with something more reasonable (but logging every second or so is not the best idea)
-                Console.WriteLine($"Progress {contentDownloadHandler.TotalProgress * 100:00.00}%");
             }
 
             await downloadTask;
