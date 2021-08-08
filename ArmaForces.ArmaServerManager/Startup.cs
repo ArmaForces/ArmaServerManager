@@ -8,6 +8,7 @@ using ArmaForces.ArmaServerManager.Features.Hangfire.Filters;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
 using ArmaForces.ArmaServerManager.Features.Missions.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection;
+using ArmaForces.ArmaServerManager.Features.Modsets.DependencyInjection;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Providers.Server;
 using ArmaForces.ArmaServerManager.Services;
@@ -35,17 +36,6 @@ namespace ArmaForces.ArmaServerManager
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            /*
-            services.AddLogging(
-                config =>
-                {
-                    config.AddSimpleConsole(
-                        console =>
-                        {
-                            console.TimestampFormat = "s";
-                        });
-                });*/
-
             services.AddRazorPages();
 
             // Add REST API Controller
