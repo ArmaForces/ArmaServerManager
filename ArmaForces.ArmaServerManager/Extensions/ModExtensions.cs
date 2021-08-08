@@ -8,7 +8,7 @@ namespace ArmaForces.ArmaServerManager.Extensions
     public static class ModExtensions
     {
         public static ContentItem AsContentItem(this IMod mod)
-            => mod.Source != ModSource.SteamWorkshop
+            => mod.Source == ModSource.SteamWorkshop
                 ? new ContentItem
                 {
                     Directory = mod.Directory,
