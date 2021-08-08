@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,17 +16,20 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions.TestingHelpers
             _missionsStorage = missionsStorage;
         }
 
-        // TODO: Add some implementation here
         [HttpGet]
         public ActionResult<WebMission> GetMissions(
-            bool? includeArchive = false,
+            bool includeArchive = false,
             DateTime? fromDateTime = null,
             DateTime? toDateTime = null)
         {
             fromDateTime ??= DateTime.MinValue;
             toDateTime ??= DateTime.MaxValue;
 
-            return Ok(_missionsStorage.Missions);
+            return Ok(_missionsStorage.Missions
+                .Where(x => !x.Archive || includeArchive)
+                .Where(x => x.Date >= fromDateTime)
+                .Where(x => x.Date <= toDateTime)
+                .ToList());
         }
     }
 }

@@ -58,7 +58,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions
 
         private List<WebMission> PrepareMissions(int missionsCount, IReadOnlyList<WebModset> modsets)
         {
-            var missions = _fixture.CreateMany<WebMission>(missionsCount).ToList();
+            var missions = _fixture
+                .Customize(new CurrentDateTimeCustomization())
+                .CreateMany<WebMission>(missionsCount)
+                .ToList();
             var j = 0;
             foreach (var webMission in missions)
             {
