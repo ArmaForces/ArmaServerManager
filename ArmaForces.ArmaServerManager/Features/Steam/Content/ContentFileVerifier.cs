@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Security.Cryptography;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using BytexDigital.Steam.ContentDelivery.Enumerations;
 using BytexDigital.Steam.ContentDelivery.Models;
@@ -29,7 +30,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 return Result.Success(contentItem);
             }
 
-            _logger.LogInformation("Item {contentItemId} doesn't have a directory.");
+            _logger.LogInformation("Item {ContentItemId} doesn't have a directory", contentItem.Id);
             return Result.Failure<ContentItem>("Item not exists.");
         }
 
@@ -52,6 +53,10 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 .Where(x => !expectedFiles.Contains(x))
                 .ToList();
 
+            if (redundantFiles.IsEmpty()) return;
+            
+            _logger.LogDebug("Found {Count} redundant files in {Directory}", redundantFiles.Count, directory);
+                
             foreach (var file in redundantFiles)
             {
                 _fileSystem.File.Delete(file);

@@ -33,10 +33,11 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         /// </summary>
         private async Task<ManifestId> GetManifestId(ContentItem contentItem)
         {
-            _logger.LogDebug("Downloading ManifestId for item {contentItemId}.", contentItem.Id);
+            _logger.LogDebug("Downloading ManifestId for item {ContentItemId}", contentItem.Id);
 
             var errors = 0;
 
+            // TODO: Use Polly
             while (true)
             {
                 try
@@ -77,7 +78,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             int errors)
             => _logger.LogTrace(
                 exception,
-                "Failed to download ManifestId for item {contentItemId}. Errors = {number}.",
+                "Failed to download ManifestId for item {ContentItemId}. Errors = {Number}",
                 contentItem.Id,
                 errors);
 
@@ -94,14 +95,14 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             {
                 _logger.LogError(
                     newException,
-                    "Could not download ManifestId for item {contentItemId}.",
+                    "Could not download ManifestId for item {ContentItemId}",
                     contentItem.Id);
             }
             else
             {
                 _logger.LogError(
                     newException,
-                    "Could not download ManifestId for item {contentItemId}, error message {message}.",
+                    "Could not download ManifestId for item {ContentItemId}, error message {Message}",
                     contentItem.Id,
                     innerException.Message);
             }

@@ -17,6 +17,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace ArmaForces.Arma.Server.Tests.Features.Keys
@@ -35,7 +36,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys
         public KeysPreparerIntegrationTests()
         {
             _fileSystem = CreateFileSystemMock(_settings);
-            var config = new ServerConfig(_settings, _fileSystem);
+            var config = new ServerConfig(_settings, NullLogger<ServerConfig>.Instance, _fileSystem);
             _serviceProvider = CreateServiceProvider(_settings, config, _fileSystem);
 
             _keysDirectory = MockUnixSupport.Path($"{_settings.ServerDirectory}\\{KeysConstants.KeysDirectoryName}");

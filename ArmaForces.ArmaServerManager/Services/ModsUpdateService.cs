@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Mods;
@@ -37,7 +38,7 @@ namespace ArmaForces.ArmaServerManager.Services
 
         public async Task UpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken)
         {
-            await _modsManager.UpdateMods(mods, cancellationToken);
+            await _modsManager.UpdateMods(mods.ToList(), cancellationToken);
         }
 
         /// <summary>

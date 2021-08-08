@@ -42,7 +42,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             return await _contentFileVerifier.EnsureDirectoryExists(contentItem)
                 .Bind(x => GetManifest(x, cancellationToken))
                 // TODO: Move redundant files removing out of verification, returning redundant files should be separate from removing them.
+                .Tap(_ => _logger.LogTrace("Searching redundant files for {Item}", contentItem.ToString()))
                 .Tap(x => _contentFileVerifier.RemoveRedundantFiles(contentItem.Directory!, x))
+                .Tap(_ => _logger.LogTrace("Searching outdated files for {Item}", contentItem.ToString()))
                 .Bind(manifest => IsAnyFileOutdated(contentItem, manifest));
         }
 

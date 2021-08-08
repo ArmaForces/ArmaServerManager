@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Config {
     public class ServerConfig : IConfig {
@@ -12,6 +13,7 @@ namespace ArmaForces.Arma.Server.Config {
         public string ServerCfg { get; protected set; }
 
         private readonly ISettings _settings;
+        private readonly ILogger<ServerConfig> _logger;
         private readonly IFileSystem _fileSystem;
 
         /// <summary>
@@ -20,10 +22,14 @@ namespace ArmaForces.Arma.Server.Config {
         /// <param name="settings">Server Settings Object</param>
         /// TODO: Make factory, just as for ModsetConfig
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        public ServerConfig(ISettings settings, IFileSystem? fileSystem = null)
+        public ServerConfig(
+        ISettings settings,
+        ILogger<ServerConfig> logger,
+        IFileSystem? fileSystem = null)
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             _settings = settings;
+            _logger = logger;
             _fileSystem = fileSystem ?? new FileSystem();
             SetProperties();
         }
@@ -33,11 +39,11 @@ namespace ArmaForces.Arma.Server.Config {
         /// </summary>
         /// <returns></returns>
         public Result CopyConfigFiles() {
-            Console.WriteLine("Loading ServerConfig.");
+            _logger.LogDebug("Loading ServerConfig");
             
             return GetOrCreateServerConfigDir()
-                .Tap(() => Console.WriteLine("ServerConfig files copied."))
-                .OnFailure(error => Console.WriteLine("ServerConfig files could not be copied with {0}.", error));
+                .Tap(() => _logger.LogInformation("ServerConfig files copied"))
+                .OnFailure(error => _logger.LogError("ServerConfig files could not be copied: {Error}", error));
         }
 
         private void SetProperties() {
@@ -53,7 +59,7 @@ namespace ArmaForces.Arma.Server.Config {
         /// <returns>path to serverConfig</returns>
         private Result GetOrCreateServerConfigDir() {
             if (!_fileSystem.Directory.Exists(DirectoryPath)) {
-                Console.WriteLine($"Config directory {_settings.ServerConfigDirectory} does not exists, creating.");
+                _logger.LogDebug("Config directory {Directory} does not exists, creating", _settings.ServerConfigDirectory);
                 _fileSystem.Directory.CreateDirectory(DirectoryPath);
             }
 
@@ -62,7 +68,7 @@ namespace ArmaForces.Arma.Server.Config {
             foreach (var fileName in filesList) {
                 var destFileName = Path.Join(DirectoryPath, fileName);
                 if (_fileSystem.File.Exists(destFileName)) continue;
-                Console.WriteLine($"{fileName} not found, copying.");
+                _logger.LogTrace("{FileName} not found, copying", fileName);
 
                 var exampleFilePath = Path.Join(_fileSystem.Directory.GetCurrentDirectory(), $"example_{fileName}");
                 _fileSystem.File.Copy(exampleFilePath, destFileName);

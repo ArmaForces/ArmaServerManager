@@ -10,6 +10,7 @@ using ArmaForces.ArmaServerManager.Features.Steam.Content;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using AutoFixture;
 using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -29,7 +30,11 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             _modsCacheMock = CreateModsCacheMock();
             _contentVerifierMock = CreateContentVerifierMock();
             _downloaderMock = CreateContentDownloaderMock();
-            _modsManager = new ModsManager(_downloaderMock.Object, _contentVerifierMock.Object, _modsCacheMock.Object);
+            _modsManager = new ModsManager(
+                _downloaderMock.Object,
+                _contentVerifierMock.Object,
+                _modsCacheMock.Object,
+                new NullLogger<ModsManager>());
         }
 
         [Fact]

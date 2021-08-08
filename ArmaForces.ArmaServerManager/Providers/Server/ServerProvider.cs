@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -74,7 +74,10 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
         private async Task OnServerDisposed(IDedicatedServer dedicatedServer)
         {
-            _logger.LogInformation("Server disposed, removing.");
+            _logger.LogDebug(
+                "Server with {ModsetName} disposed on port {Port}, removing",
+                dedicatedServer.Modset.Name,
+                dedicatedServer.Port);
 
             TryRemoveServer(dedicatedServer);
         }
@@ -91,14 +94,14 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
                 if (server is null)
                 {
-                    _logger.LogDebug("Server not found on port {port}. Shutting down headless clients for server on this port.", port);
+                    _logger.LogDebug("Server not found on port {Port}. Shutting down headless clients for server on this port", port);
 
                     foreach (var headlessClient in headlessClients)
                     {
                         headlessClient.Shutdown();
                     }
 
-                    _logger.LogDebug("Headless clients for server on port {port} were shut down.", port);
+                    _logger.LogDebug("Headless clients for server on port {Port} were shut down", port);
 
                     continue;
                 }

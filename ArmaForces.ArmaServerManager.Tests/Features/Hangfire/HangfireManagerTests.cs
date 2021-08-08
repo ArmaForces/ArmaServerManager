@@ -10,6 +10,7 @@ using FluentAssertions.Execution;
 using Hangfire.Common;
 using Hangfire.Storage;
 using Hangfire.Storage.Monitoring;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -31,7 +32,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 
         public HangfireManagerTests()
         {
-            _hangfireManager = new HangfireManager(_backgroundJobClientMock.Object, _hangfireJobStorageMock.Object);
+            _hangfireManager = new HangfireManager(_backgroundJobClientMock.Object, _hangfireJobStorageMock.Object, new NullLogger<HangfireManager>());
 
             _monitoringApiMock = PrepareMonitoringApiMock();
             _hangfireJobStorageMock.Setup(x => x.MonitoringApi).Returns(_monitoringApiMock.Object);

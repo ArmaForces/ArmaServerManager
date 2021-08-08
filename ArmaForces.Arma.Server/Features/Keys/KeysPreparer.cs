@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
@@ -54,9 +54,11 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
         private Result RemoveOldKeys()
         {
-            var oldKeys = _keysFinder.GetKeysFromDirectory(_keysDirectory);
+            var oldKeys = _keysFinder.GetKeysFromDirectory(_keysDirectory)
+                .Select(path => new BikeyFile(path))
+                .ToList();
 
-            _logger.LogDebug("Found {count} old keys.", oldKeys.Count);
+            _logger.LogDebug("Found {Count} old keys", oldKeys.Count);
 
             return _keysCopier.DeleteKeys(oldKeys);
         }
@@ -67,60 +69,80 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
             if (clientLoadableMods.IsEmpty())
             {
-                _logger.LogInformation("No client loadable mods found in modset {modsetName}.", modset.Name);
+                _logger.LogInformation("No client loadable mods found in modset {ModsetName}", modset.Name);
             }
 
+            var modBikeysList = new List<ModBikeys>();
             foreach (var mod in clientLoadableMods)
             {
                 CopyKeysForMod(mod)
-                    .OnFailure(error => _logger.LogWarning(
-                        "Copying keys for mod {mod} failed with error: {error}", 
-                        mod,
-                        error));
+                    .Tap(modBikeys => modBikeysList.Add(modBikeys))
+                    .OnFailure(error => LogKeysCopyError(mod, error))
+                    .OnFailure(_ => modBikeysList.Add(new ModBikeys(mod)));
             }
 
-            _logger.LogDebug("Keys copying finished for modset {modsetName}.", modset.Name);
+            _logger.LogInformation(
+                "Copied {Count} keys for modset {ModsetName}", 
+                modBikeysList.Sum(x => x.BikeyFiles.Count),
+                modset.Name);
+
+            LogKeysNotFound(modBikeysList);
 
             return Result.Success();
         }
 
-        private Result CopyKeysForMod(IMod mod)
+        private Result<ModBikeys> CopyKeysForMod(IMod mod)
         {
             try
             {
-                var modBikeys = GetKeysFromMod(mod)
-                    .Concat(GetExternalKeys(mod))
-                    .ToList();
+                var keysForMod = GetAllKeysForMod(mod);
 
                 _logger.LogTrace(
-                    "Found {count} keys for {mod}",
-                    modBikeys.Count,
-                    mod.ToShortString());
+                    "Found {Count} keys for {@Mod}",
+                    keysForMod.BikeyFiles.Count,
+                    mod);
 
-                return _keysCopier.CopyKeys(_keysDirectory, modBikeys);
+                return _keysCopier.CopyKeys(_keysDirectory, keysForMod.BikeyFiles)
+                    .Bind(() => Result.Success(keysForMod));
             }
             // TODO: Remove if does not occur anymore
             catch (ArgumentNullException exception)
             {
                 _logger.LogError(
                     exception,
-                    "Error copying keys for {mod}.",
+                    "Error copying keys for {Mod}",
                     mod.ToShortString());
                 throw;
             }
         }
 
-        private IEnumerable<BikeyFile> GetKeysFromMod(IMod mod)
+        private ModBikeys GetAllKeysForMod(IMod mod)
         {
-            return _keysFinder.GetKeysFromDirectory(mod.Directory);
+            var bikeyFiles = GetKeysFromMod(mod)
+                .Concat(GetExternalKeys(mod))
+                .ToList();
+
+            return new ModBikeys(mod, bikeyFiles);
         }
-        
-        private IEnumerable<BikeyFile> GetExternalKeys(IMod mod)
+
+        private List<BikeyFile> GetKeysFromMod(IMod mod)
         {
-            var modDirectoryResult = _modDirectoryFinder.TryFindModDirectory(mod, _externalKeysDirectoryPath);
+            _logger.LogDebug("Looking for standard keys for {Mod}", mod.ToShortString());
             
-            return modDirectoryResult.IsSuccess
-                ? _keysFinder.GetKeysFromDirectory(modDirectoryResult.Value)
+            return _keysFinder.GetKeysFromDirectory(mod.Directory)
+                .Select(path => new BikeyFile(path, mod.ToShortString()))
+                .ToList();
+        }
+
+        private List<BikeyFile> GetExternalKeys(IMod mod)
+        {
+            var result = _modDirectoryFinder.TryFindModDirectory(mod, _externalKeysDirectoryPath)
+                .Tap(_ => _logger.LogDebug("Looking for external keys for {Mod}", mod.ToShortString()));
+
+            return result.IsSuccess
+                ? _keysFinder.GetKeysFromDirectory(result.Value)
+                    .Select(path => new BikeyFile(path, mod.ToShortString()))
+                    .ToList()
                 : new List<BikeyFile>();
         }
 
@@ -130,11 +152,49 @@ namespace ArmaForces.Arma.Server.Features.Keys
         private Result CopyArmaKey()
         {
             var armaKeyPath = _fileSystem.Path.Join(_managerDirectory, KeysConstants.ArmaKey);
-            var bikeyFile = new BikeyFile(armaKeyPath);
+            var bikeyFile = new BikeyFile(armaKeyPath, ArmaConstants.GameName);
 
             return !_fileSystem.File.Exists(bikeyFile.Path)
                 ? Result.Failure($"{KeysConstants.ArmaKey} not found in Manager directory.")
                 : _keysCopier.CopyKeys(_keysDirectory, bikeyFile.AsList());
+        }
+
+        private void LogKeysNotFound(IReadOnlyCollection<ModBikeys> modBikeysList)
+        {
+            var modsWithNoKeys = modBikeysList
+                .Where(x => x.BikeyFiles.IsEmpty())
+                .Select(x => x.Mod.ToShortString())
+                .ToList();
+
+            if (modsWithNoKeys.Any())
+            {
+                _logger.LogWarning("No keys found for {Count} mods", modsWithNoKeys.Count);
+                _logger.LogDebug("No keys found for {@Mods}", modsWithNoKeys);
+            }
+        }
+
+        private void LogKeysCopyError(IMod mod, string error)
+        {
+            _logger.LogWarning(
+                "Copying keys for mod {Mod} failed with error: {Error}",
+                mod.ToShortString(),
+                error);
+            
+            _logger.LogTrace("Copying keys failed for mod {@Mod}", mod);
+        }
+
+        private readonly struct ModBikeys
+        {
+            public IReadOnlyCollection<BikeyFile> BikeyFiles { get; }
+            public IMod Mod { get; }
+
+            public ModBikeys(IMod mod) : this(mod, new List<BikeyFile>()) {}
+
+            public ModBikeys(IMod mod, IReadOnlyCollection<BikeyFile> bikeyFiles)
+            {
+                BikeyFiles = bikeyFiles;
+                Mod = mod;
+            }
         }
     }
 }
