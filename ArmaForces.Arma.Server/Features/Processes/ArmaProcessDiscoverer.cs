@@ -37,7 +37,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
             if (foundProcesses.IsEmpty()) return armaProcesses;
             
-            _logger.LogInformation($"Found {{count}} running {ArmaProcessName} processes.", foundProcesses.Count);
+            _logger.LogInformation("Found {Count} running "+ ArmaProcessName + " processes", foundProcesses.Count);
             foreach (var armaServerProcess in foundProcesses)
             {
                 void AddProcessToDictionary(IArmaProcess process)
