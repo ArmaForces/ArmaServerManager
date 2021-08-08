@@ -1,22 +1,13 @@
 using System;
 using System.Text.Json.Serialization;
-using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
-using ArmaForces.Arma.Server.Features.Parameters;
-using ArmaForces.Arma.Server.Features.Processes;
-using ArmaForces.Arma.Server.Features.Servers;
-using ArmaForces.Arma.Server.Providers.Configuration;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Filters;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
-using ArmaForces.ArmaServerManager.Features.Missions;
-using ArmaForces.ArmaServerManager.Features.Mods;
-using ArmaForces.ArmaServerManager.Features.Modsets;
-using ArmaForces.ArmaServerManager.Features.Steam;
-using ArmaForces.ArmaServerManager.Features.Steam.Content;
+using ArmaForces.ArmaServerManager.Features.Missions.DependencyInjection;
+using ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
-using ArmaForces.ArmaServerManager.Providers;
 using ArmaForces.ArmaServerManager.Providers.Server;
 using ArmaForces.ArmaServerManager.Services;
 using Hangfire;
@@ -85,20 +76,10 @@ namespace ArmaForces.ArmaServerManager
             .AddArmaServer()
             
             // Mods
-            .AddSingleton<ModsCache>()
-            .AddSingleton<IModsCache, ModsCache>()
-            .AddSingleton<IWebModsetMapper, ModsCache>()
-            .AddSingleton<IModsManager, ModsManager>()
-            .AddSingleton<IApiModsetClient, ApiModsetClient>()
-            .AddSingleton<ISteamClient, SteamClient>()
-            .AddSingleton<IManifestDownloader, ManifestDownloader>()
-            .AddSingleton<IContentDownloader, ContentDownloader>()
-            .AddSingleton<IContentVerifier, ContentVerifier>()
-            .AddSingleton<IContentFileVerifier, ContentFileVerifier>()
-            .AddSingleton<IModsetProvider, ModsetProvider>()
+            .AddMods()
 
             // Mission
-            .AddSingleton<IApiMissionsClient, ApiMissionsClient>()
+            .AddMissionsApiClient()
 
             // Server
             .AddSingleton<IServerProvider, ServerProvider>()

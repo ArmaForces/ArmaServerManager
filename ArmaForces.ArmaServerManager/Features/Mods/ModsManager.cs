@@ -7,7 +7,6 @@ using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Extensions;
-using ArmaForces.ArmaServerManager.Features.Steam;
 using ArmaForces.ArmaServerManager.Features.Steam.Content;
 using CSharpFunctionalExtensions;
 

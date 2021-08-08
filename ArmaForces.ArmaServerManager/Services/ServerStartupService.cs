@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Missions;
+using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using ArmaForces.ArmaServerManager.Providers;
 using ArmaForces.ArmaServerManager.Providers.Server;
 using CSharpFunctionalExtensions;
@@ -36,16 +38,14 @@ namespace ArmaForces.ArmaServerManager.Services
         // TODO: Add port
         public async Task<Result> StartServerForMission(string missionTitle, CancellationToken cancellationToken)
         {
-            var upcomingMissions = _apiMissionsClient.GetUpcomingMissions();
-            if (upcomingMissions.IsFailure) return Result.Failure("Could not retrieve upcoming missions.");
-
-            var mission = upcomingMissions.Value
-                .Single(x => x.Title == missionTitle);
-
-            return await StartServer(mission.Modlist, cancellationToken);
+            return await _apiMissionsClient.GetUpcomingMissions()
+                .Bind(upcomingMissions => GetMissionWithTitle(missionTitle, upcomingMissions))
+                .Bind(x => StartServer(x.Modlist, cancellationToken))
+                .OnFailure(error => Result.Failure($"Could not start server for mission {missionTitle}, error: {error}"));
         }
 
         // TODO: Add port
+
         public async Task<Result> StartServer(string modsetName, CancellationToken cancellationToken)
         {
             return await _modsetProvider.GetModsetByName(modsetName)
@@ -53,6 +53,7 @@ namespace ArmaForces.ArmaServerManager.Services
         }
 
         // TODO: Add port
+
         public async Task<Result> StartServer(IModset modset, CancellationToken cancellationToken)
         {
             return await ShutdownServer(
@@ -80,6 +81,12 @@ namespace ArmaForces.ArmaServerManager.Services
             }
 
             return await server.Shutdown();
+        }
+
+        private static Result<WebMission> GetMissionWithTitle(string missionTitle, IReadOnlyCollection<WebMission> upcomingMissions)
+        {
+            return upcomingMissions.SingleOrDefault(x => x.Title == missionTitle) ??
+                Result.Failure<WebMission>($"Mission {missionTitle} not found.");
         }
     }
 }
