@@ -14,6 +14,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
     {
         private readonly IKeysPreparer _keysPreparer;
         private readonly IModsetConfigurationProvider _modsetConfigurationProvider;
+        private readonly IServerStatusFactory _serverStatusFactory;
         private readonly IArmaProcessManager _armaProcessManager;
         private readonly IArmaProcessFactory _armaProcessFactory;
         private readonly ILogger<ServerBuilder> _logger;
@@ -29,6 +30,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         public ServerBuilder(
             IKeysPreparer keysPreparer,
             IModsetConfigurationProvider modsetConfigurationProvider,
+            IServerStatusFactory serverStatusFactory,
             IArmaProcessManager armaProcessManager,
             IArmaProcessFactory armaProcessFactory,
             ILogger<ServerBuilder> logger,
@@ -36,6 +38,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         {
             _keysPreparer = keysPreparer;
             _modsetConfigurationProvider = modsetConfigurationProvider;
+            _serverStatusFactory = serverStatusFactory;
             _armaProcessManager = armaProcessManager;
             _armaProcessFactory = armaProcessFactory;
             _logger = logger;
@@ -102,6 +105,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
                 _port!.Value,
                 _modset,
                 modsetConfig,
+                _serverStatusFactory,
                 _keysPreparer,
                 _armaProcessManager,
                 serverProcess,

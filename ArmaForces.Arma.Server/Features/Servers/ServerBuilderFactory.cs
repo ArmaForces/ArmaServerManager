@@ -7,6 +7,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 {
     public class ServerBuilderFactory : IServerBuilderFactory
     {
+        private readonly IServerStatusFactory _serverStatusFactory;
         private readonly IKeysPreparer _keysPreparer;
         private readonly IModsetConfigurationProvider _modsetConfigurationProvider;
         private readonly IArmaProcessManager _armaProcessManager;
@@ -15,6 +16,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         private readonly ILogger<DedicatedServer> _dedicatedServerLogger;
 
         public ServerBuilderFactory(
+            IServerStatusFactory serverStatusFactory,
             IKeysPreparer keysPreparer,
             IModsetConfigurationProvider modsetConfigurationProvider,
             IArmaProcessManager armaProcessManager,
@@ -22,6 +24,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
             ILogger<ServerBuilder> serverBuilderLogger,
             ILogger<DedicatedServer> dedicatedServerLogger)
         {
+            _serverStatusFactory = serverStatusFactory;
             _keysPreparer = keysPreparer;
             _modsetConfigurationProvider = modsetConfigurationProvider;
             _armaProcessManager = armaProcessManager;
@@ -35,6 +38,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
             return new ServerBuilder(
                 _keysPreparer,
                 _modsetConfigurationProvider,
+                _serverStatusFactory,
                 _armaProcessManager,
                 _armaProcessFactory,
                 _serverBuilderLogger,

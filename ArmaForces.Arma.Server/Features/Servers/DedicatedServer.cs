@@ -20,6 +20,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
     public class DedicatedServer : IDedicatedServer
     {
         private readonly IModsetConfig _modsetConfig;
+        private readonly IServerStatusFactory _serverStatusFactory;
         private readonly ILogger<DedicatedServer> _logger;
         private readonly IKeysPreparer _keysPreparer;
         private readonly IArmaProcessManager _armaProcessManager;
@@ -31,6 +32,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
             int port,
             IModset modset,
             IModsetConfig modsetConfig,
+            IServerStatusFactory serverStatusFactory,
             IKeysPreparer keysPreparer,
             IArmaProcessManager armaProcessManager,
             IArmaProcess armaProcess,
@@ -38,10 +40,12 @@ namespace ArmaForces.Arma.Server.Features.Servers
             ILogger<DedicatedServer> logger)
         {
             Port = port;
+            SteamQueryPort = port + 1;
             _keysPreparer = keysPreparer;
             _armaProcessManager = armaProcessManager;
             Modset = modset;
             _modsetConfig = modsetConfig;
+            _serverStatusFactory = serverStatusFactory;
             _armaProcess = InitializeArmaProcess(armaProcess);
 
             _headlessProcesses = headlessClients.ToList();
@@ -49,6 +53,8 @@ namespace ArmaForces.Arma.Server.Features.Servers
         }
         
         public int Port { get; }
+        
+        public int SteamQueryPort { get; }
 
         public IModset Modset { get; }
 
@@ -85,7 +91,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         }
 
         public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken) 
-            => await ServerStatus.GetServerStatus(this, cancellationToken);
+            => await _serverStatusFactory.GetServerStatus(this, cancellationToken);
 
         private IArmaProcess InitializeArmaProcess(IArmaProcess armaProcess)
         {

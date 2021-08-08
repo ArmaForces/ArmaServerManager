@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Servers
 {
@@ -33,20 +34,20 @@ namespace ArmaForces.Arma.Server.Features.Servers
         public ExtraDataFlags ExtraDataFlag { get; set; }
 
         // \xFF\xFF\xFF\xFFTSource Engine Query\x00 because UTF-8 doesn't like to encode 0xFF
-        public static readonly byte[] Request =
+        private static readonly byte[] Request =
         {
             0xFF, 0xFF, 0xFF, 0xFF, 0x54, 0x53, 0x6F, 0x75, 0x72, 0x63, 0x65, 0x20, 0x45, 0x6E, 0x67, 0x69, 0x6E, 0x65,
             0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x00
         };
 
-        public static async Task<A2SInfo?> GetServerInfoAsync(IPEndPoint ipEndPoint, CancellationToken cancellationToken)
+        public static async Task<A2SInfo?> GetServerInfoAsync(IPEndPoint ipEndPoint, CancellationToken cancellationToken, ILogger? logger)
         {
             using var udpClient = new UdpClient();
 
             try
             {
                 return await Task.Run(
-                    () => ReadServerInfo(udpClient, ipEndPoint, cancellationToken),
+                    () => ReadServerInfo(udpClient, ipEndPoint, cancellationToken, logger),
                     cancellationToken);
             }
             catch (TaskCanceledException)
@@ -61,20 +62,23 @@ namespace ArmaForces.Arma.Server.Features.Servers
             }
         }
 
-        private static async Task<A2SInfo> ReadServerInfo(UdpClient udpClient, IPEndPoint ipEndPoint, CancellationToken cancellationToken)
+        private static async Task<A2SInfo> ReadServerInfo(
+            UdpClient udpClient,
+            IPEndPoint ipEndPoint,
+            CancellationToken cancellationToken,
+            ILogger? logger)
         {
             var serverInfo = new A2SInfo();
 
-            // TODO: use logger
             udpClient.Connect(ipEndPoint);
 
-            Console.WriteLine($"{DateTime.Now:s} Sending UDP request to {ipEndPoint}.");
-
+            logger?.LogTrace("Sending UDP request to {IpAddress}", ipEndPoint);
+            
             await udpClient.SendAsync(
                 Request,
                 Request.Length);
 
-            Console.WriteLine($"{DateTime.Now:s} UDP request sent to {ipEndPoint}.");
+            logger?.LogTrace("UDP request sent tp {IpAddress}", ipEndPoint);
 
             var receiveTask = udpClient.ReceiveAsync();
             while (!receiveTask.IsCompleted)
@@ -83,13 +87,13 @@ namespace ArmaForces.Arma.Server.Features.Servers
                 await Task.WhenAny(receiveTask, delayTask);
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    Console.WriteLine($"{DateTime.Now:s} Connection to {ipEndPoint} timed out.");
+                    logger?.LogDebug("UDP connection to {IpAddress} timed out", ipEndPoint);
                     throw new TaskCanceledException($"Connection to {ipEndPoint} timed out");
                 }
             }
 
             var udpReceiveResult = await receiveTask;
-            Console.WriteLine($"{DateTime.Now:s} UDP request received from {ipEndPoint}. Reading started.");
+            logger?.LogDebug("UDP request received from {IpAddress}. Reading started", ipEndPoint);
 
             await using var memoryStream = new MemoryStream(udpReceiveResult.Buffer); // Saves the received data in a memory buffer
             using var binaryReader = new BinaryReader(memoryStream, Encoding.UTF8); // A binary reader that treats characters as Unicode 8-bit
@@ -131,7 +135,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
             #endregion
 
-            Console.WriteLine($"{DateTime.Now:s} Successfully read message from {ipEndPoint}.");
+            logger.LogTrace("Successfully read message from {IpAddress}", ipEndPoint);
 
             return serverInfo;
         }

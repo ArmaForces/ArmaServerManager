@@ -65,6 +65,7 @@ namespace ArmaForces.Arma.Server.Extensions
                     // TODO: Change to scoped after refactoring ServerProvider
                 .AddSingleton<IServerBuilder, ServerBuilder>()
                 .AddSingleton<IServerBuilderFactory, ServerBuilderFactory>()
+                .AddSingleton<IServerStatusFactory, ServerStatusFactory>()
                 .AddSingleton<IDedicatedServerFactory, DedicatedServerFactory>()
                 .AddSingleton<IParametersExtractor, ParametersExtractor>();
         }
