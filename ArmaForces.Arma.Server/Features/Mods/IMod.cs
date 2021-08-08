@@ -10,7 +10,7 @@ namespace ArmaForces.Arma.Server.Features.Mods {
         DateTime? LastUpdatedAt { get; }
         ModSource Source { get; }
         ModType Type { get; }
-        long WorkshopId { get; }
+        long? WorkshopId { get; }
         string? Directory { get; set; }
 
         bool Exists(IFileSystem? fileSystem = null);

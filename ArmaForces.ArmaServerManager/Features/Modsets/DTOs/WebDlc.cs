@@ -4,9 +4,9 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs
 {
     public class WebDlc
     {
-        public string Id { get; set; }
-        
-        public string Name { get; set; }
+        public string Id { get; set; } = string.Empty;
+
+        public string Name { get; set; } = string.Empty;
         
         public DateTime CreatedAt { get; set; }
         
@@ -14,6 +14,6 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs
 
         public int AppId { get; set; }
         
-        public string? Directory { set; get; }
+        public string? Directory { get; set; }
     }
 }

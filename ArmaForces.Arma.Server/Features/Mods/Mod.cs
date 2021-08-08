@@ -17,7 +17,7 @@ namespace ArmaForces.Arma.Server.Features.Mods {
 
         public virtual ModType Type { get; set; }
 
-        public virtual long WorkshopId { get; set; }
+        public virtual long? WorkshopId { get; set; }
 
         public string? Directory { get; set; }
 

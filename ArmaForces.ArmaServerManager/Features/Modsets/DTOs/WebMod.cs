@@ -16,7 +16,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
 
         public WebModType Type { get; set; }
 
-        public long ItemId { get; set; }
+        public long? ItemId { get; set; }
 
         public string? Directory { get; set; }
 
