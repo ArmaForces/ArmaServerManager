@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Extensions;
@@ -27,9 +28,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets
         [Fact]
         public async Task GetModsets_StatusOk_ModsetsRetrieved()
         {
-            var expectedModsets = new List<WebModset>{_fixture.Create<WebModset>()};
+            var expectedModsets = _modsetsStorage.Modsets.ToList();
             var apiClient = new ApiModsetClient(_httpClient);
-            _modsetsStorage.Modsets = expectedModsets;
 
             var result = await apiClient.GetModsets();
             
@@ -39,9 +39,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets
         [Fact]
         public async Task GetModsetDataByName_ModsetWithNameExists_ReturnsModset()
         {
-            var modset = _fixture.Create<WebModset>();
-            _modsetsStorage.Modsets = modset.AsList();
-            
+            var modset = _modsetsStorage.Modsets.First();
+             
             var apiClient = new ApiModsetClient(_httpClient);
 
             var result = await apiClient.GetModsetDataByName(modset.Name);
@@ -63,8 +62,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets
         [Fact]
         public async Task GetModsetDataById_ModsetWithIdExists_ReturnsModset()
         {
-            var modset = _fixture.Create<WebModset>();
-            _modsetsStorage.Modsets = modset.AsList();
+            var modset = _modsetsStorage.Modsets.First();
             
             var apiClient = new ApiModsetClient(_httpClient);
 
