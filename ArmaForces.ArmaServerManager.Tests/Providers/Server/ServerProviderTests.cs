@@ -9,6 +9,7 @@ using ArmaForces.ArmaServerManager.Providers;
 using ArmaForces.ArmaServerManager.Providers.Server;
 using AutoFixture;
 using AutoFixture.Kernel;
+using CSharpFunctionalExtensions;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -85,7 +86,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Providers.Server
 
             modsetProviderMock
                 .Setup(x => x.GetModsetByName(It.IsAny<string>()))
-                .Returns(_fixture.Create<Modset>());
+                // TODO: Probably fix return
+                .Returns(Task.FromResult(Result.Success(_fixture.Create<Modset>().As<IModset>())));
             
             return modsetProviderMock.Object;
         }

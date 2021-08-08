@@ -45,10 +45,10 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 .Tap(_ => _logger.LogTrace("Searching redundant files for {Item}", contentItem.ToString()))
                 .Tap(x => _contentFileVerifier.RemoveRedundantFiles(contentItem.Directory!, x))
                 .Tap(_ => _logger.LogTrace("Searching outdated files for {Item}", contentItem.ToString()))
-                .Bind(manifest => GetIncorrectFiles(contentItem, manifest));
+                .Bind(manifest => IsAnyFileOutdated(contentItem, manifest));
         }
 
-        private Result<List<ManifestFile>> GetIncorrectFiles(ContentItem contentItem, Manifest manifest)
+        private Result<List<ManifestFile>> IsAnyFileOutdated(ContentItem contentItem, Manifest manifest)
             => manifest.Files
                 .SkipWhile(manifestFile => _contentFileVerifier.FileIsUpToDate(contentItem.Directory!, manifestFile))
                 .ToList();

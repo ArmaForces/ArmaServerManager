@@ -52,20 +52,26 @@ namespace ArmaForces.ArmaServerManager.Services
                 .Bind(nearestMission => _serverStartupService.StartServer(nearestMission.Modlist, cancellationToken));
         }
 
-        private Result<ISet<IMod>> GetModsListFromModsets(IEnumerable<string> modsetsNames)
+        private async Task<Result<HashSet<IMod>>> GetModsListFromModsets(IReadOnlyCollection<string> modsetsNames)
         {
-            return GetModsetsData(modsetsNames)
-                .Select(x => _webModsetMapper.MapWebModsetToCacheModset(x))
-                .Select(x => x.Mods)
-                .SelectMany(x => x)
-                .ToHashSet(new ModEqualityComparer());
+            return await GetModsetsData(modsetsNames)
+                .Bind(MapModsets);
         }
 
-        private ISet<WebModset> GetModsetsData(IEnumerable<string> modsetsNames)
+        private Result<HashSet<IMod>> MapModsets(ISet<WebModset> modsets) => modsets
+            .Select(webModset => _webModsetMapper.MapWebModsetToCacheModset(webModset))
+            .Select(modset => modset.Mods)
+            .SelectMany(x => x)
+            .ToHashSet(new ModEqualityComparer());
+
+        private async Task<Result<HashSet<WebModset>>> GetModsetsData(IReadOnlyCollection<string> modsetsNames)
         {
-            return modsetsNames
-                .Select(modsetName => _apiModsetClient.GetModsetDataByName(modsetName))
-                .ToHashSet();
+            return (await modsetsNames
+                .ToAsyncEnumerable()
+                .SelectAwait(async modsetName => await _apiModsetClient.GetModsetDataByName(modsetName))
+                .ToHashSetAsync())
+                .Combine()
+                .Bind(x => Result.Success(x.ToHashSet()));
         }
     }
 }

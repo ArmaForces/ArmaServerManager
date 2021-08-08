@@ -53,5 +53,18 @@ namespace ArmaForces.Arma.Server.Tests.Helpers.Extensions
                 }
             }
         }
+
+        public static void ShouldBeFailure<T>(this Result<T> result, string expectedErrorMessage)
+        {
+            using (new AssertionScope())
+            {
+                result.IsFailure.Should().BeTrue();
+
+                if (result.IsFailure)
+                {
+                    result.Error.Should().BeEquivalentTo(expectedErrorMessage);
+                }
+            }
+        }
     }
 }

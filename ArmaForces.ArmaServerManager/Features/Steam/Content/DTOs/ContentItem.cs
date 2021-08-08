@@ -1,5 +1,4 @@
 ﻿using System;
-using BytexDigital.Steam.Core.Structs;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs
 {

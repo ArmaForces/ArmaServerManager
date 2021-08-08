@@ -1,95 +1,86 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Extensions;
+using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
-using ArmaForces.ArmaServerManager.Tests.Helpers.Extensions;
+using ArmaForces.ArmaServerManager.Tests.Features.Modsets.TestingHelpers;
 using AutoFixture;
-using FluentAssertions;
-using Moq;
-using RestSharp;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets
 {
-    [Trait("Category", "Unit")]
-    public class ApiModsetClientTests
+    [Trait("Category", "Integration")]
+    public class ApiModsetClientTests : IClassFixture<ModsetsTestApiFixture>
     {
         private readonly Fixture _fixture = new Fixture();
+        private readonly HttpClient _httpClient;
+        private readonly ModsetsStorage _modsetsStorage;
 
-        [Fact]
-        public void GetModsets_StatusOk_ModsetsRetrieved()
+        public ApiModsetClientTests(ModsetsTestApiFixture modsetsTestApiFixture)
         {
-            var expectedModsets = new List<WebModset>{_fixture.Create<WebModset>()};
-            var restClientMock = new Mock<IRestClient>();
-            restClientMock.SetupResponse(HttpStatusCode.OK, expectedModsets);
-            var apiClient = new ApiModsetClient(restClientMock.Object);
+            _httpClient = modsetsTestApiFixture.HttpClient;
+            _modsetsStorage = modsetsTestApiFixture.ModsetsStorage;
+        }
+        
+        [Fact]
+        public async Task GetModsets_StatusOk_ModsetsRetrieved()
+        {
+            var expectedModsets = _modsetsStorage.Modsets.ToList();
+            var apiClient = new ApiModsetClient(_httpClient);
 
-            var retrievedModsets = apiClient.GetModsets();
-
-            retrievedModsets.Should().BeEquivalentTo(expectedModsets);
+            var result = await apiClient.GetModsets();
+            
+            result.ShouldBeSuccess(expectedModsets);
         }
 
         [Fact]
-        public void GetModsets_StatusNotFound_ThrowsHttpRequestException()
+        public async Task GetModsetDataByName_ModsetWithNameExists_ReturnsModset()
         {
-            var restClientMock = new Mock<IRestClient>();
-            restClientMock.SetupResponse(HttpStatusCode.NotFound, new List<WebModset>());
-            var apiClient = new ApiModsetClient(restClientMock.Object);
+            var modset = _modsetsStorage.Modsets.First();
+             
+            var apiClient = new ApiModsetClient(_httpClient);
 
-            Action action = () => apiClient.GetModsets();
-
-            action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
+            var result = await apiClient.GetModsetDataByName(modset.Name);
+            
+            result.ShouldBeSuccess(modset);
         }
 
         [Fact]
-        public void GetModsets_StatusInternalError_ThrowsHttpRequestException()
-        {
-            var restClientMock = new Mock<IRestClient>();
-            restClientMock.SetupResponse(HttpStatusCode.InternalServerError, new List<WebModset>());
-            var apiClient = new ApiModsetClient(restClientMock.Object);
-
-            Action action = () => apiClient.GetModsets();
-
-            action.Should().Throw<HttpRequestException>(HttpStatusCode.InternalServerError.ToString());
-        }
-
-        [Fact]
-        public void GetModsetDataByName_StatusNotFound_ThrowsHttpRequestException()
-        {
-            var restClientMock = new Mock<IRestClient>();
-            restClientMock.SetupResponse(HttpStatusCode.NotFound, new WebModset());
-            var apiClient = new ApiModsetClient(restClientMock.Object);
-
-            Action action = () => apiClient.GetModsetDataByName(string.Empty);
-
-            action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
-        }
-
-        [Fact]
-        public void GetModsetDataById_StatusNotFound_ThrowsHttpRequestException()
-        {
-            var restClientMock = new Mock<IRestClient>();
-            restClientMock.SetupResponse(HttpStatusCode.NotFound, new WebModset());
-            var apiClient = new ApiModsetClient(restClientMock.Object);
-
-            Action action = () => apiClient.GetModsetDataById(string.Empty);
-
-            action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
-        }
-
-        [Fact]
-        public void GetModsetDataByModset_StatusNotFound_ThrowsHttpRequestException()
+        public async Task GetModsetDataByName_ModsetNotExists_ReturnsNotFound()
         {
             var modset = _fixture.Create<WebModset>();
-            var restClientMock = new Mock<IRestClient>();
-            restClientMock.SetupResponse(HttpStatusCode.NotFound, new WebModset());
-            var apiClient = new ApiModsetClient(restClientMock.Object);
+            var apiClient = new ApiModsetClient(_httpClient);
+            
+            var result = await apiClient.GetModsetDataByName(modset.Name);
 
-            Action action = () => apiClient.GetModsetDataByModset(modset);
+            result.ShouldBeFailure(ModsetsTestController.ModsetWithNameDoesNotExistMessage);
+        }
 
-            action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
+        [Fact]
+        public async Task GetModsetDataById_ModsetWithIdExists_ReturnsModset()
+        {
+            var modset = _modsetsStorage.Modsets.First();
+            
+            var apiClient = new ApiModsetClient(_httpClient);
+
+            var result = await apiClient.GetModsetDataById(modset.Id);
+
+            result.ShouldBeSuccess(modset);
+        }
+
+        [Fact]
+        public async Task GetModsetDataById_ModsetNotExists_ReturnsNotFound()
+        {
+            var modset = _fixture.Create<WebModset>();
+            
+            var apiClient = new ApiModsetClient(_httpClient);
+
+            var result = await apiClient.GetModsetDataById(modset.Id);
+
+            result.ShouldBeFailure(ModsetsTestController.ModsetWithIdNotExistsMessage);
         }
     }
 }

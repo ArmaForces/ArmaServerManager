@@ -74,10 +74,16 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 
             if (!_fileSystem.File.Exists(filePath)) return false;
 
+            var length = _fileSystem.FileInfo.FromFileName(filePath).Length;
+            if (length == 0 && file.TotalSize == 0)
+            {
+                return true;
+            }
+            
             using var fileStream = _fileSystem.FileStream.Create(filePath, FileMode.Open);
             using var bufferedStream = new BufferedStream(fileStream);
             using var sha1 = new SHA1Managed();
-
+            
             var localFileHash = sha1.ComputeHash(bufferedStream);
 
             return localFileHash.SequenceEqual(file.FileHash);
