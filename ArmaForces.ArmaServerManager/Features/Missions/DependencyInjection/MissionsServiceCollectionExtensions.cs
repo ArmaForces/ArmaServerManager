@@ -8,9 +8,7 @@ namespace ArmaForces.ArmaServerManager.Features.Missions.DependencyInjection
     internal static class MissionsServiceCollectionExtensions
     {
         public static IServiceCollection AddMissionsApiClient(this IServiceCollection services)
-            => services
-                .AddSingleton<IApiMissionsClient, ApiMissionsClient>()
-                .AddHttpClientForMissionsApiClient();
+            => services.AddHttpClientForMissionsApiClient();
 
         private static IServiceCollection AddHttpClientForMissionsApiClient(this IServiceCollection services)
         {
