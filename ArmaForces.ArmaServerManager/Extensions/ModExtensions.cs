@@ -1,4 +1,5 @@
-﻿using ArmaForces.Arma.Server.Features.Mods;
+﻿using System;
+using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using CSharpFunctionalExtensions;
 
@@ -7,12 +8,14 @@ namespace ArmaForces.ArmaServerManager.Extensions
     public static class ModExtensions
     {
         public static ContentItem AsContentItem(this IMod mod)
-            => new ContentItem
-            {
-                Directory = mod.Directory,
-                Id = (uint) mod.WorkshopId,
-                ItemType = ItemType.Mod
-            };
+            => mod.Source != ModSource.SteamWorkshop
+                ? new ContentItem
+                {
+                    Directory = mod.Directory,
+                    Id = (uint) mod.WorkshopId!,
+                    ItemType = ItemType.Mod
+                }
+                : throw new InvalidOperationException("Non Steam mods cannot be converted to content item.");
 
         /// <summary>
         /// Updates <paramref name="olderMod"/> with relevant data from <paramref name="newerMod"/>.
