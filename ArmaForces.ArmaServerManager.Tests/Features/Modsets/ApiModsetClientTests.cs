@@ -1,81 +1,88 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Extensions;
+using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
+using ArmaForces.ArmaServerManager.Tests.Features.Modsets.TestingHelpers;
 using AutoFixture;
-using FluentAssertions;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets
 {
-    [Trait("Category", "Unit")]
-    public class ApiModsetClientTests
+    [Trait("Category", "Integration")]
+    public class ApiModsetClientTests : IClassFixture<ModsetsTestApiFixture>
     {
         private readonly Fixture _fixture = new Fixture();
+        private readonly HttpClient _httpClient;
+        private readonly ModsetsStorage _modsetsStorage;
 
-        // TODO: Create fixture similar to Mission API Tests
-        [Fact(Skip = "HttpClient not handled properly")]
-        public void GetModsets_StatusOk_ModsetsRetrieved()
+        public ApiModsetClientTests(ModsetsTestApiFixture modsetsTestApiFixture)
+        {
+            _httpClient = modsetsTestApiFixture.HttpClient;
+            _modsetsStorage = modsetsTestApiFixture.ModsetsStorage;
+        }
+        
+        [Fact]
+        public async Task GetModsets_StatusOk_ModsetsRetrieved()
         {
             var expectedModsets = new List<WebModset>{_fixture.Create<WebModset>()};
-            var apiClient = new ApiModsetClient(new HttpClient());
+            var apiClient = new ApiModsetClient(_httpClient);
+            _modsetsStorage.Modsets = expectedModsets;
 
-            var retrievedModsets = apiClient.GetModsets();
-
-            retrievedModsets.Should().BeEquivalentTo(expectedModsets);
+            var result = await apiClient.GetModsets();
+            
+            result.ShouldBeSuccess(expectedModsets);
         }
 
-        [Fact(Skip = "HttpClient not handled properly")]
-        public void GetModsets_StatusNotFound_ThrowsHttpRequestException()
-        {
-            var apiClient = new ApiModsetClient(new HttpClient());
-
-            Action action = () => apiClient.GetModsets();
-
-            action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
-        }
-
-        [Fact(Skip = "HttpClient not handled properly")]
-        public void GetModsets_StatusInternalError_ThrowsHttpRequestException()
-        {
-            var apiClient = new ApiModsetClient(new HttpClient());
-
-            Action action = () => apiClient.GetModsets();
-
-            action.Should().Throw<HttpRequestException>(HttpStatusCode.InternalServerError.ToString());
-        }
-
-        [Fact(Skip = "HttpClient not handled properly")]
-        public void GetModsetDataByName_StatusNotFound_ThrowsHttpRequestException()
-        {
-            var apiClient = new ApiModsetClient(new HttpClient());
-
-            Action action = () => apiClient.GetModsetDataByName(string.Empty);
-
-            action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
-        }
-
-        [Fact(Skip = "HttpClient not handled properly")]
-        public void GetModsetDataById_StatusNotFound_ThrowsHttpRequestException()
-        {
-            var apiClient = new ApiModsetClient(new HttpClient());
-
-            Action action = () => apiClient.GetModsetDataById(string.Empty);
-
-            action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
-        }
-
-        [Fact(Skip = "HttpClient not handled properly")]
-        public void GetModsetDataByModset_StatusNotFound_ThrowsHttpRequestException()
+        [Fact]
+        public async Task GetModsetDataByName_ModsetWithNameExists_ReturnsModset()
         {
             var modset = _fixture.Create<WebModset>();
-            var apiClient = new ApiModsetClient(new HttpClient());
+            _modsetsStorage.Modsets = modset.AsList();
+            
+            var apiClient = new ApiModsetClient(_httpClient);
 
-            Action action = () => apiClient.GetModsetDataByModset(modset);
+            var result = await apiClient.GetModsetDataByName(modset.Name);
+            
+            result.ShouldBeSuccess(modset);
+        }
 
-            action.Should().Throw<HttpRequestException>(HttpStatusCode.NotFound.ToString());
+        [Fact]
+        public async Task GetModsetDataByName_ModsetNotExists_ReturnsNotFound()
+        {
+            var modset = _fixture.Create<WebModset>();
+            var apiClient = new ApiModsetClient(_httpClient);
+            
+            var result = await apiClient.GetModsetDataByName(modset.Name);
+
+            result.ShouldBeFailure(ModsetsTestController.ModsetWithNameDoesNotExistMessage);
+        }
+
+        [Fact]
+        public async Task GetModsetDataById_ModsetWithIdExists_ReturnsModset()
+        {
+            var modset = _fixture.Create<WebModset>();
+            _modsetsStorage.Modsets = modset.AsList();
+            
+            var apiClient = new ApiModsetClient(_httpClient);
+
+            var result = await apiClient.GetModsetDataById(modset.Id);
+
+            result.ShouldBeSuccess(modset);
+        }
+
+        [Fact]
+        public async Task GetModsetDataById_ModsetNotExists_ReturnsNotFound()
+        {
+            var modset = _fixture.Create<WebModset>();
+            
+            var apiClient = new ApiModsetClient(_httpClient);
+
+            var result = await apiClient.GetModsetDataById(modset.Id);
+
+            result.ShouldBeFailure(ModsetsTestController.ModsetWithIdNotExistsMessage);
         }
     }
 }
