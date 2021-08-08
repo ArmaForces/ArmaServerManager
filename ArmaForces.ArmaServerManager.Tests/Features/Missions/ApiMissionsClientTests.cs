@@ -47,6 +47,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Missions
                 .Select(x => x.Name)
                 .ToHashSet();
             var missions = PrepareMissions(missionsCount, modsets);
+            _missionsStorage.Missions = missions;
 
             var apiClient = new ApiMissionsClient(_httpClient);
 
