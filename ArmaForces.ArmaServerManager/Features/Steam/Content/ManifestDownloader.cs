@@ -25,15 +25,15 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             => await _steamClient.ContentClient.GetManifestAsync(
                 SteamConstants.ArmaAppId,
                 SteamConstants.ArmaWorkshopDepotId,
-                await GetManifestId(contentItem),
+                await GetManifestId(contentItem.Id),
                 cancellationToken);
 
         /// <summary>
         /// TODO: Do it better
         /// </summary>
-        private async Task<ManifestId> GetManifestId(ContentItem contentItem)
+        private async Task<ManifestId> GetManifestId(uint contentItemId)
         {
-            _logger.LogDebug("Downloading ManifestId for item {ContentItemId}", contentItem.Id);
+            _logger.LogDebug("Downloading ManifestId for item {ContentItemId}", contentItemId);
 
             var errors = 0;
 
@@ -42,17 +42,17 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             {
                 try
                 {
-                    return (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItem.Id))
+                    return (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItemId))
                         .hcontent_file;
                 }
                 catch (TaskCanceledException exception)
                 {
                     errors++;
-                    LogManifestIdDownloadFailure(contentItem, exception, errors);
+                    LogManifestIdDownloadFailure(contentItemId, exception, errors);
 
                     if (errors >= SteamContentConstants.MaximumRetryCount)
                     {
-                        throw CreateManifestDownloadException(errors, contentItem, exception);
+                        throw CreateManifestDownloadException(errors, contentItemId, exception);
                     }
 
                     await Task.Delay(TimeSpan.FromSeconds(5));
@@ -60,11 +60,11 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 catch (AsyncJobFailedException exception)
                 {
                     errors++;
-                    LogManifestIdDownloadFailure(contentItem, exception, errors);
+                    LogManifestIdDownloadFailure(contentItemId, exception, errors);
 
                     if (errors >= SteamContentConstants.MaximumRetryCount)
                     {
-                        throw CreateManifestDownloadException(errors, contentItem, exception);
+                        throw CreateManifestDownloadException(errors, contentItemId, exception);
                     }
 
                     await Task.Delay(TimeSpan.FromSeconds(5));
@@ -73,22 +73,22 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         }
 
         private void LogManifestIdDownloadFailure(
-            ContentItem contentItem,
+            uint contentItemId,
             Exception exception,
             int errors)
             => _logger.LogTrace(
                 exception,
                 "Failed to download ManifestId for item {ContentItemId}. Errors = {Number}",
-                contentItem.Id,
+                contentItemId,
                 errors);
 
         private Exception CreateManifestDownloadException(
             int errors,
-            ContentItem contentItem,
+            uint contentItemId,
             Exception? innerException = null)
         {
             var newException = new Exception(
-                $"{errors} errors while attempting to download manifest for {contentItem.Id}",
+                $"{errors} errors while attempting to download manifest for {contentItemId}",
                 innerException);
 
             if (innerException is null)
@@ -96,14 +96,14 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 _logger.LogError(
                     newException,
                     "Could not download ManifestId for item {ContentItemId}",
-                    contentItem.Id);
+                    contentItemId);
             }
             else
             {
                 _logger.LogError(
                     newException,
                     "Could not download ManifestId for item {ContentItemId}, error message {Message}",
-                    contentItem.Id,
+                    contentItemId,
                     innerException.Message);
             }
 

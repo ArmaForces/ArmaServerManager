@@ -5,7 +5,7 @@ using BytexDigital.Steam.ContentDelivery.Models;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 {
-    internal interface IManifestDownloader
+    public interface IManifestDownloader
     {
         Task<Manifest> GetManifest(ContentItem contentItem, CancellationToken cancellationToken);
     }
