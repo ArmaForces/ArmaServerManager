@@ -95,6 +95,13 @@ namespace ArmaForces.Arma.Server.Features.Processes
             _logger.LogDebug("Shutting down the {ArmaProcess}", _serverProcess);
 
             _serverProcess.Kill();
+
+            if (!_serverProcess.HasExited)
+            {
+                _logger.LogWarning("The {ArmaProcess} could not be shut down", _serverProcess);
+                return Result.Failure("Server process shutdown failure.");
+            }
+            
             _serverProcess = null;
 
             _logger.LogInformation("Server successfully shut down");
