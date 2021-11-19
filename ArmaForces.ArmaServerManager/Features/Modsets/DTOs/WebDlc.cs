@@ -10,7 +10,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs
         
         public DateTime CreatedAt { get; set; }
         
-        public DateTime LastUpdatedAt { get; set; }
+        public DateTime? LastUpdatedAt { get; set; }
 
         public int AppId { get; set; }
         
