@@ -60,7 +60,7 @@ namespace ArmaForces.ArmaServerManager.Services
 
         private Result<HashSet<IMod>> MapModsets(ISet<WebModset> modsets) => modsets
             .Select(webModset => _webModsetMapper.MapWebModsetToCacheModset(webModset))
-            .Select(modset => modset.Mods)
+            .Select(modset => modset.ActiveMods)
             .SelectMany(x => x)
             .ToHashSet(new ModEqualityComparer());
 

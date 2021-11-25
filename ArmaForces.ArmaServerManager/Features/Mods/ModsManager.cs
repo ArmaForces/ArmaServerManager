@@ -40,7 +40,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 
         /// <inheritdoc />
         public async Task<Result> PrepareModset(IModset modset, CancellationToken cancellationToken)
-            => await CheckUpdatesAndDownloadMods(modset.Mods, cancellationToken)
+            => await CheckUpdatesAndDownloadMods(modset.ActiveMods, cancellationToken)
                 .Tap(() => _logger.LogInformation("Preparation of {ModsetName} modset finished", modset.Name));
 
         /// <inheritdoc />

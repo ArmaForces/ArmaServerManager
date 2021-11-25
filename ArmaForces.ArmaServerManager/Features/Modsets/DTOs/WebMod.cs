@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ArmaForces.Arma.Server.Features.Mods;
 
 namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
@@ -14,6 +14,8 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
 
         public WebModSource Source { get; set; }
 
+        public WebModStatus? Status { get; set; }
+
         public WebModType Type { get; set; }
 
         public long? ItemId { get; set; }
@@ -27,8 +29,18 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
                 WebId = Id,
                 WorkshopId = ItemId,
                 Source = (ModSource)Source,
+                Status = ConvertModStatus(Status),
                 Type = (ModType)Type,
                 Directory = Directory
             };
+
+        private ModStatus ConvertModStatus(WebModStatus? status) => status switch
+        {
+            WebModStatus.Deprecated => ModStatus.Deprecated,
+            WebModStatus.Broken => ModStatus.Broken,
+            WebModStatus.Disabled => ModStatus.Disabled,
+            null => ModStatus.Active,
+            _ => ModStatus.Disabled
+        };
     }
 }
