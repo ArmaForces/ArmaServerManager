@@ -36,6 +36,8 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
 
         public bool IsServerStopped { get; set; }
 
+        public DateTimeOffset? StartTime { get; set; }
+
         public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken)
         {
             return new ServerStatus();

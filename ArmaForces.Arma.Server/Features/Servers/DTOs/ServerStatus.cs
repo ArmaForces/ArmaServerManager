@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace ArmaForces.Arma.Server.Features.Servers.DTOs
 {
@@ -12,6 +13,7 @@ namespace ArmaForces.Arma.Server.Features.Servers.DTOs
             int? playersCount = null,
             int? playersMaxCount = null,
             int? port = null,
+            DateTimeOffset? startTime = null,
             int? headlessClientsCount = null)
         {
             Status = serverStatusEnum;
@@ -21,6 +23,7 @@ namespace ArmaForces.Arma.Server.Features.Servers.DTOs
             Players = playersCount;
             PlayersMax = playersMaxCount;
             Port = port;
+            StartTime = startTime;
             HeadlessClientsConnected = headlessClientsCount;
         }
 
@@ -44,6 +47,9 @@ namespace ArmaForces.Arma.Server.Features.Servers.DTOs
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Port {get; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public DateTimeOffset? StartTime { get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? HeadlessClientsConnected { get; }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -32,6 +32,7 @@ namespace ArmaForces.Arma.Server.Features.Parameters
                 await GetProfilePath(commandLine),
                 await GetName(commandLine),
                 await GetModsetName(commandLine),
+                await GetStartTime(commandLine),
                 GetIsFilePatchingEnabled(commandLine),
                 GetIsNetLogEnabled(commandLine),
                 await GetFpsLimit(commandLine),
@@ -104,6 +105,14 @@ namespace ArmaForces.Arma.Server.Features.Parameters
 
         private static async Task<string> GetModsetName(string commandLine)
             => await ReadParameterStringValue("modsetName", commandLine);
+
+        private static async Task<DateTimeOffset?> GetStartTime(string commandLine)
+        {
+            var dateTimeString = await ReadParameterStringValue("startTime", commandLine);
+            return string.IsNullOrEmpty(dateTimeString)
+                ? (DateTimeOffset?) null
+                : DateTimeOffset.Parse(dateTimeString);
+        }
 
         private static async Task<string> GetConnectIpAddress(string commandLine)
         {
