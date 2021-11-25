@@ -45,6 +45,7 @@ namespace ArmaForces.ArmaServerManager
                 {
                     opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                     opt.JsonSerializerOptions.Converters.Add(new DateTimeOffsetConverter());
+                    opt.JsonSerializerOptions.IgnoreNullValues = true;
                 });
 
             // Add Hangfire services.
