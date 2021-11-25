@@ -94,7 +94,7 @@ namespace ArmaForces.Arma.Server.Features.Parameters
                 $"-profiles=\"{ProfilePath}\"",
                 GetSpecialParamsString(),
                 $"-modsetName={ModsetName}",
-                $"-startTime={StartTime ??= DateTimeOffset.Now}",
+                $"-startTime={StartTime ??= DateTimeOffset.Now:O}",
                 GetModsStartupParamString());
         }
 
