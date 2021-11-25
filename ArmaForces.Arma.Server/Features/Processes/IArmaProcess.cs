@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Parameters;
 using CSharpFunctionalExtensions;
@@ -14,6 +14,8 @@ namespace ArmaForces.Arma.Server.Features.Processes
         bool IsStopped { get; }
         
         bool IsStartingOrStarted { get; }
+
+        DateTimeOffset? StartTime { get; }
 
         Result Start();
 

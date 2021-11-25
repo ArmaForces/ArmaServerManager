@@ -62,6 +62,8 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public bool IsServerStopped => _armaProcess.IsStopped;
 
+        public DateTimeOffset? StartTime => _armaProcess.StartTime;
+
         public event Func<IDedicatedServer, Task>? OnServerShutdown;
 
         public event Func<IDedicatedServer, Task>? OnServerRestarted;
