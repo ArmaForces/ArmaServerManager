@@ -8,6 +8,7 @@ using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
 using ArmaForces.ArmaServerManager.Features.Missions.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
+using ArmaForces.ArmaServerManager.Infrastructure.Converters;
 using ArmaForces.ArmaServerManager.Providers.Server;
 using ArmaForces.ArmaServerManager.Services;
 using Hangfire;
@@ -40,7 +41,11 @@ namespace ArmaForces.ArmaServerManager
 
             // Add framework services.
             services.AddMvc()
-                .AddJsonOptions(opt => opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+                .AddJsonOptions(opt =>
+                {
+                    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    opt.JsonSerializerOptions.Converters.Add(new DateTimeOffsetConverter());
+                });
 
             // Add Hangfire services.
             services.AddHangfire((provider, configuration) => configuration
