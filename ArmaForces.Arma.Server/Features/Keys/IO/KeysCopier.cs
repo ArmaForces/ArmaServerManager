@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO.Abstractions;
-using System.Linq;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Keys.Models;
 using CSharpFunctionalExtensions;
@@ -23,7 +22,7 @@ namespace ArmaForces.Arma.Server.Features.Keys.IO
         {
             foreach (var bikeyFile in bikeyFiles)
             {
-                _logger.LogTrace("Removing {keyName} key.", _fileSystem.Path.GetFileName(bikeyFile.Path));
+                _logger.LogDebug("Removing {KeyName}", bikeyFile.FileName);
                 
                 _fileSystem.File.Delete(bikeyFile.Path);
             }
@@ -40,10 +39,9 @@ namespace ArmaForces.Arma.Server.Features.Keys.IO
 
             foreach (var modBikey in bikeyFiles)
             {
-                var keyName = _fileSystem.Path.GetFileName(modBikey.Path);
-                var destinationKeyPath = _fileSystem.Path.Join(targetDirectory, keyName);
+                var destinationKeyPath = _fileSystem.Path.Join(targetDirectory, modBikey.FileName);
                 
-                _logger.LogTrace("Copying {keyName}.", keyName);
+                _logger.LogDebug("Copying {KeyName}", modBikey.FileName);
                 
                 if (!_fileSystem.File.Exists(destinationKeyPath))
                 {

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Mods;
@@ -35,7 +35,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
         /// </summary>
         /// <param name="mods">List of mods to update.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken"/> used for task cancellation.</param>
-        Task UpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken);
+        Task UpdateMods(IReadOnlyCollection<IMod> mods, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates all installed mods.

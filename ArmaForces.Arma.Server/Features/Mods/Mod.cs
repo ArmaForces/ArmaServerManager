@@ -2,7 +2,8 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 
-namespace ArmaForces.Arma.Server.Features.Mods {
+namespace ArmaForces.Arma.Server.Features.Mods
+{
     public class Mod : IMod, IEquatable<Mod>
     {
         public string? WebId { get; set; }
@@ -15,9 +16,11 @@ namespace ArmaForces.Arma.Server.Features.Mods {
         
         public virtual ModSource Source { get; set; }
 
+        public ModStatus Status { get; set; }
+
         public virtual ModType Type { get; set; }
 
-        public virtual long WorkshopId { get; set; }
+        public virtual long? WorkshopId { get; set; }
 
         public string? Directory { get; set; }
 

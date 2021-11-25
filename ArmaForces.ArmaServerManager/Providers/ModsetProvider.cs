@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Mods;
 using ArmaForces.ArmaServerManager.Features.Modsets;
+using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Providers
@@ -18,19 +20,24 @@ namespace ArmaForces.ArmaServerManager.Providers
             _webModsetMapper = webModsetMapper;
         }
 
-        public Result<IModset> GetModsetByName(string modsetName)
+        public async Task<Result<IModset>> GetModsetByName(string modsetName)
         {
-            var webModset = _apiModsetClient.GetModsetDataByName(modsetName);
-
-            return Result.Success(_webModsetMapper.MapWebModsetToCacheModset(webModset));
+            return await _apiModsetClient.GetModsetDataByName(modsetName)
+                .Bind(MapModsetData);
         }
 
-        public Result<IEnumerable<IModset>> GetModsets()
+        public async Task<Result<List<IModset>>> GetModsets()
         {
-            var modsets = _apiModsetClient.GetModsets()
-                .Select(x => _webModsetMapper.MapWebModsetToCacheModset(x));
-
-            return Result.Success(modsets);
+            return await _apiModsetClient.GetModsets()
+                .Bind(MapModsetsData); ;
         }
+
+        private Result<List<IModset>> MapModsetsData(List<WebModset> modsets)
+            => modsets
+                .Select(MapModsetData)
+                .Combine()
+                .Bind(x => Result.Success(x.ToList()));
+
+        private Result<IModset> MapModsetData(WebModset modset) => Result.Success(_webModsetMapper.MapWebModsetToCacheModset(modset));
     }
 }

@@ -3,7 +3,6 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using ArmaForces.Arma.Server.Constants;
-using ArmaForces.Arma.Server.Features.Keys.Models;
 using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Keys.Finder
@@ -19,9 +18,9 @@ namespace ArmaForces.Arma.Server.Features.Keys.Finder
             _fileSystem = fileSystem ?? new FileSystem();
         }
 
-        public List<BikeyFile> GetKeysFromDirectory(string? directory)
+        public List<string> GetKeysFromDirectory(string? directory)
         {
-            _logger.LogTrace("Looking for keys in {directory}.", directory);
+            _logger.LogTrace("Looking for keys in {Directory}", directory);
 
             var keyFiles = directory is null
                 ? new string[0]
@@ -32,18 +31,17 @@ namespace ArmaForces.Arma.Server.Features.Keys.Finder
 
             if (keyFiles.Any())
             {
-                _logger.LogDebug(
-                    "Found {count} keys in {directory}.",
+                _logger.LogTrace(
+                    "Found {Count} keys in {Directory}",
                     keyFiles.Length,
                     directory);
             }
             else
             {
-                _logger.LogDebug("No keys found in {directory}.", directory);
+                _logger.LogDebug("No keys found in {Directory}", directory);
             }
 
             return keyFiles
-                .Select(path => new BikeyFile(path))
                 .ToList();
         }
     }

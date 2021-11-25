@@ -28,6 +28,8 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
 
         public int Port { get; set; } = 2302;
 
+        public int SteamQueryPort => Port + 1;
+
         public IModset Modset { get; set; } = ModsetHelpers.CreateEmptyModset(new Fixture());
 
         public int HeadlessClientsConnected { get; set; } = 0;

@@ -8,6 +8,7 @@ using ArmaForces.Arma.Server.Tests.Helpers;
 using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -40,7 +41,7 @@ namespace ArmaForces.Arma.Server.Tests.Config
             var expectedServerConfigFiles = new[] { "server.cfg", "basic.cfg", "common.json", "common.Arma3Profile" };
 
             // Act
-            IConfig serverConfig = new ServerConfig(settingsMock.Object, _fileSystemMock);
+            IConfig serverConfig = new ServerConfig(settingsMock.Object, NullLogger<ServerConfig>.Instance, _fileSystemMock);
             var configLoaded = serverConfig.CopyConfigFiles();
 
             // Assert

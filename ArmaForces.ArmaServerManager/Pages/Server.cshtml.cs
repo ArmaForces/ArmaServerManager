@@ -43,10 +43,10 @@ namespace ArmaForces.ArmaServerManager.Pages
             _logger = logger;
         }
 
-        public void OnGet()
+        public async Task OnGet()
         {
-            LoadModsets();
-            LoadMissions();
+            await LoadModsets();
+            await LoadMissions();
         }
 
         public async Task OnPost()
@@ -68,18 +68,21 @@ namespace ArmaForces.ArmaServerManager.Pages
             }
 
             // Reload all data to prevent user having to refresh
-            OnGet();
+            await OnGet();
         }
 
-        private void LoadModsets()
+        private async Task LoadModsets()
         {
-            var modsets = _apiModsetClient.GetModsets();
+            var modsetsResult = await _apiModsetClient.GetModsets();
+            if (modsetsResult.IsFailure) return;
+
+            var modsets = modsetsResult.Value;
             ModsetOptions = new SelectList(modsets, nameof(WebModset.Name), nameof(WebModset.Name));
         }
 
-        private void LoadMissions()
+        private async Task LoadMissions()
         {
-            var missionsResult = _apiMissionsClient.GetUpcomingMissions();
+            var missionsResult = await _apiMissionsClient.GetUpcomingMissions();
             if (missionsResult.IsFailure) return;
 
             var missions = missionsResult.Value;

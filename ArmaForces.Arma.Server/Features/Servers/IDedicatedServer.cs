@@ -11,6 +11,8 @@ namespace ArmaForces.Arma.Server.Features.Servers
     {
         int Port { get; }
         
+        int SteamQueryPort { get; }
+        
         IModset Modset { get; }
 
         int HeadlessClientsConnected { get; }

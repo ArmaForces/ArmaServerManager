@@ -38,7 +38,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Extensions
 
         private static ContentItem CreateExpectedContentItem(Mod mod) => new ContentItem
         {
-            Id = (uint) mod.WorkshopId,
+            Id = (uint) mod.WorkshopId!,
             ItemType = ItemType.Mod,
             Directory = mod.Directory
         };

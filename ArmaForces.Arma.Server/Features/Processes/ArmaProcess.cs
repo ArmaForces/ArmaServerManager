@@ -64,7 +64,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
                 var processStartInfo = Parameters.GetProcessStartInfo();
                 
                 _logger.LogTrace(
-                    "Starting {executablePath} with {arguments}.",
+                    "Starting {ExecutablePath} with {Arguments}",
                     processStartInfo.FileName,
                     processStartInfo.Arguments);
 
@@ -72,14 +72,14 @@ namespace ArmaForces.Arma.Server.Features.Processes
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Arma 3 process could not be started.");
+                _logger.LogError(exception, "Arma 3 process could not be started");
                 return Result.Failure("Arma 3 process could not be started.");
             }
 
             _serverProcess!.EnableRaisingEvents = true;
             _serverProcess.Exited += (sender, args) => InvokeOnProcessShutdown();
 
-            _logger.LogInformation("Starting Arma 3 {processType}", ProcessType);
+            _logger.LogInformation("Starting Arma 3 {ProcessType}", ProcessType);
 
             return Result.Success();
         }
@@ -88,23 +88,23 @@ namespace ArmaForces.Arma.Server.Features.Processes
         {
             if (IsStopped || _serverProcess is null)
             {
-                _logger.LogInformation("Server not running.");
+                _logger.LogInformation("Server not running");
                 return Result.Failure("Server could not be shut down because it's not running.");
             }
 
-            _logger.LogDebug("Shutting down the {armaProcess}.", _serverProcess);
+            _logger.LogDebug("Shutting down the {ArmaProcess}", _serverProcess);
 
             _serverProcess.Kill();
             _serverProcess = null;
 
-            _logger.LogInformation("Server successfully shut down.");
+            _logger.LogInformation("Server successfully shut down");
 
             return Result.Success();
         }
 
         private void InvokeOnProcessShutdown()
         {
-            _logger.LogDebug("{processType} process shutdown detected. Invoking OnProcessShutdown event.", ProcessType);
+            _logger.LogDebug("{ProcessType} process shutdown detected. Invoking OnProcessShutdown event", ProcessType);
             OnProcessShutdown?.Invoke(this);
         }
     }

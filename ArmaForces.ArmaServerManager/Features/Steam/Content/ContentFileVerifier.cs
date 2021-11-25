@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Security.Cryptography;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using BytexDigital.Steam.ContentDelivery.Enumerations;
 using BytexDigital.Steam.ContentDelivery.Models;
@@ -29,7 +30,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 return Result.Success(contentItem);
             }
 
-            _logger.LogInformation("Item {contentItemId} doesn't have a directory.");
+            _logger.LogInformation("Item {ContentItemId} doesn't have a directory", contentItem.Id);
             return Result.Failure<ContentItem>("Item not exists.");
         }
 
@@ -52,6 +53,10 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 .Where(x => !expectedFiles.Contains(x))
                 .ToList();
 
+            if (redundantFiles.IsEmpty()) return;
+            
+            _logger.LogDebug("Found {Count} redundant files in {Directory}", redundantFiles.Count, directory);
+                
             foreach (var file in redundantFiles)
             {
                 _fileSystem.File.Delete(file);
@@ -69,10 +74,16 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 
             if (!_fileSystem.File.Exists(filePath)) return false;
 
+            var length = _fileSystem.FileInfo.FromFileName(filePath).Length;
+            if (length == 0 && file.TotalSize == 0)
+            {
+                return true;
+            }
+            
             using var fileStream = _fileSystem.FileStream.Create(filePath, FileMode.Open);
             using var bufferedStream = new BufferedStream(fileStream);
             using var sha1 = new SHA1Managed();
-
+            
             var localFileHash = sha1.ComputeHash(bufferedStream);
 
             return localFileHash.SequenceEqual(file.FileHash);

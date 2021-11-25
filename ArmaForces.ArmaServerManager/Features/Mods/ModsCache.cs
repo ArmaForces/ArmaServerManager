@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +16,8 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 {
     public class ModsCache : IModsCache, IWebModsetMapper
     {
+        private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings{Formatting = Formatting.Indented};
+        
         private readonly IModDirectoryFinder _modDirectoryFinder;
         private readonly IFileSystem _fileSystem;
         private readonly string _cacheFilePath;
@@ -174,7 +176,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 CreatedAt = webDlc.CreatedAt,
                 LastUpdatedAt = webDlc.LastUpdatedAt,
                 AppId = (DlcAppId) webDlc.AppId,
-                Directory = _fileSystem.Path.Join(_armaPath, webDlc.Directory)
+                Directory = _fileSystem.Path.Join(_armaPath, webDlc.Directory ?? DlcDirectoryName.GetName((DlcAppId) webDlc.AppId))
             };
         }
 
@@ -250,6 +252,6 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// Saves cache to file.
         /// </summary>
         private async Task SaveCache() 
-            => await _fileSystem.File.WriteAllTextAsync(_cacheFilePath, JsonConvert.SerializeObject(_mods));
+            => await _fileSystem.File.WriteAllTextAsync(_cacheFilePath, JsonConvert.SerializeObject(_mods, _serializerSettings));
     }
 }

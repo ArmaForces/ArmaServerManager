@@ -1,72 +1,51 @@
-﻿using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace ArmaForces.Arma.Server.Features.Servers.DTOs
 {
     public class ServerStatus
     {
-        private readonly IDedicatedServer? _dedicatedServer;
-        private readonly A2SInfo? _serverInfo;
-
-        public ServerStatus()
+        public ServerStatus(
+            ServerStatusEnum serverStatusEnum = ServerStatusEnum.Stopped,
+            string? name = null,
+            string? modsetName = null,
+            string? mapName = null,
+            int? playersCount = null,
+            int? playersMaxCount = null,
+            int? port = null,
+            int? headlessClientsCount = null)
         {
-        }
-
-        public ServerStatus(IDedicatedServer dedicatedServer, A2SInfo? serverInfo)
-        {
-            _dedicatedServer = dedicatedServer;
-            _serverInfo = serverInfo;
-        }
-
-        public static async Task<ServerStatus> GetServerStatus(
-            IDedicatedServer dedicatedServer,
-            CancellationToken cancellationToken)
-        {
-            var ipEndPoint = new IPEndPoint(IPAddress.Loopback, dedicatedServer.Port + 1);
-            var serverInfo = await A2SInfo.GetServerInfoAsync(ipEndPoint, cancellationToken);
-
-            return new ServerStatus(dedicatedServer, serverInfo);
+            Status = serverStatusEnum;
+            Name = name;
+            ModsetName = modsetName;
+            Map = mapName;
+            Players = playersCount;
+            PlayersMax = playersMaxCount;
+            Port = port;
+            HeadlessClientsConnected = headlessClientsCount;
         }
 
         [JsonProperty(Required = Required.Always)]
-        public ServerStatusEnum Status => GetServerStatusEnum();
+        public ServerStatusEnum Status { get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string? Name => _serverInfo?.Name;
+        public string? Name { get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string? ModsetName => _dedicatedServer?.Modset.Name;
+        public string? ModsetName { get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string? Map => _serverInfo?.Map;
+        public string? Map { get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? Players => _serverInfo?.Players;
+        public int? Players { get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? PlayersMax => _serverInfo?.MaxPlayers;
+        public int? PlayersMax { get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? Port => _dedicatedServer?.Port;
+        public int? Port {get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? HeadlessClientsConnected => _dedicatedServer?.HeadlessClientsConnected;
-
-        private ServerStatusEnum GetServerStatusEnum()
-        {
-            if (!(_serverInfo is null))
-            {
-                return ServerStatusEnum.Started;
-            }
-
-            if (!_dedicatedServer?.IsServerStopped ?? false)
-            {
-                return ServerStatusEnum.Starting;
-            }
-
-            return ServerStatusEnum.Stopped;
-        }
+        public int? HeadlessClientsConnected { get; }
     }
 }

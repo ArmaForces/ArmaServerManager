@@ -30,6 +30,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
 
         private readonly Mock<IModsetConfig> _modsetConfigMock = new Mock<IModsetConfig>();
         private readonly Mock<IKeysPreparer> _keysProviderMock = new Mock<IKeysPreparer>();
+        private readonly Mock<IServerStatusFactory> _serverStatusFactoryMock = new Mock<IServerStatusFactory>();
         private readonly Mock<IArmaProcessManager> _armaProcessManagerMock = new Mock<IArmaProcessManager>();
         private readonly IModset _modset;
 
@@ -48,19 +49,21 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
         public async Task IsServerStarted_NoServerProcessCreated_ReturnsServerStopped()
         {
             var dedicatedServer = PrepareDedicatedServer();
+            var expectedStatus = new ServerStatus();
+            SetupServerStatusReturn(expectedStatus);
 
             var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
             var serverStatus = await dedicatedServer.GetServerStatusAsync(cancellationTokenSource.Token);
 
             using (new AssertionScope())
             {
-                serverStatus.Status.Should().Be(ServerStatusEnum.Stopped);
+                serverStatus.Should().BeEquivalentTo(expectedStatus);
                 dedicatedServer.IsServerStopped.Should().BeTrue();
             }
         }
 
         [Fact]
-        public void Dispose_ServerDisposed_OnServerShutdownInvoked()
+        public async Task Dispose_ServerDisposed_OnServerShutdownInvoked()
         {
             var dedicatedServer = PrepareDedicatedServer();
 
@@ -69,7 +72,10 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
 
             dedicatedServer.Dispose();
 
-            funcMock.Verify(x => x.Invoke(It.IsAny<IDedicatedServer>()), Times.Once);
+            // Delay as Dispose starts async task
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
+
+            funcMock.Verify(x => x.Invoke(dedicatedServer), Times.Once);
         }
 
         [Fact]
@@ -159,11 +165,19 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
         private DedicatedServer PrepareDedicatedServer()
             => PrepareDedicatedServer(CreateArmaProcessMock().Object);
 
+        private void SetupServerStatusReturn(ServerStatus serverStatus)
+        {
+            _serverStatusFactoryMock
+                .Setup(x => x.GetServerStatus(It.IsAny<IDedicatedServer>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(serverStatus));
+        }
+
         private DedicatedServer PrepareDedicatedServer(IArmaProcess armaProcess, IEnumerable<IArmaProcess>? headlessClients = null)
             => new DedicatedServer(
                 ServerPort,
                 _modset,
                 _modsetConfigMock.Object,
+                _serverStatusFactoryMock.Object,
                 _keysProviderMock.Object,
                 _armaProcessManagerMock.Object,
                 armaProcess,

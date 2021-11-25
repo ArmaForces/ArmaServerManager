@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +6,7 @@ using ArmaForces.Arma.Server.Exceptions;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Providers.Server
@@ -56,11 +57,29 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                     $"Expected to get server with {modset.Name} modset with {modset.Mods.Count} mods on port {port} but found {server.Modset.Name} with {server.Modset.Mods.Count} mods.");
         }
 
+        private Result TryRemoveServer(IDedicatedServer dedicatedServer)
+        {
+            var server = GetServer(dedicatedServer.Port);
+            
+            if (server == dedicatedServer)
+            {
+                _ = _servers.TryRemove(dedicatedServer.Port, out _);
+                _logger.LogDebug("Server removed on port {Port}", dedicatedServer.Port);
+                return Result.Success();
+            }
+
+            _logger.LogDebug("Server not removed on port {Port}. Other server is already running", dedicatedServer.Port);
+            return Result.Failure($"Other server is already running on port {dedicatedServer.Port}.");
+        }
+
         private async Task OnServerDisposed(IDedicatedServer dedicatedServer)
         {
-            _logger.LogInformation("Server disposed, removing.");
+            _logger.LogDebug(
+                "Server with {ModsetName} disposed on port {Port}, removing",
+                dedicatedServer.Modset.Name,
+                dedicatedServer.Port);
 
-            _ = _servers.TryRemove(dedicatedServer.Port, out _);
+            TryRemoveServer(dedicatedServer);
         }
 
         private async Task DiscoverProcesses()
@@ -75,14 +94,14 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
                 if (server is null)
                 {
-                    _logger.LogDebug("Server not found on port {port}. Shutting down headless clients for server on this port.", port);
+                    _logger.LogDebug("Server not found on port {Port}. Shutting down headless clients for server on this port", port);
 
                     foreach (var headlessClient in headlessClients)
                     {
                         headlessClient.Shutdown();
                     }
 
-                    _logger.LogDebug("Headless clients for server on port {port} were shut down.", port);
+                    _logger.LogDebug("Headless clients for server on port {Port} were shut down", port);
 
                     continue;
                 }
@@ -90,7 +109,7 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                 var dedicatedServer = CreateServer(
                     port,
                     // TODO: Handle the result of GetModsetByName
-                    _modsetProvider.GetModsetByName(server.Parameters.ModsetName).Value,
+                    (await _modsetProvider.GetModsetByName(server.Parameters.ModsetName)).Value,
                     server,
                     headlessClients);
 

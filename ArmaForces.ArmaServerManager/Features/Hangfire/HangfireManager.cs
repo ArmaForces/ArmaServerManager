@@ -8,6 +8,7 @@ using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
 using CSharpFunctionalExtensions;
 using Hangfire.Common;
 using Hangfire.Storage.Monitoring;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire
 {
@@ -17,11 +18,16 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
         private readonly IHangfireBackgroundJobClient _backgroundJobClient;
         private readonly TimeSpan _defaultPrecision = TimeSpan.FromMinutes(15);
         private readonly IHangfireJobStorage _hangfireJobStorage;
+        private readonly ILogger<HangfireManager> _logger;
 
-        public HangfireManager(IHangfireBackgroundJobClient backgroundJobClient, IHangfireJobStorage hangfireJobStorage)
+        public HangfireManager(
+            IHangfireBackgroundJobClient backgroundJobClient,
+            IHangfireJobStorage hangfireJobStorage,
+            ILogger<HangfireManager> logger)
         {
             _backgroundJobClient = backgroundJobClient;
             _hangfireJobStorage = hangfireJobStorage;
+            _logger = logger;
         }
 
         /// <inheritdoc cref="IHangfireManager" />
@@ -32,7 +38,8 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
 
         /// <inheritdoc cref="IHangfireManager"/>
         public Result<string> ContinueJobWith<T>(string parentId, Expression<Func<T, Task>> func) where T : class
-            => Result.Success(_backgroundJobClient.ContinueWith(parentId, func));
+            => Result.Success(_backgroundJobClient.ContinueWith(parentId, func))
+                .Tap(_ => _logger.LogDebug("Scheduled continuation for job {JobId}", parentId));
 
         /// <summary>
         ///     Checks if given <paramref name="job" /> will execute using <typeparamref name="T" />
@@ -53,11 +60,13 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
             var queuedJobs = GetSimilarQueuedJobs(func);
 
             if (scheduledJobs.Any() || queuedJobs.Any())
-                return Result.Success(string.Empty);
+                return Result.Success(string.Empty)
+                    .Tap(_ => _logger.LogDebug("There is similar job scheduled at {DateTime}", dateTime));
 
             var jobId = _backgroundJobClient.Schedule(func, dateTime);
 
-            return Result.Success(jobId);
+            return Result.Success(jobId)
+                .Tap(_ => _logger.LogDebug("Scheduled job {JobId} at {DateTime}", jobId, dateTime));
         }
 
         /// <summary>
@@ -72,11 +81,13 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
             var queuedJobs = GetSimilarQueuedJobs(func);
 
             if (scheduledJobs.Any() || queuedJobs.Any())
-                return Result.Success(string.Empty);
+                return Result.Success(string.Empty)
+                    .Tap(_ => _logger.LogDebug("There is similar job queued in less than {Precision}", _defaultPrecision));
 
             var jobId = _backgroundJobClient.Enqueue(func);
 
-            return Result.Success(jobId);
+            return Result.Success(jobId)
+                .Tap(_ => _logger.LogDebug("Enqueued job {JobId}", jobId));
         }
 
         private IEnumerable<EnqueuedJobDto> GetSimilarQueuedJobs<T>(

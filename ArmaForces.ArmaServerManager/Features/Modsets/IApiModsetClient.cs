@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
+using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Modsets {
     /// <summary>
@@ -11,7 +13,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets {
         /// Retrieves all modsets available.
         /// </summary>
         /// <returns><see cref="List{T}"/> of <see cref="WebModset"/></returns>
-        List<WebModset> GetModsets();
+        Task<Result<List<WebModset>>> GetModsets();
 
         /// <summary>
         /// Retrieves modset data from API by it's name.
@@ -19,7 +21,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets {
         /// <param name="name">Modset name.</param>
         /// <exception cref="HttpRequestException"></exception>
         /// <returns><seealso cref="WebModset"/></returns>
-        WebModset GetModsetDataByName(string name);
+        Task<Result<WebModset>> GetModsetDataByName(string name);
 
         /// <summary>
         /// Retrieves data for given <see cref="WebModset"/> from API.
@@ -27,7 +29,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets {
         /// <param name="webModset"><see cref="WebModset"/> object.</param>
         /// <exception cref="HttpRequestException"></exception>
         /// <returns><seealso cref="WebModset"/></returns>
-        WebModset GetModsetDataByModset(WebModset webModset);
+        Task<Result<WebModset>> GetModsetDataByModset(WebModset webModset);
 
         /// <summary>
         /// Retrieves modset data from API by it's ID.
@@ -35,6 +37,6 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets {
         /// <param name="id">Modset ID</param>
         /// <exception cref="HttpRequestException"></exception>
         /// <returns><seealso cref="WebModset"/></returns>
-        WebModset GetModsetDataById(string id);
+        Task<Result<WebModset>> GetModsetDataById(string id);
     }
 }

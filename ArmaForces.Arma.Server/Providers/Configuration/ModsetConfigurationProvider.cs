@@ -7,12 +7,18 @@ namespace ArmaForces.Arma.Server.Providers.Configuration
     {
         private readonly ISettings _settings;
         private readonly ConfigFileCreator _configFileCreator;
+        private readonly ILogger<ServerConfig> _serverConfigLogger;
         private readonly ILogger<ModsetConfig> _modsetConfigLogger;
 
-        public ModsetConfigurationProvider(ISettings settings, ConfigFileCreator configFileCreator, ILogger<ModsetConfig> modsetConfigLogger)
+        public ModsetConfigurationProvider(
+            ISettings settings,
+            ConfigFileCreator configFileCreator,
+            ILogger<ServerConfig> serverConfigLogger,
+            ILogger<ModsetConfig> modsetConfigLogger)
         {
             _settings = settings;
             _configFileCreator = configFileCreator;
+            _serverConfigLogger = serverConfigLogger;
             _modsetConfigLogger = modsetConfigLogger;
         }
 
@@ -24,6 +30,6 @@ namespace ArmaForces.Arma.Server.Providers.Configuration
                 _configFileCreator,
                 _modsetConfigLogger);
 
-        private IConfig GetServerConfig() => new ServerConfig(_settings);
+        private IConfig GetServerConfig() => new ServerConfig(_settings, _serverConfigLogger);
     }
 }

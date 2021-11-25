@@ -5,12 +5,15 @@
     /// </summary>
     public readonly struct BikeyFile
     {
+        /// <param name="path">Path to bikey file.</param>
         public BikeyFile(string path)
         {
             Path = path;
             Target = "Unknown";
         }
         
+        /// <param name="path">Path to bikey file.</param>
+        /// <param name="target">What the bikey is for (e.g., addon/mod name).</param>
         public BikeyFile(string path, string target)
         {
             Path = path;

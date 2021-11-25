@@ -45,7 +45,9 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys.Finder
             var mockedFileSystem = CreateMockedFileSystem(_workingDirectory);
             CreateRandomFileInDirectory(mockedFileSystem, _workingDirectory);
             
-            var bikeyFiles = CreateBikeyFilesInFileSystem(mockedFileSystem, _workingDirectory);
+            var bikeyFiles = CreateBikeyFilesInFileSystem(mockedFileSystem, _workingDirectory)
+                .Select(x => x.Path)
+                .ToList();
 
             var keysFinder = CreateKeysFinder(mockedFileSystem);
 
@@ -68,7 +70,9 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys.Finder
             var expectedBikeyFiles = CreateBikeyFilesInFileSystem(
                 mockedFileSystem,
                 subDirectory,
-                count: 5);
+                count: 5)
+                .Select(x => x.Path)
+                .ToList();
 
             var keysFinder = CreateKeysFinder(mockedFileSystem);
 
