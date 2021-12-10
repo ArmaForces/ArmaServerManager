@@ -18,7 +18,7 @@ namespace ArmaForces.ArmaServerManager.Pages
     {
         private readonly IApiModsetClient _apiModsetClient;
         private readonly IApiMissionsClient _apiMissionsClient;
-        private readonly IHangfireManager _hangfireManager;
+        private readonly IJobScheduler _jobScheduler;
         private readonly ILogger<ServerModel> _logger;
         
         public SelectList? ModsetOptions { get; set; }
@@ -34,12 +34,12 @@ namespace ArmaForces.ArmaServerManager.Pages
         public ServerModel(
             IApiModsetClient apiModsetClient,
             IApiMissionsClient apiMissionsClient,
-            IHangfireManager hangfireManager,
+            IJobScheduler jobScheduler,
             ILogger<ServerModel> logger)
         {
             _apiModsetClient = apiModsetClient;
             _apiMissionsClient = apiMissionsClient;
-            _hangfireManager = hangfireManager;
+            _jobScheduler = jobScheduler;
             _logger = logger;
         }
 
@@ -53,7 +53,7 @@ namespace ArmaForces.ArmaServerManager.Pages
         {
             if (ModsetName != null)
             {
-                _hangfireManager.ScheduleJob<ServerStartupService>(
+                _jobScheduler.ScheduleJob<ServerStartupService>(
                     x => x.StartServer(ModsetName, CancellationToken.None));
             }
             else
@@ -63,7 +63,7 @@ namespace ArmaForces.ArmaServerManager.Pages
                     throw new Exception("Mission with no name selected.");
                 }
 
-                _hangfireManager.ScheduleJob<ServerStartupService>(
+                _jobScheduler.ScheduleJob<ServerStartupService>(
                     x => x.StartServerForMission(MissionTitle, CancellationToken.None));
             }
 

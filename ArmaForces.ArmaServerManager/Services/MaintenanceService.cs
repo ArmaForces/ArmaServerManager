@@ -8,16 +8,16 @@ namespace ArmaForces.ArmaServerManager.Services
 {
     public class MaintenanceService
     {
-        private readonly IHangfireManager _hangfireManager;
+        private readonly IJobScheduler _jobScheduler;
 
-        public MaintenanceService(IHangfireManager hangfireManager)
+        public MaintenanceService(IJobScheduler jobScheduler)
         {
-            _hangfireManager = hangfireManager;
+            _jobScheduler = jobScheduler;
         }
 
         public async Task<Result> PerformMaintenance(CancellationToken cancellationToken)
         {
-            var serverShutdownJob = _hangfireManager.ScheduleJob<ServerStartupService>(x => x.ShutdownServer(2302, false, CancellationToken.None));
+            var serverShutdownJob = _jobScheduler.ScheduleJob<ServerStartupService>(x => x.ShutdownServer(2302, false, CancellationToken.None));
 
             var missionsPreparationJob = BackgroundJob.ContinueJobWith<IMissionPreparationService>(
                 serverShutdownJob.Value,

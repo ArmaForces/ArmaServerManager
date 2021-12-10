@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using JobStorage = ArmaForces.ArmaServerManager.Features.Hangfire.Helpers.JobStorage;
 
 namespace ArmaForces.ArmaServerManager
 {
@@ -77,8 +78,9 @@ namespace ArmaForces.ArmaServerManager
 
             // Hangfire
             .AddSingleton<IHangfireBackgroundJobClient, HangfireBackgroundJobClient>()
-            .AddSingleton<IHangfireJobStorage, HangfireJobStorage>()
-            .AddSingleton<IHangfireManager, HangfireManager>()
+            .AddSingleton<IJobStorage, JobStorage>()
+            .AddSingleton<IJobScheduler, JobScheduler>()
+            .AddSingleton<IJobService, JobService>()
             
             // Security
             .AddSingleton<IApiKeyProvider, ApiKeyProvider>();

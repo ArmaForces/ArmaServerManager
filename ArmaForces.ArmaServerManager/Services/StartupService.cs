@@ -10,12 +10,12 @@ namespace ArmaForces.ArmaServerManager.Services
 {
     public class StartupService : IHostedService
     {
-        private readonly IHangfireManager _hangfireManager;
+        private readonly IJobScheduler _jobScheduler;
         private readonly IServerProvider _serverProvider;
 
-        public StartupService(IHangfireManager hangfireManager, IServerProvider serverProvider)
+        public StartupService(IJobScheduler jobScheduler, IServerProvider serverProvider)
         {
-            _hangfireManager = hangfireManager;
+            _jobScheduler = jobScheduler;
             _serverProvider = serverProvider;
         }
 

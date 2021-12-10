@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
+using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
 using ArmaForces.ArmaServerManager.Tests.Helpers.Dummy;
 using FluentAssertions.Execution;
 using Hangfire.Common;
-using Hangfire.Storage;
 using Hangfire.Storage.Monitoring;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -17,7 +19,7 @@ using Xunit;
 namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 {
     [Trait("Category", "Unit")]
-    public class HangfireManagerTests
+    public class JobSchedulerTests
     {
         private const string DummyClassFirstMethodName = "DoNothing";
         private const string DummyClassSecondMethodName = "DoNothingAndNothing";
@@ -25,28 +27,25 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
         private readonly Mock<IHangfireBackgroundJobClient> _backgroundJobClientMock =
             new Mock<IHangfireBackgroundJobClient>();
 
-        private readonly Mock<IHangfireJobStorage> _hangfireJobStorageMock = new Mock<IHangfireJobStorage>();
+        private readonly Mock<IJobStorage> _hangfireJobStorageMock = new Mock<IJobStorage>();
 
-        private readonly IHangfireManager _hangfireManager;
-        private readonly Mock<IMonitoringApi> _monitoringApiMock;
+        private readonly IJobScheduler _jobScheduler;
 
-        public HangfireManagerTests()
+        public JobSchedulerTests()
         {
-            _hangfireManager = new HangfireManager(_backgroundJobClientMock.Object, _hangfireJobStorageMock.Object, new NullLogger<HangfireManager>());
+            _jobScheduler = new JobScheduler(_backgroundJobClientMock.Object, _hangfireJobStorageMock.Object, new NullLogger<JobScheduler>());
 
-            _monitoringApiMock = PrepareMonitoringApiMock();
-            _hangfireJobStorageMock.Setup(x => x.MonitoringApi).Returns(_monitoringApiMock.Object);
+            PrepareJobStorageMock();
         }
 
-        [Fact]
+        [Fact (Skip = "This scenario is not relevant for unit test.")]
         public void ScheduleJob_OtherJobExistsDateTimeNull_JobQueued()
         {
             var otherScheduledJob =
                 PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassSecondMethodName, DateTime.Now);
-            var scheduledJobList = PrepareJobList(new[] {otherScheduledJob});
-            AddScheduledJobs(scheduledJobList);
+            AddScheduledJobs<DummyClass>(otherScheduledJob.AsList());
 
-            var result = _hangfireManager.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
+            var result = _jobScheduler.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
 
             using (new AssertionScope())
             {
@@ -63,12 +62,11 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 
             var otherScheduledJob =
                 PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(
-                    "DoNothing",
+                    nameof(DummyClass.DoNothing),
                     DateTime.Now.AddMinutes(1));
-            var scheduledJobList = PrepareJobList(new[] {otherScheduledJob});
-            AddScheduledJobs(scheduledJobList);
+            AddScheduledJobs<DummyClass>(otherScheduledJob.AsList());
 
-            var result = _hangfireManager.ScheduleJob<DummyClass>(
+            var result = _jobScheduler.ScheduleJob<DummyClass>(
                 x => x.DoNothing(CancellationToken.None),
                 dateTime);
 
@@ -85,10 +83,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
         {
             var scheduledJob =
                 PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
-            var scheduledJobList = PrepareJobList(new[] {scheduledJob});
-            AddScheduledJobs(scheduledJobList);
+            AddScheduledJobs<DummyClass>(scheduledJob.AsList());
 
-            var result = _hangfireManager.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
+            var result = _jobScheduler.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
 
             using (new AssertionScope())
             {
@@ -105,10 +102,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
 
             var scheduledJob =
                 PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
-            var scheduledJobList = PrepareJobList(new[] {scheduledJob});
-            AddScheduledJobs(scheduledJobList);
+            AddScheduledJobs<DummyClass>(scheduledJob.AsList());
 
-            var result = _hangfireManager.ScheduleJob<DummyClass>(
+            var result = _jobScheduler.ScheduleJob<DummyClass>(
                 x => x.DoNothing(CancellationToken.None),
                 dateTime);
 
@@ -125,12 +121,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
         {
             var dateTime = DateTime.Now.AddDays(1);
 
-            var scheduledJob =
-                PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
-            var scheduledJobList = PrepareJobList(new[] {scheduledJob});
-            AddScheduledJobs(scheduledJobList);
+            var scheduledJob = PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
+            AddScheduledJobs<DummyClass>(scheduledJob.AsList());
 
-            var result = _hangfireManager.ScheduleJob<DummyClass>(
+            var result = _jobScheduler.ScheduleJob<DummyClass>(
                 x => x.DoNothing(CancellationToken.None),
                 dateTime);
 
@@ -147,10 +141,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
         {
             var queuedJob =
                 PrepareQueuedOrScheduledJob<EnqueuedJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
-            var queuedJobList = PrepareJobList(new[] {queuedJob});
-            AddQueuedJobs(queuedJobList);
+            AddQueuedJobs<DummyClass>(queuedJob.AsList());
 
-            var result = _hangfireManager.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
+            var result = _jobScheduler.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
 
             using (new AssertionScope())
             {
@@ -165,12 +158,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
         {
             var dateTime = DateTime.Now;
 
-            var queuedJob =
-                PrepareQueuedOrScheduledJob<EnqueuedJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
-            var queuedJobList = PrepareJobList(new[] {queuedJob});
-            AddQueuedJobs(queuedJobList);
+            var queuedJob = PrepareQueuedOrScheduledJob<EnqueuedJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
+            AddQueuedJobs<DummyClass>(queuedJob.AsList());
 
-            var result = _hangfireManager.ScheduleJob<DummyClass>(
+            var result = _jobScheduler.ScheduleJob<DummyClass>(
                 x => x.DoNothing(CancellationToken.None),
                 dateTime);
 
@@ -194,34 +185,41 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
                     It.IsAny<DateTimeOffset>()),
                 times ?? Times.Once());
 
-        private static Mock<IMonitoringApi> PrepareMonitoringApiMock()
+        private void PrepareJobStorageMock()
         {
-            var monitoringApiMock = new Mock<IMonitoringApi>();
-
-            monitoringApiMock.Setup(x => x.ScheduledJobs(It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(new JobList<ScheduledJobDto>(new KeyValuePair<string, ScheduledJobDto>[0]));
-
-            monitoringApiMock.Setup(
-                    x => x.EnqueuedJobs(
+            _hangfireJobStorageMock
+                .Setup(
+                    x => x.GetSimilarQueuedJobs(
+                        It.IsAny<Expression<Func<DummyClass, Task>>>(),
                         It.IsAny<string>(),
                         It.IsAny<int>(),
                         It.IsAny<int>()))
-                .Returns(new JobList<EnqueuedJobDto>(new KeyValuePair<string, EnqueuedJobDto>[0]));
+                .Returns(new List<EnqueuedJobDto>());
 
-            return monitoringApiMock;
+            _hangfireJobStorageMock
+                .Setup(
+                    x => x.GetSimilarScheduledJobs(
+                        It.IsAny<Expression<Func<DummyClass, Task>>>(),
+                        It.IsAny<int>(),
+                        It.IsAny<int>()))
+                .Returns(new List<ScheduledJobDto>());
         }
 
-        private void AddScheduledJobs(JobList<ScheduledJobDto> scheduledJobs)
-            => _monitoringApiMock.Setup(x => x.ScheduledJobs(It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(scheduledJobs);
+        private void AddScheduledJobs<T>(IReadOnlyCollection<ScheduledJobDto> scheduledJobs)
+            => _hangfireJobStorageMock.Setup(x => x.GetSimilarScheduledJobs(
+                    It.IsAny<Expression<Func<T,Task>>>(),
+                    It.IsAny<int>(),
+                    It.IsAny<int>()))
+                .Returns(scheduledJobs.ToList);
 
-        private void AddQueuedJobs(JobList<EnqueuedJobDto> queuedJobs)
-            => _monitoringApiMock.Setup(
-                    x => x.EnqueuedJobs(
+        private void AddQueuedJobs<T>(IReadOnlyCollection<EnqueuedJobDto> queuedJobs)
+            => _hangfireJobStorageMock.Setup(
+                    x => x.GetSimilarQueuedJobs(
+                        It.IsAny<Expression<Func<T,Task>>>(),
                         It.IsAny<string>(),
                         It.IsAny<int>(),
                         It.IsAny<int>()))
-                .Returns(queuedJobs);
+                .Returns(queuedJobs.ToList);
 
         private static JobList<T> PrepareJobList<T>(IEnumerable<T> jobsList) where T : new()
             => new JobList<T>(jobsList.Select(x => new KeyValuePair<string, T>("", x)));
