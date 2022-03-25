@@ -35,6 +35,13 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
             => GetScheduledJobs(from, count)
                 .Where(x => JobMatchesMethod(x.Job, func));
 
+        public Result<List<JobDetails>> GetQueuedJobs()
+            => MonitoringApi.EnqueuedJobs("default", 0, 20)
+                .Select(x => x.Key)
+                .Select(GetJobDetails)
+                .Combine()
+                .Map(x => x.ToList());
+
         public Result<JobDetails> GetJobDetails(string jobId)
         {
             var jobData = StorageConnection.GetJobData(jobId);

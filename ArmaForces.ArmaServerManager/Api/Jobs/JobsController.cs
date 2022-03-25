@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
@@ -20,8 +21,16 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         }
 
         [HttpGet]
+        public IActionResult GetJobs([FromQuery] IEnumerable<JobStatus>? jobStatus = null)
+            => _jobService.GetJobs(jobStatus)
+                .Map(Map)
+                .Match(
+                    onSuccess: Ok,
+                    onFailure: error => (IActionResult) NotFound(error));
+
+        [HttpGet]
         [Route("{jobId}")]
-        public IActionResult GetJobStatus(string jobId)
+        public IActionResult GetJob(string jobId)
         {
             return _jobService.GetJobDetails(jobId)
                 .Map(Map)
@@ -40,16 +49,8 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
                 Parameters = jobDetails.Parameters
             };
         }
-    }
 
-    public class JobDetailsDto
-    {
-        public string Name { get; set; } = string.Empty;
-        
-        public DateTime CreatedAt { get; set; }
-        
-        public JobStatus JobStatus { get; set; }
-
-        public List<KeyValuePair<string, object>> Parameters { get; set; } = new List<KeyValuePair<string, object>>();
+        private static List<JobDetailsDto> Map(IEnumerable<JobDetails> jobDetails)
+            => jobDetails.Select(Map).ToList();
     }
 }

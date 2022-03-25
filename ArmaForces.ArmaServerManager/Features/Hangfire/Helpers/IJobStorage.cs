@@ -21,5 +21,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
             Expression<Func<T, Task>> func,
             int from = 0,
             int count = 50);
+
+        Result<List<JobDetails>> GetQueuedJobs();
     }
 }
