@@ -42,6 +42,17 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
                 .Combine()
                 .Map(x => x.ToList());
 
+        public Result<JobDetails?> GetCurrentJob()
+        {
+            var currentJobId = MonitoringApi.ProcessingJobs(0, 1)
+                .Select(x => x.Key)
+                .SingleOrDefault();
+            
+            return currentJobId is null
+                ? Result.Success<JobDetails?>(null)
+                : GetJobDetails(currentJobId);
+        }
+
         public Result<JobDetails> GetJobDetails(string jobId)
         {
             var jobData = StorageConnection.GetJobData(jobId);

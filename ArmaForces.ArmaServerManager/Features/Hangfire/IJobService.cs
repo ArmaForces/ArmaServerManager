@@ -9,5 +9,6 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
         Result<JobDetails> GetJobDetails(string jobId);
         
         Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus>? jobStatusEnumerable);
+        Result<JobDetails?> GetCurrentJob();
     }
 }

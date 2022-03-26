@@ -30,6 +30,9 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
                 .Map(x => FilterByJobStatus(x, jobStatusEnumerable))
                 .Map(x => x.ToList());
 
+        public Result<JobDetails?> GetCurrentJob()
+            => _jobStorage.GetCurrentJob();
+
         private static List<JobDetails> FilterByJobStatus(IEnumerable<JobDetails> jobs, IEnumerable<JobStatus>? jobStatusEnumerable)
             => jobStatusEnumerable is null
                 ? jobs.ToList()

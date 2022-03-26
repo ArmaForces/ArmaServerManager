@@ -23,5 +23,6 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
             int count = 50);
 
         Result<List<JobDetails>> GetQueuedJobs();
+        Result<JobDetails?> GetCurrentJob();
     }
 }

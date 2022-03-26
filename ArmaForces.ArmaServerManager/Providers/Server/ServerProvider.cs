@@ -57,6 +57,8 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
                     $"Expected to get server with {modset.Name} modset with {modset.Mods.Count} mods on port {port} but found {server.Modset.Name} with {server.Modset.Mods.Count} mods.");
         }
 
+        public List<IDedicatedServer> GetServers() => _servers.Values.ToList();
+
         private Result TryRemoveServer(IDedicatedServer dedicatedServer)
         {
             var server = GetServer(dedicatedServer.Port);
