@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Mime;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
@@ -115,7 +115,6 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
                     onFailure: error => error.Contains("not exists")
                         ? NotFound()
                         : (IActionResult) UnprocessableEntity(error));
-        }
         }
     }
 }
