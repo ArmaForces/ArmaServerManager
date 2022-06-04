@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
@@ -18,6 +18,8 @@ namespace ArmaForces.Arma.Server.Features.Servers
         int HeadlessClientsConnected { get; }
 
         bool IsServerStopped { get; }
+
+        DateTimeOffset? StartTime { get; }
 
         Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken);
 

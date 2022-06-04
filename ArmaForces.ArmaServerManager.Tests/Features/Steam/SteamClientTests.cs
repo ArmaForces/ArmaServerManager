@@ -24,7 +24,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Steam
             // ReSharper disable once AccessToDisposedClosure - steamClient should not be disposed here
             Func<Task> action = async () => await steamClient.EnsureConnected(cancellationTokenSource.Token);
 
-            action.Should().Throw<OperationCanceledException>();
+            action.Should().ThrowAsync<OperationCanceledException>();
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Steam
             // ReSharper disable once AccessToDisposedClosure - steamClient should not be disposed here
             Func<Task> action = async () => await steamClient.EnsureConnected(CancellationToken.None);
 
-            action.Should().Throw<InvalidCredentialException>("Invalid Steam Credentials");
+            action.Should().ThrowAsync<InvalidCredentialException>("Invalid Steam Credentials");
         }
 
         private static SteamClient CreateSteamClient()

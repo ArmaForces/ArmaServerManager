@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Parameters;
@@ -52,6 +52,8 @@ namespace ArmaForces.Arma.Server.Features.Processes
         public bool IsStopped => _serverProcess == null || _serverProcess.HasExited;
 
         public bool IsStartingOrStarted => !IsStopped;
+
+        public DateTimeOffset? StartTime => Parameters.StartTime;
 
         public event Func<IArmaProcess, Task>? OnProcessShutdown;
 

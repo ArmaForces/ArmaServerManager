@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -29,6 +29,8 @@ namespace ArmaForces.Arma.Server.Features.Parameters
 
         public string ModsetName { get; }
 
+        public DateTimeOffset? StartTime { get; private set; }
+
         public bool FilePatching { get; }
 
         public bool NetLog { get; }
@@ -50,6 +52,7 @@ namespace ArmaForces.Arma.Server.Features.Parameters
             string profilePath,
             string name,
             string modsetName,
+            DateTimeOffset? startTime = null,
             bool filePatching = ParametersDefaults.FilePatching,
             bool netLog = ParametersDefaults.Netlog,
             int fpsLimit = ParametersDefaults.LimitFPS,
@@ -67,6 +70,7 @@ namespace ArmaForces.Arma.Server.Features.Parameters
             ProfilePath = profilePath;
             Name = name;
             ModsetName = modsetName;
+            StartTime = startTime;
             FilePatching = filePatching;
             NetLog = netLog;
             LimitFPS = fpsLimit;
@@ -90,6 +94,7 @@ namespace ArmaForces.Arma.Server.Features.Parameters
                 $"-profiles=\"{ProfilePath}\"",
                 GetSpecialParamsString(),
                 $"-modsetName={ModsetName}",
+                $"-startTime={StartTime ??= DateTimeOffset.Now:O}",
                 GetModsStartupParamString());
         }
 

@@ -28,6 +28,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
                 serverInfo?.Players,
                 serverInfo?.MaxPlayers,
                 dedicatedServer?.Port,
+                dedicatedServer?.StartTime,
                 dedicatedServer?.HeadlessClientsConnected);
         }
 
