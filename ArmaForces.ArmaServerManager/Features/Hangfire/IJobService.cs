@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire

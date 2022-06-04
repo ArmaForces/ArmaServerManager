@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
 using CSharpFunctionalExtensions;
 using Hangfire.Common;
 using Hangfire.Storage;
 using Hangfire.Storage.Monitoring;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
+namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence
 {
     internal class JobStorage : IJobStorage
     {
@@ -71,9 +72,6 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
                 : GetJobDetails(currentJobId);
         }
 
-        public Result<JobDetails> GetJobDetails(JobDataModel jobDataModel)
-            => GetJobDetails(jobDataModel.Id.ToString());
-
         public Result<JobDetails> GetJobDetails(string jobId)
         {
             var jobData = _storageConnection.GetJobData(jobId);
@@ -82,6 +80,9 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
                 ? CreateJobDetails(jobData)
                 : Result.Failure<JobDetails>("Job does not exist.");
         }
+
+        private Result<JobDetails> GetJobDetails(JobDataModel jobDataModel)
+            => GetJobDetails(jobDataModel.Id.ToString());
 
         private static JobDetails CreateJobDetails(JobData jobData) => new JobDetails
         {

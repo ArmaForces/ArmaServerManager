@@ -1,4 +1,4 @@
-﻿using ArmaForces.ArmaServerManager.Features.Hangfire;
+﻿using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
 using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs

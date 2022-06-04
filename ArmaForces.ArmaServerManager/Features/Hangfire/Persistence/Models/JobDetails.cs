@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
+namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models
 {
     public class JobDetails
     {

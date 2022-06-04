@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire.Extensions
 {

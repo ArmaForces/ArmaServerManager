@@ -8,6 +8,7 @@ using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence;
 using ArmaForces.ArmaServerManager.Tests.Helpers.Dummy;
 using FluentAssertions.Execution;
 using Hangfire.Common;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
 
 namespace ArmaForces.ArmaServerManager.Api.Jobs.Mappers
 {

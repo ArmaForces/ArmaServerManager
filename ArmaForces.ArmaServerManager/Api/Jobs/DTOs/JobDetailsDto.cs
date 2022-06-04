@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
 
 namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs
 {

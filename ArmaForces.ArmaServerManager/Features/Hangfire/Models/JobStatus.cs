@@ -1,4 +1,4 @@
-﻿namespace ArmaForces.ArmaServerManager.Features.Hangfire
+﻿namespace ArmaForces.ArmaServerManager.Features.Hangfire.Models
 {
     public enum JobStatus
     {

@@ -1,6 +1,7 @@
 ﻿using System;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire
+namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
 {
     public static class JobStatusParser
     {

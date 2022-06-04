@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence

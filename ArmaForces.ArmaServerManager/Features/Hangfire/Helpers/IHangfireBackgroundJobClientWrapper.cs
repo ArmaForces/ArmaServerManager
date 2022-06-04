@@ -5,7 +5,7 @@ using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
 {
-    public interface IHangfireBackgroundJobClientWrapper
+    internal interface IHangfireBackgroundJobClientWrapper
     {
         Result<string> Schedule<T>(Expression<Func<T, Task>> methodCall, DateTimeOffset dateTimeOffset);
 

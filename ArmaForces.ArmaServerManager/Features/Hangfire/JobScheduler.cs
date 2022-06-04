@@ -1,13 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence;
 using CSharpFunctionalExtensions;
-using Hangfire.Common;
-using Hangfire.Storage.Monitoring;
 using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire

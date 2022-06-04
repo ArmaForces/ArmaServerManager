@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Constants;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
 using Hangfire.LiteDB;

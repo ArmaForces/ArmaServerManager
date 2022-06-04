@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Extensions;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
 using ArmaForces.ArmaServerManager.Features.Status.Models;
 using ArmaForces.ArmaServerManager.Providers.Server;
 using ArmaForces.ArmaServerManager.Services;

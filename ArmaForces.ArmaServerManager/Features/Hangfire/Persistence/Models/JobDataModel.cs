@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
 using LiteDB;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models

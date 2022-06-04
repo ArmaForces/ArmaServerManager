@@ -5,8 +5,10 @@ using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Filters;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence;
 using ArmaForces.ArmaServerManager.Features.Missions.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection;
+using ArmaForces.ArmaServerManager.Features.Status;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Infrastructure.Converters;
 using ArmaForces.ArmaServerManager.Providers.Server;
@@ -19,7 +21,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using JobStorage = ArmaForces.ArmaServerManager.Features.Hangfire.Helpers.JobStorage;
+using HangfireJobStorage = Hangfire.JobStorage;
+using JobStorage = ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.JobStorage;
 
 namespace ArmaForces.ArmaServerManager
 {
@@ -82,13 +85,20 @@ namespace ArmaForces.ArmaServerManager
             // Server
             .AddSingleton<IServerProvider, ServerProvider>()
             .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
+            
+            // Status
+            .AddSingleton<IStatusProvider, StatusProvider>()
 
             // Hangfire
-            .AddSingleton<IHangfireBackgroundJobClient, HangfireBackgroundJobClient>()
+            .AddSingleton<IHangfireBackgroundJobClientWrapper, HangfireBackgroundJobClientWrapper>()
             .AddSingleton<IJobStorage, JobStorage>()
             .AddSingleton<IJobScheduler, JobScheduler>()
             .AddSingleton<IJobService, JobService>()
-            
+            .AddSingleton<IHangfireDataAccess, HangfireDataAccess>()
+            .AddSingleton(_ => HangfireJobStorage.Current.GetMonitoringApi())
+            .AddSingleton(_ => HangfireJobStorage.Current.GetConnection())
+            .AddSingleton(_ => HangfireDbContext.Instance(Configuration.GetConnectionString("HangfireConnection")))
+
             // Security
             .AddSingleton<IApiKeyProvider, ApiKeyProvider>();
         }

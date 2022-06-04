@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
 using CSharpFunctionalExtensions;
 using Hangfire.Storage.Monitoring;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
+namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence
 {
-    public interface IJobStorage
+    internal interface IJobStorage
     {
         Result<JobDetails> GetJobDetails(string jobId);
         
@@ -23,6 +24,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
             int count = 50);
 
         Result<List<JobDetails>> GetQueuedJobs();
+        
         Result<JobDetails?> GetCurrentJob();
     }
 }

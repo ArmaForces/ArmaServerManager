@@ -1,4 +1,5 @@
 ﻿using System;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models
 {
