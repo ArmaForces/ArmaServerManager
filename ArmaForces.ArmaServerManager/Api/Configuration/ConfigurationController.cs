@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
@@ -8,7 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArmaForces.ArmaServerManager.Api.Configuration
 {
+    /// <summary>
+    /// Allows server configuration manipulation.
+    /// </summary>
     [Route("api/configuration")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ApiController]
     [ApiKey]
     public class ConfigurationController : ControllerBase
@@ -22,7 +27,10 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
             _serverConfigurationLogic = serverConfigurationLogic;
         }
 
-        [HttpGet("modset/{modsetName}")]
+        /// <summary>Get Modset Configuration</summary>
+        /// <remarks>Retrieves server configuration for given <paramref name="modsetName"/>.</remarks>
+        /// <param name="modsetName">Name of modset to retrieve configuration for.</param>
+        [HttpGet("modset/{modsetName}", Name = nameof(GetModsetConfiguration))]
         public IActionResult GetModsetConfiguration(string modsetName)
         {
             var result = _serverConfigurationLogic.DownloadConfigurationFile(modsetName);
@@ -32,7 +40,11 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
                 onFailure: error => (IActionResult) BadRequest(error));
         }
 
-        [HttpPut("modset/{modsetName}")]
+        /// <summary>Put Modset Configuration</summary>
+        /// <remarks>Sets configuration file for given <paramref name="modsetName"/>.</remarks>
+        /// <param name="modsetName">Name of modset to set configuration for.</param>
+        /// <param name="file">New configuration file.</param>
+        [HttpPut("modset/{modsetName}", Name = nameof(PutModsetConfiguration))]
         public async Task<IActionResult> PutModsetConfiguration(string modsetName, [FromForm] IFormFile file)
         {
             var result = await _serverConfigurationLogic.UploadConfigurationFile(modsetName, file);
@@ -42,7 +54,9 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
                 onFailure: error => (IActionResult) BadRequest(error));
         }
 
-        [HttpGet("server")]
+        /// <summary>Get Server Configuration</summary>
+        /// <remarks>Retrieves global server configuration.</remarks>
+        [HttpGet("server", Name = nameof(GetServerConfiguration))]
         public IActionResult GetServerConfiguration()
         {
             var result = _serverConfigurationLogic.DownloadConfigurationFile(_serverConfigurationName);
@@ -51,8 +65,11 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
                 onSuccess: Ok,
                 onFailure: error => (IActionResult) BadRequest(error));
         }
-
-        [HttpPut("server")]
+        
+        /// <summary>Set Server Configuration</summary>
+        /// <remarks>Sets global server configuration.</remarks>
+        /// <param name="file">New global configuration file.</param>
+        [HttpPut("server", Name = nameof(PutServerConfiguration))]
         public async Task<IActionResult> PutServerConfiguration([FromForm] IFormFile file)
         {
             var result = await _serverConfigurationLogic.UploadConfigurationFile(_serverConfigurationName, file);
@@ -61,14 +78,18 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
                 onSuccess: Ok,
                 onFailure: error => (IActionResult) BadRequest(error));
         }
-
-        [HttpGet("server/cbaSettings")]
+        
+        /// <summary>Put Server CBA Settings</summary>
+        /// <remarks>Proposed. Not implemented.</remarks>
+        [HttpGet("server/cbaSettings", Name = nameof(GetServerCbaSettings))]
         public IActionResult GetServerCbaSettings()
         {
             throw new NotImplementedException("Downloading server CBA Settings is not supported yet.");
         }
 
-        [HttpGet("server/cbaSettings")]
+        /// <summary>Put Server CBA Settings</summary>
+        /// <remarks>Proposed. Not implemented.</remarks>
+        [HttpGet("server/cbaSettings", Name = nameof(PutServerCbaSettings))]
         public IActionResult PutServerCbaSettings([FromForm] IFormFile file)
         {
             throw new NotImplementedException("Uploading server CBA Settings is not supported yet.");

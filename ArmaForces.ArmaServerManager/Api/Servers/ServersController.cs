@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
@@ -8,11 +9,16 @@ using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Providers.Server;
 using ArmaForces.ArmaServerManager.Services;
 using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArmaForces.ArmaServerManager.Api.Servers
 {
+    /// <summary>
+    /// Allows server startup, shutdown and status retrieval.
+    /// </summary>
     [Route("api/server")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ApiController]
     public class ServersController : ControllerBase
     {
@@ -27,8 +33,11 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
             _serverProvider = serverProvider;
         }
 
-        [HttpGet]
-        [Route("{port}")]
+        /// <summary>Get Server Status</summary>
+        /// <remarks>Retrieves status of server on given <paramref name="port"/>.</remarks>
+        /// <param name="port">Port of the server which status will be retrieved.</param>
+        [HttpGet("{port:int}", Name = nameof(GetServerStatus))]
+        [ProducesResponseType(typeof(ServerStatus), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetServerStatus(int port = 2302)
         {
             var server = _serverProvider.GetServer(port);
@@ -42,15 +51,21 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
             return Ok(serverStatus);
         }
 
+        /// <summary>StartServer</summary>
+        /// <remarks>Starts server according to <paramref name="startRequestDto"/>.</remarks>
         [Obsolete("Use {port}/start route.")]
-        [HttpPost]
-        [Route("Start")]
+        [HttpPost("Start", Name = nameof(StartServer))]
+        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ApiKey]
         public IActionResult StartServer([FromBody] ServerStartRequestDto startRequestDto)
             => StartServer(startRequestDto.Port, startRequestDto);
 
-        [HttpPost]
-        [Route("{port}/start")]
+        /// <summary>StartServer</summary>
+        /// <remarks>Starts server on given <paramref name="port"/>.</remarks>
+        [HttpPost("{port}/start", Name = nameof(StartServer))]
+        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ApiKey]
         public IActionResult StartServer(int port, [FromBody] ServerStartRequestDto serverStartRequestDto)
         {
@@ -73,13 +88,18 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                 onFailure: error => (IActionResult)BadRequest(error));
         }
 
-        [HttpPost]
-        [Route("{port}/headless/start")]
+        /// <summary>Start Headless Client</summary>
+        /// <remarks>Starts headless client for server on given <paramref name="port"/>. Not implemented.</remarks>
+        /// <param name="port">Port of the server to start headless client for.</param>
+        [HttpPost("{port:int}/headless/start", Name = nameof(StartHeadlessClient))]
         [ApiKey]
         public IActionResult StartHeadlessClient(int port) => throw new NotImplementedException("Starting headless client is not supported yet.");
 
-        [HttpPost]
-        [Route("{port}/restart")]
+        /// <summary>Restart Server</summary>
+        /// <remarks>Restarts server on given <paramref name="port"/>.</remarks>
+        /// <param name="port">Port of the server to restart.</param>
+        /// <param name="serverRestartRequestDto">Additional details.</param>
+        [HttpPost("{port:int}/restart", Name = nameof(RestartServer))]
         [ApiKey]
         public IActionResult RestartServer(int port, ServerRestartRequestDto serverRestartRequestDto)
         {
@@ -108,14 +128,18 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                 onFailure: error => (IActionResult)BadRequest(error));
         }
 
-        [HttpPost]
-        [Route("{port}/headless/shutdown")]
+        /// <summary>Shutdown Headless Client</summary>
+        /// <remarks>Shutdowns all headless clients for server on given <paramref name="port"/>. Not implemented.</remarks>
+        /// <param name="port">Port of the server to shutdown headless client for.</param>
+        [HttpPost("{port:int}/headless/shutdown", Name = nameof(ShutdownHeadlessClients))]
         [ApiKey]
         public IActionResult ShutdownHeadlessClients(int port)
             => throw new NotImplementedException("Shutting down headless clients is not supported yet.");
 
-        [HttpPost]
-        [Route("{port}/shutdown")]
+        /// <summary>Shutdown Server</summary>
+        /// <remarks>Shutdowns server on given <paramref name="port"/>.</remarks>
+        /// <param name="port">Port of the server to shutdown.</param>
+        [HttpPost("{port:int}/shutdown", Name = nameof(ShutdownServer))]
         [ApiKey]
         public IActionResult ShutdownServer(int port)
         {
