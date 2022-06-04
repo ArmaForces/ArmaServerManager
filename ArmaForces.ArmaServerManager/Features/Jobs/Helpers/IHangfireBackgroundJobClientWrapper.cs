@@ -7,10 +7,14 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Helpers
 {
     internal interface IHangfireBackgroundJobClientWrapper
     {
-        Result<string> Schedule<T>(Expression<Func<T, Task>> methodCall, DateTimeOffset dateTimeOffset);
+        Result<string> ContinueWith<T>(string parentId, Expression<Func<T, Task>> methodCall);
+        
+        Result Delete(string jobId);
 
         Result<string> Enqueue<T>(Expression<Func<T, Task>> methodCall);
+        
+        Result Requeue(string jobId);
 
-        Result<string> ContinueWith<T>(string parentId, Expression<Func<T, Task>> methodCall);
+        Result<string> Schedule<T>(Expression<Func<T, Task>> methodCall, DateTimeOffset dateTimeOffset);
     }
 }

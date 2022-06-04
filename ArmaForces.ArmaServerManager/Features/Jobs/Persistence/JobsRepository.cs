@@ -7,6 +7,7 @@ using ArmaForces.ArmaServerManager.Features.Jobs.Helpers;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using CSharpFunctionalExtensions;
+using Hangfire;
 using Hangfire.Common;
 using Hangfire.Storage;
 using Hangfire.Storage.Monitoring;
@@ -15,50 +16,25 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
 {
     internal class JobsRepository : IJobsRepository
     {
+        private readonly IHangfireBackgroundJobClientWrapper _backgroundJobClientWrapper;
         private readonly IJobsDataAccess _jobsDataAccess;
         private readonly IMonitoringApi _monitoringApi;
         private readonly IStorageConnection _storageConnection;
 
         public JobsRepository(
+            IHangfireBackgroundJobClientWrapper backgroundJobClientWrapper,
             IJobsDataAccess jobsDataAccess,
             IMonitoringApi monitoringApi,
             IStorageConnection storageConnection)
         {
+            _backgroundJobClientWrapper = backgroundJobClientWrapper;
             _jobsDataAccess = jobsDataAccess;
             _monitoringApi = monitoringApi;
             _storageConnection = storageConnection;
         }
 
-        public IEnumerable<EnqueuedJobDto> GetSimilarQueuedJobs<T>(
-            Expression<Func<T, Task>> func,
-            string queue = "default",
-            int from = 0,
-            int perPage = 50)
-            => GetQueuedJobs(
-                    queue,
-                    from,
-                    perPage)
-                .Where(x => JobMatchesMethod(x.Job, func));
-
-        public IEnumerable<ScheduledJobDto> GetSimilarScheduledJobs<T>(
-            Expression<Func<T, Task>> func,
-            int from = 0,
-            int count = 50)
-            => GetScheduledJobs(from, count)
-                .Where(x => JobMatchesMethod(x.Job, func));
-
-        public Result<List<JobDetails>> GetQueuedJobs()
-        {
-            return _jobsDataAccess.GetJobs(new List<JobStatus>
-                {
-                    JobStatus.Awaiting,
-                    JobStatus.Enqueued,
-                    JobStatus.Scheduled
-                })
-                .Select(GetJobDetails)
-                .Combine()
-                .Map(x => x.ToList());
-        }
+        public Result DeleteJob(string jobId)
+            => _backgroundJobClientWrapper.Delete(jobId);
 
         public Result<JobDetails?> GetCurrentJob()
         {
@@ -80,6 +56,40 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                 ? CreateJobDetails(jobData)
                 : Result.Failure<JobDetails>("Job does not exist.");
         }
+
+        public Result<List<JobDetails>> GetQueuedJobs()
+        {
+            return _jobsDataAccess.GetJobs(new List<JobStatus>
+                {
+                    JobStatus.Awaiting,
+                    JobStatus.Enqueued,
+                    JobStatus.Scheduled
+                })
+                .Select(GetJobDetails)
+                .Combine()
+                .Map(x => x.ToList());
+        }
+
+        public Result RequeueJob(string jobId)
+            => _backgroundJobClientWrapper.Requeue(jobId);
+
+        public IEnumerable<EnqueuedJobDto> GetSimilarQueuedJobs<T>(
+            Expression<Func<T, Task>> func,
+            string queue = "default",
+            int from = 0,
+            int perPage = 50)
+            => GetQueuedJobs(
+                    queue,
+                    from,
+                    perPage)
+                .Where(x => JobMatchesMethod(x.Job, func));
+
+        public IEnumerable<ScheduledJobDto> GetSimilarScheduledJobs<T>(
+            Expression<Func<T, Task>> func,
+            int from = 0,
+            int count = 50)
+            => GetScheduledJobs(from, count)
+                .Where(x => JobMatchesMethod(x.Job, func));
 
         private Result<JobDetails> GetJobDetails(JobDataModel jobDataModel)
             => GetJobDetails(jobDataModel.Id.ToString());

@@ -19,9 +19,23 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             _logger = logger;
         }
 
+        public Result DeleteJob(string jobId)
+            => _jobsRepository.GetJobDetails(jobId)
+                .Bind(CheckJobCanBeDeleted)
+                .Bind(() => _jobsRepository.DeleteJob(jobId));
+
+        public Result<JobDetails?> GetCurrentJob()
+            => _jobsRepository.GetCurrentJob();
+
         public Result<JobDetails> GetJobDetails(string jobId)
             => _jobsRepository.GetJobDetails(jobId)
                 .Tap(x => _logger.LogTrace("Successfully retrieved details for job {JobId}", jobId));
+
+        public Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus>? jobStatusEnumerable = null)
+            => _jobsRepository.GetQueuedJobs()
+                .Tap(x => _logger.LogTrace("Found {Count} queued jobs", x.Count))
+                .Map(x => FilterByJobStatus(x, jobStatusEnumerable))
+                .Map(x => x.ToList());
 
         public Result<List<JobDetails>> GetQueuedJobs()
             => GetJobs(new List<JobStatus>
@@ -31,14 +45,20 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
                 JobStatus.Enqueued
             });
 
-        public Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus>? jobStatusEnumerable = null)
-            => _jobsRepository.GetQueuedJobs()
-                .Tap(x => _logger.LogTrace("Found {Count} queued jobs", x.Count))
-                .Map(x => FilterByJobStatus(x, jobStatusEnumerable))
-                .Map(x => x.ToList());
+        public Result RequeueJob(string jobId)
+            => _jobsRepository.GetJobDetails(jobId)
+                .Bind(CheckJobCanBeRequeued)
+                .Bind(() => _jobsRepository.RequeueJob(jobId));
 
-        public Result<JobDetails?> GetCurrentJob()
-            => _jobsRepository.GetCurrentJob();
+        private static Result CheckJobCanBeDeleted(JobDetails jobDetails)
+            => jobDetails.JobStatus == JobStatus.Deleted
+                ? Result.Failure("Cannot delete deleted job.")
+                : Result.Success();
+
+        private static Result CheckJobCanBeRequeued(JobDetails jobDetails)
+            => jobDetails.JobStatus == JobStatus.Enqueued
+                ? Result.Failure("Job is already enqueued")
+                : Result.Success();
 
         private static List<JobDetails> FilterByJobStatus(IEnumerable<JobDetails> jobs, IEnumerable<JobStatus>? jobStatusEnumerable)
             => jobStatusEnumerable is null
