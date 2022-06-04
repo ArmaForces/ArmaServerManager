@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Extensions;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs;
+using ArmaForces.ArmaServerManager.Features.Jobs.Extensions;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using ArmaForces.ArmaServerManager.Features.Status.Models;
 using ArmaForces.ArmaServerManager.Providers.Server;
 using ArmaForces.ArmaServerManager.Services;
@@ -15,12 +15,12 @@ namespace ArmaForces.ArmaServerManager.Features.Status
 {
     internal class StatusProvider : IStatusProvider
     {
-        private readonly IJobService _jobService;
+        private readonly IJobsService _jobsService;
         private readonly IServerProvider _serverProvider;
 
-        public StatusProvider(IJobService jobService, IServerProvider serverProvider)
+        public StatusProvider(IJobsService jobsService, IServerProvider serverProvider)
         {
-            _jobService = jobService;
+            _jobsService = jobsService;
             _serverProvider = serverProvider;
         }
 
@@ -38,7 +38,7 @@ namespace ArmaForces.ArmaServerManager.Features.Status
             {
                 Status = GetCurrentStatus(currentJobDetails),
                 CurrentJob = GetCurrentJobDetails(),
-                QueuedJobs = _jobService.GetQueuedJobs()
+                QueuedJobs = _jobsService.GetQueuedJobs()
                     .Match(x => x, null)
             };
 
@@ -62,14 +62,14 @@ namespace ArmaForces.ArmaServerManager.Features.Status
             {
                 Status = GetCurrentStatus(currentJobDetails),
                 CurrentJob = currentJobDetails,
-                QueuedJobs = _jobService.GetQueuedJobs()
+                QueuedJobs = _jobsService.GetQueuedJobs()
                     .Match(x => x, null),
                 Servers = await GetServersStatus()
             };
 
         private JobDetails? GetCurrentJobDetails()
         {
-            return _jobService.GetCurrentJob()
+            return _jobsService.GetCurrentJob()
                 .Match(
                     onSuccess: x => x,
                     onFailure: null);

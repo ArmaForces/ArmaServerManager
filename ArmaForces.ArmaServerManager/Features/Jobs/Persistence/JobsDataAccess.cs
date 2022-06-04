@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Constants;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Constants;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using Hangfire.LiteDB;
 using LiteDB;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence
+namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
 {
-    internal class HangfireDataAccess : IHangfireDataAccess
+    internal class JobsDataAccess : IJobsDataAccess
     {
         private readonly HangfireDbContext _dbContext;
 
-        public HangfireDataAccess(HangfireDbContext dbContext)
+        public JobsDataAccess(HangfireDbContext dbContext)
         {
             _dbContext = dbContext;
         }

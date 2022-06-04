@@ -2,10 +2,10 @@ using System;
 using System.Text.Json.Serialization;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.ArmaServerManager.Features.Configuration;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Filters;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence;
+using ArmaForces.ArmaServerManager.Features.Jobs;
+using ArmaForces.ArmaServerManager.Features.Jobs.Filters;
+using ArmaForces.ArmaServerManager.Features.Jobs.Helpers;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence;
 using ArmaForces.ArmaServerManager.Features.Missions.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Status;
@@ -22,7 +22,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using HangfireJobStorage = Hangfire.JobStorage;
-using JobStorage = ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.JobStorage;
 
 namespace ArmaForces.ArmaServerManager
 {
@@ -90,11 +89,13 @@ namespace ArmaForces.ArmaServerManager
             .AddSingleton<IStatusProvider, StatusProvider>()
 
             // Hangfire
+            .AddSingleton<IJobsScheduler, JobsScheduler>()
+            .AddSingleton<IJobsService, JobsService>()
             .AddSingleton<IHangfireBackgroundJobClientWrapper, HangfireBackgroundJobClientWrapper>()
-            .AddSingleton<IJobStorage, JobStorage>()
-            .AddSingleton<IJobScheduler, JobScheduler>()
-            .AddSingleton<IJobService, JobService>()
-            .AddSingleton<IHangfireDataAccess, HangfireDataAccess>()
+            .AddSingleton<IJobsRepository, JobsRepository>()
+            .AddSingleton<IJobsDataAccess, JobsDataAccess>()
+            
+            .AddSingleton<IBackgroundJobClient, BackgroundJobClient>()
             .AddSingleton(_ => HangfireJobStorage.Current.GetMonitoringApi())
             .AddSingleton(_ => HangfireJobStorage.Current.GetConnection())
             .AddSingleton(_ => HangfireDbContext.Instance(Configuration.GetConnectionString("HangfireConnection")))

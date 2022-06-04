@@ -1,4 +1,4 @@
-﻿namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Constants
+﻿namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Constants
 {
     internal static class HangfireDatabaseConstants
     {

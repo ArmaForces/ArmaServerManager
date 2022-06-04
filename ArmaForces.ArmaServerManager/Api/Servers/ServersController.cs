@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Api.Servers.DTOs;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Providers.Server;
 using ArmaForces.ArmaServerManager.Services;
@@ -16,14 +16,14 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
     [ApiController]
     public class ServersController : ControllerBase
     {
-        private readonly IJobScheduler _jobScheduler;
+        private readonly IJobsScheduler _jobsScheduler;
         private readonly IServerProvider _serverProvider;
 
         public ServersController(
-            IJobScheduler jobScheduler,
+            IJobsScheduler jobsScheduler,
             IServerProvider serverProvider)
         {
-            _jobScheduler = jobScheduler;
+            _jobsScheduler = jobsScheduler;
             _serverProvider = serverProvider;
         }
 
@@ -54,7 +54,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         [ApiKey]
         public IActionResult StartServer(int port, [FromBody] ServerStartRequestDto serverStartRequestDto)
         {
-            var serverShutdownJob = _jobScheduler
+            var serverShutdownJob = _jobsScheduler
                 .ScheduleJob<ServerStartupService>(
                     x => x.ShutdownServer(
                         port,
@@ -64,7 +64,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
 
             if (serverShutdownJob.IsFailure) return Problem(serverShutdownJob.Error);
 
-            var result = _jobScheduler.ContinueJobWith<ServerStartupService>(
+            var result = _jobsScheduler.ContinueJobWith<ServerStartupService>(
                 serverShutdownJob.Value,
                 x => x.StartServer(serverStartRequestDto.ModsetName, CancellationToken.None));
 
@@ -89,7 +89,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
 
             var modsetName = server.Modset;
 
-            var serverShutdownJob = _jobScheduler
+            var serverShutdownJob = _jobsScheduler
                 .ScheduleJob<ServerStartupService>(
                     x => x.ShutdownServer(
                         port,
@@ -99,7 +99,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
 
             if (serverShutdownJob.IsFailure) return Problem(serverShutdownJob.Error);
 
-            var result = _jobScheduler.ContinueJobWith<ServerStartupService>(
+            var result = _jobsScheduler.ContinueJobWith<ServerStartupService>(
                 serverShutdownJob.Value,
                 x => x.StartServer(modsetName, CancellationToken.None));
 
@@ -119,7 +119,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         [ApiKey]
         public IActionResult ShutdownServer(int port)
         {
-            var serverShutdownJob = _jobScheduler
+            var serverShutdownJob = _jobsScheduler
                 .ScheduleJob<ServerStartupService>(
                     x => x.ShutdownServer(
                         port,

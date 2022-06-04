@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire
+namespace ArmaForces.ArmaServerManager.Features.Jobs
 {
-    public interface IJobService
+    public interface IJobsService
     {
         Result<JobDetails> GetJobDetails(string jobId);
 

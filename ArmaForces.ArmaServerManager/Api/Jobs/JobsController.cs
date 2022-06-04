@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Net.Mime;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Jobs.Mappers;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs;
+using ArmaForces.ArmaServerManager.Features.Jobs.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Services;
 using CSharpFunctionalExtensions;
@@ -23,15 +23,15 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
     [ApiKey]
     public class JobsController : ControllerBase
     {
-        private readonly IJobService _jobService;
-        private readonly IJobScheduler _jobScheduler;
+        private readonly IJobsService _jobsService;
+        private readonly IJobsScheduler _jobsScheduler;
 
         public JobsController(
-            IJobService jobService,
-            IJobScheduler jobScheduler)
+            IJobsService jobsService,
+            IJobsScheduler jobsScheduler)
         {
-            _jobService = jobService;
-            _jobScheduler = jobScheduler;
+            _jobsService = jobsService;
+            _jobsScheduler = jobsScheduler;
         }
         
         /// <summary>Get Queued Jobs</summary>
@@ -39,7 +39,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         [HttpGet("queued", Name = nameof(GetQueuedJobs))]
         [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status200OK)]
         public IActionResult GetQueuedJobs()
-            => _jobService.GetQueuedJobs()
+            => _jobsService.GetQueuedJobs()
                 .Map(JobsMapper.Map)
                 .Match(
                     onSuccess: Ok,
@@ -51,7 +51,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         [HttpGet(Name = nameof(GetJobs))]
         [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status200OK)]
         public IActionResult GetJobs([FromQuery] IEnumerable<JobStatus>? jobStatus = null)
-            => _jobService.GetJobs(jobStatus)
+            => _jobsService.GetJobs(jobStatus)
                 .Map(JobsMapper.Map)
                 .Match(
                     onSuccess: Ok,
@@ -66,7 +66,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
         public IActionResult GetJob(string jobId)
         {
-            return _jobService.GetJobDetails(jobId)
+            return _jobsService.GetJobDetails(jobId)
                 .Map<JobDetails, JobDetailsDto>(JobsMapper.Map)
                 .Match(
                     onSuccess: Ok,

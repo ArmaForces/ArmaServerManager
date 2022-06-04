@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Providers.Server;
 using Hangfire;
 using Microsoft.Extensions.Hosting;
@@ -10,12 +10,12 @@ namespace ArmaForces.ArmaServerManager.Services
 {
     public class StartupService : IHostedService
     {
-        private readonly IJobScheduler _jobScheduler;
+        private readonly IJobsScheduler _jobsScheduler;
         private readonly IServerProvider _serverProvider;
 
-        public StartupService(IJobScheduler jobScheduler, IServerProvider serverProvider)
+        public StartupService(IJobsScheduler jobsScheduler, IServerProvider serverProvider)
         {
-            _jobScheduler = jobScheduler;
+            _jobsScheduler = jobsScheduler;
             _serverProvider = serverProvider;
         }
 

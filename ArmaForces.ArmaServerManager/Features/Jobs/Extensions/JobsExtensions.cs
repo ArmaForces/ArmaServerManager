@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Extensions
+namespace ArmaForces.ArmaServerManager.Features.Jobs.Extensions
 {
 
     internal static class JobsExtensions

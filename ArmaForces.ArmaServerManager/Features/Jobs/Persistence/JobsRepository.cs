@@ -3,28 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Helpers;
+using ArmaForces.ArmaServerManager.Features.Jobs.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using CSharpFunctionalExtensions;
 using Hangfire.Common;
 using Hangfire.Storage;
 using Hangfire.Storage.Monitoring;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence
+namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
 {
-    internal class JobStorage : IJobStorage
+    internal class JobsRepository : IJobsRepository
     {
-        private readonly IHangfireDataAccess _hangfireDataAccess;
+        private readonly IJobsDataAccess _jobsDataAccess;
         private readonly IMonitoringApi _monitoringApi;
         private readonly IStorageConnection _storageConnection;
 
-        public JobStorage(
-            IHangfireDataAccess hangfireDataAccess,
+        public JobsRepository(
+            IJobsDataAccess jobsDataAccess,
             IMonitoringApi monitoringApi,
             IStorageConnection storageConnection)
         {
-            _hangfireDataAccess = hangfireDataAccess;
+            _jobsDataAccess = jobsDataAccess;
             _monitoringApi = monitoringApi;
             _storageConnection = storageConnection;
         }
@@ -49,7 +49,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence
 
         public Result<List<JobDetails>> GetQueuedJobs()
         {
-            return _hangfireDataAccess.GetJobs(new List<JobStatus>
+            return _jobsDataAccess.GetJobs(new List<JobStatus>
                 {
                     JobStatus.Awaiting,
                     JobStatus.Enqueued,

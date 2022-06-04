@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence;
+using ArmaForces.ArmaServerManager.Features.Jobs;
+using ArmaForces.ArmaServerManager.Features.Jobs.Helpers;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence;
 using ArmaForces.ArmaServerManager.Tests.Helpers.Dummy;
 using FluentAssertions.Execution;
 using Hangfire.Common;
@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
-namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
+namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs
 {
     [Trait("Category", "Unit")]
     public class JobSchedulerTests
@@ -28,13 +28,13 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
         private readonly Mock<IHangfireBackgroundJobClientWrapper> _backgroundJobClientMock =
             new Mock<IHangfireBackgroundJobClientWrapper>();
 
-        private readonly Mock<IJobStorage> _hangfireJobStorageMock = new Mock<IJobStorage>();
+        private readonly Mock<IJobsRepository> _hangfireJobStorageMock = new Mock<IJobsRepository>();
 
-        private readonly IJobScheduler _jobScheduler;
+        private readonly IJobsScheduler _jobsScheduler;
 
         public JobSchedulerTests()
         {
-            _jobScheduler = new JobScheduler(_backgroundJobClientMock.Object, _hangfireJobStorageMock.Object, new NullLogger<JobScheduler>());
+            _jobsScheduler = new JobsScheduler(_backgroundJobClientMock.Object, _hangfireJobStorageMock.Object, new NullLogger<JobsScheduler>());
 
             PrepareJobStorageMock();
         }
@@ -46,7 +46,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
                 PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassSecondMethodName, DateTime.Now);
             AddScheduledJobs<DummyClass>(otherScheduledJob.AsList());
 
-            var result = _jobScheduler.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
+            var result = _jobsScheduler.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
 
             using (new AssertionScope())
             {
@@ -67,7 +67,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
                     DateTime.Now.AddMinutes(1));
             AddScheduledJobs<DummyClass>(otherScheduledJob.AsList());
 
-            var result = _jobScheduler.ScheduleJob<DummyClass>(
+            var result = _jobsScheduler.ScheduleJob<DummyClass>(
                 x => x.DoNothing(CancellationToken.None),
                 dateTime);
 
@@ -86,7 +86,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
                 PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
             AddScheduledJobs<DummyClass>(scheduledJob.AsList());
 
-            var result = _jobScheduler.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
+            var result = _jobsScheduler.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
 
             using (new AssertionScope())
             {
@@ -105,7 +105,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
                 PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
             AddScheduledJobs<DummyClass>(scheduledJob.AsList());
 
-            var result = _jobScheduler.ScheduleJob<DummyClass>(
+            var result = _jobsScheduler.ScheduleJob<DummyClass>(
                 x => x.DoNothing(CancellationToken.None),
                 dateTime);
 
@@ -125,7 +125,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
             var scheduledJob = PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
             AddScheduledJobs<DummyClass>(scheduledJob.AsList());
 
-            var result = _jobScheduler.ScheduleJob<DummyClass>(
+            var result = _jobsScheduler.ScheduleJob<DummyClass>(
                 x => x.DoNothing(CancellationToken.None),
                 dateTime);
 
@@ -144,7 +144,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
                 PrepareQueuedOrScheduledJob<EnqueuedJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
             AddQueuedJobs<DummyClass>(queuedJob.AsList());
 
-            var result = _jobScheduler.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
+            var result = _jobsScheduler.ScheduleJob<DummyClass>(x => x.DoNothing(CancellationToken.None));
 
             using (new AssertionScope())
             {
@@ -162,7 +162,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
             var queuedJob = PrepareQueuedOrScheduledJob<EnqueuedJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
             AddQueuedJobs<DummyClass>(queuedJob.AsList());
 
-            var result = _jobScheduler.ScheduleJob<DummyClass>(
+            var result = _jobsScheduler.ScheduleJob<DummyClass>(
                 x => x.DoNothing(CancellationToken.None),
                 dateTime);
 

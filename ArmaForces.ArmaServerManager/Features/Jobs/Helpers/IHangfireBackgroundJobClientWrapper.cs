@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
+namespace ArmaForces.ArmaServerManager.Features.Jobs.Helpers
 {
     internal interface IHangfireBackgroundJobClientWrapper
     {

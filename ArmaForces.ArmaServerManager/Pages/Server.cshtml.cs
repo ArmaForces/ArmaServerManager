@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using ArmaForces.ArmaServerManager.Features.Modsets;
@@ -18,7 +18,7 @@ namespace ArmaForces.ArmaServerManager.Pages
     {
         private readonly IApiModsetClient _apiModsetClient;
         private readonly IApiMissionsClient _apiMissionsClient;
-        private readonly IJobScheduler _jobScheduler;
+        private readonly IJobsScheduler _jobsScheduler;
         private readonly ILogger<ServerModel> _logger;
         
         public SelectList? ModsetOptions { get; set; }
@@ -34,12 +34,12 @@ namespace ArmaForces.ArmaServerManager.Pages
         public ServerModel(
             IApiModsetClient apiModsetClient,
             IApiMissionsClient apiMissionsClient,
-            IJobScheduler jobScheduler,
+            IJobsScheduler jobsScheduler,
             ILogger<ServerModel> logger)
         {
             _apiModsetClient = apiModsetClient;
             _apiMissionsClient = apiMissionsClient;
-            _jobScheduler = jobScheduler;
+            _jobsScheduler = jobsScheduler;
             _logger = logger;
         }
 
@@ -53,7 +53,7 @@ namespace ArmaForces.ArmaServerManager.Pages
         {
             if (ModsetName != null)
             {
-                _jobScheduler.ScheduleJob<ServerStartupService>(
+                _jobsScheduler.ScheduleJob<ServerStartupService>(
                     x => x.StartServer(ModsetName, CancellationToken.None));
             }
             else
@@ -63,7 +63,7 @@ namespace ArmaForces.ArmaServerManager.Pages
                     throw new Exception("Mission with no name selected.");
                 }
 
-                _jobScheduler.ScheduleJob<ServerStartupService>(
+                _jobsScheduler.ScheduleJob<ServerStartupService>(
                     x => x.StartServerForMission(MissionTitle, CancellationToken.None));
             }
 

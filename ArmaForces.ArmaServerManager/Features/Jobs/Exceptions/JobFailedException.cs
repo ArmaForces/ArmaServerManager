@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Exceptions
+namespace ArmaForces.ArmaServerManager.Features.Jobs.Exceptions
 {
     /// <summary>
     /// Used for failing hangfire jobs.

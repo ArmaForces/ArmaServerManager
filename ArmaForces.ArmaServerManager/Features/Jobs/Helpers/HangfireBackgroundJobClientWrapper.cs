@@ -4,11 +4,16 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using Hangfire;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
+namespace ArmaForces.ArmaServerManager.Features.Jobs.Helpers
 {
     internal class HangfireBackgroundJobClientWrapper : IHangfireBackgroundJobClientWrapper
     {
-        private readonly IBackgroundJobClient _backgroundJobClient = new BackgroundJobClient();
+        private readonly IBackgroundJobClient _backgroundJobClient;
+        
+        public HangfireBackgroundJobClientWrapper(IBackgroundJobClient backgroundJobClient)
+        {
+            _backgroundJobClient = backgroundJobClient;
+        }
 
         public Result<string> Schedule<T>(Expression<Func<T, Task>> methodCall, DateTimeOffset dateTimeOffset)
             => _backgroundJobClient.Schedule(methodCall, dateTimeOffset);

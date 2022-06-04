@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Jobs;
 using CSharpFunctionalExtensions;
 using Hangfire;
 
@@ -8,16 +8,16 @@ namespace ArmaForces.ArmaServerManager.Services
 {
     public class MaintenanceService
     {
-        private readonly IJobScheduler _jobScheduler;
+        private readonly IJobsScheduler _jobsScheduler;
 
-        public MaintenanceService(IJobScheduler jobScheduler)
+        public MaintenanceService(IJobsScheduler jobsScheduler)
         {
-            _jobScheduler = jobScheduler;
+            _jobsScheduler = jobsScheduler;
         }
 
         public async Task<Result> PerformMaintenance(CancellationToken cancellationToken)
         {
-            var serverShutdownJob = _jobScheduler.ScheduleJob<ServerStartupService>(x => x.ShutdownServer(2302, false, CancellationToken.None));
+            var serverShutdownJob = _jobsScheduler.ScheduleJob<ServerStartupService>(x => x.ShutdownServer(2302, false, CancellationToken.None));
 
             var missionsPreparationJob = BackgroundJob.ContinueJobWith<IMissionPreparationService>(
                 serverShutdownJob.Value,

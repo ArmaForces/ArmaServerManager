@@ -1,7 +1,7 @@
 ﻿using System;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
+namespace ArmaForces.ArmaServerManager.Features.Jobs.Helpers
 {
     public static class JobStatusParser
     {
@@ -16,7 +16,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
                 "Failed" => JobStatus.Failed,
                 "Processing" => JobStatus.Processing,
                 "Succeeded" => JobStatus.Succeeded,
-                _ => throw new ArgumentOutOfRangeException(nameof(JobStatus))
+                _ => throw new ArgumentOutOfRangeException(nameof(jobStatusString))
             };
         }
     }

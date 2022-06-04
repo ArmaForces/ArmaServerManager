@@ -1,9 +1,9 @@
-﻿using ArmaForces.ArmaServerManager.Features.Hangfire.Exceptions;
+﻿using ArmaForces.ArmaServerManager.Features.Jobs.Exceptions;
 using CSharpFunctionalExtensions;
 using Hangfire.Common;
 using Hangfire.States;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire.Filters
+namespace ArmaForces.ArmaServerManager.Features.Jobs.Filters
 {
     /// <summary>
     /// Moves job to failed state when failure <see cref="Result{T}"/> is returned.

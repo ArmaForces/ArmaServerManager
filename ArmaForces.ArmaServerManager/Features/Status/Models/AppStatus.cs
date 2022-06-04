@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 
 namespace ArmaForces.ArmaServerManager.Features.Status.Models
 {

@@ -3,12 +3,12 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.ArmaServerManager.Features.Hangfire
+namespace ArmaForces.ArmaServerManager.Features.Jobs
 {
     /// <summary>
     /// Allows advanced jobs scheduling.
     /// </summary>
-    public interface IJobScheduler
+    public interface IJobsScheduler
     {
         /// <summary>
         /// Schedule job expressed as <paramref name="func"/> for execution at <paramref name="dateTime"/>.

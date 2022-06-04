@@ -2,7 +2,7 @@
 using System.Threading;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Mods.DTOs;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Providers;
 using ArmaForces.ArmaServerManager.Services;
@@ -16,14 +16,14 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
     [ApiKey]
     public class ModsController : ControllerBase
     {
-        private readonly IJobScheduler _jobScheduler;
+        private readonly IJobsScheduler _jobsScheduler;
         private readonly IModsetProvider _modsetProvider;
 
         public ModsController(
-            IJobScheduler jobScheduler,
+            IJobsScheduler jobsScheduler,
             IModsetProvider modsetProvider)
         {
-            _jobScheduler = jobScheduler;
+            _jobsScheduler = jobsScheduler;
             _modsetProvider = modsetProvider;
         }
 
@@ -31,7 +31,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         [Route("update")]
         public IActionResult UpdateMods([FromBody] ModsUpdateRequestDto modsUpdateRequestDto)
         {
-            var serverShutdownJob = _jobScheduler
+            var serverShutdownJob = _jobsScheduler
                 .ScheduleJob<ServerStartupService>(
                     // TODO: Shutdown all servers
                     x => x.ShutdownServer(2302, false, CancellationToken.None),
@@ -40,10 +40,10 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
             if (serverShutdownJob.IsFailure) return Problem(serverShutdownJob.Error);
 
             var result = modsUpdateRequestDto.ModsetName is null
-                ? _jobScheduler.ContinueJobWith<ModsUpdateService>(
+                ? _jobsScheduler.ContinueJobWith<ModsUpdateService>(
                     serverShutdownJob.Value,
                     x => x.UpdateAllMods(CancellationToken.None))
-                : _jobScheduler.ContinueJobWith<ModsUpdateService>(
+                : _jobsScheduler.ContinueJobWith<ModsUpdateService>(
                     serverShutdownJob.Value,
                     x => x.UpdateModset(modsUpdateRequestDto.ModsetName, CancellationToken.None));
 
