@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Constants;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
 using Hangfire.LiteDB;
+using LiteDB;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence
 {
@@ -13,15 +16,14 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence
             _dbContext = dbContext;
         }
 
-        public List<JobDataModel> GetQueuedJobs()
+        public List<JobDataModel> GetJobs(IEnumerable<JobStatus> includeStatuses)
         {
-            var jobs = _dbContext.Database.GetCollection<JobDataModel>("hangfire_job")
+            return JobsTable
                 .Query()
-                .Where(x => x.JobStatus == JobStatus.Awaiting || x.JobStatus == JobStatus.Enqueued ||
-                            x.JobStatus == JobStatus.Scheduled)
+                .Where(x => includeStatuses.Contains(x.JobStatus))
                 .ToList();
-
-            return jobs;
         }
+
+        private ILiteCollection<JobDataModel> JobsTable => _dbContext.Database.GetCollection<JobDataModel>(HangfireDatabaseConstants.JobsTable);
     }
 }

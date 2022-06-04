@@ -1,8 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using ArmaForces.Arma.Server.Config;
-using ArmaForces.ArmaServerManager.Features.Modsets;
-using ArmaForces.ArmaServerManager.Features.Modsets.DependencyInjection;
+﻿using ArmaForces.ArmaServerManager.Features.Modsets.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Steam;
 using ArmaForces.ArmaServerManager.Features.Steam.Content;
 using ArmaForces.ArmaServerManager.Providers;

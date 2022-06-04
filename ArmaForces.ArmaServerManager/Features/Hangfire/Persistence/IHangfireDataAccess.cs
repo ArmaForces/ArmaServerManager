@@ -5,6 +5,6 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Persistence
 {
     internal interface IHangfireDataAccess
     {
-        public List<JobDataModel> GetQueuedJobs();
+        public List<JobDataModel> GetJobs(IEnumerable<JobStatus> includeStatuses);
     }
 }

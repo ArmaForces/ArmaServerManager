@@ -13,7 +13,7 @@ using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Status
 {
-    public class StatusProvider
+    internal class StatusProvider : IStatusProvider
     {
         private readonly IJobService _jobService;
         private readonly IServerProvider _serverProvider;
@@ -26,18 +26,18 @@ namespace ArmaForces.ArmaServerManager.Features.Status
 
         public async Task<Result<AppStatus>> GetAppStatus(bool includeJobs, bool includeServers) =>
             includeJobs && includeServers
-                ? await CreateFullAppStatus(await GetCurrentJobDetails())
+                ? await CreateFullAppStatus(GetCurrentJobDetails())
                 : !includeJobs && !includeServers
-                    ? CreateSimpleAppStatus(await GetCurrentJobDetails())
+                    ? CreateSimpleAppStatus(GetCurrentJobDetails())
                     : includeJobs
-                        ? await CreateJobsStatus(await GetCurrentJobDetails())
-                        : await CreateServersStatus(await GetCurrentJobDetails());
+                        ? CreateJobsStatus(GetCurrentJobDetails())
+                        : await CreateServersStatus(GetCurrentJobDetails());
 
-        private async Task<AppStatus> CreateJobsStatus(JobDetails? currentJobDetails)
+        private AppStatus CreateJobsStatus(JobDetails? currentJobDetails)
             => new AppStatus
             {
                 Status = GetCurrentStatus(currentJobDetails),
-                CurrentJob = await GetCurrentJobDetails(),
+                CurrentJob = GetCurrentJobDetails(),
                 QueuedJobs = _jobService.GetQueuedJobs()
                     .Match(x => x, null)
             };
@@ -67,6 +67,20 @@ namespace ArmaForces.ArmaServerManager.Features.Status
                 Servers = await GetServersStatus()
             };
 
+        private JobDetails? GetCurrentJobDetails()
+        {
+            return _jobService.GetCurrentJob()
+                .Match(
+                    onSuccess: x => x,
+                    onFailure: null);
+        }
+
+        private async Task<List<ServerStatus>> GetServersStatus()
+            => (await Task.WhenAll(
+                    _serverProvider.GetServers()
+                        .Select(x => x.GetServerStatusAsync(CancellationToken.None))))
+                .ToList();
+
         private static string GetCurrentStatus(JobDetails? currentJobDetails)
         {
             if (currentJobDetails is null) return "Idle";
@@ -83,19 +97,5 @@ namespace ArmaForces.ArmaServerManager.Features.Status
                 _ => $"Operation {currentJobDetails.Name} in progress"
             };
         }
-
-        private async Task<JobDetails?> GetCurrentJobDetails()
-        {
-            return _jobService.GetCurrentJob()
-                .Match(
-                    onSuccess: x => x,
-                    onFailure: null);
-        }
-
-        private async Task<List<ServerStatus>> GetServersStatus()
-            => (await Task.WhenAll(
-                    _serverProvider.GetServers()
-                        .Select(x => x.GetServerStatusAsync(CancellationToken.None))))
-                .ToList();
     }
 }

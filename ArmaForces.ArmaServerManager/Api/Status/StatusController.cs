@@ -1,63 +1,45 @@
-﻿using System;
-using System.Linq;
+﻿using System.Net.Mime;
 using System.Threading.Tasks;
-using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Status.DTOs;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Api.Status.Mappers;
 using ArmaForces.ArmaServerManager.Features.Status;
-using ArmaForces.ArmaServerManager.Features.Status.Models;
-using ArmaForces.ArmaServerManager.Providers.Server;
-using ArmaForces.ArmaServerManager.Services;
 using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArmaForces.ArmaServerManager.Api.Status
 {
-   
+    /// <summary>
+    /// Allows manager service status retrieval.
+    /// </summary>
     [Route("api/status")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ApiController]
     public class StatusController : ControllerBase
     {
-        private readonly StatusProvider _statusProvider;
+        private readonly IStatusProvider _statusProvider;
 
-        public StatusController(
-            IJobService jobService,
-            IServerProvider serverProvider)
+        public StatusController(IStatusProvider statusProvider)
         {
-            _statusProvider = new StatusProvider(jobService, serverProvider);
+            _statusProvider = statusProvider;
         }
         
-        [HttpGet]
+        /// <summary>Get Status</summary>
+        /// <remarks>
+        /// Returns current application status and currently processing job.
+        /// Optionally, can also include jobs queue and server status.
+        /// </remarks>
+        /// <param name="includeJobs">Include jobs queue</param>
+        /// <param name="includeServers">Include servers status</param>
+        [HttpGet(Name = nameof(GetStatus))]
+        [ProducesResponseType(typeof(AppStatusDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetStatus(
             [FromQuery] bool includeJobs = false,
             [FromQuery] bool includeServers = false)
             => await _statusProvider.GetAppStatus(includeJobs, includeServers)
-                .Map(Map)
+                .Map(StatusMapper.Map)
                 .Match(
                     onSuccess: Ok,
                     onFailure: error => (IActionResult) NotFound(error));
-
-        private static AppStatusDto Map(AppStatus appStatus)
-            => new AppStatusDto
-            {
-                Status = appStatus.Status,
-                CurrentJob = appStatus.CurrentJob is null
-                    ? null
-                    : new JobDetailsDto
-                    {
-                        Name = appStatus.CurrentJob.Name,
-                        JobStatus = appStatus.CurrentJob.JobStatus,
-                        CreatedAt = appStatus.CurrentJob.CreatedAt,
-                        Parameters = appStatus.CurrentJob.Parameters
-                    },
-                QueuedJobs = appStatus.QueuedJobs.Select(x => new JobDetailsDto
-                {
-                    Name = x.Name,
-                    JobStatus = x.JobStatus,
-                    CreatedAt = x.CreatedAt,
-                    Parameters = x.Parameters
-                }).ToList(),
-                Servers = appStatus.Servers
-            };
     }
 }

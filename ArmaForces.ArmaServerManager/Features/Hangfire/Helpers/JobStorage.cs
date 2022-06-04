@@ -48,7 +48,12 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
 
         public Result<List<JobDetails>> GetQueuedJobs()
         {
-            return _hangfireDataAccess.GetQueuedJobs()
+            return _hangfireDataAccess.GetJobs(new List<JobStatus>
+                {
+                    JobStatus.Awaiting,
+                    JobStatus.Enqueued,
+                    JobStatus.Scheduled
+                })
                 .Select(GetJobDetails)
                 .Combine()
                 .Map(x => x.ToList());
@@ -56,6 +61,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
 
         public Result<JobDetails?> GetCurrentJob()
         {
+            // TODO: Handle manager process restart (it can cause job to be stuck in processing state for a while)
             var currentJobId = _monitoringApi.ProcessingJobs(0, 1)
                 .Select(x => x.Key)
                 .SingleOrDefault();
