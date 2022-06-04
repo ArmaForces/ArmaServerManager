@@ -88,7 +88,7 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
                 onFailure: error => (IActionResult) BadRequest(error));
         }
         
-        /// <summary>Put Server CBA Settings</summary>
+        /// <summary>Get Server CBA Settings</summary>
         /// <remarks>Proposed. Not implemented.</remarks>
         [HttpGet("server/cbaSettings", Name = nameof(GetServerCbaSettings))]
         [ProducesResponseType(StatusCodes.Status501NotImplemented)]
