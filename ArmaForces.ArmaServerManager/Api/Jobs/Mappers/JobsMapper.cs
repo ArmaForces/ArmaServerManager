@@ -5,7 +5,7 @@ using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 
 namespace ArmaForces.ArmaServerManager.Api.Jobs.Mappers
 {
-    public static class JobsMapper
+    internal static class JobsMapper
     {
         public static JobDetailsDto Map(JobDetails jobDetails)
         {

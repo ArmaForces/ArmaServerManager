@@ -19,6 +19,7 @@ namespace ArmaForces.ArmaServerManager.Api.Status
     {
         private readonly IStatusProvider _statusProvider;
 
+        /// <inheritdoc />
         public StatusController(IStatusProvider statusProvider)
         {
             _statusProvider = statusProvider;
@@ -29,10 +30,11 @@ namespace ArmaForces.ArmaServerManager.Api.Status
         /// Returns current application status and currently processing job.
         /// Optionally, can also include jobs queue and server status.
         /// </remarks>
-        /// <param name="includeJobs">Include jobs queue</param>
-        /// <param name="includeServers">Include servers status</param>
+        /// <param name="includeJobs">Includes jobs queue details when true.</param>
+        /// <param name="includeServers">Includes servers status when true.</param>
         [HttpGet(Name = nameof(GetStatus))]
         [ProducesResponseType(typeof(AppStatusDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppStatusDto), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetStatus(
             [FromQuery] bool includeJobs = false,
             [FromQuery] bool includeServers = false)
@@ -40,6 +42,6 @@ namespace ArmaForces.ArmaServerManager.Api.Status
                 .Map(StatusMapper.Map)
                 .Match(
                     onSuccess: Ok,
-                    onFailure: error => (IActionResult) NotFound(error));
+                    onFailure: error => (IActionResult) Problem(error));
     }
 }

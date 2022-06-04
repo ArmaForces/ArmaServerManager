@@ -25,6 +25,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         private readonly IJobsScheduler _jobsScheduler;
         private readonly IModsetProvider _modsetProvider;
 
+        /// <inheritdoc />
         public ModsController(
             IJobsScheduler jobsScheduler,
             IModsetProvider modsetProvider)
@@ -38,6 +39,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         [HttpPost("update", Name = nameof(UpdateMods))]
         [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public IActionResult UpdateMods([FromBody] ModsUpdateRequestDto modsUpdateRequestDto)
         {
             var serverShutdownJob = _jobsScheduler
@@ -64,8 +66,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         /// <summary>Verify Mods</summary>
         /// <remarks>Triggers or schedules verification of given mods. Not implemented.</remarks>
         [HttpPost("verify")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         public IActionResult VerifyMods([FromBody] ModsVerificationRequestDto modsVerificationRequestDto)
         {
             throw new NotImplementedException("Mods verification is not implemented yet.");
@@ -78,6 +79,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         [HttpPost("{modsetName}/update", Name = nameof(UpdateModset))]
         [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public IActionResult UpdateModset(string modsetName, [FromBody] JobScheduleRequestDto jobScheduleRequestDto)
         {
             return UpdateMods(
@@ -93,6 +95,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         /// <param name="modsetName">Name of modset to verify.</param>
         /// <param name="jobScheduleRequestDto">Optional job schedule details.</param>
         [HttpPost("{modsetName}/verify", Name = nameof(VerifyModset))]
+        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         public IActionResult VerifyModset(string modsetName, [FromBody] JobScheduleRequestDto jobScheduleRequestDto)
         {
             throw new NotImplementedException("Modset verification is not implemented yet.");

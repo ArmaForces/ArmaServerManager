@@ -25,6 +25,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         private readonly IJobsScheduler _jobsScheduler;
         private readonly IServerProvider _serverProvider;
 
+        /// <inheritdoc />
         public ServersController(
             IJobsScheduler jobsScheduler,
             IServerProvider serverProvider)
@@ -48,15 +49,16 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                 ? new ServerStatus()
                 : await server.GetServerStatusAsync(cancellationTokenSource.Token);
 
-            return Ok(serverStatus);
+            return Ok(ServerStatusMapper.Map(serverStatus));
         }
 
         /// <summary>StartServer</summary>
         /// <remarks>Starts server according to <paramref name="startRequestDto"/>.</remarks>
         [Obsolete("Use {port}/start route.")]
-        [HttpPost("Start", Name = nameof(StartServer))]
+        [HttpPost("Start", Name = "StartServerObsolete")]
         [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
         public IActionResult StartServer([FromBody] ServerStartRequestDto startRequestDto)
             => StartServer(startRequestDto.Port, startRequestDto);
@@ -66,6 +68,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         [HttpPost("{port}/start", Name = nameof(StartServer))]
         [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
         public IActionResult StartServer(int port, [FromBody] ServerStartRequestDto serverStartRequestDto)
         {
@@ -92,6 +95,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <remarks>Starts headless client for server on given <paramref name="port"/>. Not implemented.</remarks>
         /// <param name="port">Port of the server to start headless client for.</param>
         [HttpPost("{port:int}/headless/start", Name = nameof(StartHeadlessClient))]
+        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         [ApiKey]
         public IActionResult StartHeadlessClient(int port) => throw new NotImplementedException("Starting headless client is not supported yet.");
 
@@ -100,6 +104,9 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <param name="port">Port of the server to restart.</param>
         /// <param name="serverRestartRequestDto">Additional details.</param>
         [HttpPost("{port:int}/restart", Name = nameof(RestartServer))]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
         public IActionResult RestartServer(int port, ServerRestartRequestDto serverRestartRequestDto)
         {
@@ -132,6 +139,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <remarks>Shutdowns all headless clients for server on given <paramref name="port"/>. Not implemented.</remarks>
         /// <param name="port">Port of the server to shutdown headless client for.</param>
         [HttpPost("{port:int}/headless/shutdown", Name = nameof(ShutdownHeadlessClients))]
+        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         [ApiKey]
         public IActionResult ShutdownHeadlessClients(int port)
             => throw new NotImplementedException("Shutting down headless clients is not supported yet.");
@@ -140,6 +148,8 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <remarks>Shutdowns server on given <paramref name="port"/>.</remarks>
         /// <param name="port">Port of the server to shutdown.</param>
         [HttpPost("{port:int}/shutdown", Name = nameof(ShutdownServer))]
+        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
         public IActionResult ShutdownServer(int port)
         {

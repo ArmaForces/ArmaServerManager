@@ -5,9 +5,15 @@ using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Api.Mods.DTOs
 {
+    /// <summary>
+    /// Request for mods verification.
+    /// </summary>
     public class ModsVerificationRequestDto : JobScheduleRequestDto
     {
+        /// <summary>
+        /// Ids of mods to verify.
+        /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<IMod>? Mods { get; set; }
+        public List<long>? Mods { get; set; }
     }
 }

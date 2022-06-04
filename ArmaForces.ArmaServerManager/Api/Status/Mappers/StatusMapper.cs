@@ -1,11 +1,12 @@
 ﻿using System.Linq;
 using ArmaForces.ArmaServerManager.Api.Jobs.Mappers;
+using ArmaForces.ArmaServerManager.Api.Servers;
 using ArmaForces.ArmaServerManager.Api.Status.DTOs;
 using ArmaForces.ArmaServerManager.Features.Status.Models;
 
 namespace ArmaForces.ArmaServerManager.Api.Status.Mappers
 {
-    public static class StatusMapper
+    internal static class StatusMapper
     {
         public static AppStatusDto Map(AppStatus appStatus)
             => new AppStatusDto
@@ -17,7 +18,9 @@ namespace ArmaForces.ArmaServerManager.Api.Status.Mappers
                 QueuedJobs = appStatus.QueuedJobs
                     .Select(JobsMapper.Map)
                     .ToList(),
-                Servers = appStatus.Servers
+                Servers = appStatus.Servers?
+                    .Select(ServerStatusMapper.Map)
+                    .ToList()
             };
     }
 }

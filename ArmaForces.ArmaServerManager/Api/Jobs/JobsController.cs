@@ -26,6 +26,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         private readonly IJobsService _jobsService;
         private readonly IJobsScheduler _jobsScheduler;
 
+        /// <inheritdoc />
         public JobsController(
             IJobsService jobsService,
             IJobsScheduler jobsScheduler)
@@ -38,6 +39,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         /// <remarks>Returns enqueued, scheduled and awaiting jobs.</remarks>
         [HttpGet("queued", Name = nameof(GetQueuedJobs))]
         [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status500InternalServerError)]
         public IActionResult GetQueuedJobs()
             => _jobsService.GetQueuedJobs()
                 .Map(JobsMapper.Map)
@@ -50,12 +52,13 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         /// <param name="jobStatus">Allowed job statuses.</param>
         [HttpGet(Name = nameof(GetJobs))]
         [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status500InternalServerError)]
         public IActionResult GetJobs([FromQuery] IEnumerable<JobStatus>? jobStatus = null)
             => _jobsService.GetJobs(jobStatus)
                 .Map(JobsMapper.Map)
                 .Match(
                     onSuccess: Ok,
-                    onFailure: error => (IActionResult) NotFound(error));
+                    onFailure: error => (IActionResult) Problem(error));
 
         /// <summary>Get Job</summary>
         /// <remarks>Retrieves job by id.</remarks>

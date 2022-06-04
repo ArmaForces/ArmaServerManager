@@ -9,6 +9,7 @@ using ArmaForces.ArmaServerManager.Features.Jobs.Persistence;
 using ArmaForces.ArmaServerManager.Features.Missions.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Status;
+using ArmaForces.ArmaServerManager.Infrastructure;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Infrastructure.Converters;
 using ArmaForces.ArmaServerManager.Providers.Server;
@@ -20,6 +21,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using HangfireJobStorage = Hangfire.JobStorage;
 
@@ -31,6 +33,18 @@ namespace ArmaForces.ArmaServerManager
         {
             Configuration = configuration;
         }
+        
+        private OpenApiInfo OpenApiConfiguration { get; } = new OpenApiInfo()
+        {
+            Title = "ArmaForces ArmaServerManager API",
+            Description = "API for Arma 3 server management.",
+            Version = "v3",
+            Contact = new OpenApiContact
+            {
+                Name = "ArmaForces",
+                Url = new Uri("https://armaforces.com")
+            }
+        };
 
         private IConfiguration Configuration { get; }
 
@@ -74,6 +88,9 @@ namespace ArmaForces.ArmaServerManager
 
             // Arma Server
             .AddArmaServer()
+            
+            // Documentation
+            .AddDocumentation(OpenApiConfiguration)
             
             // Mods
             .AddMods()
@@ -122,6 +139,7 @@ namespace ArmaForces.ArmaServerManager
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.AddDocumentation(OpenApiConfiguration);
 
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {

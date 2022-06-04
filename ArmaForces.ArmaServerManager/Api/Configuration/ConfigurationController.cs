@@ -22,6 +22,7 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
 
         private readonly IServerConfigurationLogic _serverConfigurationLogic;
 
+        /// <inheritdoc />
         public ConfigurationController(IServerConfigurationLogic serverConfigurationLogic)
         {
             _serverConfigurationLogic = serverConfigurationLogic;
@@ -31,6 +32,8 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         /// <remarks>Retrieves server configuration for given <paramref name="modsetName"/>.</remarks>
         /// <param name="modsetName">Name of modset to retrieve configuration for.</param>
         [HttpGet("modset/{modsetName}", Name = nameof(GetModsetConfiguration))]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public IActionResult GetModsetConfiguration(string modsetName)
         {
             var result = _serverConfigurationLogic.DownloadConfigurationFile(modsetName);
@@ -45,6 +48,8 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         /// <param name="modsetName">Name of modset to set configuration for.</param>
         /// <param name="file">New configuration file.</param>
         [HttpPut("modset/{modsetName}", Name = nameof(PutModsetConfiguration))]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutModsetConfiguration(string modsetName, [FromForm] IFormFile file)
         {
             var result = await _serverConfigurationLogic.UploadConfigurationFile(modsetName, file);
@@ -57,6 +62,8 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         /// <summary>Get Server Configuration</summary>
         /// <remarks>Retrieves global server configuration.</remarks>
         [HttpGet("server", Name = nameof(GetServerConfiguration))]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public IActionResult GetServerConfiguration()
         {
             var result = _serverConfigurationLogic.DownloadConfigurationFile(_serverConfigurationName);
@@ -70,6 +77,8 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         /// <remarks>Sets global server configuration.</remarks>
         /// <param name="file">New global configuration file.</param>
         [HttpPut("server", Name = nameof(PutServerConfiguration))]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutServerConfiguration([FromForm] IFormFile file)
         {
             var result = await _serverConfigurationLogic.UploadConfigurationFile(_serverConfigurationName, file);
@@ -82,6 +91,7 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         /// <summary>Put Server CBA Settings</summary>
         /// <remarks>Proposed. Not implemented.</remarks>
         [HttpGet("server/cbaSettings", Name = nameof(GetServerCbaSettings))]
+        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         public IActionResult GetServerCbaSettings()
         {
             throw new NotImplementedException("Downloading server CBA Settings is not supported yet.");
@@ -89,7 +99,8 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
 
         /// <summary>Put Server CBA Settings</summary>
         /// <remarks>Proposed. Not implemented.</remarks>
-        [HttpGet("server/cbaSettings", Name = nameof(PutServerCbaSettings))]
+        [HttpPut("server/cbaSettings", Name = nameof(PutServerCbaSettings))]
+        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         public IActionResult PutServerCbaSettings([FromForm] IFormFile file)
         {
             throw new NotImplementedException("Uploading server CBA Settings is not supported yet.");
