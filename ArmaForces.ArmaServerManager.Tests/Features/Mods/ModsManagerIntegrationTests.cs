@@ -44,7 +44,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
 
             using (new AssertionScope())
             {
-                action.Should().Throw<OperationCanceledException>();
+                action.Should().ThrowAsync<OperationCanceledException>();
                 task.IsCanceled.Should().BeTrue();
             }
         }
