@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -17,16 +17,16 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
     {
         private readonly TimeSpan _defaultPrecision = TimeSpan.FromMinutes(15);
         
-        private readonly IHangfireBackgroundJobClient _backgroundJobClient;
+        private readonly IHangfireBackgroundJobClientWrapper _backgroundJobClientWrapper;
         private readonly IJobStorage _jobStorage;
         private readonly ILogger<JobScheduler> _logger;
 
         public JobScheduler(
-            IHangfireBackgroundJobClient backgroundJobClient,
+            IHangfireBackgroundJobClientWrapper backgroundJobClientWrapper,
             IJobStorage jobStorage,
             ILogger<JobScheduler> logger)
         {
-            _backgroundJobClient = backgroundJobClient;
+            _backgroundJobClientWrapper = backgroundJobClientWrapper;
             _jobStorage = jobStorage;
             _logger = logger;
         }
@@ -39,7 +39,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
 
         /// <inheritdoc cref="IJobScheduler"/>
         public Result<string> ContinueJobWith<T>(string parentId, Expression<Func<T, Task>> func) where T : class
-            => _backgroundJobClient.ContinueWith(parentId, func)
+            => _backgroundJobClientWrapper.ContinueWith(parentId, func)
                 .Tap(_ => _logger.LogDebug("Scheduled continuation for job {JobId}", parentId));
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
                 return Result.Success(string.Empty)
                     .Tap(_ => _logger.LogDebug("There is similar job scheduled at {DateTime}", dateTime));
 
-            return _backgroundJobClient.Schedule(func, dateTime)
+            return _backgroundJobClientWrapper.Schedule(func, dateTime)
                 .Tap(jobId => _logger.LogDebug("Scheduled job {JobId} at {DateTime}", jobId, dateTime));
         }
 
@@ -77,7 +77,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
                 return Result.Success(string.Empty)
                     .Tap(_ => _logger.LogDebug("There is similar job queued in less than {Precision}", _defaultPrecision));
 
-            return _backgroundJobClient.Enqueue(func)
+            return _backgroundJobClientWrapper.Enqueue(func)
                 .Tap(jobId => _logger.LogDebug("Enqueued job {JobId}", jobId));
         }
     }

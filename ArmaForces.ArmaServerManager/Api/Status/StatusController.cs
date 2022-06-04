@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Status.DTOs;
@@ -7,6 +7,7 @@ using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Status;
 using ArmaForces.ArmaServerManager.Features.Status.Models;
 using ArmaForces.ArmaServerManager.Providers.Server;
+using ArmaForces.ArmaServerManager.Services;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +20,9 @@ namespace ArmaForces.ArmaServerManager.Api.Status
     {
         private readonly StatusProvider _statusProvider;
 
-        public StatusController(IJobService jobService, IServerProvider serverProvider)
+        public StatusController(
+            IJobService jobService,
+            IServerProvider serverProvider)
         {
             _statusProvider = new StatusProvider(jobService, serverProvider);
         }
@@ -47,6 +50,13 @@ namespace ArmaForces.ArmaServerManager.Api.Status
                         CreatedAt = appStatus.CurrentJob.CreatedAt,
                         Parameters = appStatus.CurrentJob.Parameters
                     },
+                QueuedJobs = appStatus.QueuedJobs.Select(x => new JobDetailsDto
+                {
+                    Name = x.Name,
+                    JobStatus = x.JobStatus,
+                    CreatedAt = x.CreatedAt,
+                    Parameters = x.Parameters
+                }).ToList(),
                 Servers = appStatus.Servers
             };
     }

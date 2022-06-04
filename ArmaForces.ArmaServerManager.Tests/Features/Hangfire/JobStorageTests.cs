@@ -1,4 +1,7 @@
 ﻿using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence;
+using Hangfire.Storage;
+using Moq;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
@@ -8,7 +11,12 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
         [Fact]
         public void GetJobDetails()
         {
-            var jobStorage = new JobStorage();
+            var hangfireDataAccess = Mock.Of<IHangfireDataAccess>();
+            var monitoringApi = Mock.Of<IMonitoringApi>();
+            var storageConnection = Mock.Of<IStorageConnection>();
+            
+            var jobStorage = new JobStorage(hangfireDataAccess, monitoringApi, storageConnection);
+            
             jobStorage.GetJobDetails("123");
         }
     }

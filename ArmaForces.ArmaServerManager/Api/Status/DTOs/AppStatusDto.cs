@@ -14,6 +14,9 @@ namespace ArmaForces.ArmaServerManager.Api.Status.DTOs
         public JobDetailsDto? CurrentJob { get; set; }
         
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<JobDetailsDto> QueuedJobs { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<ServerStatus>? Servers { get; set; }
     }
 }

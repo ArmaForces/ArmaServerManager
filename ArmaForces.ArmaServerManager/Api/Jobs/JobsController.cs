@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
+using ArmaForces.ArmaServerManager.Services;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,10 +17,23 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
     public class JobsController : ControllerBase
     {
         private readonly IJobService _jobService;
-        public JobsController(IJobService jobService)
+        private readonly IJobScheduler _jobScheduler;
+
+        public JobsController(
+            IJobService jobService,
+            IJobScheduler jobScheduler)
         {
             _jobService = jobService;
+            _jobScheduler = jobScheduler;
         }
+        
+        [HttpGet("queued")]
+        public IActionResult GetQueuedJobs()
+            => _jobService.GetQueuedJobs()
+                .Map(Map)
+                .Match(
+                    onSuccess: Ok,
+                    onFailure: error => (IActionResult) Problem());
 
         [HttpGet]
         public IActionResult GetJobs([FromQuery] IEnumerable<JobStatus>? jobStatus = null)

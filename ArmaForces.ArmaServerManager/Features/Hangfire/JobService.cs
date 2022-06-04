@@ -25,6 +25,14 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire
         public Result<JobDetails> GetJobDetails(string jobId)
             => _jobStorage.GetJobDetails(jobId);
 
+        public Result<List<JobDetails>> GetQueuedJobs()
+            => GetJobs(new List<JobStatus>
+            {
+                JobStatus.Scheduled,
+                JobStatus.Awaiting,
+                JobStatus.Enqueued
+            });
+
         public Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus>? jobStatusEnumerable = null)
             => _jobStorage.GetQueuedJobs()
                 .Map(x => FilterByJobStatus(x, jobStatusEnumerable))

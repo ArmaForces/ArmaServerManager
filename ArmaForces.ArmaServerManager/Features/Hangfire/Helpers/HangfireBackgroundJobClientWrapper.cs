@@ -6,7 +6,7 @@ using Hangfire;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
 {
-    public class HangfireBackgroundJobClient : IHangfireBackgroundJobClient
+    public class HangfireBackgroundJobClientWrapper : IHangfireBackgroundJobClientWrapper
     {
         private readonly IBackgroundJobClient _backgroundJobClient = new BackgroundJobClient();
 

@@ -24,8 +24,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Hangfire
         private const string DummyClassFirstMethodName = "DoNothing";
         private const string DummyClassSecondMethodName = "DoNothingAndNothing";
 
-        private readonly Mock<IHangfireBackgroundJobClient> _backgroundJobClientMock =
-            new Mock<IHangfireBackgroundJobClient>();
+        private readonly Mock<IHangfireBackgroundJobClientWrapper> _backgroundJobClientMock =
+            new Mock<IHangfireBackgroundJobClientWrapper>();
 
         private readonly Mock<IJobStorage> _hangfireJobStorageMock = new Mock<IJobStorage>();
 

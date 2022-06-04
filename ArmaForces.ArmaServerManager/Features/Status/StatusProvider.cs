@@ -4,9 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Extensions;
 using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
 using ArmaForces.ArmaServerManager.Features.Status.Models;
 using ArmaForces.ArmaServerManager.Providers.Server;
+using ArmaForces.ArmaServerManager.Services;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Status
@@ -24,44 +26,62 @@ namespace ArmaForces.ArmaServerManager.Features.Status
 
         public async Task<Result<AppStatus>> GetAppStatus(bool includeJobs, bool includeServers) =>
             includeJobs && includeServers
-                ? await CreateFullAppStatus()
+                ? await CreateFullAppStatus(await GetCurrentJobDetails())
                 : !includeJobs && !includeServers
-                    ? await CreateSimpleAppStatus()
+                    ? CreateSimpleAppStatus(await GetCurrentJobDetails())
                     : includeJobs
-                        ? await CreateJobsStatus()
-                        : await CreateServersStatus();
+                        ? await CreateJobsStatus(await GetCurrentJobDetails())
+                        : await CreateServersStatus(await GetCurrentJobDetails());
 
-        private async Task<AppStatus> CreateJobsStatus()
+        private async Task<AppStatus> CreateJobsStatus(JobDetails? currentJobDetails)
             => new AppStatus
             {
-                Status = await GetCurrentStatus(),
-                CurrentJob = await GetCurrentJobDetails()
-            };
-
-        private async Task<AppStatus> CreateServersStatus()
-            => new AppStatus
-            {
-                Status = await GetCurrentStatus(),
-                Servers = await GetServersStatus()
-            };
-
-        private async Task<AppStatus> CreateSimpleAppStatus()
-            => new AppStatus
-            {
-                Status = await GetCurrentStatus(),
-            };
-
-        private async Task<AppStatus> CreateFullAppStatus()
-            => new AppStatus
-            {
-                Status = await GetCurrentStatus(),
+                Status = GetCurrentStatus(currentJobDetails),
                 CurrentJob = await GetCurrentJobDetails(),
+                QueuedJobs = _jobService.GetQueuedJobs()
+                    .Match(x => x, null)
+            };
+
+        private async Task<AppStatus> CreateServersStatus(JobDetails? currentJobDetails)
+            => new AppStatus
+            {
+                Status = GetCurrentStatus(currentJobDetails),
+                CurrentJob = currentJobDetails,
                 Servers = await GetServersStatus()
             };
 
-        private async Task<string> GetCurrentStatus()
+        private AppStatus CreateSimpleAppStatus(JobDetails? currentJobDetails)
+            => new AppStatus
+            {
+                Status = GetCurrentStatus(currentJobDetails),
+                CurrentJob = currentJobDetails
+            };
+
+        private async Task<AppStatus> CreateFullAppStatus(JobDetails? currentJobDetails)
+            => new AppStatus
+            {
+                Status = GetCurrentStatus(currentJobDetails),
+                CurrentJob = currentJobDetails,
+                QueuedJobs = _jobService.GetQueuedJobs()
+                    .Match(x => x, null),
+                Servers = await GetServersStatus()
+            };
+
+        private static string GetCurrentStatus(JobDetails? currentJobDetails)
         {
-            return "Idle";
+            if (currentJobDetails is null) return "Idle";
+
+            return currentJobDetails.Name switch
+            {
+                nameof(ModsUpdateService.UpdateAllMods) => $"Updating all mods",
+                nameof(ModsUpdateService.UpdateModset) =>
+                    $"Updating mods for {currentJobDetails.GetParameterValue("modsetName")}",
+                nameof(ServerStartupService.StartServerForMission) =>
+                    $"Starting server for {currentJobDetails.GetParameterValue("missionTitle")}",
+                nameof(ServerStartupService.StartServer) =>
+                    $"Starting server on {currentJobDetails.GetParameterValue("modsetName")}",
+                _ => $"Operation {currentJobDetails.Name} in progress"
+            };
         }
 
         private async Task<JobDetails?> GetCurrentJobDetails()

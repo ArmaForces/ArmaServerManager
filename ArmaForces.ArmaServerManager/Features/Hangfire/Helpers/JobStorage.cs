@@ -3,19 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence;
+using ArmaForces.ArmaServerManager.Features.Hangfire.Persistence.Models;
 using CSharpFunctionalExtensions;
 using Hangfire.Common;
 using Hangfire.Storage;
 using Hangfire.Storage.Monitoring;
-using HangfireJobStorage = Hangfire.JobStorage;
 
 namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
 {
     internal class JobStorage : IJobStorage
     {
-        private IMonitoringApi MonitoringApi { get; } = HangfireJobStorage.Current.GetMonitoringApi();
+        private readonly IHangfireDataAccess _hangfireDataAccess;
+        private readonly IMonitoringApi _monitoringApi;
+        private readonly IStorageConnection _storageConnection;
 
-        private IStorageConnection StorageConnection { get; } = HangfireJobStorage.Current.GetConnection();
+        public JobStorage(
+            IHangfireDataAccess hangfireDataAccess,
+            IMonitoringApi monitoringApi,
+            IStorageConnection storageConnection)
+        {
+            _hangfireDataAccess = hangfireDataAccess;
+            _monitoringApi = monitoringApi;
+            _storageConnection = storageConnection;
+        }
 
         public IEnumerable<EnqueuedJobDto> GetSimilarQueuedJobs<T>(
             Expression<Func<T, Task>> func,
@@ -36,15 +47,16 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
                 .Where(x => JobMatchesMethod(x.Job, func));
 
         public Result<List<JobDetails>> GetQueuedJobs()
-            => MonitoringApi.EnqueuedJobs("default", 0, 20)
-                .Select(x => x.Key)
+        {
+            return _hangfireDataAccess.GetQueuedJobs()
                 .Select(GetJobDetails)
                 .Combine()
                 .Map(x => x.ToList());
+        }
 
         public Result<JobDetails?> GetCurrentJob()
         {
-            var currentJobId = MonitoringApi.ProcessingJobs(0, 1)
+            var currentJobId = _monitoringApi.ProcessingJobs(0, 1)
                 .Select(x => x.Key)
                 .SingleOrDefault();
             
@@ -53,9 +65,12 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
                 : GetJobDetails(currentJobId);
         }
 
+        public Result<JobDetails> GetJobDetails(JobDataModel jobDataModel)
+            => GetJobDetails(jobDataModel.Id.ToString());
+
         public Result<JobDetails> GetJobDetails(string jobId)
         {
-            var jobData = StorageConnection.GetJobData(jobId);
+            var jobData = _storageConnection.GetJobData(jobId);
 
             return jobData != null
                 ? CreateJobDetails(jobData)
@@ -69,7 +84,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
             JobStatus = JobStatusParser.ParseJobStatus(jobData.State),
             Parameters = jobData.Job.Method.GetParameters()
                 .Zip(jobData.Job.Args, (parameterInfo, parameterValue) => new KeyValuePair<string, object>(parameterInfo.Name ?? "unknown", parameterValue))
-                .SkipLast(1)
+                .Where(x => x.Key != "cancellationToken")
                 .ToList()
         };
 
@@ -84,7 +99,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
             string queue = "default",
             int from = 0,
             int perPage = 50)
-            => MonitoringApi
+            => _monitoringApi
                 .EnqueuedJobs(
                     queue,
                     from,
@@ -93,7 +108,7 @@ namespace ArmaForces.ArmaServerManager.Features.Hangfire.Helpers
 
 
         private IEnumerable<ScheduledJobDto> GetScheduledJobs(int from = 0, int count = 50)
-            => MonitoringApi
+            => _monitoringApi
                 .ScheduledJobs(from, count)
                 .Select(x => x.Value);
     }
