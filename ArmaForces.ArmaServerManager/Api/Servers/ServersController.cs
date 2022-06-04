@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +33,23 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         {
             _jobsScheduler = jobsScheduler;
             _serverProvider = serverProvider;
+        }
+
+        /// <summary>Get Servers Status</summary>
+        /// <remarks>Retrieves status of all servers.</remarks>
+        [HttpGet(Name = nameof(GetServersStatus))]
+        [ProducesResponseType(typeof(ServerStatus), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetServersStatus()
+        {
+            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+
+            var serversStatus = (await Task.WhenAll(
+                    _serverProvider.GetServers()
+                        .Select(x => x.GetServerStatusAsync(cancellationTokenSource.Token))))
+                .Select(ServerStatusMapper.Map)
+                .ToList();
+            
+            return Ok(serversStatus);
         }
 
         /// <summary>Get Server Status</summary>

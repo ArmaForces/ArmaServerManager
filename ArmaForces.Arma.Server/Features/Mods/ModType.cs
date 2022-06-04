@@ -1,5 +1,7 @@
-﻿namespace ArmaForces.Arma.Server.Features.Mods {
-    public enum ModType {
+﻿namespace ArmaForces.Arma.Server.Features.Mods
+{
+    public enum ModType
+    {
         ServerSide,
 
         Required,
