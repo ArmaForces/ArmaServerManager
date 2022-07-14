@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Steam.Constants;
@@ -25,13 +25,13 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             => await _steamClient.ContentClient.GetManifestAsync(
                 appId: SteamConstants.ArmaAppId,
                 depotId: SteamConstants.ArmaWorkshopDepotId,
-                manifestId: await GetManifestId(contentItem),
+                manifestId: await GetManifestId(contentItem, cancellationToken),
                 cancellationToken: cancellationToken);
 
         /// <summary>
         /// TODO: Do it better
         /// </summary>
-        private async Task<ManifestId> GetManifestId(ContentItem contentItem)
+        private async Task<ManifestId> GetManifestId(ContentItem contentItem, CancellationToken cancellationToken)
         {
             _logger.LogDebug("Downloading ManifestId for item {ContentItemId}", contentItem.Id);
 
@@ -42,7 +42,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             {
                 try
                 {
-                    return (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItem.Id))
+                    return (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItem.Id, cancellationToken))
                         .hcontent_file;
                 }
                 catch (TaskCanceledException exception)
@@ -55,7 +55,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                         throw CreateManifestDownloadException(errors, contentItem, exception);
                     }
 
-                    await Task.Delay(TimeSpan.FromSeconds(5));
+                    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
                 }
                 catch (AsyncJobFailedException exception)
                 {
@@ -67,7 +67,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                         throw CreateManifestDownloadException(errors, contentItem, exception);
                     }
 
-                    await Task.Delay(TimeSpan.FromSeconds(5));
+                    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
                 }
             }
         }

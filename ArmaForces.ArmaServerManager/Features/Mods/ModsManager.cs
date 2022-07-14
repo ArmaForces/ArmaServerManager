@@ -7,6 +7,7 @@ using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Extensions;
+using ArmaForces.ArmaServerManager.Features.Steam;
 using ArmaForces.ArmaServerManager.Features.Steam.Content;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
@@ -19,22 +20,26 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private readonly IContentDownloader _contentDownloader;
         private readonly IContentVerifier _contentVerifier;
         private readonly IModsCache _modsCache;
+        private readonly ISteamClient _steamClient;
         private readonly ILogger<ModsManager> _logger;
 
         /// <inheritdoc cref="ModsManager" />
         /// <param name="contentDownloader">Client for mods download and updating.</param>
         /// <param name="contentVerifier">Client for verifying whether mods are up to date and correct.</param>
         /// <param name="modsCache">Installed mods cache.</param>
+        /// <param name="steamClient"></param>
         /// <param name="logger">Logger.</param>
         public ModsManager(
             IContentDownloader contentDownloader,
             IContentVerifier contentVerifier,
             IModsCache modsCache,
+            ISteamClient steamClient,
             ILogger<ModsManager> logger)
         {
             _contentDownloader = contentDownloader;
             _contentVerifier = contentVerifier;
             _modsCache = modsCache;
+            _steamClient = steamClient;
             _logger = logger;
         }
 
@@ -91,6 +96,8 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods download safe cancelling.</param>
         private async Task<Result> CheckUpdatesAndDownloadMods(IEnumerable<IMod> modsToDownload, CancellationToken cancellationToken)
         {
+            await _steamClient.EnsureConnected(cancellationToken);
+            
             return await CheckModsUpdated(modsToDownload.ToList(), cancellationToken)
                 .Bind(modsMissingOrOutdated => DownloadMods(modsMissingOrOutdated, cancellationToken));
         }

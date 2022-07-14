@@ -40,7 +40,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
         /// </exception>
         public async Task EnsureConnected(CancellationToken cancellationToken)
         {
-            _logger.LogTrace("Ensuring connected to Steam");
+            _logger.LogDebug("Ensuring connected to Steam");
             var connectCancellationTokenSource = new CancellationTokenSource();
             var connectTask = _bytexSteamClient.ConnectAsync(connectCancellationTokenSource.Token);
             var connectionTimeout = Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
