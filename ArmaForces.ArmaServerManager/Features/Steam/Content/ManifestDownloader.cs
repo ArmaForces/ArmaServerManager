@@ -23,10 +23,10 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 
         public async Task<Manifest> GetManifest(ContentItem contentItem, CancellationToken cancellationToken)
             => await _steamClient.ContentClient.GetManifestAsync(
-                SteamConstants.ArmaAppId,
-                SteamConstants.ArmaWorkshopDepotId,
-                await GetManifestId(contentItem),
-                cancellationToken);
+                appId: SteamConstants.ArmaAppId,
+                depotId: SteamConstants.ArmaWorkshopDepotId,
+                manifestId: await GetManifestId(contentItem),
+                cancellationToken: cancellationToken);
 
         /// <summary>
         /// TODO: Do it better
