@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BytexDigital.Steam" Version="0.7.40-beta" />
+    <PackageReference Include="BytexDigital.Steam" Version="0.8.2-preview.1647708363" />
     <PackageReference Include="CSharpFunctionalExtensions" Version="2.29.1" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.7.29" />
     <PackageReference Include="Hangfire.Core" Version="1.7.29" />
