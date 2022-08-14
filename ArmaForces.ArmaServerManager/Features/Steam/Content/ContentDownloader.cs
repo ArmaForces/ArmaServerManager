@@ -102,11 +102,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             
             var downloadHandler = await GetDownloadHandler(contentItem);
 
-            var contentDownloadHandler = new ContentDownloadHandler(downloadHandler);
-            
             var downloadResult = await Download(
                 contentItem,
-                contentDownloadHandler,
+                downloadHandler,
                 cancellationToken);
 
             return downloadResult.Match(
@@ -149,13 +147,13 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 
         private async Task<Result> Download(
             ContentItem contentItem,
-            IContentDownloadHandler contentDownloadHandler,
+            IDownloadHandler contentDownloadHandler,
             CancellationToken cancellationToken)
         {
             _logger.LogDebug("Starting download of {ContentItem}", contentItem);
 
             var downloadDirectory = GetModDownloadDirectory(contentItem);
-            var downloadTask = contentDownloadHandler.DownloadChangesToFolderAsync(downloadDirectory, cancellationToken);
+            var downloadTask = contentDownloadHandler.DownloadToFolderAsync(downloadDirectory, cancellationToken);
 
             return await HandleDownloadTask(
                 contentItem.Id,
@@ -169,7 +167,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 
         private async Task<Result> HandleDownloadTask(
             uint itemId,
-            IContentDownloadHandler contentDownloadHandler,
+            IDownloadHandler contentDownloadHandler,
             Task downloadTask,
             CancellationToken cancellationToken)
         {
