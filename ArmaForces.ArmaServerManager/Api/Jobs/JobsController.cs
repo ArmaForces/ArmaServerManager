@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Mime;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Jobs.Mappers;
 using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
-using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
-using ArmaForces.ArmaServerManager.Services;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

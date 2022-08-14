@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Mods;
-using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content

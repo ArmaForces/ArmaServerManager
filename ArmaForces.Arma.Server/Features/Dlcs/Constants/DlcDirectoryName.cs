@@ -1,5 +1,4 @@
-﻿using System;
-using ArmaForces.Arma.Server.Exceptions;
+﻿using ArmaForces.Arma.Server.Exceptions;
 
 namespace ArmaForces.Arma.Server.Features.Dlcs.Constants
 {

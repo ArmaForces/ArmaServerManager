@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ArmaForces.Arma.Server.Tests.Helpers;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using AutoFixture;
 

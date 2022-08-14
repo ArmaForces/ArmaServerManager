@@ -16,16 +16,16 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
         private readonly TimeSpan _defaultPrecision = TimeSpan.FromMinutes(15);
         
         private readonly IHangfireBackgroundJobClientWrapper _backgroundJobClientWrapper;
-        private readonly IJobsRepository _jobStorage;
+        private readonly IJobsRepository _jobsStorage;
         private readonly ILogger<JobsScheduler> _logger;
 
         public JobsScheduler(
             IHangfireBackgroundJobClientWrapper backgroundJobClientWrapper,
-            IJobsRepository jobStorage,
+            IJobsRepository jobsStorage,
             ILogger<JobsScheduler> logger)
         {
             _backgroundJobClientWrapper = backgroundJobClientWrapper;
-            _jobStorage = jobStorage;
+            _jobsStorage = jobsStorage;
             _logger = logger;
         }
 
@@ -46,10 +46,10 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
         /// </summary>
         private Result<string> ScheduleAt<T>(Expression<Func<T, Task>> func, DateTime dateTime) where T : class
         {
-            var scheduledJobs = _jobStorage.GetSimilarScheduledJobs(func)
+            var scheduledJobs = _jobsStorage.GetSimilarScheduledJobs(func)
                 .Where(x => x.EnqueueAt.IsCloseTo(dateTime, _defaultPrecision));
 
-            var queuedJobs = _jobStorage.GetSimilarQueuedJobs(func);
+            var queuedJobs = _jobsStorage.GetSimilarQueuedJobs(func);
 
             if (scheduledJobs.Any() || queuedJobs.Any())
                 // TODO: Return the similarJobId
@@ -66,10 +66,10 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
         /// </summary>
         private Result<string> EnqueueImmediately<T>(Expression<Func<T, Task>> func) where T : class
         {
-            var scheduledJobs = _jobStorage.GetSimilarScheduledJobs(func)
+            var scheduledJobs = _jobsStorage.GetSimilarScheduledJobs(func)
                 .Where(x => x.EnqueueAt.IsCloseTo(DateTime.Now, _defaultPrecision));
 
-            var queuedJobs = _jobStorage.GetSimilarQueuedJobs(func);
+            var queuedJobs = _jobsStorage.GetSimilarQueuedJobs(func);
 
             if (scheduledJobs.Any() || queuedJobs.Any())
                 return Result.Success(string.Empty)

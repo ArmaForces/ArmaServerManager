@@ -7,7 +7,6 @@ using ArmaForces.ArmaServerManager.Features.Jobs.Helpers;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using CSharpFunctionalExtensions;
-using Hangfire;
 using Hangfire.Common;
 using Hangfire.Storage;
 using Hangfire.Storage.Monitoring;
@@ -43,9 +42,12 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                 .Select(x => x.Key)
                 .SingleOrDefault();
             
+            // Disable Nullability warning as compiler cannot handle this case properly
+#pragma warning disable CS8619
             return currentJobId is null
                 ? Result.Success<JobDetails?>(null)
                 : GetJobDetails(currentJobId);
+#pragma warning restore CS8619
         }
 
         public Result<JobDetails> GetJobDetails(string jobId)

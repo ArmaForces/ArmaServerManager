@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 
