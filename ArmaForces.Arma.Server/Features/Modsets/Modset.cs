@@ -52,11 +52,11 @@ namespace ArmaForces.Arma.Server.Features.Modsets
                 .ToHashSet();
 
         /// <summary>
-        /// All mods which are prohibited for client to load but must be loaded on the server.
+        /// All mods which must be loaded on the server.
         /// </summary>
         public ISet<IMod> ServerSideMods
             => Mods
-                .Where(x => x.Type == ModType.ServerSide)
+                .Where(x => x.Type == ModType.ServerSide || x.Type == ModType.Optional)
                 .Where(x => x.Status != ModStatus.Disabled)
                 .ToHashSet();
 
