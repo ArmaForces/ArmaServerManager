@@ -61,17 +61,16 @@ namespace ArmaForces.ArmaServerManager.Providers.Server
 
         private Result TryRemoveServer(IDedicatedServer dedicatedServer)
         {
-            var server = GetServer(dedicatedServer.Port);
-            
-            if (server == dedicatedServer)
+            var serverRemoved = _servers.TryRemove(new KeyValuePair<int, IDedicatedServer>(dedicatedServer.Port, dedicatedServer));
+
+            if (serverRemoved)
             {
-                _ = _servers.TryRemove(dedicatedServer.Port, out _);
                 _logger.LogDebug("Server removed on port {Port}", dedicatedServer.Port);
                 return Result.Success();
             }
 
-            _logger.LogDebug("Server not removed on port {Port}. Other server is already running", dedicatedServer.Port);
-            return Result.Failure($"Other server is already running on port {dedicatedServer.Port}.");
+            _logger.LogDebug("Server not removed on port {Port}. Different server is already running", dedicatedServer.Port);
+            return Result.Failure($"Different server is already running on port {dedicatedServer.Port}.");
         }
 
         private async Task OnServerDisposed(IDedicatedServer dedicatedServer)
