@@ -6,10 +6,11 @@ using ArmaForces.Arma.Server.Exceptions;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
+using ArmaForces.ArmaServerManager.Features.Modsets;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
-namespace ArmaForces.ArmaServerManager.Providers.Server
+namespace ArmaForces.ArmaServerManager.Features.Servers
 {
     public class ServerProvider : IServerProvider
     {

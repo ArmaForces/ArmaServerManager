@@ -7,6 +7,7 @@ using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Missions.Extensions;
 using ArmaForces.ArmaServerManager.Features.Mods;
 using ArmaForces.ArmaServerManager.Features.Modsets;
+using ArmaForces.ArmaServerManager.Features.Modsets.Client;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 

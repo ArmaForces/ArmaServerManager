@@ -2,7 +2,7 @@
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Servers;
 
-namespace ArmaForces.ArmaServerManager.Providers.Server
+namespace ArmaForces.ArmaServerManager.Features.Servers
 {
     public interface IServerProvider
     {

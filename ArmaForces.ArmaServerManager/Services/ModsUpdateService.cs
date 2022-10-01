@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Mods;
-using ArmaForces.ArmaServerManager.Providers;
+using ArmaForces.ArmaServerManager.Features.Modsets;
 using CSharpFunctionalExtensions;
 using Hangfire;
 

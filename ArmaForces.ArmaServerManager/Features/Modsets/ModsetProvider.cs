@@ -3,11 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Mods;
-using ArmaForces.ArmaServerManager.Features.Modsets;
+using ArmaForces.ArmaServerManager.Features.Modsets.Client;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.ArmaServerManager.Providers
+namespace ArmaForces.ArmaServerManager.Features.Modsets
 {
     public class ModsetProvider : IModsetProvider
     {

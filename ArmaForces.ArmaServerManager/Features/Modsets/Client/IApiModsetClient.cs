@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.ArmaServerManager.Features.Modsets {
+namespace ArmaForces.ArmaServerManager.Features.Modsets.Client {
     /// <summary>
     /// Handles connection and retrieving modsets data from web API.
     /// </summary>

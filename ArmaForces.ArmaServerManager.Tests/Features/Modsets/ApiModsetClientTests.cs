@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Features.Modsets;
+using ArmaForces.ArmaServerManager.Features.Modsets.Client;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using ArmaForces.ArmaServerManager.Tests.Features.Modsets.TestingHelpers;
 using AutoFixture;

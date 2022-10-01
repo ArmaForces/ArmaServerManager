@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.ArmaServerManager.Features.Modsets.Client;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArmaForces.ArmaServerManager.Features.Modsets.DependencyInjection

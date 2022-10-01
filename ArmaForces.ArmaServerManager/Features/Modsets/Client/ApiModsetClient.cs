@@ -5,7 +5,7 @@ using ArmaForces.ArmaServerManager.Common;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.ArmaServerManager.Features.Modsets
+namespace ArmaForces.ArmaServerManager.Features.Modsets.Client
 {
     /// <inheritdoc cref="IApiModsetClient" />
     internal class ApiModsetClient : HttpClientBase, IApiModsetClient

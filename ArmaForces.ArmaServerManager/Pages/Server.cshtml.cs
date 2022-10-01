@@ -5,6 +5,7 @@ using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using ArmaForces.ArmaServerManager.Features.Modsets;
+using ArmaForces.ArmaServerManager.Features.Modsets.Client;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using ArmaForces.ArmaServerManager.Services;
 using Microsoft.AspNetCore.Mvc;
