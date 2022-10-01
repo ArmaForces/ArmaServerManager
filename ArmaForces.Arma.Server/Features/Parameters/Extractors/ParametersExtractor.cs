@@ -8,7 +8,7 @@ using ArmaForces.Arma.Server.Constants;
 using ArmaForces.Arma.Server.Extensions;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.Arma.Server.Features.Parameters
+namespace ArmaForces.Arma.Server.Features.Parameters.Extractors
 {
     public class ParametersExtractor : IParametersExtractor
     {

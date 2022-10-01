@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Parameters;
+using ArmaForces.Arma.Server.Features.Parameters.Extractors;
 using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using Xunit;
 

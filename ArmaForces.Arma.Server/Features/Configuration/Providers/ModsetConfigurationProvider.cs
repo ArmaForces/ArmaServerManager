@@ -1,7 +1,7 @@
 ﻿using ArmaForces.Arma.Server.Config;
 using Microsoft.Extensions.Logging;
 
-namespace ArmaForces.Arma.Server.Providers.Configuration
+namespace ArmaForces.Arma.Server.Features.Configuration.Providers
 {
     public class ModsetConfigurationProvider : IModsetConfigurationProvider
     {

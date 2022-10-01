@@ -1,19 +1,18 @@
-﻿using System.Linq;
-using ArmaForces.Arma.Server.Config;
-using ArmaForces.Arma.Server.Constants;
+﻿using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Modsets;
-using ArmaForces.Arma.Server.Features.Parameters;
 
-namespace ArmaForces.Arma.Server.Providers.Parameters
+namespace ArmaForces.Arma.Server.Features.Parameters.Providers
 {
-    public class HeadlessParametersProvider : IParametersProvider
+    public class ServerParametersProvider : IParametersProvider
     {
+        private const bool IsClient = false;
+        
         private readonly int _port;
         private readonly IModset _modset;
         private readonly IModsetConfig _modsetConfig;
 
-        public HeadlessParametersProvider(
+        public ServerParametersProvider(
             int port,
             IModset modset,
             IModsetConfig modsetConfig)
@@ -27,18 +26,20 @@ namespace ArmaForces.Arma.Server.Providers.Parameters
         {
             return new ProcessParameters(
                 exePath,
-                client: true,
+                IsClient,
                 _port,
                 _modsetConfig.ServerCfg,
                 _modsetConfig.BasicCfg,
-                _modsetConfig.HCProfileDirectory,
-                "HC",
+                _modsetConfig.ServerProfileDirectory,
+                "server",
                 _modset.Name,
+                filePatching: true,
+                netLog: true,
                 fpsLimit: 100,
-                connectIpAddress: ParametersDefaults.ConnectIpAddress,
-                connectPassword: _modsetConfig.ServerPassword,
-                mods: _modset.ServerSideMods
-                    .Concat(_modset.RequiredMods)
+                loadMissionToMemory: true,
+                serverMods: _modset.ServerSideMods
+                    .GetDirectories(),
+                mods: _modset.RequiredMods
                     .GetDirectories());
         }
     }

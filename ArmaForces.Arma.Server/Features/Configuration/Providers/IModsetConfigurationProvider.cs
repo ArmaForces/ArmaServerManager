@@ -1,6 +1,6 @@
 ﻿using ArmaForces.Arma.Server.Config;
 
-namespace ArmaForces.Arma.Server.Providers.Configuration
+namespace ArmaForces.Arma.Server.Features.Configuration.Providers
 {
     public interface IModsetConfigurationProvider
     {

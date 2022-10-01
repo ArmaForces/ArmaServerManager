@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.Arma.Server.Features.Parameters
+namespace ArmaForces.Arma.Server.Features.Parameters.Extractors
 {
     public interface IParametersExtractor
     {

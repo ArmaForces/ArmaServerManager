@@ -3,7 +3,7 @@ using System.Diagnostics;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Parameters;
-using ArmaForces.Arma.Server.Providers.Parameters;
+using ArmaForces.Arma.Server.Features.Parameters.Providers;
 using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Processes
