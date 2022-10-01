@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Features.Mods
 {
-    public class ModsCache : IModsCache, IWebModsetMapper
+    internal class ModsCache : IModsCache, IWebModsetMapper
     {
         private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings{Formatting = Formatting.Indented};
         

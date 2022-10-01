@@ -11,7 +11,7 @@ using BytexSteamClient = BytexDigital.Steam.Core.SteamClient;
 namespace ArmaForces.ArmaServerManager.Features.Steam
 {
     /// <inheritdoc cref="ISteamClient" />
-    public class SteamClient : ISteamClient, IDisposable
+    internal class SteamClient : ISteamClient, IDisposable
     {
         private readonly ILogger<SteamClient> _logger;
         private readonly BytexSteamClient _bytexSteamClient;
@@ -67,7 +67,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
         /// <inheritdoc />
         public void Disconnect()
         {
-            _logger.LogTrace("Disconnecting from Steam");
+            _logger.LogDebug("Disconnecting from Steam");
             _bytexSteamClient.Shutdown();
         }
     }

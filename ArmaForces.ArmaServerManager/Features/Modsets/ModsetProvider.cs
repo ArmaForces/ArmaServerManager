@@ -9,7 +9,7 @@ using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Modsets
 {
-    public class ModsetProvider : IModsetProvider
+    internal class ModsetProvider : IModsetProvider
     {
         private readonly IApiModsetClient _apiModsetClient;
         private readonly IWebModsetMapper _webModsetMapper;

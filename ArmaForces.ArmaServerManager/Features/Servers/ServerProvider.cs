@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Features.Servers
 {
-    public class ServerProvider : IServerProvider
+    internal class ServerProvider : IServerProvider
     {
         private readonly ConcurrentDictionary<int, IDedicatedServer> _servers =
             new ConcurrentDictionary<int, IDedicatedServer>();
