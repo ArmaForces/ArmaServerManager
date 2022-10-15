@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Features.Servers;
 using Hangfire;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
 namespace ArmaForces.ArmaServerManager.Services
@@ -12,17 +13,23 @@ namespace ArmaForces.ArmaServerManager.Services
     {
         private readonly IJobsScheduler _jobsScheduler;
         private readonly IServerProvider _serverProvider;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public StartupService(IJobsScheduler jobsScheduler, IServerProvider serverProvider)
+        public StartupService(IJobsScheduler jobsScheduler, IServerProvider serverProvider, IWebHostEnvironment webHostEnvironment)
         {
             _jobsScheduler = jobsScheduler;
             _serverProvider = serverProvider;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         /// <inheritdoc />
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            RecurringJob.AddOrUpdate<MaintenanceService>(x => x.PerformMaintenance(CancellationToken.None), Cron.Daily(4));
+            if (_webHostEnvironment.IsProduction())
+            {
+                RecurringJob.AddOrUpdate<MaintenanceService>(x => x.PerformMaintenance(CancellationToken.None),
+                    Cron.Daily(4));
+            }
 
             // Initialize provider
             // TODO: Find a better way

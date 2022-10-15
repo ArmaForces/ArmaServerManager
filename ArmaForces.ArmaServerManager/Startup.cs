@@ -29,9 +29,10 @@ namespace ArmaForces.ArmaServerManager
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             Configuration = configuration;
+            WebHostEnvironment = webHostEnvironment;
         }
         
         private OpenApiInfo OpenApiConfiguration { get; } = new OpenApiInfo()
@@ -47,6 +48,8 @@ namespace ArmaForces.ArmaServerManager
         };
 
         private IConfiguration Configuration { get; }
+        
+        private IWebHostEnvironment WebHostEnvironment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -78,6 +81,7 @@ namespace ArmaForces.ArmaServerManager
             .AddHangfireServer(ConfigureHangfireServer())
             .AddTransient<FailOnResultFailureAttribute>()
 
+            .AddSingleton(WebHostEnvironment)
             .AddHostedService<StartupService>()
 
             // Job services
