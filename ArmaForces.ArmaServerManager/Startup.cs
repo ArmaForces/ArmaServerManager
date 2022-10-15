@@ -13,6 +13,7 @@ using ArmaForces.ArmaServerManager.Features.Status;
 using ArmaForces.ArmaServerManager.Infrastructure;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Infrastructure.Converters;
+using ArmaForces.ArmaServerManager.Infrastructure.Logging;
 using ArmaForces.ArmaServerManager.Services;
 using Hangfire;
 using Hangfire.LiteDB;
@@ -139,7 +140,10 @@ namespace ArmaForces.ArmaServerManager
                 app.UseHsts();
             }
 
-            app.UseSerilogRequestLogging();
+            app.UseSerilogRequestLogging(opt =>
+            {
+                opt.GetLevel = RequestLoggingUtilities.LogOnTraceUnlessErrorOrApiRequest();
+            });
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
