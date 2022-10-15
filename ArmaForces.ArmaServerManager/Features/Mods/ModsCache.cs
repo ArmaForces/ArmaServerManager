@@ -43,6 +43,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .Result
                 .OnFailureCompensate(x => BuildCacheFromModsDirectory())
                 .Value;
+            
             SaveCache().Wait();
         }
 
@@ -230,11 +231,8 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// <param name="mods">Set of mods to filter.</param>
         /// <returns>Set of mods which exist.</returns>
         private ISet<IMod> FilterOutNonExistingMods(ISet<IMod> mods)
-        {
-            mods = mods.Where(x => x.Exists(_fileSystem))
+            => mods.Where(x => x.Exists(_fileSystem))
                 .ToHashSet();
-            return mods;
-        }
 
         /// <summary>
         /// Builds cache from mods directory, loading each folder as separate mod.
@@ -242,16 +240,22 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// <returns>Successful result with discovered mods.</returns>
         private Result<ISet<IMod>> BuildCacheFromModsDirectory()
         {
-            var mods = _fileSystem.Directory.GetDirectories(_modsPath)
-                .Select(_modDirectoryFinder.CreateModFromDirectory)
-                .ToHashSet();
-            return Result.Success<ISet<IMod>>(mods);
+            return _fileSystem.Directory.Exists(_modsPath)
+                ? _fileSystem.Directory.GetDirectories(_modsPath)
+                    .Select(_modDirectoryFinder.CreateModFromDirectory)
+                    .ToHashSet()
+                : new HashSet<IMod>();
         }
 
         /// <summary>
         /// Saves cache to file.
         /// </summary>
-        private async Task SaveCache() 
-            => await _fileSystem.File.WriteAllTextAsync(_cacheFilePath, JsonConvert.SerializeObject(_mods, _serializerSettings));
+        private async Task SaveCache()
+        {
+            _fileSystem.Directory.CreateDirectory(_modsPath);
+            
+            await _fileSystem.File.WriteAllTextAsync(_cacheFilePath,
+                JsonConvert.SerializeObject(_mods, _serializerSettings));
+        }
     }
 }
