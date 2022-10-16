@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net.Mime;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Jobs.Mappers;
@@ -48,7 +48,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
             return _jobsService.DeleteJob(jobId)
                 .Match(
                     onSuccess: NoContent,
-                    onFailure: error => error.Contains("not exists")
+                    onFailure: error => error.Contains("not exist")
                         ? NotFound()
                         : (IActionResult) UnprocessableEntity(error));
         }
