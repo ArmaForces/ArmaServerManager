@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading;
@@ -109,13 +109,15 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                 onFailure: error => (IActionResult)BadRequest(error));
         }
 
-        /// <summary>Start Headless Client</summary>
-        /// <remarks>Starts headless client for server on given <paramref name="port"/>. Not implemented.</remarks>
-        /// <param name="port">Port of the server to start headless client for.</param>
-        [HttpPost("{port:int}/headless/start", Name = nameof(StartHeadlessClient))]
+        /// <summary>Set Headless Clients</summary>
+        /// <remarks>Starts or stops headless clients for server on given <paramref name="port"/> to match desired <paramref name="count"/>.
+        /// Not implemented.</remarks>
+        /// <param name="port">Port of the server to start/stop headless clients for.</param>
+        [HttpPatch("{port:int}/headless", Name = nameof(SetHeadlessClients))]
         [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         [ApiKey]
-        public IActionResult StartHeadlessClient(int port) => throw new NotImplementedException("Starting headless client is not supported yet.");
+        public IActionResult SetHeadlessClients(int port, HeadlessSetRequestDto headlessSetRequestDto)
+            => throw new NotImplementedException("Starting headless client is not supported yet.");
 
         /// <summary>Restart Server</summary>
         /// <remarks>Restarts server on given <paramref name="port"/>.</remarks>
@@ -152,15 +154,6 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                 onSuccess: Accepted,
                 onFailure: error => (IActionResult)BadRequest(error));
         }
-
-        /// <summary>Shutdown Headless Client</summary>
-        /// <remarks>Shutdowns all headless clients for server on given <paramref name="port"/>. Not implemented.</remarks>
-        /// <param name="port">Port of the server to shutdown headless client for.</param>
-        [HttpPost("{port:int}/headless/shutdown", Name = nameof(ShutdownHeadlessClients))]
-        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
-        [ApiKey]
-        public IActionResult ShutdownHeadlessClients(int port)
-            => throw new NotImplementedException("Shutting down headless clients is not supported yet.");
 
         /// <summary>Shutdown Server</summary>
         /// <remarks>Shutdowns server on given <paramref name="port"/>.</remarks>
