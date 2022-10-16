@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Mime;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Jobs.Mappers;
@@ -21,15 +21,11 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
     public class JobsController : ControllerBase
     {
         private readonly IJobsService _jobsService;
-        private readonly IJobsScheduler _jobsScheduler;
 
         /// <inheritdoc />
-        public JobsController(
-            IJobsService jobsService,
-            IJobsScheduler jobsScheduler)
+        public JobsController(IJobsService jobsService)
         {
             _jobsService = jobsService;
-            _jobsScheduler = jobsScheduler;
         }
 
         /// <summary>Delete Job</summary>
@@ -49,7 +45,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
                 .Match(
                     onSuccess: NoContent,
                     onFailure: error => error.Contains("not exist")
-                        ? NotFound()
+                        ? NotFound(error)
                         : (IActionResult) UnprocessableEntity(error));
         }
 
@@ -74,7 +70,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         [HttpGet(Name = nameof(GetJobs))]
         [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetJobs([FromQuery] IEnumerable<JobStatus>? jobStatus = null)
+        public IActionResult GetJobs([FromQuery] IEnumerable<JobStatus> jobStatus)
             => _jobsService.GetJobs(jobStatus)
                 .Map(JobsMapper.Map)
                 .Match(

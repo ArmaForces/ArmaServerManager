@@ -17,7 +17,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
             _dbContext = dbContext;
         }
 
-        public List<JobDataModel> GetJobs(IEnumerable<JobStatus> includeStatuses)
+        public List<JobDataModel> GetJobs(ISet<JobStatus> includeStatuses)
         {
             return JobsTable
                 .Query()

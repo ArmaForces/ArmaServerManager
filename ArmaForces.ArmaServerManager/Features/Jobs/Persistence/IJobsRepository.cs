@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using CSharpFunctionalExtensions;
 using Hangfire.Storage.Monitoring;
@@ -16,7 +17,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
         
         Result<JobDetails> GetJobDetails(string jobId);
         
-        Result<List<JobDetails>> GetQueuedJobs();
+        Result<List<JobDetails>> GetJobs(ISet<JobStatus> includeStatuses);
 
         Result RequeueJob(string jobId);
 

@@ -59,14 +59,9 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                 : Result.Failure<JobDetails>("Job does not exist.");
         }
 
-        public Result<List<JobDetails>> GetQueuedJobs()
+        public Result<List<JobDetails>> GetJobs(ISet<JobStatus> includeStatuses)
         {
-            return _jobsDataAccess.GetJobs(new List<JobStatus>
-                {
-                    JobStatus.Awaiting,
-                    JobStatus.Enqueued,
-                    JobStatus.Scheduled
-                })
+            return _jobsDataAccess.GetJobs(includeStatuses)
                 .Select(GetJobDetails)
                 .Combine()
                 .Map(x => x.ToList());

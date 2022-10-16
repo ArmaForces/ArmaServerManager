@@ -6,6 +6,6 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
 {
     internal interface IJobsDataAccess
     {
-        public List<JobDataModel> GetJobs(IEnumerable<JobStatus> includeStatuses);
+        public List<JobDataModel> GetJobs(ISet<JobStatus> includeStatuses);
     }
 }

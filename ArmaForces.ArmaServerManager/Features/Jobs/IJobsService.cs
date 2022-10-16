@@ -13,7 +13,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
 
         Result<List<JobDetails>> GetQueuedJobs();
 
-        Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus>? jobStatusEnumerable);
+        Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus> statusFilter);
 
         Result<JobDetails?> GetCurrentJob();
 

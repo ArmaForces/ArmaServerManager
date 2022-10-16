@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
@@ -29,13 +31,17 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
 
         public Result<JobDetails> GetJobDetails(string jobId)
             => _jobsRepository.GetJobDetails(jobId)
-                .Tap(x => _logger.LogTrace("Successfully retrieved details for job {JobId}", jobId));
+                .Tap(x => _logger.LogDebug("Successfully retrieved details for job {JobId}", jobId));
 
-        public Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus>? jobStatusEnumerable = null)
-            => _jobsRepository.GetQueuedJobs()
-                .Tap(x => _logger.LogTrace("Found {Count} queued jobs", x.Count))
-                .Map(x => FilterByJobStatus(x, jobStatusEnumerable))
+        public Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus> statusFilter)
+        {
+            var statusSet = statusFilter.ToHashSet();
+            ISet<JobStatus> includeStatuses = statusSet.IsEmpty() ? AnyStatus : statusSet;
+            
+            return _jobsRepository.GetJobs(includeStatuses)
+                .Tap(x => _logger.LogDebug("Found {Count} jobs matching status {List}", x.Count, statusFilter))
                 .Map(x => x.ToList());
+        }
 
         public Result<List<JobDetails>> GetQueuedJobs()
             => GetJobs(new List<JobStatus>
@@ -60,10 +66,15 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
                 ? Result.Failure("Job is already enqueued")
                 : Result.Success();
 
-        private static List<JobDetails> FilterByJobStatus(IEnumerable<JobDetails> jobs, IEnumerable<JobStatus>? jobStatusEnumerable)
-            => jobStatusEnumerable is null
-                ? jobs.ToList()
-                : jobs.Where(x => jobStatusEnumerable.Contains(x.JobStatus))
-                    .ToList();
+        private static ImmutableHashSet<JobStatus> AnyStatus { get; set; } = new HashSet<JobStatus>
+        {
+            JobStatus.Awaiting,
+            JobStatus.Deleted,
+            JobStatus.Enqueued,
+            JobStatus.Failed,
+            JobStatus.Processing,
+            JobStatus.Scheduled,
+            JobStatus.Succeeded
+        }.ToImmutableHashSet();
     }
 }
