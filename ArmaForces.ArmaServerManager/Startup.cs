@@ -9,6 +9,7 @@ using ArmaForces.ArmaServerManager.Features.Jobs.Persistence;
 using ArmaForces.ArmaServerManager.Features.Missions.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Servers;
+using ArmaForces.ArmaServerManager.Features.Servers.Providers;
 using ArmaForces.ArmaServerManager.Features.Status;
 using ArmaForces.ArmaServerManager.Infrastructure;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
@@ -104,8 +105,12 @@ namespace ArmaForces.ArmaServerManager
             .AddMissionsApiClient()
 
             // Server
-            .AddSingleton<IServerProvider, ServerProvider>()
+            .AddSingleton<ServerProviderFactory>()
+            .AddSingleton<IServerProvider>(x => x.GetRequiredService<ServerProviderFactory>()
+                .CreateServerProviderAsync(x).Result)
             .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
+            .AddSingleton<IServerCommandLogic, ServerCommandLogic>()
+            .AddSingleton<IServerQueryLogic, ServerQueryLogic>()
             
             // Status
             .AddSingleton<IStatusProvider, StatusProvider>()

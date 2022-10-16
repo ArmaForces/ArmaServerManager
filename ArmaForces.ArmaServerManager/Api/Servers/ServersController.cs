@@ -24,15 +24,18 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
     public class ServersController : ControllerBase
     {
         private readonly IJobsScheduler _jobsScheduler;
-        private readonly IServerProvider _serverProvider;
+        private readonly IServerQueryLogic _serverQueryLogic;
+        private readonly IServerCommandLogic _serverCommandLogic;
 
         /// <inheritdoc />
         public ServersController(
             IJobsScheduler jobsScheduler,
-            IServerProvider serverProvider)
+            IServerQueryLogic serverQueryLogic,
+            IServerCommandLogic serverCommandLogic)
         {
             _jobsScheduler = jobsScheduler;
-            _serverProvider = serverProvider;
+            _serverQueryLogic = serverQueryLogic;
+            _serverCommandLogic = serverCommandLogic;
         }
 
         /// <summary>Get Servers Status</summary>
@@ -43,9 +46,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         {
             var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
-            var serversStatus = (await Task.WhenAll(
-                    _serverProvider.GetServers()
-                        .Select(x => x.GetServerStatusAsync(cancellationTokenSource.Token))))
+            var serversStatus = (await _serverQueryLogic.GetAllServersStatus(cancellationTokenSource.Token))
                 .Select(ServerStatusMapper.Map)
                 .ToList();
             
@@ -59,13 +60,9 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         [ProducesResponseType(typeof(ServerStatus), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetServerStatus(int port = 2302)
         {
-            var server = _serverProvider.GetServer(port);
-
             var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-
-            var serverStatus = server is null
-                ? new ServerStatus()
-                : await server.GetServerStatusAsync(cancellationTokenSource.Token);
+            
+            var serverStatus = await _serverQueryLogic.GetServerStatus(port, cancellationTokenSource.Token);
 
             return Ok(ServerStatusMapper.Map(serverStatus));
         }
@@ -102,8 +99,8 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
 
             var result = _jobsScheduler.ContinueJobWith<ServerStartupService>(
                 serverShutdownJob.Value,
-                x => x.StartServer(serverStartRequestDto.ModsetName, CancellationToken.None));
-
+                x => x.StartServer(serverStartRequestDto.ModsetName, serverStartRequestDto.HeadlessClients, CancellationToken.None));
+            
             return result.Match(
                 onSuccess: Accepted,
                 onFailure: error => (IActionResult)BadRequest(error));
@@ -130,10 +127,12 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         [ApiKey]
         public IActionResult RestartServer(int port, ServerRestartRequestDto serverRestartRequestDto)
         {
-            var server = _serverProvider.GetServer(port);
+            var serverGetResult = _serverQueryLogic.GetServer(port);
 
-            if (server is null) return BadRequest("Server is not running and cannot be restarted.");
+            if (serverGetResult.IsFailure) return BadRequest("Server is not running and cannot be restarted.");
 
+            var server = serverGetResult.Value;
+            
             var modsetName = server.Modset;
 
             var serverShutdownJob = _jobsScheduler
@@ -148,7 +147,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
 
             var result = _jobsScheduler.ContinueJobWith<ServerStartupService>(
                 serverShutdownJob.Value,
-                x => x.StartServer(modsetName, CancellationToken.None));
+                x => x.StartServer(modsetName, server.HeadlessClientsConnected, CancellationToken.None));
 
             return result.Match(
                 onSuccess: Accepted,

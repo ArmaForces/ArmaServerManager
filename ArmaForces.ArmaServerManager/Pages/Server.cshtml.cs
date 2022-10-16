@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.ArmaServerManager.Api.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
-using ArmaForces.ArmaServerManager.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Modsets.Client;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using ArmaForces.ArmaServerManager.Services;
@@ -55,7 +55,7 @@ namespace ArmaForces.ArmaServerManager.Pages
             if (ModsetName != null)
             {
                 _jobsScheduler.ScheduleJob<ServerStartupService>(
-                    x => x.StartServer(ModsetName, CancellationToken.None));
+                    x => x.StartServer(ModsetName, ServerStartRequestDto.DefaultHeadlessClients, CancellationToken.None));
             }
             else
             {

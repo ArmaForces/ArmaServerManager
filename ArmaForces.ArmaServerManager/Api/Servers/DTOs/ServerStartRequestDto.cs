@@ -10,6 +10,15 @@ namespace ArmaForces.ArmaServerManager.Api.Servers.DTOs
     /// </summary>
     public class ServerStartRequestDto : ServerRestartRequestDto
     {
+        // TODO: Remove that or something
+        internal const int DefaultHeadlessClients = 1;
+        
+        /// <summary>
+        /// Number of Headless Clients to start alongside the server.
+        /// </summary>
+        [JsonProperty(Required = Required.DisallowNull)]
+        public int HeadlessClients { get; set; } = DefaultHeadlessClients;
+        
         /// <summary>
         /// Name of the modset which will be used to start the server.
         /// </summary>
