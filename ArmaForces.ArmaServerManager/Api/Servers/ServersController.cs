@@ -102,7 +102,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                 x => x.StartServer(serverStartRequestDto.ModsetName, serverStartRequestDto.HeadlessClients, CancellationToken.None));
             
             return result.Match(
-                onSuccess: Accepted,
+                onSuccess: jobId => Accepted(value: jobId),
                 onFailure: error => (IActionResult)BadRequest(error));
         }
 
