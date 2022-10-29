@@ -145,7 +145,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
             funcMock.Verify(x => x.Invoke(It.IsAny<IDedicatedServer>()), Times.Once);
         }
 
-        private static Mock<IArmaProcess> CreateArmaProcessMock()
+        private static Mock<IArmaProcess> CreateArmaProcessMock(bool isServer = false)
         {
             var armaProcessMock = new Mock<IArmaProcess>();
             
@@ -158,6 +158,9 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
             armaProcessMock
                 .Setup(x => x.IsStartingOrStarted)
                 .Returns(false);
+            armaProcessMock
+                .Setup(x => x.ProcessType)
+                .Returns(isServer ? ArmaProcessType.Server : ArmaProcessType.HeadlessClient);
             
             return armaProcessMock;
         }
