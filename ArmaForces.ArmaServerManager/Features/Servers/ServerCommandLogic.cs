@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Exceptions;
+using ArmaForces.Arma.Server.Features.Configuration.Providers;
 using ArmaForces.Arma.Server.Features.Modsets;
+using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
 using ArmaForces.ArmaServerManager.Features.Servers.Providers;
 using CSharpFunctionalExtensions;
@@ -14,15 +17,21 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
     {
         private readonly IServerProvider _serverProvider;
         private readonly IDedicatedServerFactory _dedicatedServerFactory;
+        private readonly IArmaProcessFactory _armaProcessFactory;
+        private readonly IModsetConfigurationProvider _modsetConfigurationProvider;
         private readonly ILogger<ServerCommandLogic> _logger;
 
         public ServerCommandLogic(
             IServerProvider serverProvider,
             IDedicatedServerFactory dedicatedServerFactory,
+            IArmaProcessFactory armaProcessFactory,
+            IModsetConfigurationProvider modsetConfigurationProvider,
             ILogger<ServerCommandLogic> logger)
         {
             _serverProvider = serverProvider;
             _dedicatedServerFactory = dedicatedServerFactory;
+            _armaProcessFactory = armaProcessFactory;
+            _modsetConfigurationProvider = modsetConfigurationProvider;
             _logger = logger;
         }
 
@@ -52,6 +61,30 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
             }
 
             return await server.Shutdown();
+        }
+
+        public async Task<Result> SetHeadlessClients(int port, int desiredHcCount)
+        {
+            var server = _serverProvider.GetServer(port);
+            
+            if (server is null)
+            {
+                _logger.LogInformation("Server doesn't exist on port {Port}", port);
+                return Result.Failure($"Server doesn't exist on port {port}");
+            }
+
+            if (server.HeadlessClientsConnected > desiredHcCount)
+            {
+                return await server.RemoveHeadlessClients(server.HeadlessClientsConnected - desiredHcCount);
+            }
+
+            var createdClients = _armaProcessFactory.CreateHeadlessClients(
+                port: port,
+                modset: server.Modset,
+                modsetConfig: _modsetConfigurationProvider.GetModsetConfig(server.Modset.Name),
+                numberOfHeadlessClients: server.HeadlessClientsConnected);
+
+            return server.AddAndStartHeadlessClients(createdClients);
         }
 
         // Value of 'newServerCreated' is used in different method 

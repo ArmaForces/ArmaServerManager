@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -25,8 +26,10 @@ namespace ArmaForces.Arma.Server.Features.Servers
         private readonly IKeysPreparer _keysPreparer;
         private readonly IArmaProcessManager _armaProcessManager;
 
-        private readonly List<IArmaProcess> _headlessProcesses;
-        private IArmaProcess _armaProcess;
+        private readonly ConcurrentStack<IArmaProcess> _headlessProcesses;
+        private IArmaProcess _serverProcess;
+
+        private bool _serverWasStarted;
 
         public DedicatedServer(
             int port,
@@ -46,9 +49,10 @@ namespace ArmaForces.Arma.Server.Features.Servers
             Modset = modset;
             _modsetConfig = modsetConfig;
             _serverStatusFactory = serverStatusFactory;
-            _armaProcess = InitializeArmaProcess(armaProcess);
+            _serverProcess = InitializeArmaProcess(armaProcess);
 
-            _headlessProcesses = headlessClients.ToList();
+            _headlessProcesses = new ConcurrentStack<IArmaProcess>(
+                headlessClients.Where(x => x.ProcessType == ArmaProcessType.HeadlessClient));
             _logger = logger;
         }
         
@@ -58,11 +62,12 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public IModset Modset { get; }
 
+        // TODO: This will be called frequently due to server status requests. Consider caching this (or whole server state).
         public int HeadlessClientsConnected => _headlessProcesses.Count(x => x.IsStartingOrStarted);
 
-        public bool IsServerStopped => _armaProcess.IsStopped;
+        public bool IsServerStopped => _serverProcess.IsStopped;
 
-        public DateTimeOffset? StartTime => _armaProcess.StartTime;
+        public DateTimeOffset? StartTime => _serverProcess.StartTime;
 
         public event Func<IDedicatedServer, Task>? OnServerShutdown;
 
@@ -73,27 +78,58 @@ namespace ArmaForces.Arma.Server.Features.Servers
         public Result Start()
         {
             if (!IsServerStopped) throw new ServerRunningException();
+            if (_serverWasStarted) throw new InvalidOperationException("Cannot start a previously stopped server.");
 
             _logger.LogInformation("Starting server on port {Port} with {ModsetName} modset", Port, Modset.Name);
             
             return _modsetConfig.CopyConfigFiles()
                 .Bind(() => _keysPreparer.PrepareKeysForModset(Modset))
-                .Bind(() => _armaProcess.Start())
-                .Tap(() => _armaProcess.OnProcessShutdown += OnServerProcessShutdown)
+                .Bind(() => _serverProcess.Start())
+                .Tap(() => _serverWasStarted = true)
+                .Tap(() => _serverProcess.OnProcessShutdown += OnServerProcessShutdown)
                 .Bind(() => _headlessProcesses.Select(x => x.Start())
                     .Combine());
         }
 
         public async Task<Result> Shutdown()
         {
-            return await _armaProcess.Shutdown()
+            return await _serverProcess.Shutdown()
                 .Tap(() => _logger.LogInformation("Server shutdown completed on port {Port}", Port))
-                .Finally(_ => ShutdownHeadlessClients())
+                .Finally(_ => ShutdownHeadlessClients(_headlessProcesses))
                 .Finally(_ => InvokeOnServerShutdown());
         }
 
         public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken) 
             => await _serverStatusFactory.GetServerStatus(this, cancellationToken);
+
+        public Result AddAndStartHeadlessClients(IEnumerable<IArmaProcess> headlessClients)
+            => IsServerStopped && _serverWasStarted
+                ? Result.Failure("The server has been shut down.")
+                : AddAndStartHeadlessClientsInternal(headlessClients).Combine();
+
+        public async Task<Result> RemoveHeadlessClients(int headlessClientsToRemove)
+        {
+            if (IsServerStopped && _serverWasStarted)
+                return Result.Failure("The server has been shut down.");
+            
+            var poppedClients = new IArmaProcess[headlessClientsToRemove];
+            _headlessProcesses.TryPopRange(poppedClients, startIndex: 0, headlessClientsToRemove);
+
+            return await ShutdownHeadlessClients(poppedClients);
+        }
+
+        private IEnumerable<Result> AddAndStartHeadlessClientsInternal(IEnumerable<IArmaProcess> headlessClients)
+        {
+            foreach (var headlessClient in headlessClients
+                         .Where(x => x.ProcessType == ArmaProcessType.HeadlessClient))
+            {
+                _headlessProcesses.Push(headlessClient);
+                if (!IsServerStopped)
+                {
+                    yield return headlessClient.Start();
+                }
+            }
+        }
 
         private IArmaProcess InitializeArmaProcess(IArmaProcess armaProcess)
         {
@@ -114,14 +150,14 @@ namespace ArmaForces.Arma.Server.Features.Servers
                     onSuccess: async newArmaProcess =>
                     {
                         _logger.LogDebug("Server restart detected");
-                        _armaProcess = newArmaProcess;
-                        _armaProcess.OnProcessShutdown += OnServerProcessShutdown;
+                        _serverProcess = newArmaProcess;
+                        _serverProcess.OnProcessShutdown += OnServerProcessShutdown;
                         await InvokeOnServerRestarted();
                     },
                     onFailure: async _ =>
                     {
                         _logger.LogDebug("Server process shutdown itself");
-                        ShutdownHeadlessClients();
+                        await ShutdownHeadlessClients(_headlessProcesses);
                         await InvokeOnServerShutdown();
                     });
         }
@@ -132,9 +168,10 @@ namespace ArmaForces.Arma.Server.Features.Servers
             if (OnServerRestarted != null) await OnServerRestarted.Invoke(this);
         }
 
-        private Result ShutdownHeadlessClients()
+        private async Task<Result> ShutdownHeadlessClients(IEnumerable<IArmaProcess> headlessProcesses)
         {
-            return _headlessProcesses
+            return await headlessProcesses
+                .AsParallel()
                 .Select(x => x.Shutdown())
                 .Combine()
                 .Tap(() => _logger.LogDebug("Headless clients shutdown completed"));

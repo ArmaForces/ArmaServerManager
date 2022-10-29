@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading;
@@ -12,6 +12,7 @@ using ArmaForces.ArmaServerManager.Services;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ArmaForces.ArmaServerManager.Api.Servers
 {
@@ -111,10 +112,19 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// Not implemented.</remarks>
         /// <param name="port">Port of the server to start/stop headless clients for.</param>
         [HttpPatch("{port:int}/headless", Name = nameof(SetHeadlessClients))]
-        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
-        public IActionResult SetHeadlessClients(int port, HeadlessSetRequestDto headlessSetRequestDto)
-            => throw new NotImplementedException("Starting headless client is not supported yet.");
+        public async Task<IActionResult> SetHeadlessClients(int port, HeadlessSetRequestDto headlessSetRequestDto)
+        {
+            var result = await _serverCommandLogic.SetHeadlessClients(port, headlessSetRequestDto.Count);
+
+            return result.Match(
+                onSuccess: () => NoContent(),
+                onFailure: error => (IActionResult) BadRequest(error));
+        }
 
         /// <summary>Restart Server</summary>
         /// <remarks>Restarts server on given <paramref name="port"/>.</remarks>
