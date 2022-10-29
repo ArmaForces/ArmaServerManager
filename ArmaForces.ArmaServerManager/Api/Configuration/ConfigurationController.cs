@@ -29,7 +29,8 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         }
 
         /// <summary>Get Modset Configuration</summary>
-        /// <remarks>Retrieves server configuration for given <paramref name="modsetName"/>.</remarks>
+        /// <remarks>Retrieves server configuration for given <paramref name="modsetName"/>.
+        /// <b>Subject to change.</b></remarks>
         /// <param name="modsetName">Name of modset to retrieve configuration for.</param>
         [HttpGet("modset/{modsetName}", Name = nameof(GetModsetConfiguration))]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
@@ -44,7 +45,8 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         }
 
         /// <summary>Put Modset Configuration</summary>
-        /// <remarks>Sets configuration file for given <paramref name="modsetName"/>.</remarks>
+        /// <remarks>Sets configuration file for given <paramref name="modsetName"/>.
+        /// <b>Subject to change.</b></remarks>
         /// <param name="modsetName">Name of modset to set configuration for.</param>
         /// <param name="file">New configuration file.</param>
         [HttpPut("modset/{modsetName}", Name = nameof(PutModsetConfiguration))]
@@ -60,7 +62,8 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         }
 
         /// <summary>Get Server Configuration</summary>
-        /// <remarks>Retrieves global server configuration.</remarks>
+        /// <remarks>Retrieves global server configuration.
+        /// <b>Subject to change.</b></remarks>
         [HttpGet("server", Name = nameof(GetServerConfiguration))]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -74,7 +77,8 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         }
         
         /// <summary>Set Server Configuration</summary>
-        /// <remarks>Sets global server configuration.</remarks>
+        /// <remarks>Sets global server configuration.
+        /// <b>Subject to change.</b></remarks>
         /// <param name="file">New global configuration file.</param>
         [HttpPut("server", Name = nameof(PutServerConfiguration))]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
@@ -89,7 +93,7 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         }
         
         /// <summary>Get Server CBA Settings</summary>
-        /// <remarks>Proposed. Not implemented.</remarks>
+        /// <remarks><b>Proposed. Not implemented.</b></remarks>
         [HttpGet("server/cbaSettings", Name = nameof(GetServerCbaSettings))]
         [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         public IActionResult GetServerCbaSettings()
@@ -98,7 +102,7 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
         }
 
         /// <summary>Put Server CBA Settings</summary>
-        /// <remarks>Proposed. Not implemented.</remarks>
+        /// <remarks><b>Proposed. Not implemented.</b></remarks>
         [HttpPut("server/cbaSettings", Name = nameof(PutServerCbaSettings))]
         [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         public IActionResult PutServerCbaSettings([FromForm] IFormFile file)
