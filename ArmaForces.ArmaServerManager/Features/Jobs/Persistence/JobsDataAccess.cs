@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Constants;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;

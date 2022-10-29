@@ -12,7 +12,6 @@ using ArmaForces.ArmaServerManager.Services;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace ArmaForces.ArmaServerManager.Api.Servers
 {

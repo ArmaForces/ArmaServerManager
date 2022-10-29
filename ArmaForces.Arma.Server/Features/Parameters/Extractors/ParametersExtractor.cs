@@ -10,7 +10,7 @@ using CSharpFunctionalExtensions;
 
 namespace ArmaForces.Arma.Server.Features.Parameters.Extractors
 {
-    public class ParametersExtractor : IParametersExtractor
+    internal class ParametersExtractor : IParametersExtractor
     {
         public async Task<Result<ProcessParameters>> ExtractParameters(Process process)
             => await ExtractParameters(process.GetCommandLine());
