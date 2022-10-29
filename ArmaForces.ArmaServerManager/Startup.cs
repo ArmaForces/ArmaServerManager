@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.ArmaServerManager.Features.Configuration;
@@ -23,6 +24,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Interfaces;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using HangfireJobStorage = Hangfire.JobStorage;
@@ -46,6 +49,14 @@ namespace ArmaForces.ArmaServerManager
             {
                 Name = "ArmaForces",
                 Url = new Uri("https://armaforces.com")
+            },
+            Extensions = new Dictionary<string, IOpenApiExtension>
+            {
+                {"x-logo", new OpenApiObject
+                {
+                    {"url", new OpenApiString("https://armaforces.com/img/favicon-192x192.png")},
+                    {"altText", new OpenApiString("ArmaForces logo")}
+                }}
             }
         };
 
