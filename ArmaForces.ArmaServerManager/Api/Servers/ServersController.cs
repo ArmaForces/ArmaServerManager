@@ -111,6 +111,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <remarks>Starts or stops headless clients for server on given <paramref name="port"/> to match desired <paramref name="count"/>.
         /// Not implemented.</remarks>
         /// <param name="port">Port of the server to start/stop headless clients for.</param>
+        /// <param name="headlessSetRequestDto">TODO</param>
         [HttpPatch("{port:int}/headless", Name = nameof(SetHeadlessClients))]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -122,7 +123,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
             var result = await _serverCommandLogic.SetHeadlessClients(port, headlessSetRequestDto.Count);
 
             return result.Match(
-                onSuccess: () => NoContent(),
+                onSuccess: NoContent,
                 onFailure: error => (IActionResult) BadRequest(error));
         }
 

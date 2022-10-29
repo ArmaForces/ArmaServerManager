@@ -28,7 +28,9 @@ namespace ArmaForces.ArmaServerManager.Features.Servers.Providers
                 : null;
 
         public IDedicatedServer GetOrAddServer(int port, Func<int, IDedicatedServer> serverFactory)
-            => _servers.GetOrAdd(port, serverFactory);
+        {
+            return _servers.GetOrAdd(port, serverFactory);
+        }
 
         public List<IDedicatedServer> GetServers() => _servers.Values.ToList();
 
@@ -42,8 +44,16 @@ namespace ArmaForces.ArmaServerManager.Features.Servers.Providers
                 return Result.Success();
             }
 
-            _logger.LogDebug("Server not removed on port {Port}. Different server is already running", dedicatedServer.Port);
-            return Result.Failure($"Different server is already running on port {dedicatedServer.Port}.");
+            var otherServerRunning = _servers.TryGetValue(dedicatedServer.Port, out var _);
+
+            if (otherServerRunning)
+            {
+                _logger.LogDebug("Server not removed on port {Port}. Different server is running already", dedicatedServer.Port);
+                return Result.Failure($"Different server is already running on port {dedicatedServer.Port}.");
+            }
+
+            _logger.LogDebug("Server not removed on port {Port}. It was already removed", dedicatedServer.Port);
+            return Result.Failure($"Server already removed on port {dedicatedServer.Port}.");
         }
 
         /// <summary>
@@ -73,7 +83,7 @@ namespace ArmaForces.ArmaServerManager.Features.Servers.Providers
                 "Server with {ModsetName} disposed on port {Port}, removing",
                 dedicatedServer.Modset.Name,
                 dedicatedServer.Port);
-
+        
             TryRemoveServer(dedicatedServer);
             
             return Task.CompletedTask;

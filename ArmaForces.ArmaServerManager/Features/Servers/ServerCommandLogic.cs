@@ -65,6 +65,9 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
 
         public async Task<Result> SetHeadlessClients(int port, int desiredHcCount)
         {
+            using var _ = _logger.BeginScope(new KeyValuePair<string, object>("Port", port));
+            
+            _logger.LogTrace("Requested {Count} headless clients for server on port {Port}", desiredHcCount, port);
             var server = _serverProvider.GetServer(port);
             
             if (server is null)
@@ -73,16 +76,24 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
                 return Result.Failure($"Server doesn't exist on port {port}");
             }
 
-            if (server.HeadlessClientsConnected > desiredHcCount)
+            var headlessClientsConnected = server.HeadlessClientsConnected;
+            _logger.LogTrace("Server on port {Port} has {Count} headless clients connected", port, headlessClientsConnected);
+            
+            if (headlessClientsConnected > desiredHcCount)
             {
-                return await server.RemoveHeadlessClients(server.HeadlessClientsConnected - desiredHcCount);
+                var clientsToRemove = server.HeadlessClientsConnected - desiredHcCount;
+                _logger.LogDebug("Stopping {Count} headless clients from server on port {Port}", clientsToRemove, port);
+                return await server.RemoveHeadlessClients(clientsToRemove);
             }
 
+            var clientsToAdd = desiredHcCount - headlessClientsConnected;
+            _logger.LogDebug("Starting additional {Count} headless clients for server on port {Port}", clientsToAdd, port);
+            
             var createdClients = _armaProcessFactory.CreateHeadlessClients(
                 port: port,
                 modset: server.Modset,
                 modsetConfig: _modsetConfigurationProvider.GetModsetConfig(server.Modset.Name),
-                numberOfHeadlessClients: server.HeadlessClientsConnected);
+                numberOfHeadlessClients: clientsToAdd);
 
             return server.AddAndStartHeadlessClients(createdClients);
         }

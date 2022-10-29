@@ -31,7 +31,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
         {
             _process = process;
             _process.EnableRaisingEvents = true;
-            _process.Exited += (sender, args) => InvokeOnProcessShutdown();
+            _process.Exited += (_, _) => InvokeOnProcessShutdown();
         }
 
         public ArmaProcess(
@@ -94,9 +94,9 @@ namespace ArmaForces.Arma.Server.Features.Processes
                 return Result.Failure("Process could not be shut down because it's not running.");
             }
 
-            _logger.LogDebug("Shutting down the {ArmaProcess}", _process);
+            _logger.LogDebug("Shutting down the {ProcessType}: {ProcessName}", ProcessType, _process.ProcessName);
 
-            _process.Close();
+            _process.CloseMainWindow();
             await Task.Run(() => _process.WaitForExit(milliseconds: 5000));
             
             if (!_process.HasExited)
