@@ -14,7 +14,7 @@ namespace ArmaForces.Arma.Server.Extensions
         /// <returns>Command line string or null.</returns>
         public static string? GetCommandLine(this Process process)
         {
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            if (OperatingSystem.IsWindows())
             {
                 using var searcher = new ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + process.Id);
                 using var objects = searcher.Get();
