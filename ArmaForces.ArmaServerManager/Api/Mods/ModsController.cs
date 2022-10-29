@@ -64,7 +64,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         }
 
         /// <summary>Verify Mods</summary>
-        /// <remarks>Triggers or schedules verification of given mods. Not implemented.</remarks>
+        /// <remarks>Triggers or schedules verification of given mods. <b>Not implemented.</b></remarks>
         [HttpPost("verify")]
         [ProducesResponseType(StatusCodes.Status501NotImplemented)]
         public IActionResult VerifyMods([FromBody] ModsVerificationRequestDto modsVerificationRequestDto)
@@ -91,7 +91,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         }
 
         /// <summary>Verify Modset</summary>
-        /// <remarks>Triggers or schedules verification of given modset. Not implemented.</remarks>
+        /// <remarks>Triggers or schedules verification of given modset. <b>Not implemented.</b></remarks>
         /// <param name="modsetName">Name of modset to verify.</param>
         /// <param name="jobScheduleRequestDto">Optional job schedule details.</param>
         [HttpPost("{modsetName}/verify", Name = nameof(VerifyModset))]
