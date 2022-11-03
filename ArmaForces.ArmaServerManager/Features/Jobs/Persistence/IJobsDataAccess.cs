@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using ArmaForces.ArmaServerManager.Features.Jobs.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using CSharpFunctionalExtensions;
-using Hangfire.Storage;
 
 namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
 {
     internal interface IJobsDataAccess
     {
-        List<JobDataModel> GetJobs(ISet<JobStatus> includeStatuses);
+        List<T> GetJobs<T>(Expression<Func<T, bool>> filterExpression) where T : JobDataModel;
         
-        Result<JobDataModel> GetJob(int jobId);
+        Result<T> GetJob<T>(int jobId) where T : JobDataModel;
     }
 }

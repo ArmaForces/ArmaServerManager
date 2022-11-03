@@ -31,16 +31,24 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
 
         public Result<JobDetails> GetJobDetails(int jobId, bool includeHistory = false)
             => _jobsRepository.GetJobDetails(jobId, includeHistory)
-                .Tap(x => _logger.LogDebug("Successfully retrieved details for job {JobId}", jobId));
+                .Tap(_ => _logger.LogDebug("Successfully retrieved details for job {JobId}", jobId));
 
-        public Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus> statusFilter, bool includeHistory = false)
+        public Result<List<JobDetails>> GetJobs(
+            IEnumerable<int> jobIds,
+            IEnumerable<JobStatus> statusFilter,
+            bool includeHistory = false)
         {
+            var jobIdsList = jobIds.ToList();
             var statusSet = statusFilter.ToHashSet();
-            ISet<JobStatus> includeStatuses = statusSet.IsEmpty() ? AnyStatus : statusSet;
             
-            return _jobsRepository.GetJobs(includeStatuses, includeHistory)
-                .Tap(x => _logger.LogDebug("Found {Count} jobs matching status {List}", x.Count, statusFilter))
-                .Map(x => x.ToList());
+            if (jobIdsList.Any() && statusSet.Any())
+            {
+                return Result.Failure<List<JobDetails>>("Only one of jobIds and statusFilter can be specified.");
+            }
+
+            return jobIdsList.Any()
+                ? GetJobs(jobIdsList, includeHistory)
+                : GetJobs(statusSet, includeHistory);
         }
 
         public Result<List<JobDetails>> GetQueuedJobs()
@@ -65,8 +73,31 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             => jobDetails.JobStatus == JobStatus.Enqueued
                 ? Result.Failure("Job is already enqueued")
                 : Result.Success();
+        
+        
 
-        private static ImmutableHashSet<JobStatus> AnyStatus { get; set; } = new HashSet<JobStatus>
+        private Result<List<JobDetails>> GetJobs(
+            IEnumerable<int> jobIds,
+            bool includeHistory = false)
+        {
+            return _jobsRepository.GetJobs(jobIds, includeHistory)
+                .Tap(x => _logger.LogDebug("Found {Count} jobs out of requested list {List}", x.Count, jobIds))
+                .Map(x => x.ToList());
+        }
+
+        private Result<List<JobDetails>> GetJobs(
+            IEnumerable<JobStatus> statusFilter,
+            bool includeHistory = false)
+        {
+            var statusSet = statusFilter.ToHashSet();
+            ISet<JobStatus> includeStatuses = statusSet.IsEmpty() ? AnyStatus : statusSet;
+            
+            return _jobsRepository.GetJobs(includeStatuses, includeHistory)
+                .Tap(x => _logger.LogDebug("Found {Count} jobs matching status {List}", x.Count, statusFilter))
+                .Map(x => x.ToList());
+        }
+
+        private static ImmutableHashSet<JobStatus> AnyStatus { get; } = new HashSet<JobStatus>
         {
             JobStatus.Awaiting,
             JobStatus.Deleted,

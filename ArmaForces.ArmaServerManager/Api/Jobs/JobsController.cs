@@ -66,16 +66,21 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         }
 
         /// <summary>Get Jobs</summary>
-        /// <remarks>Returns jobs with given <paramref name="jobStatus"/>.</remarks>
+        /// <remarks>
+        /// Returns jobs with given <paramref name="jobStatus"/>.
+        /// Only one of <paramref name="jobIds"/> and <paramref name="jobStatus"/> query parameters can be specified.
+        /// </remarks>
+        /// <param name="jobIds">Ids of jobs to retrieve.</param>
         /// <param name="jobStatus">Allowed job statuses.</param>
         /// <param name="includeHistory">Include job status history.</param>
         [HttpGet(Name = nameof(GetJobs))]
         [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public IActionResult GetJobs(
+            [FromQuery] IEnumerable<int> jobIds,
             [FromQuery] IEnumerable<JobStatus> jobStatus,
             [FromQuery] bool includeHistory = false)
-            => _jobsService.GetJobs(jobStatus, includeHistory)
+            => _jobsService.GetJobs(jobIds, jobStatus, includeHistory)
                 .Map(JobsMapper.Map)
                 .Match(
                     onSuccess: Ok,

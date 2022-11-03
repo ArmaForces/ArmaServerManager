@@ -18,7 +18,10 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
         public string InvocationData { get; set; }
         
         public string Arguments { get; set; }
+    }
 
+    internal class JobDataModelWithHistory : JobDataModel
+    {
         public List<JobStateHistoryDataModel> StateHistory { get; set; }
     }
 }

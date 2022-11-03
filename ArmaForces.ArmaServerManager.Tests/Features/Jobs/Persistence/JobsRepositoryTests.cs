@@ -38,74 +38,81 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs.Persistence
                     typeof(Mod)));
         }
 
+        private Job CreateHangfireJob(MethodInfo methodInfo)
+        {
+            var methodParameters = methodInfo?.GetParameters()
+                                       .Select(x => _fixture.Create(x.ParameterType, new SpecimenContext(_fixture)))
+                                       .ToArray()
+                                   ?? throw new ArgumentNullException(nameof(methodInfo));
+            
+            return new Job(
+                method: methodInfo,
+                methodParameters);
+        }
+
         [Theory]
         [ClassData(typeof(MethodWithParametersTestData))]
         public void GetJobDetails_MethodWithParameters_JobDetailsAreCorrect(MethodInfo methodInfo)
         {
-            var jobId = _fixture.Create<int>().ToString();
-            var jobData = CreateJobData(methodInfo);
+            var jobId = _fixture.Create<int>();
+            var hangfireJob = CreateHangfireJob(methodInfo);
+            var jobData = CreateJobDataModel(jobId, hangfireJob);
             
             var expectedJobDetails = new JobDetails
             {
+                Id = jobId,
                 Name = methodInfo.Name,
                 CreatedAt = jobData.CreatedAt,
-                JobStatus = JobStatusParser.ParseJobStatus(jobData.State),
-                Parameters = jobData.Job.Method.GetParameters()
-                    .Zip(jobData.Job.Args, (parameterInfo, parameterValue) => new KeyValuePair<string, object>(parameterInfo.Name ?? "unknown", parameterValue))
+                JobStatus = jobData.JobStatus,
+                Parameters = hangfireJob.Method.GetParameters()
+                    .Zip(hangfireJob.Args, (parameterInfo, parameterValue) => new KeyValuePair<string, object>(parameterInfo.Name ?? "unknown", parameterValue))
                     .Where(x => x.Key != "cancellationToken")
                     .ToList()
             };
 
             var backgroundJobClientWrapper = Mock.Of<IHangfireBackgroundJobClientWrapper>();
-            var hangfireDataAccess = Mock.Of<IJobsDataAccess>();
             var monitoringApi = Mock.Of<IMonitoringApi>();
-            var storageConnection = CreateMockedStorageConnection(new List<KeyValuePair<string, JobData>>
+            var jobsDataAccess = CreateMockedJobsDataAccess(new List<KeyValuePair<int, JobDataModel>>
             {
-                new KeyValuePair<string, JobData>(jobId, jobData)
+                new KeyValuePair<int, JobDataModel>(jobId, jobData)
             });
-            
-            var jobRepository = new JobsRepository(backgroundJobClientWrapper, hangfireDataAccess, monitoringApi);
+
+            var jobRepository = new JobsRepository(backgroundJobClientWrapper, jobsDataAccess, monitoringApi);
 
             var result = jobRepository.GetJobDetails(jobId);
             
             result.ShouldBeSuccess(expectedJobDetails);
         }
 
-        private JobData CreateJobData(
-            MethodInfo? methodInfo,
+        private IJobsDataAccess CreateMockedJobsDataAccess(List<KeyValuePair<int, JobDataModel>>? storedJobs)
+        {
+            storedJobs ??= new List<KeyValuePair<int, JobDataModel>>();
+            var mock = new Mock<IJobsDataAccess>();
+
+            foreach (var (jobId, jobDataModel) in storedJobs)
+            {
+                mock
+                    .Setup(x => x.GetJob<JobDataModel>(jobId))
+                    .Returns(jobDataModel);
+            }
+            
+            return mock.Object;
+        }
+
+        private JobDataModel CreateJobDataModel(
+            int jobId,
+            Job job,
             DateTime? createdAt = null,
             JobStatus status = JobStatus.Scheduled)
         {
-            // methodInfo.GetParameters().First().ParameterType;
-
-            var methodParameters = methodInfo?.GetParameters()
-                .Select(x => _fixture.Create(x.ParameterType, new SpecimenContext(_fixture)))
-                .ToArray()
-                               ?? throw new ArgumentNullException(nameof(methodInfo));
-
-            return new JobData
+            return new JobDataModel
             {
-                Job = new Job(
-                    method: methodInfo,
-                    methodParameters),
+                Id = jobId,
+                JobStatus = status,
                 CreatedAt = createdAt ?? _fixture.Create<DateTime>(),
-                State = status.ToString()
+                InvocationData = SerializationHelper.Serialize(InvocationData.SerializeJob(job)),
+                Arguments = job.Args.ToString() ?? string.Empty
             };
-        }
-
-        private static IStorageConnection CreateMockedStorageConnection(List<KeyValuePair<string, JobData>>? storedJobs = null)
-        {
-            storedJobs ??= new List<KeyValuePair<string, JobData>>();
-            var mock = new Mock<IStorageConnection>();
-
-            foreach (var storedJob in storedJobs)
-            {
-                mock
-                    .Setup(storageConnection => storageConnection.GetJobData(storedJob.Key))
-                    .Returns(storedJob.Value);
-            }
-
-            return mock.Object;
         }
 
         private class MethodWithParametersTestData : IEnumerable<object[]>

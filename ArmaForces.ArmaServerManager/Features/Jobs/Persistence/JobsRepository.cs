@@ -48,13 +48,21 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
         }
 
         public Result<JobDetails> GetJobDetails(int jobId, bool includeHistory = false)
-            => _jobsDataAccess.GetJob(jobId)
-                .Map(x => CreateJobDetails(x, includeHistory));
+            => includeHistory
+                ? _jobsDataAccess.GetJob<JobDataModelWithHistory>(jobId)
+                    .Map(CreateJobDetails)
+                : _jobsDataAccess.GetJob<JobDataModel>(jobId)
+                    .Map(CreateJobDetails);
+
+        public Result<List<JobDetails>> GetJobs(IEnumerable<int> jobIds, bool includeHistory = false)
+            => includeHistory
+                ? GetJobs<JobDataModelWithHistory>(x => jobIds.Contains(x.Id))
+                : GetJobs<JobDataModel>(x => jobIds.Contains(x.Id));
 
         public Result<List<JobDetails>> GetJobs(ISet<JobStatus> includeStatuses, bool includeHistory = false)
-            => _jobsDataAccess.GetJobs(includeStatuses)
-                .Select(x => CreateJobDetails(x, includeHistory))
-                .ToList();
+            => includeHistory
+                ? GetJobs<JobDataModelWithHistory>(x => includeStatuses.Contains(x.JobStatus))
+                : GetJobs<JobDataModel>(x => includeStatuses.Contains(x.JobStatus));
 
         public Result RequeueJob(int jobId)
             => _backgroundJobClientWrapper.Requeue(jobId.ToString());
@@ -73,15 +81,20 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
             int count = 50)
             => GetScheduledJobs(from, count)
                 .Where(x => JobMatchesMethod(x.Job, func));
-
-        private static JobDetails CreateJobDetails(JobDataModel jobDataModel, bool includeHistory)
+        
+        private Result<List<JobDetails>> GetJobs<T>(Expression<Func<T, bool>> filterExpression) where T : JobDataModel
+            => _jobsDataAccess.GetJobs(filterExpression)
+                .Select(CreateJobDetails)
+                .ToList();
+        
+        private static JobDetails CreateJobDetails(JobDataModel jobDataModel)
         {
             var job = SerializationHelper
                 .Deserialize<InvocationData>(jobDataModel.InvocationData, SerializationOption.User)
                 .DeserializeJob();
 
-            var history = includeHistory
-                ? jobDataModel.StateHistory
+            var history = jobDataModel is JobDataModelWithHistory jobDataModelWithHistory
+                ? jobDataModelWithHistory.StateHistory
                     .Select(x => new JobStateHistory
                     {
                         JobId = jobDataModel.Id,

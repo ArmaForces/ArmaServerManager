@@ -1,43 +1,39 @@
-﻿using System.Collections.Generic;
-using ArmaForces.ArmaServerManager.Features.Jobs.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Constants;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using CSharpFunctionalExtensions;
 using Hangfire.LiteDB;
-using Hangfire.Storage;
 using LiteDB;
 
 namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
 {
     internal class JobsDataAccess : IJobsDataAccess
     {
-        private readonly IStorageConnection _storageConnection;
+        private const string JobDoesntExistError = "Job doesn't exist.";
+        
         private readonly HangfireDbContext _dbContext;
 
-        public JobsDataAccess(
-            IStorageConnection storageConnection,
-            HangfireDbContext dbContext)
+        public JobsDataAccess(HangfireDbContext dbContext)
         {
-            _storageConnection = storageConnection;
             _dbContext = dbContext;
         }
 
-        public List<JobDataModel> GetJobs(ISet<JobStatus> includeStatuses)
-        {
-            return JobsTable
+        public List<T> GetJobs<T>(Expression<Func<T, bool>> filterExpression) where T : JobDataModel
+            => JobsTable<T>()
                 .Query()
-                .Where(x => includeStatuses.Contains(x.JobStatus))
+                .Where(filterExpression)
                 .ToList();
-        }
 
-        public Result<JobDataModel> GetJob(int jobId)
-            => JobsTable
+        public Result<T> GetJob<T>(int jobId) where T : JobDataModel
+            => JobsTable<T>()
                 .Query()
                 .Where(x => x.Id == jobId)
                 .SingleOrDefault() 
-               ?? Result.Failure<JobDataModel>("Job doesn't exist.");
+               ?? Result.Failure<T>(JobDoesntExistError);
 
-        private ILiteCollection<JobDataModel> JobsTable
-            => _dbContext.Database.GetCollection<JobDataModel>(HangfireDatabaseConstants.JobsTable);
+        private ILiteCollection<T> JobsTable<T>() where T : JobDataModel
+            => _dbContext.Database.GetCollection<T>(HangfireDatabaseConstants.JobsTable);
     }
 }

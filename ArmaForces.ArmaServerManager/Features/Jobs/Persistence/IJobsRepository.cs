@@ -17,6 +17,8 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
         
         Result<JobDetails> GetJobDetails(int jobId, bool includeHistory = false);
         
+        Result<List<JobDetails>> GetJobs(IEnumerable<int> jobIds, bool includeHistory = false);
+        
         Result<List<JobDetails>> GetJobs(ISet<JobStatus> includeStatuses, bool includeHistory = false);
 
         Result RequeueJob(int jobId);
