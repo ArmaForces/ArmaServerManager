@@ -11,7 +11,7 @@ namespace ArmaForces.ArmaServerManager.Api.Status.DTOs
     /// <summary>
     /// Application status details, optionally including jobs and servers details.
     /// </summary>
-    public class AppStatusDto
+    public class AppStatusDetailsDto
     {
         /// <summary>
         /// Short description what the application is doing currently.
@@ -19,7 +19,13 @@ namespace ArmaForces.ArmaServerManager.Api.Status.DTOs
         [JsonProperty(Required = Required.Always)]
         [SwaggerSchema(Nullable = false)]
         [Required]
-        public string Status { get; set; } = string.Empty;
+        public AppStatus Status { get; set; } = AppStatus.Idle;
+
+        /// <summary>
+        /// Longer description if needed.
+        /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string? StatusLong { get; set; }
         
         /// <summary>
         /// Currently processed job, if any.

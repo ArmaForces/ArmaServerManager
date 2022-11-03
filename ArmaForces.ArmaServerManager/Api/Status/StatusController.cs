@@ -1,4 +1,5 @@
-﻿using System.Net.Mime;
+﻿using System.Collections.Generic;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Api.Status.DTOs;
 using ArmaForces.ArmaServerManager.Api.Status.Mappers;
@@ -33,12 +34,10 @@ namespace ArmaForces.ArmaServerManager.Api.Status
         /// <param name="includeJobs">Includes jobs queue details when true.</param>
         /// <param name="includeServers">Includes servers status when true.</param>
         [HttpGet(Name = nameof(GetStatus))]
-        [ProducesResponseType(typeof(AppStatusDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(AppStatusDto), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetStatus(
-            [FromQuery] bool includeJobs = false,
-            [FromQuery] bool includeServers = false)
-            => await _statusProvider.GetAppStatus(includeJobs, includeServers)
+        [ProducesResponseType(typeof(AppStatusDetailsDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppStatusDetailsDto), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetStatus([FromQuery] IEnumerable<AppStatusIncludes> include)
+            => await _statusProvider.GetAppStatus(include)
                 .Map(StatusMapper.Map)
                 .Match(
                     onSuccess: Ok,

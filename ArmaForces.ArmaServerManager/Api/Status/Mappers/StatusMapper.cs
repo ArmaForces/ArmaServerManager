@@ -8,17 +8,17 @@ namespace ArmaForces.ArmaServerManager.Api.Status.Mappers
 {
     internal static class StatusMapper
     {
-        public static AppStatusDto Map(AppStatus appStatus)
-            => new AppStatusDto
+        public static AppStatusDetailsDto Map(AppStatusDetails appStatusDetails)
+            => new AppStatusDetailsDto
             {
-                Status = appStatus.Status,
-                CurrentJob = appStatus.CurrentJob is null
+                Status = appStatusDetails.Status,
+                CurrentJob = appStatusDetails.CurrentJob is null
                     ? null
-                    : JobsMapper.Map(appStatus.CurrentJob),
-                QueuedJobs = appStatus.QueuedJobs
+                    : JobsMapper.Map(appStatusDetails.CurrentJob),
+                QueuedJobs = appStatusDetails.QueuedJobs?
                     .Select(JobsMapper.Map)
                     .ToList(),
-                Servers = appStatus.Servers?
+                Servers = appStatusDetails.Servers?
                     .Select(ServerStatusMapper.Map)
                     .ToList()
             };
