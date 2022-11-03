@@ -21,7 +21,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             _logger = logger;
         }
 
-        public Result DeleteJob(string jobId)
+        public Result DeleteJob(int jobId)
             => _jobsRepository.GetJobDetails(jobId)
                 .Bind(CheckJobCanBeDeleted)
                 .Bind(() => _jobsRepository.DeleteJob(jobId));
@@ -29,16 +29,16 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
         public Result<JobDetails?> GetCurrentJob()
             => _jobsRepository.GetCurrentJob();
 
-        public Result<JobDetails> GetJobDetails(string jobId)
-            => _jobsRepository.GetJobDetails(jobId)
+        public Result<JobDetails> GetJobDetails(int jobId, bool includeHistory = false)
+            => _jobsRepository.GetJobDetails(jobId, includeHistory)
                 .Tap(x => _logger.LogDebug("Successfully retrieved details for job {JobId}", jobId));
 
-        public Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus> statusFilter)
+        public Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus> statusFilter, bool includeHistory = false)
         {
             var statusSet = statusFilter.ToHashSet();
             ISet<JobStatus> includeStatuses = statusSet.IsEmpty() ? AnyStatus : statusSet;
             
-            return _jobsRepository.GetJobs(includeStatuses)
+            return _jobsRepository.GetJobs(includeStatuses, includeHistory)
                 .Tap(x => _logger.LogDebug("Found {Count} jobs matching status {List}", x.Count, statusFilter))
                 .Map(x => x.ToList());
         }
@@ -51,7 +51,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
                 JobStatus.Enqueued
             });
 
-        public Result RequeueJob(string jobId)
+        public Result RequeueJob(int jobId)
             => _jobsRepository.GetJobDetails(jobId)
                 .Bind(CheckJobCanBeRequeued)
                 .Bind(() => _jobsRepository.RequeueJob(jobId));

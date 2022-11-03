@@ -64,7 +64,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs.Persistence
                 new KeyValuePair<string, JobData>(jobId, jobData)
             });
             
-            var jobRepository = new JobsRepository(backgroundJobClientWrapper, hangfireDataAccess, monitoringApi, storageConnection);
+            var jobRepository = new JobsRepository(backgroundJobClientWrapper, hangfireDataAccess, monitoringApi);
 
             var result = jobRepository.GetJobDetails(jobId);
             

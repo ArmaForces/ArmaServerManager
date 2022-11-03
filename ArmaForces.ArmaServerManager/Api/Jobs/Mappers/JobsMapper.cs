@@ -11,14 +11,23 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs.Mappers
         {
             return new JobDetailsDto
             {
+                Id = jobDetails.Id,
                 Name = jobDetails.Name,
                 CreatedAt = jobDetails.CreatedAt,
                 JobStatus = jobDetails.JobStatus,
-                Parameters = jobDetails.Parameters
+                Parameters = jobDetails.Parameters,
+                StateHistory = Map(jobDetails.StateHistory)
             };
         }
 
         public static List<JobDetailsDto> Map(IEnumerable<JobDetails> jobDetails)
             => jobDetails.Select(Map).ToList();
+
+        private static List<JobStateHistoryDto>? Map(IEnumerable<JobStateHistory>? history)
+            => history?.Select(x => new JobStateHistoryDto
+            {
+                StateName = x.Name,
+                EnteredAt = x.CreatedAt
+            }).ToList();
     }
 }

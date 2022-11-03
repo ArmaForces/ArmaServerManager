@@ -34,12 +34,12 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         /// Delete may fail if job changes state, is completed or expires.
         /// </remarks>
         /// <param name="jobId">Id of the job to delete.</param>
-        [HttpDelete("{jobId}", Name = nameof(DeleteJob))]
+        [HttpDelete("{jobId:int}", Name = nameof(DeleteJob))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status422UnprocessableEntity)]
         [ApiKey]
-        public IActionResult DeleteJob(string jobId)
+        public IActionResult DeleteJob(int jobId)
         {
             return _jobsService.DeleteJob(jobId)
                 .Match(
@@ -52,12 +52,13 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         /// <summary>Get Job</summary>
         /// <remarks>Retrieves job by id.</remarks>
         /// <param name="jobId">Id of the job to retrieve.</param>
-        [HttpGet("{jobId}", Name = nameof(GetJob))]
+        /// <param name="includeHistory">Include job status history.</param>
+        [HttpGet("{jobId:int}", Name = nameof(GetJob))]
         [ProducesResponseType(typeof(JobDetailsDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
-        public IActionResult GetJob(string jobId)
+        public IActionResult GetJob(int jobId, [FromQuery] bool includeHistory = false)
         {
-            return _jobsService.GetJobDetails(jobId)
+            return _jobsService.GetJobDetails(jobId, includeHistory)
                 .Map(JobsMapper.Map)
                 .Match(
                     onSuccess: Ok,
@@ -67,11 +68,14 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         /// <summary>Get Jobs</summary>
         /// <remarks>Returns jobs with given <paramref name="jobStatus"/>.</remarks>
         /// <param name="jobStatus">Allowed job statuses.</param>
+        /// <param name="includeHistory">Include job status history.</param>
         [HttpGet(Name = nameof(GetJobs))]
         [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetJobs([FromQuery] IEnumerable<JobStatus> jobStatus)
-            => _jobsService.GetJobs(jobStatus)
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        public IActionResult GetJobs(
+            [FromQuery] IEnumerable<JobStatus> jobStatus,
+            [FromQuery] bool includeHistory = false)
+            => _jobsService.GetJobs(jobStatus, includeHistory)
                 .Map(JobsMapper.Map)
                 .Match(
                     onSuccess: Ok,
@@ -81,7 +85,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         /// <remarks>Returns enqueued, scheduled and awaiting jobs.</remarks>
         [HttpGet("queued", Name = nameof(GetQueuedJobs))]
         [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(List<JobDetailsDto>), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public IActionResult GetQueuedJobs()
             => _jobsService.GetQueuedJobs()
                 .Map(JobsMapper.Map)
@@ -95,12 +99,12 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         /// Requeue may fail if job changes state, is completed or expires.
         /// </remarks>
         /// <param name="jobId">Id of the job to requeue.</param>
-        [HttpPost("{jobId}/requeue", Name = nameof(RequeueJob))]
+        [HttpPost("{jobId:int}/requeue", Name = nameof(RequeueJob))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status422UnprocessableEntity)]
         [ApiKey]
-        public IActionResult RequeueJob(string jobId)
+        public IActionResult RequeueJob(int jobId)
         {
             return _jobsService.RequeueJob(jobId)
                 .Match(

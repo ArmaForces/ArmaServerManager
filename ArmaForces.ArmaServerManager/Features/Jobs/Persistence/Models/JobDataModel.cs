@@ -15,6 +15,10 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
         
         public DateTime CreatedAt { get; set; }
         
+        public string InvocationData { get; set; }
+        
+        public string Arguments { get; set; }
+
         public List<JobStateHistoryDataModel> StateHistory { get; set; }
     }
 }

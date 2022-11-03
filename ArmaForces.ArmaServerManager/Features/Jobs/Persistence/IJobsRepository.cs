@@ -11,15 +11,15 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
 {
     internal interface IJobsRepository
     {
-        Result DeleteJob(string jobId);
+        Result DeleteJob(int jobId);
 
         Result<JobDetails?> GetCurrentJob();
         
-        Result<JobDetails> GetJobDetails(string jobId);
+        Result<JobDetails> GetJobDetails(int jobId, bool includeHistory = false);
         
-        Result<List<JobDetails>> GetJobs(ISet<JobStatus> includeStatuses);
+        Result<List<JobDetails>> GetJobs(ISet<JobStatus> includeStatuses, bool includeHistory = false);
 
-        Result RequeueJob(string jobId);
+        Result RequeueJob(int jobId);
 
         IEnumerable<EnqueuedJobDto> GetSimilarQueuedJobs<T>(
             Expression<Func<T, Task>> func,

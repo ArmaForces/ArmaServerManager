@@ -7,16 +7,16 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
 {
     public interface IJobsService
     {
-        Result DeleteJob(string jobId);
+        Result DeleteJob(int jobId);
         
-        Result<JobDetails> GetJobDetails(string jobId);
+        Result<JobDetails> GetJobDetails(int jobId, bool includeHistory = false);
 
         Result<List<JobDetails>> GetQueuedJobs();
 
-        Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus> statusFilter);
+        Result<List<JobDetails>> GetJobs(IEnumerable<JobStatus> statusFilter, bool includeHistory = false);
 
         Result<JobDetails?> GetCurrentJob();
 
-        Result RequeueJob(string jobId);
+        Result RequeueJob(int jobId);
     }
 }

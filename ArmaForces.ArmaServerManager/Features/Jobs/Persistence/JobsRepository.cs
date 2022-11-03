@@ -18,22 +18,19 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
         private readonly IHangfireBackgroundJobClientWrapper _backgroundJobClientWrapper;
         private readonly IJobsDataAccess _jobsDataAccess;
         private readonly IMonitoringApi _monitoringApi;
-        private readonly IStorageConnection _storageConnection;
 
         public JobsRepository(
             IHangfireBackgroundJobClientWrapper backgroundJobClientWrapper,
             IJobsDataAccess jobsDataAccess,
-            IMonitoringApi monitoringApi,
-            IStorageConnection storageConnection)
+            IMonitoringApi monitoringApi)
         {
             _backgroundJobClientWrapper = backgroundJobClientWrapper;
             _jobsDataAccess = jobsDataAccess;
             _monitoringApi = monitoringApi;
-            _storageConnection = storageConnection;
         }
 
-        public Result DeleteJob(string jobId)
-            => _backgroundJobClientWrapper.Delete(jobId);
+        public Result DeleteJob(int jobId)
+            => _backgroundJobClientWrapper.Delete(jobId.ToString());
 
         public Result<JobDetails?> GetCurrentJob()
         {
@@ -46,39 +43,28 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
 #pragma warning disable CS8619
             return currentJobId is null
                 ? Result.Success<JobDetails?>(null)
-                : GetJobDetails(currentJobId);
+                : GetJobDetails(int.Parse(currentJobId));
 #pragma warning restore CS8619
         }
 
-        public Result<JobDetails> GetJobDetails(string jobId)
-        {
-            var jobData = _storageConnection.GetJobData(jobId);
+        public Result<JobDetails> GetJobDetails(int jobId, bool includeHistory = false)
+            => _jobsDataAccess.GetJob(jobId)
+                .Map(x => CreateJobDetails(x, includeHistory));
 
-            return jobData != null
-                ? CreateJobDetails(jobData)
-                : Result.Failure<JobDetails>("Job does not exist.");
-        }
+        public Result<List<JobDetails>> GetJobs(ISet<JobStatus> includeStatuses, bool includeHistory = false)
+            => _jobsDataAccess.GetJobs(includeStatuses)
+                .Select(x => CreateJobDetails(x, includeHistory))
+                .ToList();
 
-        public Result<List<JobDetails>> GetJobs(ISet<JobStatus> includeStatuses)
-        {
-            return _jobsDataAccess.GetJobs(includeStatuses)
-                .Select(GetJobDetails)
-                .Combine()
-                .Map(x => x.ToList());
-        }
-
-        public Result RequeueJob(string jobId)
-            => _backgroundJobClientWrapper.Requeue(jobId);
+        public Result RequeueJob(int jobId)
+            => _backgroundJobClientWrapper.Requeue(jobId.ToString());
 
         public IEnumerable<EnqueuedJobDto> GetSimilarQueuedJobs<T>(
             Expression<Func<T, Task>> func,
             string queue = "default",
             int from = 0,
             int perPage = 50)
-            => GetQueuedJobs(
-                    queue,
-                    from,
-                    perPage)
+            => GetQueuedJobs(queue, from, perPage)
                 .Where(x => JobMatchesMethod(x.Job, func));
 
         public IEnumerable<ScheduledJobDto> GetSimilarScheduledJobs<T>(
@@ -88,19 +74,38 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
             => GetScheduledJobs(from, count)
                 .Where(x => JobMatchesMethod(x.Job, func));
 
-        private Result<JobDetails> GetJobDetails(JobDataModel jobDataModel)
-            => GetJobDetails(jobDataModel.Id.ToString());
-
-        private static JobDetails CreateJobDetails(JobData jobData) => new JobDetails
+        private static JobDetails CreateJobDetails(JobDataModel jobDataModel, bool includeHistory)
         {
-            Name = jobData.Job.ToString().Split('.').Last(),
-            CreatedAt = jobData.CreatedAt,
-            JobStatus = JobStatusParser.ParseJobStatus(jobData.State),
-            Parameters = jobData.Job.Method.GetParameters()
-                .Zip(jobData.Job.Args, (parameterInfo, parameterValue) => new KeyValuePair<string, object>(parameterInfo.Name ?? "unknown", parameterValue))
-                .Where(x => x.Key != "cancellationToken")
-                .ToList()
-        };
+            var job = SerializationHelper
+                .Deserialize<InvocationData>(jobDataModel.InvocationData, SerializationOption.User)
+                .DeserializeJob();
+
+            var history = includeHistory
+                ? jobDataModel.StateHistory
+                    .Select(x => new JobStateHistory
+                    {
+                        JobId = jobDataModel.Id,
+                        Name = x.StateName,
+                        // CreatedAt = x.CreatedAt
+                    }).ToList()
+                : null;
+            
+            return new JobDetails
+            {
+                Id = jobDataModel.Id,
+                Name = job.ToString().Split('.').Last(),
+                CreatedAt = jobDataModel.CreatedAt,
+                FinishedAt = null,
+                JobStatus = jobDataModel.JobStatus,
+                Parameters = job.Method.GetParameters()
+                    .Zip(job.Args,
+                        (parameterInfo, parameterValue) =>
+                            new KeyValuePair<string, object>(parameterInfo.Name ?? "unknown", parameterValue))
+                    .Where(x => x.Key != "cancellationToken")
+                    .ToList(),
+                StateHistory = history
+            };
+        }
 
         /// <summary>
         ///     Checks if given <paramref name="job" /> will execute using <typeparamref name="T" />
@@ -114,10 +119,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
             int from = 0,
             int perPage = 50)
             => _monitoringApi
-                .EnqueuedJobs(
-                    queue,
-                    from,
-                    perPage)
+                .EnqueuedJobs(queue, from, perPage)
                 .Select(x => x.Value);
 
 
