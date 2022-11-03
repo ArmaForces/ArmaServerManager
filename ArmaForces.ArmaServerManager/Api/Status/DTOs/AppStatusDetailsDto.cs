@@ -33,6 +33,7 @@ namespace ArmaForces.ArmaServerManager.Api.Status.DTOs
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public JobDetailsDto? CurrentJob { get; set; }
         
+        // TODO: Enums have full name in redoc.
         /// <summary>
         /// Jobs in <see cref="JobStatus.Awaiting"/>, <see cref="JobStatus.Enqueued"/> or <see cref="JobStatus.Scheduled"/> state.
         /// </summary>

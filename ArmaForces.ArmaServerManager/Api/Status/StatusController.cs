@@ -31,11 +31,10 @@ namespace ArmaForces.ArmaServerManager.Api.Status
         /// Returns current application status and currently processing job.
         /// Optionally, can also include jobs queue and server status.
         /// </remarks>
-        /// <param name="includeJobs">Includes jobs queue details when true.</param>
-        /// <param name="includeServers">Includes servers status when true.</param>
+        /// <param name="include">Optional includes for additional data.</param>
         [HttpGet(Name = nameof(GetStatus))]
         [ProducesResponseType(typeof(AppStatusDetailsDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(AppStatusDetailsDto), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetStatus([FromQuery] IEnumerable<AppStatusIncludes> include)
             => await _statusProvider.GetAppStatus(include)
                 .Map(StatusMapper.Map)
