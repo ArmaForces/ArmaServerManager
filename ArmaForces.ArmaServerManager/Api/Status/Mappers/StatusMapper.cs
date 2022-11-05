@@ -12,6 +12,7 @@ namespace ArmaForces.ArmaServerManager.Api.Status.Mappers
             => new AppStatusDetailsDto
             {
                 Status = appStatusDetails.Status,
+                StatusLong = appStatusDetails.LongStatus,
                 CurrentJob = appStatusDetails.CurrentJob is null
                     ? null
                     : JobsMapper.Map(appStatusDetails.CurrentJob),
