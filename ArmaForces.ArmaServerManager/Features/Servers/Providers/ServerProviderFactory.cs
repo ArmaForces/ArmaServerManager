@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
@@ -51,9 +52,16 @@ namespace ArmaForces.ArmaServerManager.Features.Servers.Providers
 
         private async Task<Dictionary<int, IDedicatedServer>> LoadRunningServers()
         {
-            _logger.LogDebug("Starting running servers loading");
+            _logger.LogDebug("Loading running servers");
             
             var potentialServers = await _armaProcessDiscoverer.DiscoverArmaProcesses();
+
+            if (potentialServers.IsEmpty())
+            {
+                _logger.LogDebug("Found no running servers");
+                
+                return new Dictionary<int, IDedicatedServer>();
+            }
             
             _logger.LogDebug("Found {Count} potential arma servers", potentialServers.Count);
 
