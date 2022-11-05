@@ -23,7 +23,7 @@ namespace ArmaForces.ArmaServerManager.Services
         /// <param name="headlessClients"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Result> StartServer(IModset modset, int headlessClients, CancellationToken cancellationToken);
+        Task<Result> StartServer(Modset modset, int headlessClients, CancellationToken cancellationToken);
 
         /// <summary>
         /// TODO: create documentation

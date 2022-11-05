@@ -24,7 +24,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private readonly string _modsPath;
         private readonly string _armaPath;
 
-        private readonly ISet<IMod> _mods;
+        private readonly ISet<Mod> _mods;
 
         // TODO: Make an asynchronous factory for it
         public ModsCache(
@@ -48,16 +48,16 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         /// <inheritdoc />
-        public IReadOnlyCollection<IMod> Mods => _mods.ToList();
+        public IReadOnlyCollection<Mod> Mods => _mods.ToList();
 
         /// <inheritdoc />
-        public async Task<bool> ModExists(IMod mod)
+        public async Task<bool> ModExists(Mod mod)
         {
             var result = await GetModInCache(mod)
                 .Bind(
                     x => x.Exists(_fileSystem)
                         ? Result.Success(x)
-                        : Result.Failure<IMod>("Mod's directory doesn't exist."))
+                        : Result.Failure<Mod>("Mod's directory doesn't exist."))
                 .OnFailureCompensate(error => TryFindModInModsDirectory(mod))
                 .Bind(AddOrUpdateModInCache)
                 .Tap(SaveCache);
@@ -66,7 +66,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         /// <inheritdoc />
-        public IModset MapWebModsetToCacheModset(WebModset webModset)
+        public Modset MapWebModsetToCacheModset(WebModset webModset)
         {
             var mappedMods = webModset.Mods
                 .Select(MapWebModToCacheMod)
@@ -86,7 +86,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         /// <inheritdoc />
-        public async Task<Result<List<IMod>>> AddOrUpdateModsInCache(IReadOnlyCollection<IMod> mods)
+        public async Task<Result<List<Mod>>> AddOrUpdateModsInCache(IReadOnlyCollection<Mod> mods)
         {
             return await mods.Select(AddOrUpdateModInCache)
                 .Combine()
@@ -99,22 +99,22 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="mod">Mod to retrieve from cache.</param>
         /// <returns>Successful <see cref="Result"/> if mod was retrieved from cache, failure if it doesn't exist.</returns>
-        private Result<IMod> GetModInCache(IMod mod)
+        private Result<Mod> GetModInCache(Mod mod)
         {
             var modInCache = _mods.SingleOrDefault(x => x.Equals(mod));
 
             return modInCache is null
-                ? Result.Failure<IMod>("Mod doesn't exist in cache.")
+                ? Result.Failure<Mod>("Mod doesn't exist in cache.")
                 : Result.Success(modInCache);
         }
 
         /// <summary>
-        /// Performs data update of existing <see cref="IMod"/> in cache, which corresponds to given <paramref name="mod"/>.
-        /// The <see cref="IMod"/> corresponding to <paramref name="mod"/> must exist in cache.
+        /// Performs data update of existing <see cref="Mod"/> in cache, which corresponds to given <paramref name="mod"/>.
+        /// The <see cref="Mod"/> corresponding to <paramref name="mod"/> must exist in cache.
         /// </summary>
         /// <param name="mod">Mod data to update corresponding mod in cache.</param>
-        /// <returns>Successful <see cref="Result"/> if mod data was updated properly, failure if <see cref="IMod"/> doesn't exist in cache.</returns>
-        private Result<IMod> UpdateModInCache(IMod mod)
+        /// <returns>Successful <see cref="Result"/> if mod data was updated properly, failure if <see cref="Mod"/> doesn't exist in cache.</returns>
+        private Result<Mod> UpdateModInCache(Mod mod)
         {
             return RemoveModFromCache(mod)
                 .Bind(modInCache => modInCache.UpdateModData(mod))
@@ -126,13 +126,13 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="mod">Mod to be added to cache.</param>
         /// <returns>Successful <see cref="Result"/> if mod was added to cache, failure if it already exists.</returns>
-        private Result<IMod> AddModToCache(IMod mod)
+        private Result<Mod> AddModToCache(Mod mod)
         {
             var result = _mods.Add(mod);
 
             return result
                 ? Result.Success(mod)
-                : Result.Failure<IMod>("Mod already exists in cache.");
+                : Result.Failure<Mod>("Mod already exists in cache.");
         }
 
         /// <summary>
@@ -140,23 +140,23 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="mod">Mod to remove from cache.</param>
         /// <returns>Successful <see cref="Result"/> if mod was removed from cache, failure if it doesn't exist in cache.</returns>
-        private Result<IMod> RemoveModFromCache(IMod mod)
+        private Result<Mod> RemoveModFromCache(Mod mod)
         {
             var result = _mods.Remove(mod);
 
             return result
                 ? Result.Success(mod)
-                : Result.Failure<IMod>("Mod couldn't be removed from cache as it doesn't exist.");
+                : Result.Failure<Mod>("Mod couldn't be removed from cache as it doesn't exist.");
         }
 
         /// <summary>
-        /// Attempts to map given <paramref name="webMod"/> to some cache <see cref="IMod"/>.
-        /// On failure attempts to find <paramref name="webMod"/> directory and returns non-cache <see cref="IMod"/>.
-        /// Directory property of the returned <see cref="IMod"/> might be null if it wasn't found.
+        /// Attempts to map given <paramref name="webMod"/> to some cache <see cref="Mod"/>.
+        /// On failure attempts to find <paramref name="webMod"/> directory and returns non-cache <see cref="Mod"/>.
+        /// Directory property of the returned <see cref="Mod"/> might be null if it wasn't found.
         /// </summary>
         /// <param name="webMod">WebMod to map to cache mod.</param>
-        /// <returns>Cache or non-cache <see cref="IMod"/>.</returns>
-        private IMod MapWebModToCacheMod(WebMod webMod)
+        /// <returns>Cache or non-cache <see cref="Mod"/>.</returns>
+        private Mod MapWebModToCacheMod(WebMod webMod)
         {
             var convertedMod = webMod.ConvertForServer();
             var result = GetModInCache(convertedMod)
@@ -185,7 +185,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// Tries to add <paramref name="mod"/> to cache and if it already exists, updates it.
         /// </summary>
         /// <returns>Always successful <see cref="Result"/>.</returns>
-        private Result<IMod> AddOrUpdateModInCache(IMod mod)
+        private Result<Mod> AddOrUpdateModInCache(Mod mod)
         {
             return AddModToCache(mod)
                 .OnFailureCompensate(_ => UpdateModInCache(mod));
@@ -197,12 +197,12 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="mod">The non-cached mod to look for in mods directory.</param>
         /// <returns>Successful <see cref="Result"/> if mod was found in the mods directory, failure if it couldn't be found.</returns>
-        private Result<IMod> TryFindModInModsDirectory(IMod mod)
+        private Result<Mod> TryFindModInModsDirectory(Mod mod)
         {
             mod = _modDirectoryFinder.TryEnsureModDirectory(mod);
 
             return mod.Directory is null
-                ? Result.Failure<IMod>("Mod directory could not be found.")
+                ? Result.Failure<Mod>("Mod directory could not be found.")
                 : Result.Success(mod);
         }
 
@@ -211,15 +211,14 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// After loading the file performs quick filtering to exclude non-existing mods.
         /// </summary>
         /// <returns>Successful <see cref="Result"/> with cache mods.</returns>
-        private async Task<Result<ISet<IMod>>> LoadCache()
+        private async Task<Result<ISet<Mod>>> LoadCache()
         {
             if (!_fileSystem.File.Exists(_cacheFilePath))
-                return Result.Failure<ISet<IMod>>("Cache file does not exist.");
+                return Result.Failure<ISet<Mod>>("Cache file does not exist.");
 
             var jsonString = await _fileSystem.File.ReadAllTextAsync(_cacheFilePath);
-            var mods = JsonConvert.DeserializeObject<IEnumerable<Mod>>(jsonString)
-                .Cast<IMod>()
-                .ToHashSet();
+            var mods = JsonConvert.DeserializeObject<IEnumerable<Mod>>(jsonString)?
+                .ToHashSet() ?? new HashSet<Mod>();
             var cachedMods = FilterOutNonExistingMods(mods);
 
             return Result.Success(cachedMods);
@@ -230,7 +229,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="mods">Set of mods to filter.</param>
         /// <returns>Set of mods which exist.</returns>
-        private ISet<IMod> FilterOutNonExistingMods(ISet<IMod> mods)
+        private ISet<Mod> FilterOutNonExistingMods(ISet<Mod> mods)
             => mods.Where(x => x.Exists(_fileSystem))
                 .ToHashSet();
 
@@ -238,13 +237,13 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// Builds cache from mods directory, loading each folder as separate mod.
         /// </summary>
         /// <returns>Successful result with discovered mods.</returns>
-        private Result<ISet<IMod>> BuildCacheFromModsDirectory()
+        private Result<ISet<Mod>> BuildCacheFromModsDirectory()
         {
             return _fileSystem.Directory.Exists(_modsPath)
                 ? _fileSystem.Directory.GetDirectories(_modsPath)
                     .Select(_modDirectoryFinder.CreateModFromDirectory)
                     .ToHashSet()
-                : new HashSet<IMod>();
+                : new HashSet<Mod>();
         }
 
         /// <summary>

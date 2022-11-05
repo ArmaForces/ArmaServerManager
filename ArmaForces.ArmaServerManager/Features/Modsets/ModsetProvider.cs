@@ -20,24 +20,24 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets
             _webModsetMapper = webModsetMapper;
         }
 
-        public async Task<Result<IModset>> GetModsetByName(string modsetName)
+        public async Task<Result<Modset>> GetModsetByName(string modsetName)
         {
             return await _apiModsetClient.GetModsetDataByName(modsetName)
                 .Bind(MapModsetData);
         }
 
-        public async Task<Result<List<IModset>>> GetModsets()
+        public async Task<Result<List<Modset>>> GetModsets()
         {
             return await _apiModsetClient.GetModsets()
-                .Bind(MapModsetsData); ;
+                .Bind(MapModsetsData);
         }
 
-        private Result<List<IModset>> MapModsetsData(List<WebModset> modsets)
+        private Result<List<Modset>> MapModsetsData(List<WebModset> modsets)
             => modsets
                 .Select(MapModsetData)
                 .Combine()
                 .Bind(x => Result.Success(x.ToList()));
 
-        private Result<IModset> MapModsetData(WebModset modset) => Result.Success(_webModsetMapper.MapWebModsetToCacheModset(modset));
+        private Result<Modset> MapModsetData(WebModset modset) => Result.Success(_webModsetMapper.MapWebModsetToCacheModset(modset));
     }
 }

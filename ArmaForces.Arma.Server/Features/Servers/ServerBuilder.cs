@@ -23,7 +23,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         private int? _port;
         private int _numberOfHeadlessClients;
 
-        private IModset? _modset;
+        private Modset? _modset;
         private IArmaProcess? _armaProcess;
         private IReadOnlyList<IArmaProcess>? _headlessClients;
 
@@ -51,7 +51,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
             return this;
         }
 
-        public IServerBuilder WithModset(IModset modset)
+        public IServerBuilder WithModset(Modset modset)
         {
             _modset = modset;
             return this;

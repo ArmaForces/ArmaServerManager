@@ -15,7 +15,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public IDedicatedServer CreateDedicatedServer(
             int port,
-            IModset modset,
+            Modset modset,
             int numberOfHeadlessClients)
         {
             var builder = _serverBuilderFactory.CreateServerBuilder();
@@ -28,7 +28,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public IDedicatedServer CreateDedicatedServer(
             int port,
-            IModset modset,
+            Modset modset,
             IArmaProcess armaProcess,
             IEnumerable<IArmaProcess>? headlessProcesses = null)
         {

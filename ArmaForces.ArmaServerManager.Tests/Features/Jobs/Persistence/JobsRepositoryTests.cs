@@ -25,19 +25,6 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs.Persistence
     {
         private readonly Fixture _fixture = new Fixture();
 
-        public JobRepositoryTests()
-        {
-            _fixture.Customizations.Add(
-                new TypeRelay(
-                    typeof(IModset),
-                    typeof(Modset)));
-            
-            _fixture.Customizations.Add(
-                new TypeRelay(
-                    typeof(IMod),
-                    typeof(Mod)));
-        }
-
         private Job CreateHangfireJob(MethodInfo methodInfo)
         {
             var methodParameters = methodInfo?.GetParameters()

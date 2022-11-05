@@ -5,6 +5,6 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 {
     public interface IWebModsetMapper
     {
-        IModset MapWebModsetToCacheModset(WebModset webModset);
+        Modset MapWebModsetToCacheModset(WebModset webModset);
     }
 }

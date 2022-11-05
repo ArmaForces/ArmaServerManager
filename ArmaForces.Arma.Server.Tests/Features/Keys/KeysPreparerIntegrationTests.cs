@@ -144,7 +144,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys
         private static void CreateExternalKeyForMod(
             IFileSystem fileSystem,
             string externalKeysDirectory,
-            IMod mod)
+            Mod mod)
         {
             var externalKeysDirectoryForMod = fileSystem.Path.Join(externalKeysDirectory, mod.Directory!.Split("\\").Last());
             fileSystem.Directory.CreateDirectory(externalKeysDirectoryForMod);
@@ -177,7 +177,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys
                 .ToList();
         }
 
-        private List<BikeyFile> GetBikeysForMods(IFileSystem fileSystem, ISet<IMod> mods)
+        private List<BikeyFile> GetBikeysForMods(IFileSystem fileSystem, ISet<Mod> mods)
         {
             return mods
                 .Select(mod => fileSystem.Directory.GetFiles(
@@ -191,7 +191,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Keys
 
         private void CreateDirectoryForMod(
             IFileSystem fileSystem,
-            IMod mod,
+            Mod mod,
             bool createBikey = true)
         {
             var modDirectoryPath = mod.Directory;

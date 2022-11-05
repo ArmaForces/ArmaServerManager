@@ -28,7 +28,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         public IArmaProcess CreateServerProcess(
             int port,
-            IModset modset,
+            Modset modset,
             IModsetConfig modsetConfig)
         {
             var parametersProvider = new ServerParametersProvider(
@@ -43,7 +43,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         public IEnumerable<IArmaProcess> CreateHeadlessClients(
             int port,
-            IModset modset,
+            Modset modset,
             IModsetConfig modsetConfig,
             int numberOfHeadlessClients = 1)
         {

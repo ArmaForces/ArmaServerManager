@@ -37,7 +37,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Modsets
 
             var modset = new Modset
             {
-                Mods = modsList.Cast<IMod>().ToHashSet(),
+                Mods = modsList.ToHashSet(),
                 Dlcs = dlcsList.ToHashSet()
             };
 

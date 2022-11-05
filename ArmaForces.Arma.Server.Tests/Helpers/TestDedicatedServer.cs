@@ -17,7 +17,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
         {
         }
 
-        public TestDedicatedServer(IModset modset)
+        public TestDedicatedServer(Modset modset)
         {
             Modset = modset;
         }
@@ -32,7 +32,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
 
         public int SteamQueryPort => Port + 1;
 
-        public IModset Modset { get; set; } = ModsetHelpers.CreateEmptyModset(new Fixture());
+        public Modset Modset { get; set; } = ModsetHelpers.CreateEmptyModset(new Fixture());
 
         public int HeadlessClientsConnected { get; set; } = 0;
 

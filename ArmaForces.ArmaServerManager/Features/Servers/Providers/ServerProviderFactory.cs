@@ -115,7 +115,7 @@ namespace ArmaForces.ArmaServerManager.Features.Servers.Providers
 
         private IDedicatedServer RecreateRunningServer(
             int port,
-            IModset modset,
+            Modset modset,
             IArmaProcess armaProcess,
             IEnumerable<IArmaProcess>? headlessClients = null)
             => _dedicatedServerFactory.CreateDedicatedServer(

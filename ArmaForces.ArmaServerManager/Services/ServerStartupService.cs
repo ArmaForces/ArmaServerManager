@@ -58,7 +58,7 @@ namespace ArmaForces.ArmaServerManager.Services
 
         // TODO: Add port
 
-        public async Task<Result> StartServer(IModset modset, int headlessClients, CancellationToken cancellationToken)
+        public async Task<Result> StartServer(Modset modset, int headlessClients, CancellationToken cancellationToken)
         {
             return await ShutdownServer(
                 Port,

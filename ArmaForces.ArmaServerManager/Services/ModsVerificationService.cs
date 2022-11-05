@@ -22,7 +22,7 @@ namespace ArmaForces.ArmaServerManager.Services
             => await _modsetProvider.GetModsetByName(modsetName)
                 .Bind(x => VerifyModset(x, cancellationToken));
 
-        private async Task<Result> VerifyModset(IModset modset, CancellationToken cancellationToken)
+        private async Task<Result> VerifyModset(Modset modset, CancellationToken cancellationToken)
         {
             return await _modsManager.PrepareModset(modset, cancellationToken);
         }

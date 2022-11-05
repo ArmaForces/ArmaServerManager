@@ -11,9 +11,9 @@ namespace ArmaForces.ArmaServerManager.Services
     {
         Task<Result> UpdateModset(string modsetName, CancellationToken cancellationToken);
 
-        Task<Result> UpdateModset(IModset modset, CancellationToken cancellationToken);
+        Task<Result> UpdateModset(Modset modset, CancellationToken cancellationToken);
 
-        Task UpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken);
+        Task UpdateMods(IEnumerable<Mod> mods, CancellationToken cancellationToken);
 
         /// <summary>
         ///     Handles updating all cached mods.

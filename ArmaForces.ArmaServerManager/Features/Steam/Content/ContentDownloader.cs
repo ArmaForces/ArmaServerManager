@@ -50,8 +50,8 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             _modsDirectory = modsDirectory;
         }
 
-        public async Task<List<Result<IMod>>> DownloadOrUpdateMods(
-            IReadOnlyCollection<IMod> mods,
+        public async Task<List<Result<Mod>>> DownloadOrUpdateMods(
+            IReadOnlyCollection<Mod> mods,
             CancellationToken cancellationToken)
         {
             var workshopMods = mods
@@ -62,7 +62,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 
             await _steamClient.EnsureConnected(cancellationToken);
             
-            var results = new List<Result<IMod>>();
+            var results = new List<Result<Mod>>();
             foreach (var mod in workshopMods)
             {
                 if (cancellationToken.IsCancellationRequested) CancelDownload();
@@ -194,9 +194,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             }
         }
 
-        private Result<IMod> UpdateModData(IMod mod, ContentItem downloadedItem)
+        private Result<Mod> UpdateModData(Mod mod, ContentItem downloadedItem)
         {
-            var updatedMod = (IMod) new Mod
+            var updatedMod = (Mod) new Mod
             {
                 Directory = mod.Directory ?? downloadedItem.Directory,
                 CreatedAt = mod.CreatedAt,

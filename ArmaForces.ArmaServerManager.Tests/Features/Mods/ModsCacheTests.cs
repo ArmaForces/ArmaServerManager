@@ -29,7 +29,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
         private readonly string _workingDirectory = Path.Join(Directory.GetCurrentDirectory(), "mods");
         private readonly ISettings _settingsMock;
         private readonly IFileSystem _fileSystemMock = new MockFileSystem();
-        private readonly IMod _mod;
+        private readonly Mod _mod;
         
         private readonly IServiceProvider _testServiceProvider;
 
@@ -131,7 +131,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
         [Fact]
         public async Task ModExists_LoadCacheModCachedNoDirectory_ReturnsFalse() {
             var cacheFilePath = $"{_settingsMock.ModsDirectory}\\{_settingsMock.ModsManagerCacheFileName}.json";
-            ISet<IMod> mods = new HashSet<IMod>();
+            ISet<Mod> mods = new HashSet<Mod>();
             mods.Add(_mod);
             await _fileSystemMock.File.WriteAllTextAsync(cacheFilePath, JsonConvert.SerializeObject(mods));
 
@@ -147,7 +147,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
         [Fact]
         public async Task ModExists_LoadCacheModCachedDirectoryPresent_ReturnsTrue() {
             var cacheFilePath = $"{_settingsMock.ModsDirectory}\\{_settingsMock.ModsManagerCacheFileName}.json";
-            ISet<IMod> mods = new HashSet<IMod>();
+            ISet<Mod> mods = new HashSet<Mod>();
             mods.Add(_mod);
             await _fileSystemMock.File.WriteAllTextAsync(cacheFilePath, JsonConvert.SerializeObject(mods));
             _fileSystemMock.Directory.CreateDirectory(_mod.Directory);
@@ -179,7 +179,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
 
             var result = await modsCache.AddOrUpdateModsInCache(allMods);
 
-            result.ShouldBeSuccess(allMods.Cast<IMod>().ToList());
+            result.ShouldBeSuccess(allMods.ToList());
         }
 
         private ISettings CreateSettings()

@@ -5,6 +5,6 @@ namespace ArmaForces.Arma.Server.Features.Keys
 {
     public interface IKeysPreparer
     {
-        Result PrepareKeysForModset(IModset modset);
+        Result PrepareKeysForModset(Modset modset);
     }
 }

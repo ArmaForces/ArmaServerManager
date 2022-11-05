@@ -27,7 +27,7 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
         /// <param name="headlessClients">Number of Headless Clients for server.</param>
         /// <param name="modset">Modset which should be loaded on the server.</param>
         /// <returns>Successful result with started server reference if server is started.</returns>
-        Result<IDedicatedServer> StartServer(int port, int headlessClients, IModset modset);
+        Result<IDedicatedServer> StartServer(int port, int headlessClients, Modset modset);
 
         /// <summary>
         /// Adds or removes headless clients for server on given <paramref name="port"/>. 

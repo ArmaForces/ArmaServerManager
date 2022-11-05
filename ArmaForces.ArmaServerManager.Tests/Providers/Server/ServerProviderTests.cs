@@ -24,17 +24,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Providers.Server
         
         private readonly Fixture _fixture = new Fixture();
         
-        private readonly IModset _modset = ModsetHelpers.CreateEmptyModset(new Fixture());
+        private readonly Modset _modset = ModsetHelpers.CreateEmptyModset(new Fixture());
         private readonly ILogger<ServerProvider> _logger = new NullLogger<ServerProvider>();
-
-        public ServerProviderTests()
-        {
-            // TODO: Remove customization when removing IMod interface
-            _fixture.Customizations.Add(
-                new TypeRelay(
-                    typeof(IMod),
-                    typeof(Mod)));
-        }
         
         [Fact]
         public void GetOrAddServer_CalledTwoTimes_ServerShouldBeTheSame()

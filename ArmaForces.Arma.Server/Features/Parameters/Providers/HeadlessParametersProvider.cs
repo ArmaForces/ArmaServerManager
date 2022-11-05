@@ -11,12 +11,12 @@ namespace ArmaForces.Arma.Server.Features.Parameters.Providers
         private const bool IsClient = true;
         
         private readonly int _port;
-        private readonly IModset _modset;
+        private readonly Modset _modset;
         private readonly IModsetConfig _modsetConfig;
 
         public HeadlessParametersProvider(
             int port,
-            IModset modset,
+            Modset modset,
             IModsetConfig modsetConfig)
         {
             _port = port;

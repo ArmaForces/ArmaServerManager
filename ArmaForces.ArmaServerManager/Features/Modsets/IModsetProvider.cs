@@ -7,8 +7,8 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets
 {
     public interface IModsetProvider
     {
-        Task<Result<IModset>> GetModsetByName(string modsetName);
+        Task<Result<Modset>> GetModsetByName(string modsetName);
 
-        Task<Result<List<IModset>>> GetModsets();
+        Task<Result<List<Modset>>> GetModsets();
     }
 }

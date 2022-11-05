@@ -12,7 +12,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
     {
         public static Modset CreateEmptyModset(Fixture fixture) => CreateTestModset(fixture, eachModTypeNumber: 0);
 
-        public static Modset CreateModsetWithMods(Fixture fixture, IReadOnlyCollection<IMod> mods)
+        public static Modset CreateModsetWithMods(Fixture fixture, IReadOnlyCollection<Mod> mods)
         {
             return new Modset
             {
@@ -30,7 +30,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
         {
             var modset = new Modset
             {
-                Mods = new HashSet<IMod>(),
+                Mods = new HashSet<Mod>(),
                 Dlcs = new HashSet<Dlc>(),
                 LastUpdatedAt = fixture.Create<DateTime>(),
                 Name = fixture.Create<string>(),
@@ -55,7 +55,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
         {
             var modset = new Modset
             {
-                Mods = new HashSet<IMod>()
+                Mods = new HashSet<Mod>()
             };
 
             for (var i = 0; i < modsNumber; i++)

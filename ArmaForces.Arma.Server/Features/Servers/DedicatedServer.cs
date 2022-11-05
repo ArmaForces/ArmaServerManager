@@ -33,7 +33,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public DedicatedServer(
             int port,
-            IModset modset,
+            Modset modset,
             IModsetConfig modsetConfig,
             IServerStatusFactory serverStatusFactory,
             IKeysPreparer keysPreparer,
@@ -60,7 +60,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         
         public int SteamQueryPort { get; }
 
-        public IModset Modset { get; }
+        public Modset Modset { get; }
 
         // TODO: This will be called frequently due to server status requests. Consider caching this (or whole server state).
         public int HeadlessClientsConnected => _headlessProcesses.Count(x => x.IsStartingOrStarted);

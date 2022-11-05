@@ -33,7 +33,7 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
             _logger = logger;
         }
 
-        public Result<IDedicatedServer> StartServer(int port, int headlessClients, IModset modset)
+        public Result<IDedicatedServer> StartServer(int port, int headlessClients, Modset modset)
         {
             var newServerCreated = false;
             var server = _serverProvider.GetOrAddServer(port, x => CreateServer(x, modset, headlessClients, ref newServerCreated));
@@ -98,7 +98,7 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
 
         // Value of 'newServerCreated' is used in different method 
         // ReSharper disable once RedundantAssignment
-        private IDedicatedServer CreateServer(int port, IModset modset, int numberOfHeadlessClients, ref bool newServerCreated)
+        private IDedicatedServer CreateServer(int port, Modset modset, int numberOfHeadlessClients, ref bool newServerCreated)
         {
             var server = _dedicatedServerFactory.CreateDedicatedServer(port, modset, numberOfHeadlessClients);
 

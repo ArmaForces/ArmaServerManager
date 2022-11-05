@@ -32,7 +32,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
         private readonly Mock<IKeysPreparer> _keysProviderMock = new Mock<IKeysPreparer>();
         private readonly Mock<IServerStatusFactory> _serverStatusFactoryMock = new Mock<IServerStatusFactory>();
         private readonly Mock<IArmaProcessManager> _armaProcessManagerMock = new Mock<IArmaProcessManager>();
-        private readonly IModset _modset;
+        private readonly Modset _modset;
 
         private readonly Fixture _fixture = new Fixture();
 

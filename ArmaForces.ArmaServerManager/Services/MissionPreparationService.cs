@@ -53,13 +53,13 @@ namespace ArmaForces.ArmaServerManager.Services
                 .Bind(nearestMission => _serverStartupService.StartServer(nearestMission.Modlist, ServerStartRequestDto.DefaultHeadlessClients, cancellationToken));
         }
 
-        private async Task<Result<HashSet<IMod>>> GetModsListFromModsets(IReadOnlyCollection<string> modsetsNames)
+        private async Task<Result<HashSet<Mod>>> GetModsListFromModsets(IReadOnlyCollection<string> modsetsNames)
         {
             return await GetModsetsData(modsetsNames)
                 .Bind(MapModsets);
         }
 
-        private Result<HashSet<IMod>> MapModsets(ISet<WebModset> modsets) => modsets
+        private Result<HashSet<Mod>> MapModsets(ISet<WebModset> modsets) => modsets
             .Select(webModset => _webModsetMapper.MapWebModsetToCacheModset(webModset))
             .Select(modset => modset.ActiveMods)
             .SelectMany(x => x)
