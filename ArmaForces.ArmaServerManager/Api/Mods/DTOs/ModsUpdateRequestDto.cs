@@ -17,7 +17,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods.DTOs
         [Obsolete("Use {modsetName}/update for updating modset.")]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string? ModsetName { get; set; }
-
+        
         /// <summary>
         /// Ids of mods to update.
         /// </summary>

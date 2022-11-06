@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using ArmaForces.ArmaServerManager.Common;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ArmaForces.ArmaServerManager.Infrastructure.Documentation.Filters
@@ -11,7 +12,9 @@ namespace ArmaForces.ArmaServerManager.Infrastructure.Documentation.Filters
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            var tooEarlyResponseDefined = operation.Responses.TryGetValue("425", out var openApiResponse);
+            var tooEarlyResponseDefined = operation.Responses.TryGetValue(
+                StatusCodesExtended.Status425TooEarly.ToString(),
+                out var openApiResponse);
 
             if (tooEarlyResponseDefined && openApiResponse != null)
             {

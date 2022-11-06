@@ -74,6 +74,9 @@ namespace ArmaForces.ArmaServerManager.Services
             CancellationToken? cancellationToken = null)
             => await _serverCommandLogic.ShutdownServer(port, force, cancellationToken);
 
+        public async Task<Result> ShutdownAllServers(bool force = false, CancellationToken? cancellationToken = null)
+            => await _serverCommandLogic.ShutdownAllServers(force, cancellationToken);
+
         private static Result<WebMission> GetMissionWithTitle(string missionTitle, IReadOnlyCollection<WebMission> upcomingMissions)
         {
             return upcomingMissions.SingleOrDefault(x => x.Title == missionTitle) ??

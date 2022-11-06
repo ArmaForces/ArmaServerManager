@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Configuration.Providers;
@@ -51,15 +52,13 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
 
             if (server is null || server.IsServerStopped) return Result.Success();
 
-            var serverStatus = await server.GetServerStatusAsync(cancellationToken ?? CancellationToken.None);
-
-            if (serverStatus.Players.HasValue && serverStatus.Players != 0 && !force)
-            {
-                return Result.Failure($"Server cannot be shut down, there are {serverStatus.Players} online.");
-            }
-
-            return await server.Shutdown();
+            return await ShutdownServer(server, force, cancellationToken);
         }
+
+        public async Task<Result> ShutdownAllServers(bool force = false, CancellationToken? cancellationToken = null)
+            => await _serverProvider.GetServers()
+                .Select(x => ShutdownServer(x, force, cancellationToken))
+                .Combine();
 
         public async Task<Result> SetHeadlessClients(int port, int desiredHcCount)
         {
@@ -108,7 +107,22 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
             
             return server;
         }
-        
+
+        private static async Task<Result> ShutdownServer(
+            IDedicatedServer server,
+            bool force,
+            CancellationToken? cancellationToken)
+        {
+            var serverStatus = await server.GetServerStatusAsync(cancellationToken ?? CancellationToken.None);
+
+            if (serverStatus.Players.HasValue && serverStatus.Players != 0 && !force)
+            {
+                return Result.Failure($"Server cannot be shut down, there are {serverStatus.Players} online.");
+            }
+
+            return await server.Shutdown();
+        }
+
         private Task OnServerDisposed(IDedicatedServer dedicatedServer)
         {
             _logger.LogDebug(

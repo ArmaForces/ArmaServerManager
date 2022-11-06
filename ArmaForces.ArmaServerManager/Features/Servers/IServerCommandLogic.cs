@@ -21,6 +21,14 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
         Task<Result> ShutdownServer(int port, bool force = false, CancellationToken? cancellationToken = null);
 
         /// <summary>
+        /// Attempts to shut down all running servers.
+        /// </summary>
+        /// <param name="force">Force shutdown even if players are on the server.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Success if all servers were shut down.</returns>
+        Task<Result> ShutdownAllServers(bool force = false, CancellationToken? cancellationToken = null);
+
+        /// <summary>
         /// Starts server with given parameters.
         /// </summary>
         /// <param name="port">Port on which server should be started.</param>
