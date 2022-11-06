@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Api.Servers.DTOs;
+using ArmaForces.ArmaServerManager.Common;
 using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Features.Servers;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
@@ -82,28 +83,24 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <remarks>Starts server on given <paramref name="port"/>.</remarks>
         [HttpPost("{port}/start", Name = nameof(StartServer))]
         [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodesExtended.Status425TooEarly)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
         public IActionResult StartServer(int port, [FromBody] ServerStartRequestDto serverStartRequestDto)
         {
-            var serverShutdownJob = _jobsScheduler
-                .ScheduleJob<ServerStartupService>(
+            var result = _jobsScheduler.ScheduleJob<ServerStartupService>(
                     x => x.ShutdownServer(
                         port,
                         serverStartRequestDto.ForceRestart ?? false,
                         CancellationToken.None),
-                    serverStartRequestDto.ScheduleAt);
-
-            if (serverShutdownJob.IsFailure) return Problem(serverShutdownJob.Error);
-
-            var result = _jobsScheduler.ContinueJobWith<ServerStartupService>(
-                serverShutdownJob.Value,
-                x => x.StartServer(serverStartRequestDto.ModsetName, serverStartRequestDto.HeadlessClients, CancellationToken.None));
+                    serverStartRequestDto.ScheduleAt)
+                .Bind(shutdownJobId => _jobsScheduler.ContinueJobWith<ServerStartupService>(
+                    shutdownJobId,
+                    x => x.StartServer(serverStartRequestDto.ModsetName, serverStartRequestDto.HeadlessClients, CancellationToken.None)));
             
             return result.Match(
-                onSuccess: jobId => Accepted(value: jobId),
-                onFailure: error => (IActionResult)BadRequest(error));
+                onSuccess: Accepted,
+                onFailure: TooEarly);
         }
 
         /// <summary>Set Headless Clients</summary>
@@ -132,7 +129,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <param name="serverRestartRequestDto">Additional details.</param>
         [HttpPost("{port:int}/restart", Name = nameof(RestartServer))]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodesExtended.Status425TooEarly)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
         public IActionResult RestartServer(int port, ServerRestartRequestDto serverRestartRequestDto)
@@ -145,23 +142,20 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
             
             var modsetName = server.Modset;
 
-            var serverShutdownJob = _jobsScheduler
+            var result = _jobsScheduler
                 .ScheduleJob<ServerStartupService>(
                     x => x.ShutdownServer(
                         port,
                         serverRestartRequestDto.ForceRestart ?? false,
                         CancellationToken.None),
-                    serverRestartRequestDto.ScheduleAt);
-
-            if (serverShutdownJob.IsFailure) return Problem(serverShutdownJob.Error);
-
-            var result = _jobsScheduler.ContinueJobWith<ServerStartupService>(
-                serverShutdownJob.Value,
-                x => x.StartServer(modsetName, server.HeadlessClientsConnected, CancellationToken.None));
+                    serverRestartRequestDto.ScheduleAt)
+                .Bind(shutdownJobId => _jobsScheduler.ContinueJobWith<ServerStartupService>(
+                    shutdownJobId,
+                    x => x.StartServer(modsetName, server.HeadlessClientsConnected, CancellationToken.None)));
 
             return result.Match(
                 onSuccess: Accepted,
-                onFailure: error => (IActionResult)BadRequest(error));
+                onFailure: TooEarly);
         }
 
         /// <summary>Shutdown Server</summary>
@@ -184,5 +178,9 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                 ? Accepted()
                 : Problem(serverShutdownJob.Error);
         }
+
+        private ObjectResult TooEarly(string error)
+            => StatusCode(StatusCodesExtended.Status425TooEarly,
+                $"Similar request is already in processing. Please wait. Error: {error}");
     }
 }

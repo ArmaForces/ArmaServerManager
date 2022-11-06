@@ -15,6 +15,7 @@ using ArmaForces.ArmaServerManager.Features.Status;
 using ArmaForces.ArmaServerManager.Infrastructure;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Infrastructure.Converters;
+using ArmaForces.ArmaServerManager.Infrastructure.Documentation;
 using ArmaForces.ArmaServerManager.Infrastructure.Logging;
 using ArmaForces.ArmaServerManager.Services;
 using Hangfire;

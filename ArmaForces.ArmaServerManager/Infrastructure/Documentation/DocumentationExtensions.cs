@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using ArmaForces.ArmaServerManager.Infrastructure.Documentation.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
-namespace ArmaForces.ArmaServerManager.Infrastructure
+namespace ArmaForces.ArmaServerManager.Infrastructure.Documentation
 {
     internal static class DocumentationExtensions
     {
@@ -25,6 +26,9 @@ namespace ArmaForces.ArmaServerManager.Infrastructure
                     var filePath = Path.Combine(AppContext.BaseDirectory,
                         $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
                     options.IncludeXmlComments(filePath);
+                    
+                    options.OperationFilter<ApiKeyUnauthorizedResponseOperationFilter>();
+                    options.OperationFilter<TooEarlyResponseOperationFilter>();
                 });
         }
 

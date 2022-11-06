@@ -13,7 +13,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
     /// <inheritdoc cref="IJobsScheduler" />
     internal class JobsScheduler : IJobsScheduler
     {
-        private readonly TimeSpan _defaultPrecision = TimeSpan.FromMinutes(15);
+        private readonly TimeSpan _defaultPrecision = TimeSpan.FromMinutes(1);
         
         private readonly IHangfireBackgroundJobClientWrapper _backgroundJobClientWrapper;
         private readonly IJobsRepository _jobsStorage;
@@ -52,9 +52,8 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             var queuedJobs = _jobsStorage.GetSimilarQueuedJobs(func);
 
             if (scheduledJobs.Any() || queuedJobs.Any())
-                // TODO: Return the similarJobId
-                return Result.Success(string.Empty)
-                    .Tap(_ => _logger.LogDebug("There is similar job scheduled at {DateTime}", dateTime));
+                return Result.Failure<string>($"Similar job is already scheduled at {dateTime}.")
+                    .OnFailure(_ => _logger.LogDebug("There is similar job scheduled at {DateTime}", dateTime));
 
             return _backgroundJobClientWrapper.Schedule(func, dateTime)
                 .Tap(jobId => _logger.LogDebug("Scheduled job {JobId} at {DateTime}", jobId, dateTime));
@@ -72,8 +71,8 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             var queuedJobs = _jobsStorage.GetSimilarQueuedJobs(func);
 
             if (scheduledJobs.Any() || queuedJobs.Any())
-                return Result.Success(string.Empty)
-                    .Tap(_ => _logger.LogDebug("There is similar job queued in less than {Precision}", _defaultPrecision));
+                return Result.Failure<string>("Similar job is already queued.")
+                    .OnFailure(_ => _logger.LogDebug("There is similar job queued in less than {Precision}", _defaultPrecision));
 
             return _backgroundJobClientWrapper.Enqueue(func)
                 .Tap(jobId => _logger.LogDebug("Enqueued job {JobId}", jobId));
