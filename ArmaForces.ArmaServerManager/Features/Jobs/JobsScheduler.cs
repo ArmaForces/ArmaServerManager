@@ -49,14 +49,21 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             var scheduledJobs = _jobsStorage.GetSimilarScheduledJobs(func)
                 .Where(x => x.EnqueueAt.IsCloseTo(dateTime, _defaultPrecision));
 
-            var queuedJobs = _jobsStorage.GetSimilarQueuedJobs(func);
-
-            if (scheduledJobs.Any() || queuedJobs.Any())
+            if (scheduledJobs.Any())
                 return Result.Failure<string>($"Similar job is already scheduled at {dateTime}.")
-                    .OnFailure(_ => _logger.LogDebug("There is similar job scheduled at {DateTime}", dateTime));
+                    .OnFailure(_ => _logger.LogInformation("There is similar job scheduled at {DateTime}", dateTime));
+
+            if (dateTime.IsCloseTo(DateTime.Now, _defaultPrecision))
+            {
+                var queuedJobs = _jobsStorage.GetSimilarQueuedJobs(func);
+
+                if (queuedJobs.Any())
+                    return Result.Failure<string>($"Similar job is already in queue.")
+                        .OnFailure(_ => _logger.LogInformation("There is similar job in queue already"));
+            }
 
             return _backgroundJobClientWrapper.Schedule(func, dateTime)
-                .Tap(jobId => _logger.LogDebug("Scheduled job {JobId} at {DateTime}", jobId, dateTime));
+                .Tap(jobId => _logger.LogInformation("Scheduled job {JobId} at {DateTime}", jobId, dateTime));
         }
 
         /// <summary>
