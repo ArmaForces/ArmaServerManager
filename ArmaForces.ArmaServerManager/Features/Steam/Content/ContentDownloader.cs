@@ -173,7 +173,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         {
             await Task.Delay(ProgressLogInterval, cancellationToken);
             
-            while (!downloadTask.IsCompleted)
+            while (!downloadTask.IsCompleted && !cancellationToken.IsCancellationRequested)
             {
                 _logger.LogDebug("Item {ItemId} download progress {Progress:00.00}%", itemId, contentDownloadHandler.TotalProgress * 100);
                 var delayTask = Task.Delay(ProgressLogInterval, cancellationToken);
