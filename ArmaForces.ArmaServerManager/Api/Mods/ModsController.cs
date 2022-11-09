@@ -5,7 +5,6 @@ using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Mods.DTOs;
 using ArmaForces.ArmaServerManager.Common;
 using ArmaForces.ArmaServerManager.Features.Jobs;
-using ArmaForces.ArmaServerManager.Features.Modsets;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Services;
 using CSharpFunctionalExtensions;
@@ -24,15 +23,11 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
     public class ModsController : ControllerBase
     {
         private readonly IJobsScheduler _jobsScheduler;
-        private readonly IModsetProvider _modsetProvider;
 
         /// <inheritdoc />
-        public ModsController(
-            IJobsScheduler jobsScheduler,
-            IModsetProvider modsetProvider)
+        public ModsController(IJobsScheduler jobsScheduler)
         {
             _jobsScheduler = jobsScheduler;
-            _modsetProvider = modsetProvider;
         }
 
         /// <summary>Update Mods</summary>
@@ -43,25 +38,29 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public IActionResult UpdateMods([FromBody] ModsUpdateRequestDto modsUpdateRequestDto)
         {
-            var serverShutdownJob = _jobsScheduler
+            // Ignore ModsetName obsolete
+#pragma warning disable CS0618
+            if (modsUpdateRequestDto.ModsetName is not null)
+            {
+                return UpdateModset(modsUpdateRequestDto.ModsetName, new ModsetUpdateRequestDto
+                {
+                    ScheduleAt = modsUpdateRequestDto.ScheduleAt
+                });
+            }
+#pragma warning restore CS0618
+            
+            var result = _jobsScheduler
                 .ScheduleJob<ServerStartupService>(
                     // TODO: Shutdown all servers
                     x => x.ShutdownServer(2302, false, CancellationToken.None),
-                    modsUpdateRequestDto.ScheduleAt);
-
-            if (serverShutdownJob.IsFailure) return Problem(serverShutdownJob.Error);
-
-            var result = modsUpdateRequestDto.ModsetName is null
-                ? _jobsScheduler.ContinueJobWith<ModsUpdateService>(
-                    serverShutdownJob.Value,
-                    x => x.UpdateAllMods(CancellationToken.None))
-                : _jobsScheduler.ContinueJobWith<ModsUpdateService>(
-                    serverShutdownJob.Value,
-                    x => x.UpdateModset(modsUpdateRequestDto.ModsetName, CancellationToken.None));
+                    modsUpdateRequestDto.ScheduleAt)
+                .Bind(shutdownJobId => _jobsScheduler.ContinueJobWith<ModsUpdateService>(
+                    shutdownJobId,
+                    x => x.UpdateAllMods(CancellationToken.None)));
 
             return result.Match(
                 onSuccess: Accepted,
-                onFailure: error => (IActionResult)BadRequest(error));
+                onFailure: TooEarly);
         }
 
         /// <summary>Verify Mods</summary>
