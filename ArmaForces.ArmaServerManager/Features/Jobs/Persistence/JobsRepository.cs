@@ -30,7 +30,12 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
         }
 
         public Result DeleteJob(int jobId)
-            => _backgroundJobClientWrapper.Delete(jobId.ToString());
+            => _backgroundJobClientWrapper.Delete(jobId);
+
+        public Result DeleteJobs(IEnumerable<int> jobIds)
+            => jobIds.Select(jobId => _backgroundJobClientWrapper.Delete(jobId)
+                    .OnFailureCompensate(_ => _backgroundJobClientWrapper.Delete(jobId)))
+                .Combine();
 
         public Result<JobDetails?> GetCurrentJob()
         {
@@ -65,7 +70,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                 : GetJobs<JobDataModel>(x => includeStatuses.Contains(x.JobStatus));
 
         public Result RequeueJob(int jobId)
-            => _backgroundJobClientWrapper.Requeue(jobId.ToString());
+            => _backgroundJobClientWrapper.Requeue(jobId);
 
         public IEnumerable<EnqueuedJobDto> GetSimilarQueuedJobs<T>(
             Expression<Func<T, Task>> func,
@@ -108,6 +113,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                 Id = jobDataModel.Id,
                 Name = job.ToString().Split('.').Last(),
                 CreatedAt = jobDataModel.CreatedAt,
+                ScheduledAt = null,
                 FinishedAt = null,
                 JobStatus = jobDataModel.JobStatus,
                 Parameters = job.Method.GetParameters()

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Net.Mime;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Jobs.Mappers;
 using ArmaForces.ArmaServerManager.Features.Jobs;
@@ -15,10 +14,9 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
     /// Allows jobs details retrieval.
     /// </summary>
     [Route("api/jobs")]
-    [Produces(MediaTypeNames.Application.Json)]
     [ApiController]
     [ApiKey]
-    public class JobsController : ControllerBase
+    public class JobsController : ManagerControllerBase
     {
         private readonly IJobsService _jobsService;
 
@@ -47,6 +45,26 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
                     onFailure: error => error.Contains("not exist")
                         ? NotFound(error)
                         : (IActionResult) UnprocessableEntity(error));
+        }
+
+        /// <summary>Delete Jobs</summary>
+        /// <remarks>
+        /// Attempts deletion (cancellation) of all jobs.
+        /// Delete may fail if job changes state, is completed or expires.
+        /// </remarks>
+        /// <param name="jobsDeleteRequestDto"></param>
+        [HttpDelete(Name = nameof(DeleteJobs))]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ApiKey]
+        public IActionResult DeleteJobs([FromBody] JobsDeleteRequestDto jobsDeleteRequestDto)
+        {
+            return jobsDeleteRequestDto.DeleteFrom is not null && jobsDeleteRequestDto.DeleteTo is not null
+                ? _jobsService.DeleteJobs(jobsDeleteRequestDto.DeleteFrom.Value, jobsDeleteRequestDto.DeleteTo.Value)
+                    .Match(
+                    onSuccess: NoContent,
+                    onFailure: error => (IActionResult) BadRequest(error))
+                : BadRequest($"Both {nameof(JobsDeleteRequestDto.DeleteFrom)} and {nameof(JobsDeleteRequestDto.DeleteTo)} must be specified.");
         }
 
         /// <summary>Get Job</summary>
@@ -96,7 +114,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
                 .Map(JobsMapper.Map)
                 .Match(
                     onSuccess: Ok,
-                    onFailure: error => (IActionResult) Problem());
+                    onFailure: error => (IActionResult) Problem(error));
 
         /// <summary>Requeue Job</summary>
         /// <remarks>

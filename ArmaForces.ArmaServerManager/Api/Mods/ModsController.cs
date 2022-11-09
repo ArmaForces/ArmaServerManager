@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Net.Mime;
 using System.Threading;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Mods.DTOs;
-using ArmaForces.ArmaServerManager.Common;
 using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Services;
@@ -17,10 +15,9 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
     /// Allows triggering and scheduling mods update/verification.
     /// </summary>
     [Route("api/mods")]
-    [Produces(MediaTypeNames.Application.Json)]
     [ApiController]
     [ApiKey]
-    public class ModsController : ControllerBase
+    public class ModsController : ManagerControllerBase
     {
         private readonly IJobsScheduler _jobsScheduler;
 
@@ -33,7 +30,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         /// <summary>Update Mods</summary>
         /// <remarks>Triggers or schedules update of given mods.</remarks>
         [HttpPost("update", Name = nameof(UpdateMods))]
-        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public IActionResult UpdateMods([FromBody] ModsUpdateRequestDto modsUpdateRequestDto)
@@ -59,7 +56,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
                     x => x.UpdateAllMods(CancellationToken.None)));
 
             return result.Match(
-                onSuccess: Accepted,
+                onSuccess: JobAccepted,
                 onFailure: TooEarly);
         }
 
@@ -77,7 +74,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         /// <param name="modsetName">Name of modset to update.</param>
         /// <param name="modsetUpdateRequestDto">Optional job schedule details.</param>
         [HttpPost("{modsetName}/update", Name = nameof(UpdateModset))]
-        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public IActionResult UpdateModset(string modsetName, [FromBody] ModsetUpdateRequestDto modsetUpdateRequestDto)
@@ -91,7 +88,7 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
                     x => x.UpdateModset(modsetName, CancellationToken.None)));
 
             return result.Match(
-                onSuccess: Accepted,
+                onSuccess: JobAccepted,
                 onFailure: TooEarly);
         }
 
@@ -105,9 +102,5 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         {
             throw new NotImplementedException("Modset verification is not implemented yet.");
         }
-        
-        private ObjectResult TooEarly(string error)
-            => StatusCode(StatusCodesExtended.Status425TooEarly,
-                $"Similar request is already in processing. Please wait. Error: {error}");
     }
 }

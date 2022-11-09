@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ArmaForces.Arma.Server.Features.Mods;
-using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using ArmaForces.ArmaServerManager.Features.Jobs.Helpers;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using ArmaForces.Arma.Server.Extensions;
@@ -64,6 +65,13 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
                 .Bind(CheckJobCanBeRequeued)
                 .Bind(() => _jobsRepository.RequeueJob(jobId));
 
+        public Result DeleteJobs(DateTime deleteFrom, DateTime deleteTo)
+            => GetQueuedJobs()
+                .Bind(jobs => jobs
+                    .Where(job => job.ScheduledAt >= deleteFrom && job.ScheduledAt < deleteTo)
+                    .Select(job => DeleteJob(job.Id))
+                    .Combine());
+
         private static Result CheckJobCanBeDeleted(JobDetails jobDetails)
             => jobDetails.JobStatus == JobStatus.Deleted
                 ? Result.Failure("Cannot delete deleted job.")
@@ -73,8 +81,6 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             => jobDetails.JobStatus == JobStatus.Enqueued
                 ? Result.Failure("Job is already enqueued")
                 : Result.Success();
-        
-        
 
         private Result<List<JobDetails>> GetJobs(
             IEnumerable<int> jobIds,

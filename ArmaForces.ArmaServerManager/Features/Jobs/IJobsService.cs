@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using CSharpFunctionalExtensions;
@@ -21,5 +22,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
         Result<JobDetails?> GetCurrentJob();
 
         Result RequeueJob(int jobId);
+        
+        Result DeleteJobs(DateTime deleteFrom, DateTime deleteTo);
     }
 }

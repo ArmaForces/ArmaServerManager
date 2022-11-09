@@ -20,7 +20,7 @@ namespace ArmaForces.ArmaServerManager.Services
             var serverShutdownJob = _jobsScheduler.ScheduleJob<ServerStartupService>(x => x.ShutdownServer(2302, false, CancellationToken.None));
 
             var missionsPreparationJob = BackgroundJob.ContinueJobWith<IMissionPreparationService>(
-                serverShutdownJob.Value,
+                serverShutdownJob.Value.ToString(),
                 x => x.PrepareForUpcomingMissions(CancellationToken.None));
 
             var startServerForNextMissionJob = BackgroundJob.ContinueJobWith<IMissionPreparationService>(

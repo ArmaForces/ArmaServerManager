@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Mime;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Configuration;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
@@ -13,10 +12,9 @@ namespace ArmaForces.ArmaServerManager.Api.Configuration
     /// Allows server configuration manipulation.
     /// </summary>
     [Route("api/configuration")]
-    [Produces(MediaTypeNames.Application.Json)]
     [ApiController]
     [ApiKey]
-    public class ConfigurationController : ControllerBase
+    public class ConfigurationController : ManagerControllerBase
     {
         private readonly string _serverConfigurationName = string.Empty;
 

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
-using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
-using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs
 {

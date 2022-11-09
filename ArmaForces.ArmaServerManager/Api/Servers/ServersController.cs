@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
@@ -20,9 +19,8 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
     /// Allows server startup, shutdown and status retrieval.
     /// </summary>
     [Route("api/server")]
-    [Produces(MediaTypeNames.Application.Json)]
     [ApiController]
-    public class ServersController : ControllerBase
+    public class ServersController : ManagerControllerBase
     {
         private readonly IJobsScheduler _jobsScheduler;
         private readonly IServerQueryLogic _serverQueryLogic;
@@ -72,7 +70,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <remarks>Starts server according to <paramref name="startRequestDto"/>.</remarks>
         [Obsolete("Use {port}/start route.")]
         [HttpPost("Start", Name = "StartServerObsolete")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
@@ -82,7 +80,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <summary>StartServer</summary>
         /// <remarks>Starts server on given <paramref name="port"/>.</remarks>
         [HttpPost("{port}/start", Name = nameof(StartServer))]
-        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodesExtended.Status425TooEarly)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
@@ -99,17 +97,17 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                     x => x.StartServer(serverStartRequestDto.ModsetName, serverStartRequestDto.HeadlessClients, CancellationToken.None)));
             
             return result.Match(
-                onSuccess: Accepted,
+                onSuccess: JobAccepted,
                 onFailure: TooEarly);
         }
 
         /// <summary>Set Headless Clients</summary>
-        /// <remarks>Starts or stops headless clients for server on given <paramref name="port"/> to match desired <paramref name="count"/>.
+        /// <remarks>Starts or stops headless clients for server on given <paramref name="port"/> to match desired count.
         /// Not implemented.</remarks>
         /// <param name="port">Port of the server to start/stop headless clients for.</param>
         /// <param name="headlessSetRequestDto">TODO</param>
         [HttpPatch("{port:int}/headless", Name = nameof(SetHeadlessClients))]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
@@ -128,7 +126,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <param name="port">Port of the server to restart.</param>
         /// <param name="serverRestartRequestDto">Additional details.</param>
         [HttpPost("{port:int}/restart", Name = nameof(RestartServer))]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodesExtended.Status425TooEarly)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
@@ -154,7 +152,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                     x => x.StartServer(modsetName, server.HeadlessClientsConnected, CancellationToken.None)));
 
             return result.Match(
-                onSuccess: Accepted,
+                onSuccess: JobAccepted,
                 onFailure: TooEarly);
         }
 
@@ -162,7 +160,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <remarks>Shutdowns server on given <paramref name="port"/>.</remarks>
         /// <param name="port">Port of the server to shutdown.</param>
         [HttpPost("{port:int}/shutdown", Name = nameof(ShutdownServer))]
-        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
         public IActionResult ShutdownServer(int port)
@@ -178,9 +176,5 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
                 ? Accepted()
                 : Problem(serverShutdownJob.Error);
         }
-
-        private ObjectResult TooEarly(string error)
-            => StatusCode(StatusCodesExtended.Status425TooEarly,
-                $"Similar request is already in processing. Please wait. Error: {error}");
     }
 }
