@@ -25,6 +25,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs
         private const string DummyClassFirstMethodName = "DoNothing";
         private const string DummyClassSecondMethodName = "DoNothingAndNothing";
 
+        private const string JobAlreadyInQueueError = "Similar job is already in queue.";
+
         private readonly Mock<IHangfireBackgroundJobClientWrapper> _backgroundJobClientMock =
             new Mock<IHangfireBackgroundJobClientWrapper>();
 
@@ -57,14 +59,16 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs
         }
 
         [Fact]
-        public void ScheduleJob_JobScheduledInMinuteDateTimeNow_JobAlreadyQueued()
+        public void ScheduleJob_JobScheduledIn10SecondsDateTimeNow_JobAlreadyQueued()
         {
             var dateTime = DateTime.Now;
+            var scheduledJobDateTime = dateTime.AddSeconds(10);
+            var expectedError = $"Similar job is already scheduled at {scheduledJobDateTime}.";
 
             var otherScheduledJob =
                 PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(
                     nameof(DummyClass.DoNothing),
-                    DateTime.Now.AddMinutes(1));
+                    scheduledJobDateTime);
             AddScheduledJobs<DummyClass>(otherScheduledJob.AsList());
 
             var result = _jobsScheduler.ScheduleJob<DummyClass>(
@@ -73,7 +77,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs
 
             using (new AssertionScope())
             {
-                result.ShouldBeSuccess();
+                result.ShouldBeFailure(expectedError);
                 AssertScheduleCalled(Times.Never());
                 AssertEnqueueCalled(Times.Never());
             }
@@ -90,7 +94,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs
 
             using (new AssertionScope())
             {
-                result.ShouldBeSuccess();
+                result.ShouldBeFailure(JobAlreadyInQueueError);
                 AssertEnqueueCalled(Times.Never());
                 AssertEnqueueCalled(Times.Never());
             }
@@ -100,9 +104,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs
         public void ScheduleJob_JobScheduledDateTimeNow_JobAlreadyScheduled()
         {
             var dateTime = DateTime.Now;
+            var expectedError = $"Similar job is already scheduled at {dateTime}.";
 
             var scheduledJob =
-                PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassFirstMethodName, DateTime.Now);
+                PrepareQueuedOrScheduledJob<ScheduledJobDto, DummyClass>(DummyClassFirstMethodName, dateTime);
             AddScheduledJobs<DummyClass>(scheduledJob.AsList());
 
             var result = _jobsScheduler.ScheduleJob<DummyClass>(
@@ -111,7 +116,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs
 
             using (new AssertionScope())
             {
-                result.ShouldBeSuccess();
+                result.ShouldBeFailure(expectedError);
                 AssertScheduleCalled(Times.Never());
                 AssertEnqueueCalled(Times.Never());
             }
@@ -148,7 +153,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs
 
             using (new AssertionScope())
             {
-                result.ShouldBeSuccess();
+                result.ShouldBeFailure(JobAlreadyInQueueError);
                 AssertScheduleCalled(Times.Never());
                 AssertEnqueueCalled(Times.Never());
             }
@@ -168,8 +173,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs
 
             using (new AssertionScope())
             {
-                result.ShouldBeSuccess();
-                AssertEnqueueCalled(Times.Never());
+                result.ShouldBeFailure(JobAlreadyInQueueError);
+                AssertScheduleCalled(Times.Never());
                 AssertEnqueueCalled(Times.Never());
             }
         }
@@ -221,9 +226,6 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Jobs
                         It.IsAny<int>(),
                         It.IsAny<int>()))
                 .Returns(queuedJobs.ToList);
-
-        private static JobList<T> PrepareJobList<T>(IEnumerable<T> jobsList) where T : new()
-            => new JobList<T>(jobsList.Select(x => new KeyValuePair<string, T>("", x)));
 
         private static TJob PrepareQueuedOrScheduledJob<TJob, TType>(string methodName, DateTime dateTime)
             where TJob : class, new()

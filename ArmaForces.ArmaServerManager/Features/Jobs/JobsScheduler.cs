@@ -46,11 +46,12 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
         /// </summary>
         private Result<int> ScheduleAt<T>(Expression<Func<T, Task>> func, DateTime dateTime) where T : class
         {
-            var scheduledJobs = _jobsStorage.GetSimilarScheduledJobs(func)
-                .Where(x => x.EnqueueAt.IsCloseTo(dateTime, _defaultPrecision));
+            var similarScheduledJob = _jobsStorage
+                .GetSimilarScheduledJobs(func)
+                .FirstOrDefault(x => x.EnqueueAt.IsCloseTo(dateTime, _defaultPrecision));
 
-            if (scheduledJobs.Any())
-                return Result.Failure<int>($"Similar job is already scheduled at {dateTime}.")
+            if (similarScheduledJob is not null)
+                return Result.Failure<int>($"Similar job is already scheduled at {similarScheduledJob.EnqueueAt}.")
                     .OnFailure(_ => _logger.LogInformation("There is similar job scheduled at {DateTime}", dateTime));
 
             if (dateTime.IsCloseTo(DateTime.Now, _defaultPrecision))
@@ -78,7 +79,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             var queuedJobs = _jobsStorage.GetSimilarQueuedJobs(func);
 
             if (scheduledJobs.Any() || queuedJobs.Any())
-                return Result.Failure<int>("Similar job is already queued.")
+                return Result.Failure<int>("Similar job is already in queue.")
                     .OnFailure(_ => _logger.LogDebug("There is similar job queued in less than {Precision}", _defaultPrecision));
 
             return _backgroundJobClientWrapper.Enqueue(func)
