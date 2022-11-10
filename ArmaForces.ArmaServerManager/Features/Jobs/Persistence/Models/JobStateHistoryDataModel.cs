@@ -13,14 +13,31 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
         
         // public DateTime ExpireAt { get; set; }
 
+        /// <summary>
+        /// Additional state specific data.
+        /// </summary>
         public JobHistoryData Data { get; set; }
     }
 
+    /// <summary>
+    /// State specific data.
+    /// </summary>
     internal class JobHistoryData
     {
-        // public DateTime? StartedAt { get; set; }
+        /// <summary>
+        /// When job was deleted.
+        /// </summary>
+        public DateTime? DeletedAt { get; set; }
         
-        // public DateTime? EnqueuedAt { get; set; }
+        /// <summary>
+        /// When job was enqueued.
+        /// </summary>
+        public DateTime? EnqueuedAt { get; set; }
+        
+        /// <summary>
+        /// When job should be enqueued.
+        /// </summary>
+        public DateTime? EnqueueAt { get; set; }
         
         public string? Queue { get; set; }
         
@@ -28,7 +45,20 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
         
         public string? WorkerId { get; set; }
         
-        // public DateTime? SucceededAt { get; set; }
+        /// <summary>
+        /// When job was created/scheduled.
+        /// </summary>
+        public DateTime? ScheduledAt { get; set; }
+        
+        /// <summary>
+        /// When job was started.
+        /// </summary>
+        public DateTime? StartedAt { get; set; }
+        
+        /// <summary>
+        /// When job was succeeded.
+        /// </summary>
+        public DateTime? SucceededAt { get; set; }
         
         public string PerformanceDuration { get; set; }
         
