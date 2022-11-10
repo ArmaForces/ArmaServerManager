@@ -79,7 +79,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
 
         /// <summary>StartServer</summary>
         /// <remarks>Starts server on given <paramref name="port"/>.</remarks>
-        [HttpPost("{port}/start", Name = nameof(StartServer))]
+        [HttpPost("{port:int}/start", Name = nameof(StartServer))]
         [ProducesResponseType(typeof(int), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodesExtended.Status425TooEarly)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
