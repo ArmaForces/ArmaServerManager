@@ -11,7 +11,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
         
         public DateTime CreatedAt { get; set; }
         
-        // public DateTime ExpireAt { get; set; }
+        public DateTime ExpireAt { get; set; }
 
         /// <summary>
         /// Additional state specific data.
@@ -25,19 +25,19 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
     internal class JobHistoryData
     {
         /// <summary>
-        /// When job was deleted.
+        /// When job was deleted, in milliseconds epoch.
         /// </summary>
-        public DateTime? DeletedAt { get; set; }
+        public ulong? DeletedAt { get; set; }
         
         /// <summary>
-        /// When job was enqueued.
+        /// When job was enqueued, in milliseconds epoch.
         /// </summary>
-        public DateTime? EnqueuedAt { get; set; }
+        public ulong? EnqueuedAt { get; set; }
         
         /// <summary>
-        /// When job should be enqueued.
+        /// When job should be enqueued, in milliseconds epoch.
         /// </summary>
-        public DateTime? EnqueueAt { get; set; }
+        public ulong? EnqueueAt { get; set; }
         
         public string? Queue { get; set; }
         
@@ -46,24 +46,27 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
         public string? WorkerId { get; set; }
         
         /// <summary>
-        /// When job was created/scheduled.
+        /// When job was created/scheduled, in milliseconds epoch.
         /// </summary>
-        public DateTime? ScheduledAt { get; set; }
+        public ulong? ScheduledAt { get; set; }
         
         /// <summary>
-        /// When job was started.
+        /// When job was started, in milliseconds epoch.
         /// </summary>
-        public DateTime? StartedAt { get; set; }
+        public ulong? StartedAt { get; set; }
         
         /// <summary>
-        /// When job was succeeded.
+        /// When job was succeeded, in milliseconds epoch.
         /// </summary>
-        public DateTime? SucceededAt { get; set; }
+        public ulong? SucceededAt { get; set; }
         
-        public string PerformanceDuration { get; set; }
+        public ulong? PerformanceDuration { get; set; }
         
-        public string Latency { get; set; }
+        public ulong? Latency { get; set; }
         
-        public string Result { get; set; }
+        public string? Result { get; set; }
+        public string? NextState { get; set; }
+        public string? Options { get; set; }
+        public string? ParentId { get; set; }
     }
 }

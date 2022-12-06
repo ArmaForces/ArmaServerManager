@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -104,7 +105,8 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                     {
                         JobId = jobDataModel.Id,
                         Name = x.StateName,
-                        // CreatedAt = x.CreatedAt
+                        CreatedAt = x.CreatedAt,
+                        Data = GetJobStateHistoryData(x)
                     }).ToList()
                 : null;
             
@@ -113,8 +115,13 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                 Id = jobDataModel.Id,
                 Name = job.ToString().Split('.').Last(),
                 CreatedAt = jobDataModel.CreatedAt,
-                ScheduledAt = null,
-                FinishedAt = null,
+                ScheduledAt = (history?
+                    .LastOrDefault(x => x.Name == JobStatus.Scheduled)?
+                    .Data as ScheduledJobStateHistoryData)?.EnqueueAt,
+                // // TODO: Consider failed as finished too
+                FinishedAt = (history?
+                    .LastOrDefault(x => x.Name is JobStatus.Succeeded)?
+                    .Data as SucceededJobStateHistoryData)?.SucceededAt,
                 JobStatus = jobDataModel.JobStatus,
                 Parameters = job.Method.GetParameters()
                     .Zip(job.Args,
@@ -123,6 +130,55 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                     .Where(x => x.Key != "cancellationToken")
                     .ToList(),
                 StateHistory = history
+            };
+        }
+
+        private static JobStateHistoryData GetJobStateHistoryData(JobStateHistoryDataModel jobStateHistoryDataModel)
+        {
+            DateTime ConvertFromEpoch(ulong? epoch) => epoch.HasValue
+                    ? DateTimeOffset.FromUnixTimeMilliseconds((long) epoch).DateTime
+                    // TODO: Change exception type
+                    : throw new InvalidDataException("Expected epoch time, but found none.");
+
+            return jobStateHistoryDataModel.StateName switch
+            {
+                JobStatus.Scheduled => new ScheduledJobStateHistoryData
+                {
+                    EnqueueAt = ConvertFromEpoch(jobStateHistoryDataModel.Data.EnqueueAt)
+                },
+                JobStatus.Awaiting => new AwaitingJobStateHistoryData
+                {
+                    NextState = jobStateHistoryDataModel.Data.NextState!,
+                    Options = jobStateHistoryDataModel.Data.Options!,
+                    ParentId = jobStateHistoryDataModel.Data.ParentId!
+                },
+                JobStatus.Deleted => new DeletedJobStateHistoryData
+                {
+                  DeletedAt  = ConvertFromEpoch(jobStateHistoryDataModel.Data.DeletedAt)
+                },
+                JobStatus.Enqueued => new EnqueuedJobStateHistoryData
+                {
+                    EnqueuedAt = ConvertFromEpoch(jobStateHistoryDataModel.Data.EnqueuedAt),
+                    Queue = jobStateHistoryDataModel.Data.Queue!
+                },
+                JobStatus.Failed => new FailedJobStateHistoryData
+                {
+                    
+                },
+                JobStatus.Succeeded => new SucceededJobStateHistoryData
+                {
+                    SucceededAt = ConvertFromEpoch(jobStateHistoryDataModel.Data.SucceededAt),
+                    Result = jobStateHistoryDataModel.Data.Result!,
+                    Latency = jobStateHistoryDataModel.Data.Latency!.Value,
+                    PerformanceDuration = jobStateHistoryDataModel.Data.PerformanceDuration!.Value
+                },
+                JobStatus.Processing => new ProcessingJobStateHistoryData
+                {
+                    ServerId = jobStateHistoryDataModel.Data.ServerId!,
+                    WorkerId = jobStateHistoryDataModel.Data.WorkerId!,
+                    StartedAt = ConvertFromEpoch(jobStateHistoryDataModel.Data.StartedAt)
+                },
+                _ => new JobStateHistoryData()
             };
         }
 

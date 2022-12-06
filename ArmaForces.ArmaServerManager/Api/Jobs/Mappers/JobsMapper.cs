@@ -27,7 +27,14 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs.Mappers
             => history?.Select(x => new JobStateHistoryDto
             {
                 StateName = x.Name,
-                EnteredAt = x.CreatedAt
+                EnteredAt = x.CreatedAt,
+                // TODO: Consider removing all times if they add no value as EnteredAt is equal to most of them
+                EnqueuedAt = (x.Data as EnqueuedJobStateHistoryData)?.EnqueuedAt,
+                StartedAt = (x.Data as ProcessingJobStateHistoryData)?.StartedAt,
+                EnqueueAt = (x.Data as ScheduledJobStateHistoryData)?.EnqueueAt,
+                ScheduledAt = (x.Data as ScheduledJobStateHistoryData)?.ScheduledAt,
+                SucceededAt = (x.Data as SucceededJobStateHistoryData)?.SucceededAt,
+                Result = (x.Data as SucceededJobStateHistoryData)?.Result
             }).ToList();
     }
 }
