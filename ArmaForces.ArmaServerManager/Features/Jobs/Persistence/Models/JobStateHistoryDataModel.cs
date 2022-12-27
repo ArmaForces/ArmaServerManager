@@ -39,6 +39,8 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
         /// </summary>
         public ulong? EnqueueAt { get; set; }
         
+        public ulong? FailedAt { get; set; }
+        
         public string? Queue { get; set; }
         
         public string? ServerId { get; set; }
@@ -68,5 +70,9 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
         public string? NextState { get; set; }
         public string? Options { get; set; }
         public string? ParentId { get; set; }
+        
+        public string? ExceptionType { get; set; }
+        public string? ExceptionMessage { get; set; }
+        public string? ExceptionDetails { get; set; }
     }
 }

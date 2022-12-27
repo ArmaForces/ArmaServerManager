@@ -162,7 +162,10 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                 },
                 JobStatus.Failed => new FailedJobStateHistoryData
                 {
-                    
+                    FailedAt = ConvertFromEpoch(jobStateHistoryDataModel.Data.FailedAt),
+                    ExceptionType = jobStateHistoryDataModel.Data.ExceptionType,
+                    ExceptionMessage = jobStateHistoryDataModel.Data.ExceptionMessage,
+                    ExceptionDetails = jobStateHistoryDataModel.Data.ExceptionDetails
                 },
                 JobStatus.Succeeded => new SucceededJobStateHistoryData
                 {

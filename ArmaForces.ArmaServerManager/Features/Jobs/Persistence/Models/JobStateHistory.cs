@@ -35,8 +35,13 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
     
     public record FailedJobStateHistoryData : JobStateHistoryData
     {
-        // TODO: Fill here
         public DateTime FailedAt { get; init; }
+        
+        public string? ExceptionType { get; init; }
+        
+        public string? ExceptionMessage { get; init; }
+        
+        public string? ExceptionDetails { get; init; }
     }
     
     public record DeletedJobStateHistoryData : JobStateHistoryData
