@@ -31,6 +31,16 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models
         public DateTime? ScheduledAt { get; set; }
         
         /// <summary>
+        /// When the job was enqueued.
+        /// </summary>
+        public DateTime? EnqueuedAt { get; set; }
+        
+        /// <summary>
+        /// When the job started processing.
+        /// </summary>
+        public DateTime? StartedAt { get; set; }
+        
+        /// <summary>
         /// When the job was finished.
         /// </summary>
         public DateTime? FinishedAt { get; set; }

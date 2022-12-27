@@ -14,6 +14,9 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs.Mappers
                 Id = jobDetails.Id,
                 Name = jobDetails.Name,
                 CreatedAt = jobDetails.CreatedAt,
+                EnqueuedAt = jobDetails.EnqueuedAt,
+                StartedAt = jobDetails.StartedAt,
+                FinishedAt = jobDetails.FinishedAt,
                 JobStatus = jobDetails.JobStatus,
                 Parameters = jobDetails.Parameters,
                 StateHistory = Map(jobDetails.StateHistory)

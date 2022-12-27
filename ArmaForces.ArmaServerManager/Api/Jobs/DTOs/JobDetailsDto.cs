@@ -29,6 +29,21 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs
         public DateTime CreatedAt { get; set; }
         
         /// <summary>
+        /// Time when job was enqueued.
+        /// </summary>
+        public DateTime? EnqueuedAt { get; set; }
+        
+        /// <summary>
+        /// Time when job started processing.
+        /// </summary>
+        public DateTime? StartedAt { get; set; }
+        
+        /// <summary>
+        /// Time when job has finished with either success or failure.
+        /// </summary>
+        public DateTime? FinishedAt { get; set; }
+        
+        /// <summary>
         /// Job status.
         /// </summary>
         [Required]

@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Jobs.Helpers;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Extensions;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using CSharpFunctionalExtensions;
 using Hangfire.Common;
@@ -115,13 +116,11 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                 Id = jobDataModel.Id,
                 Name = job.ToString().Split('.').Last(),
                 CreatedAt = jobDataModel.CreatedAt,
-                ScheduledAt = (history?
-                    .LastOrDefault(x => x.Name == JobStatus.Scheduled)?
-                    .Data as ScheduledJobStateHistoryData)?.EnqueueAt,
-                // // TODO: Consider failed as finished too
-                FinishedAt = (history?
-                    .LastOrDefault(x => x.Name is JobStatus.Succeeded)?
-                    .Data as SucceededJobStateHistoryData)?.SucceededAt,
+                EnqueuedAt = history?.GetLastEnqueuedState()?.EnqueuedAt,
+                ScheduledAt = history?.GetLastScheduledState()?.EnqueueAt,
+                StartedAt = history?.GetLastProcessingState()?.StartedAt,
+                FinishedAt = history?.GetLastSucceededState()?.SucceededAt
+                             ?? history?.GetLastFailedState()?.FailedAt,
                 JobStatus = jobDataModel.JobStatus,
                 Parameters = job.Method.GetParameters()
                     .Zip(job.Args,
@@ -154,7 +153,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
                 },
                 JobStatus.Deleted => new DeletedJobStateHistoryData
                 {
-                  DeletedAt  = ConvertFromEpoch(jobStateHistoryDataModel.Data.DeletedAt)
+                    DeletedAt  = ConvertFromEpoch(jobStateHistoryDataModel.Data.DeletedAt)
                 },
                 JobStatus.Enqueued => new EnqueuedJobStateHistoryData
                 {
