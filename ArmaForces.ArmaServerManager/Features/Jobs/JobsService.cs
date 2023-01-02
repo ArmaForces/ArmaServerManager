@@ -99,7 +99,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             ISet<JobStatus> includeStatuses = statusSet.IsEmpty() ? AnyStatus : statusSet;
             
             return _jobsRepository.GetJobs(includeStatuses, includeHistory)
-                .Tap(x => _logger.LogDebug("Found {Count} jobs matching status {List}", x.Count, statusFilter))
+                .Tap(x => _logger.LogDebug("Found {Count} jobs matching status {List}", x.Count, includeStatuses))
                 .Map(x => x.ToList());
         }
 
