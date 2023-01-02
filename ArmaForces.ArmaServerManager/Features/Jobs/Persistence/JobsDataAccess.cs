@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq.Expressions;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Constants;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
@@ -18,6 +19,10 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
         public JobsDataAccess(HangfireDbContext dbContext)
         {
             _dbContext = dbContext;
+            
+            _dbContext.Database.Mapper.RegisterType<DateTime>(
+                value => value.ToUniversalTime().ToString("O"),
+                bson => DateTime.ParseExact(bson, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind));
         }
 
         public List<T> GetJobs<T>(Expression<Func<T, bool>> filterExpression) where T : JobDataModel
