@@ -14,15 +14,17 @@ C# .NET Core Arma 3 Server Manager for ArmaForces unit.
 
 ### REST API
 
-Manager is fully based on API interaction, everything can be done through the API, starting servers, updating mods and changing the configuration.
+Manager is fully based on API interaction, everything can be done through the API, starting servers*, adding/removing Headless Clients, updating mods and changing the configuration.
+
+_* It's possible to start multiple servers, but validateSignatures=3 option is not fully supported._
 
 ### Jobs scheduling
 
-Starting server or updating mods can be scheduled to be done at some other time. This allows you to schedule server preparations before the mission and it will happen automatically, so you won't forget to update the mods.
+Starting server or updating mods can be scheduled to be done at some other time. This allows you to schedule server preparations before the mission and it will happen automatically, so you won't forget to update the mods. Each job you schedule has its unique id that can be used to query job status or cancel it if it's not needed anymore.
 
 ### Automatic jobs repeating on failure
 
-Sometimes mods update may fail due to Workshop being Workshop. Manager can handle that and will retry the update after waiting for some time, and will try up to 10 times over several hours before giving up. The same goes for server startup, which may fail if someone is on the server. Manager will wait until the server is empty (or not running) and then start your server.
+Sometimes mods update may fail due to Workshop being Workshop. Or maybe there was some internet failure that caused download to break? Manager can handle that and will retry the update after waiting for some time, and will try up to 10 times over several hours before giving up. The same goes for other jobs (tasks) like server startup, which may fail if someone is on the server. Manager will wait until the server is empty (or not running) and then start your server.
 
 ### Server status from your browser
 
@@ -36,7 +38,7 @@ Manager can download and update mods directly from workshop, saving you the time
 
 Manager integrates with other services for retrieving incoming missions details and contents of modlists, which are then used to automatically prepare server for missions.
 
-### Update mods every morning
+### Freshly updated mods every morning
 
 Every morning, Manager will retrieve incoming missions, gather all mods which will be used on these missions and update them to ensure you don't have any delay due to non-updated mods!*
 
@@ -59,6 +61,6 @@ Ever wanted to change some server settings like name or password in `server.cfg`
 
 ## Missing features
 
-- Running more than one server is not supported (unless one of them doesn't have signatures verification enabled).
+- Running more than one server is not supported (unless only one of them has signatures verification enabled).
 - Arma installation
 - Linux support (only Windows Arma server is supported)
