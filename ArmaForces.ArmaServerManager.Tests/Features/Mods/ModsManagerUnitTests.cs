@@ -103,37 +103,37 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
         }
 
         private void VerifyModsDownloadedOrUpdated(
-            IReadOnlyCollection<IMod> missingMods,
+            IReadOnlyCollection<Mod> missingMods,
             CancellationToken? cancellationToken = null)
             => _downloaderMock.Verify(
                 x => x.DownloadOrUpdateMods(
-                    It.Is<IReadOnlyCollection<IMod>>(mods => mods.All(missingMods.Contains)),
+                    It.Is<IReadOnlyCollection<Mod>>(mods => mods.All(missingMods.Contains)),
                     cancellationToken ?? CancellationToken.None));
 
-        private void VerifyModsCacheUpdated(IReadOnlyCollection<IMod> modsShouldBeUpdated) => _modsCacheMock.Verify(
+        private void VerifyModsCacheUpdated(IReadOnlyCollection<Mod> modsShouldBeUpdated) => _modsCacheMock.Verify(
             x => x.AddOrUpdateModsInCache(
-                It.Is<IReadOnlyCollection<IMod>>(mods => mods.All(modsShouldBeUpdated.Contains))),
+                It.Is<IReadOnlyCollection<Mod>>(mods => mods.All(modsShouldBeUpdated.Contains))),
             Times.Once);
 
         private void VerifyModsCacheNotUpdated() => _modsCacheMock.Verify(
-            x => x.AddOrUpdateModsInCache(It.IsAny<IReadOnlyCollection<IMod>>()),
+            x => x.AddOrUpdateModsInCache(It.IsAny<IReadOnlyCollection<Mod>>()),
             Times.Never);
 
         private void VerifyModsNotDownloadedOrUpdated()
         {
             _downloaderMock.Verify(
                 x => x.DownloadOrUpdateMods(
-                    It.IsAny<IReadOnlyCollection<IMod>>(),
+                    It.IsAny<IReadOnlyCollection<Mod>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Never);
         }
 
         private void SetupContentDownloader(
-            IReadOnlyCollection<IMod>? modsToSuccessfullyDownload = null,
-            IReadOnlyCollection<IMod>? modsToFailDownload = null)
+            IReadOnlyCollection<Mod>? modsToSuccessfullyDownload = null,
+            IReadOnlyCollection<Mod>? modsToFailDownload = null)
         {
-            modsToSuccessfullyDownload ??= new List<IMod>();
-            modsToFailDownload ??= new List<IMod>();
+            modsToSuccessfullyDownload ??= new List<Mod>();
+            modsToFailDownload ??= new List<Mod>();
 
             var modsToDownload = modsToSuccessfullyDownload
                 .Concat(modsToFailDownload)
@@ -143,14 +143,14 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
                 .Select(Result.Success);
 
             var failedResults = modsToFailDownload
-                .Select(x => Result.Failure<IMod>($"Mod {x} failed to download"));
+                .Select(x => Result.Failure<Mod>($"Mod {x} failed to download"));
 
             _downloaderMock
                 .Setup(x => x.DownloadOrUpdateMods(modsToDownload, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(successResults.Concat(failedResults).ToList()));
         }
 
-        private void SetModsAsUpToDate(IReadOnlyCollection<IMod> mods)
+        private void SetModsAsUpToDate(IReadOnlyCollection<Mod> mods)
         {
             foreach (var mod in mods)
             {
@@ -164,7 +164,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             }
         }
 
-        private void AddModsToModsCache(IReadOnlyCollection<IMod> mods)
+        private void AddModsToModsCache(IReadOnlyCollection<Mod> mods)
         {
             foreach (var mod in mods)
             {
@@ -179,7 +179,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             var mock = new Mock<IModsCache>();
             
             mock
-                .Setup(x => x.ModExists(It.IsAny<IMod>()))
+                .Setup(x => x.ModExists(It.IsAny<Mod>()))
                 .Returns(Task.FromResult(false));
             
             return mock;
@@ -201,8 +201,8 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             var mock = new Mock<IContentDownloader>();
             
             mock
-                .Setup(x => x.DownloadOrUpdateMods(It.IsAny<IReadOnlyCollection<IMod>>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(new List<Result<IMod>>{Result.Failure<IMod>("Item could not be downloaded")}));
+                .Setup(x => x.DownloadOrUpdateMods(It.IsAny<IReadOnlyCollection<Mod>>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new List<Result<Mod>>{Result.Failure<Mod>("Item could not be downloaded")}));
 
             return mock;
         }

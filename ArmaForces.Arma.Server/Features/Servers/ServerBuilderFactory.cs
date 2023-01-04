@@ -1,6 +1,6 @@
-﻿using ArmaForces.Arma.Server.Features.Keys;
+﻿using ArmaForces.Arma.Server.Features.Configuration.Providers;
+using ArmaForces.Arma.Server.Features.Keys;
 using ArmaForces.Arma.Server.Features.Processes;
-using ArmaForces.Arma.Server.Providers.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.Arma.Server.Features.Servers

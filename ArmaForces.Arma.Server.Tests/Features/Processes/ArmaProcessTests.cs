@@ -1,4 +1,5 @@
-﻿using ArmaForces.Arma.Server.Features.Processes;
+﻿using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Tests.Helpers.Extensions;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -38,13 +39,13 @@ namespace ArmaForces.Arma.Server.Tests.Features.Processes
         }
         
         [Fact]
-        public void Shutdown_ProcessNotStarted_ReturnsResultSuccess()
+        public async Task Shutdown_ProcessNotStarted_ReturnsResultSuccess()
         {
-            const string expectedErrorMessage = "Server could not be shut down because it's not running.";
+            const string expectedErrorMessage = "Process could not be shut down because it's not running.";
 
             var serverProcess = CreateArmaProcess();
 
-            var shutdownResult = serverProcess.Shutdown();
+            var shutdownResult = await serverProcess.Shutdown();
 
             shutdownResult.ShouldBeFailure(expectedErrorMessage);
         }

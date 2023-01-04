@@ -4,10 +4,10 @@ namespace ArmaForces.Arma.Server.Features.Mods
 {
     public interface IModDirectoryFinder
     {
-        IMod CreateModFromDirectory(string directoryPath);
+        Mod CreateModFromDirectory(string directoryPath);
 
-        IMod TryEnsureModDirectory(IMod mod);
+        Mod TryEnsureModDirectory(Mod mod);
 
-        Result<string> TryFindModDirectory(IMod mod, string directoryToSearch);
+        Result<string> TryFindModDirectory(Mod mod, string directoryToSearch);
     }
 }

@@ -1,5 +1,7 @@
-﻿namespace ArmaForces.Arma.Server.Config {
-    public interface IRegistryReader {
+﻿namespace ArmaForces.Arma.Server.Config
+{
+    public interface IRegistryReader
+    {
         /// <summary>
         /// Reads value from registry.
         /// </summary>

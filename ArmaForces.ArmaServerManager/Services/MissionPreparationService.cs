@@ -3,10 +3,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Mods;
+using ArmaForces.ArmaServerManager.Api.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Missions.Extensions;
 using ArmaForces.ArmaServerManager.Features.Mods;
-using ArmaForces.ArmaServerManager.Features.Modsets;
+using ArmaForces.ArmaServerManager.Features.Modsets.Client;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 
@@ -49,16 +50,16 @@ namespace ArmaForces.ArmaServerManager.Services
             return await _apiMissionsClient
                 .GetUpcomingMissions()
                 .Bind(x => x.GetNearestMission())
-                .Bind(nearestMission => _serverStartupService.StartServer(nearestMission.Modlist, cancellationToken));
+                .Bind(nearestMission => _serverStartupService.StartServer(nearestMission.Modlist, ServerStartRequestDto.DefaultHeadlessClients, cancellationToken));
         }
 
-        private async Task<Result<HashSet<IMod>>> GetModsListFromModsets(IReadOnlyCollection<string> modsetsNames)
+        private async Task<Result<HashSet<Mod>>> GetModsListFromModsets(IReadOnlyCollection<string> modsetsNames)
         {
             return await GetModsetsData(modsetsNames)
                 .Bind(MapModsets);
         }
 
-        private Result<HashSet<IMod>> MapModsets(ISet<WebModset> modsets) => modsets
+        private Result<HashSet<Mod>> MapModsets(ISet<WebModset> modsets) => modsets
             .Select(webModset => _webModsetMapper.MapWebModsetToCacheModset(webModset))
             .Select(modset => modset.ActiveMods)
             .SelectMany(x => x)

@@ -12,12 +12,12 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         IArmaProcess CreateServerProcess(
             int port,
-            IModset modset,
+            Modset modset,
             IModsetConfig modsetConfig);
 
         IEnumerable<IArmaProcess> CreateHeadlessClients(
             int port,
-            IModset modset,
+            Modset modset,
             IModsetConfig modsetConfig,
             int numberOfHeadlessClients = 1);
     }

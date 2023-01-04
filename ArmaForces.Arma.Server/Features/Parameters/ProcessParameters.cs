@@ -7,7 +7,7 @@ using ArmaForces.Arma.Server.Extensions;
 
 namespace ArmaForces.Arma.Server.Features.Parameters
 {
-    public class ProcessParameters : IProcessParameters
+    public class ProcessParameters : IEquatable<ProcessParameters>
     {
         public string ProcessPath { get; }
 
@@ -146,7 +146,7 @@ namespace ArmaForces.Arma.Server.Features.Parameters
 
         private string GetLoadMissionToMemoryString() => LoadMissionToMemory ? "-loadMissionToMemory" : string.Empty;
 
-        public bool Equals(IProcessParameters? other) => Port == other?.Port && ModsetName == other.ModsetName;
+        public bool Equals(ProcessParameters? other) => Port == other?.Port && ModsetName == other.ModsetName;
 
         public override bool Equals(object? obj)
         {

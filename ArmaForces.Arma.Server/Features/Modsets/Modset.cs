@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ArmaForces.Arma.Server.Features.Dlcs;
 using ArmaForces.Arma.Server.Features.Mods;
 
 namespace ArmaForces.Arma.Server.Features.Modsets
 {
-    public class Modset : IModset
+    public class Modset : IEquatable<Modset>
     {
         /// <summary>
         /// Identifier of the modset in web system.
@@ -26,7 +27,7 @@ namespace ArmaForces.Arma.Server.Features.Modsets
         /// <summary>
         /// All mods contained in the modset.
         /// </summary>
-        public ISet<IMod> Mods { get; set; } = new HashSet<IMod>();
+        public ISet<Mod> Mods { get; set; } = new HashSet<Mod>();
 
         /// <summary>
         /// All dlcs required by the modset.
@@ -36,7 +37,7 @@ namespace ArmaForces.Arma.Server.Features.Modsets
         /// <summary>
         /// All mods which are not disabled and can be loaded by server.
         /// </summary>
-        public ISet<IMod> ActiveMods
+        public ISet<Mod> ActiveMods
             => Mods
                 .Where(x => x.Status != ModStatus.Disabled)
                 .ToHashSet();
@@ -44,7 +45,7 @@ namespace ArmaForces.Arma.Server.Features.Modsets
         /// <summary>
         /// All mods which are required for client to load.
         /// </summary>
-        public ISet<IMod> RequiredMods
+        public ISet<Mod> RequiredMods
             => Mods
                 .Where(x => x.Type == ModType.Required)
                 .Where(x => x.Status != ModStatus.Disabled)
@@ -54,7 +55,7 @@ namespace ArmaForces.Arma.Server.Features.Modsets
         /// <summary>
         /// All mods which must be loaded on the server.
         /// </summary>
-        public ISet<IMod> ServerSideMods
+        public ISet<Mod> ServerSideMods
             => Mods
                 .Where(x => x.Type == ModType.ServerSide || x.Type == ModType.Optional)
                 .Where(x => x.Status != ModStatus.Disabled)
@@ -63,19 +64,29 @@ namespace ArmaForces.Arma.Server.Features.Modsets
         /// <summary>
         /// All mods which are allowed for client to load but are not loaded on the server. 
         /// </summary>
-        public ISet<IMod> ClientLoadableMods
+        public ISet<Mod> ClientLoadableMods
             => Mods
                 .Concat(Dlcs)
                 .Where(x => x.Type > ModType.ServerSide)
                 .Where(x => x.Status != ModStatus.Disabled)
                 .ToHashSet();
 
-        public bool Equals(IModset? modset)
+        public bool Equals(Modset? modset)
         {
             if (modset is null) return false;
             if (ReferenceEquals(this, modset)) return true;
             return Name == modset.Name
                    && Mods.SetEquals(modset.Mods);
         }
+
+        public override bool Equals(object? obj)
+            => Equals(obj as Modset);
+
+        // Disabled warning as properties cannot be readonly if we want to initialize them without constructor.
+        // Modset name can change but then the local modset would be different and this is correct behavior.
+        // TODO: Change Modset to be record
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
+        public override int GetHashCode()
+            => HashCode.Combine(WebId, Name, Mods, Dlcs);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
+using ArmaForces.ArmaServerManager.Features.Jobs;
 
 // Disable call not awaited
 #pragma warning disable 1998
@@ -8,13 +8,13 @@ using ArmaForces.ArmaServerManager.Features.Hangfire;
 namespace ArmaForces.ArmaServerManager.Tests.Helpers.Dummy
 {
     /// <summary>
-    /// Class for <see cref="IHangfireManager"/> testing purposes.
+    /// Class for <see cref="IJobsScheduler"/> testing purposes.
     /// </summary>
     public class DummyClass
     {
         /// <summary>
         /// Does nothing.
-        /// Needed for <see cref="IHangfireManager"/> tests.
+        /// Needed for <see cref="IJobsScheduler"/> tests.
         /// </summary>
         public async Task DoNothing(CancellationToken cancellationToken)
         {
@@ -22,7 +22,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Helpers.Dummy
 
         /// <summary>
         /// Does nothing and even more nothing.
-        /// Needed for <see cref="IHangfireManager"/> tests.
+        /// Needed for <see cref="IJobsScheduler"/> tests.
         /// </summary>
         public async Task DoNothingAndNothing(CancellationToken cancellationToken)
         {

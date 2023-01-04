@@ -7,7 +7,7 @@ namespace ArmaForces.ArmaServerManager.Extensions
 {
     public static class ModExtensions
     {
-        public static ContentItem AsContentItem(this IMod mod)
+        public static ContentItem AsContentItem(this Mod mod)
             => mod.Source == ModSource.SteamWorkshop
                 ? new ContentItem
                 {
@@ -22,8 +22,8 @@ namespace ArmaForces.ArmaServerManager.Extensions
         /// </summary>
         /// <param name="olderMod">Mod to be updated.</param>
         /// <param name="newerMod">Mod used as source for updated data.</param>
-        /// <returns>New <see cref="IMod"/> with updated data.</returns>
-        public static Result<IMod> UpdateModData(this IMod olderMod, IMod newerMod)
+        /// <returns>New <see cref="Mod"/> with updated data.</returns>
+        public static Result<Mod> UpdateModData(this Mod olderMod, Mod newerMod)
         {
             var mod = new Mod
             {
@@ -37,7 +37,7 @@ namespace ArmaForces.ArmaServerManager.Extensions
                 WorkshopId = newerMod.WorkshopId
             };
 
-            return Result.Success<IMod>(mod);
+            return Result.Success<Mod>(mod);
         }
     }
 }

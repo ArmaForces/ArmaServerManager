@@ -13,29 +13,29 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
         /// <inheritdoc cref="IModsManager"/>
         /// <param name="modset">Modset to prepare.</param>
         /// <param name="cancellationToken"></param>
-        /// <returns><see cref="Result.Success"/> if all mods from <see cref="IModset"/> are downloaded and up to date.</returns>
-        Task<Result> PrepareModset(IModset modset, CancellationToken cancellationToken);
+        /// <returns><see cref="Result.Success"/> if all mods from <see cref="ArmaForces.Arma.Server.Features.Modsets.Modset"/> are downloaded and up to date.</returns>
+        Task<Result> PrepareModset(Modset modset, CancellationToken cancellationToken);
 
         /// <summary>
         /// Checks if all mods from given list exist.
         /// </summary>
         /// <param name="modsList">List of mods to check.</param>
         /// <returns><see cref="Result{T}"/> with missing mods.</returns>
-        Result<IEnumerable<IMod>> CheckModsExist(IEnumerable<IMod> modsList);
+        Result<IEnumerable<Mod>> CheckModsExist(IEnumerable<Mod> modsList);
 
         /// <summary>
         /// Checks if all mods from given list are up to date.
         /// </summary>
         /// <param name="modsList">List of mods to check.</param>
         /// <returns><see cref="Result{T}"/> with outdated mods.</returns>
-        Task<Result<List<IMod>>> CheckModsUpdated(IReadOnlyCollection<IMod> modsList, CancellationToken cancellationToken);
+        Task<Result<List<Mod>>> CheckModsUpdated(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates given <paramref name="mods"/>.
         /// </summary>
         /// <param name="mods">List of mods to update.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken"/> used for task cancellation.</param>
-        Task UpdateMods(IReadOnlyCollection<IMod> mods, CancellationToken cancellationToken);
+        Task UpdateMods(IReadOnlyCollection<Mod> mods, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates all installed mods.

@@ -44,12 +44,12 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         /// <inheritdoc />
-        public async Task<Result> PrepareModset(IModset modset, CancellationToken cancellationToken)
+        public async Task<Result> PrepareModset(Modset modset, CancellationToken cancellationToken)
             => await CheckUpdatesAndDownloadMods(modset.ActiveMods, cancellationToken)
                 .Tap(() => _logger.LogInformation("Preparation of {ModsetName} modset finished", modset.Name));
 
         /// <inheritdoc />
-        public async Task UpdateMods(IReadOnlyCollection<IMod> mods, CancellationToken cancellationToken)
+        public async Task UpdateMods(IReadOnlyCollection<Mod> mods, CancellationToken cancellationToken)
             => await CheckUpdatesAndDownloadMods(mods, cancellationToken)
                 .Tap(() => _logger.LogInformation("Update of {Count} mods finished", mods.Count));
 
@@ -59,7 +59,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .Tap(() => _logger.LogInformation("Update of all mods finished"));
 
         /// <inheritdoc />
-        public Result<IEnumerable<IMod>> CheckModsExist(IEnumerable<IMod> modsList)
+        public Result<IEnumerable<Mod>> CheckModsExist(IEnumerable<Mod> modsList)
         {
             var missingMods = modsList
                 .ToAsyncEnumerable()
@@ -69,14 +69,14 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         /// <inheritdoc />
-        public async Task<Result<List<IMod>>> CheckModsUpdated(IReadOnlyCollection<IMod> modsList, CancellationToken cancellationToken)
+        public async Task<Result<List<Mod>>> CheckModsUpdated(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken)
         {
             if (modsList.IsEmpty())
             {
-                return Result.Success(new List<IMod>());
+                return Result.Success(new List<Mod>());
             }
             
-            var modsRequireUpdate = new ConcurrentBag<IMod>();
+            var modsRequireUpdate = new ConcurrentBag<Mod>();
 
             await foreach (var mod in modsList.Where(x => x.Source == ModSource.SteamWorkshop)
                 .ToAsyncEnumerable()
@@ -94,7 +94,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="modsToDownload">Mods to download.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods download safe cancelling.</param>
-        private async Task<Result> CheckUpdatesAndDownloadMods(IEnumerable<IMod> modsToDownload, CancellationToken cancellationToken)
+        private async Task<Result> CheckUpdatesAndDownloadMods(IEnumerable<Mod> modsToDownload, CancellationToken cancellationToken)
         {
             await _steamClient.EnsureConnected(cancellationToken);
             
@@ -103,7 +103,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         private async Task<Result> DownloadMods(
-            IReadOnlyCollection<IMod> modsToDownload,
+            IReadOnlyCollection<Mod> modsToDownload,
             CancellationToken cancellationToken)
         {
             if (modsToDownload.IsEmpty())

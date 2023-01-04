@@ -11,7 +11,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
     {
         private readonly ILogger<ArmaProcess> _logger;
 
-        private Process? _serverProcess;
+        private Process? _process;
 
         // TODO: Remove after replacing tests
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
@@ -29,9 +29,9 @@ namespace ArmaForces.Arma.Server.Features.Processes
             ProcessParameters processParameters,
             ILogger<ArmaProcess> logger) : this(processParameters, logger)
         {
-            _serverProcess = process;
-            _serverProcess.EnableRaisingEvents = true;
-            _serverProcess.Exited += (sender, args) => InvokeOnProcessShutdown();
+            _process = process;
+            _process.EnableRaisingEvents = true;
+            _process.Exited += (_, _) => InvokeOnProcessShutdown();
         }
 
         public ArmaProcess(
@@ -49,7 +49,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
             // TODO: Handle regular client process too to avoid shutting it down
             : ArmaProcessType.Server;
 
-        public bool IsStopped => _serverProcess == null || _serverProcess.HasExited;
+        public bool IsStopped => _process == null || _process.HasExited;
 
         public bool IsStartingOrStarted => !IsStopped;
 
@@ -70,7 +70,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
                     processStartInfo.FileName,
                     processStartInfo.Arguments);
 
-                _serverProcess = Process.Start(processStartInfo);
+                _process = Process.Start(processStartInfo);
             }
             catch (Exception exception)
             {
@@ -78,26 +78,34 @@ namespace ArmaForces.Arma.Server.Features.Processes
                 return Result.Failure("Arma 3 process could not be started.");
             }
 
-            _serverProcess!.EnableRaisingEvents = true;
-            _serverProcess.Exited += (sender, args) => InvokeOnProcessShutdown();
+            _process!.EnableRaisingEvents = true;
+            _process.Exited += (_, _) => InvokeOnProcessShutdown();
 
             _logger.LogInformation("Starting Arma 3 {ProcessType}", ProcessType);
 
             return Result.Success();
         }
 
-        public Result Shutdown()
+        public async Task<Result> Shutdown()
         {
-            if (IsStopped || _serverProcess is null)
+            if (IsStopped || _process is null)
             {
-                _logger.LogInformation("Server not running");
-                return Result.Failure("Server could not be shut down because it's not running.");
+                _logger.LogInformation("Process not running");
+                return Result.Failure("Process could not be shut down because it's not running.");
             }
 
-            _logger.LogDebug("Shutting down the {ArmaProcess}", _serverProcess);
+            _logger.LogDebug("Shutting down the {ProcessType}: {ProcessName}", ProcessType, _process.ProcessName);
 
-            _serverProcess.Kill();
-            _serverProcess = null;
+            _process.CloseMainWindow();
+            await Task.Run(() => _process.WaitForExit(milliseconds: 5000));
+            
+            if (!_process.HasExited)
+            {
+                _logger.LogWarning("Process didn't stop gracefully. Killing process");
+                _process.Kill();
+            }
+            
+            _process = null;
 
             _logger.LogInformation("Server successfully shut down");
 

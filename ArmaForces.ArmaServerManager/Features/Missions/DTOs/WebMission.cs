@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
 
-namespace ArmaForces.ArmaServerManager.Features.Missions.DTOs {
+namespace ArmaForces.ArmaServerManager.Features.Missions.DTOs
+{
     public class WebMission
     {
         public string Title { get; set; } = string.Empty;
@@ -12,7 +13,8 @@ namespace ArmaForces.ArmaServerManager.Features.Missions.DTOs {
 
         public string Description { get; set; } = string.Empty;
 
-        public string Modlist {
+        public string Modlist
+        {
             get => _modlist;
             set => _modlist = value.Split('/').Last();
         }

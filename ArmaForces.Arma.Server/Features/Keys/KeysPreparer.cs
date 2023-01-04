@@ -47,7 +47,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
             _managerDirectory = settings.ManagerDirectory;
         }
 
-        public Result PrepareKeysForModset(IModset modset) 
+        public Result PrepareKeysForModset(Modset modset) 
             => RemoveOldKeys()
                 .Bind(() => CopyNewKeys(modset))
                 .Bind(CopyArmaKey);
@@ -63,7 +63,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
             return _keysCopier.DeleteKeys(oldKeys);
         }
 
-        private Result CopyNewKeys(IModset modset)
+        private Result CopyNewKeys(Modset modset)
         {
             var clientLoadableMods = modset.ClientLoadableMods;
 
@@ -91,7 +91,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
             return Result.Success();
         }
 
-        private Result<ModBikeys> CopyKeysForMod(IMod mod)
+        private Result<ModBikeys> CopyKeysForMod(Mod mod)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
             }
         }
 
-        private ModBikeys GetAllKeysForMod(IMod mod)
+        private ModBikeys GetAllKeysForMod(Mod mod)
         {
             var bikeyFiles = GetKeysFromMod(mod)
                 .Concat(GetExternalKeys(mod))
@@ -125,7 +125,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
             return new ModBikeys(mod, bikeyFiles);
         }
 
-        private List<BikeyFile> GetKeysFromMod(IMod mod)
+        private List<BikeyFile> GetKeysFromMod(Mod mod)
         {
             _logger.LogDebug("Looking for standard keys for {Mod}", mod.ToShortString());
             
@@ -134,7 +134,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
                 .ToList();
         }
 
-        private List<BikeyFile> GetExternalKeys(IMod mod)
+        private List<BikeyFile> GetExternalKeys(Mod mod)
         {
             var result = _modDirectoryFinder.TryFindModDirectory(mod, _externalKeysDirectoryPath)
                 .Tap(_ => _logger.LogDebug("Looking for external keys for {Mod}", mod.ToShortString()));
@@ -173,7 +173,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
             }
         }
 
-        private void LogKeysCopyError(IMod mod, string error)
+        private void LogKeysCopyError(Mod mod, string error)
         {
             _logger.LogWarning(
                 "Copying keys for mod {Mod} failed with error: {Error}",
@@ -186,11 +186,11 @@ namespace ArmaForces.Arma.Server.Features.Keys
         private readonly struct ModBikeys
         {
             public IReadOnlyCollection<BikeyFile> BikeyFiles { get; }
-            public IMod Mod { get; }
+            public Mod Mod { get; }
 
-            public ModBikeys(IMod mod) : this(mod, new List<BikeyFile>()) {}
+            public ModBikeys(Mod mod) : this(mod, new List<BikeyFile>()) {}
 
-            public ModBikeys(IMod mod, IReadOnlyCollection<BikeyFile> bikeyFiles)
+            public ModBikeys(Mod mod, IReadOnlyCollection<BikeyFile> bikeyFiles)
             {
                 BikeyFiles = bikeyFiles;
                 Mod = mod;

@@ -3,7 +3,7 @@
 @using ArmaForces.Arma.Server.Features.Mods
 @model ModsModel
 @{
-    ViewData["Title"] = "Server Startup page";
+    ViewData["Title"] = "Mods";
 }
 
 <body>
@@ -19,22 +19,22 @@
                 <thead>
                     <tr>
                         <th>
-                            @nameof(IMod.Name)
+                            @nameof(Mod.Name)
                         </th>
                         <th>
-                            @nameof(IMod.Type)
+                            @nameof(Mod.Type)
                         </th>
                         <th>
-                            @nameof(IMod.Source)
+                            @nameof(Mod.Source)
                         </th>
                         <th>
-                            @nameof(IMod.WorkshopId)
+                            @nameof(Mod.WorkshopId)
                         </th>
                         <th>
-                            @nameof(IMod.LastUpdatedAt)
+                            @nameof(Mod.LastUpdatedAt)
                         </th>
                         <th>
-                            @nameof(IMod.Directory)
+                            @nameof(Mod.Directory)
                         </th>
                     </tr>
                 </thead>

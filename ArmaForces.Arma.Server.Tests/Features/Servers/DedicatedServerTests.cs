@@ -32,7 +32,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
         private readonly Mock<IKeysPreparer> _keysProviderMock = new Mock<IKeysPreparer>();
         private readonly Mock<IServerStatusFactory> _serverStatusFactoryMock = new Mock<IServerStatusFactory>();
         private readonly Mock<IArmaProcessManager> _armaProcessManagerMock = new Mock<IArmaProcessManager>();
-        private readonly IModset _modset;
+        private readonly Modset _modset;
 
         private readonly Fixture _fixture = new Fixture();
 
@@ -145,7 +145,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
             funcMock.Verify(x => x.Invoke(It.IsAny<IDedicatedServer>()), Times.Once);
         }
 
-        private static Mock<IArmaProcess> CreateArmaProcessMock()
+        private static Mock<IArmaProcess> CreateArmaProcessMock(bool isServer = false)
         {
             var armaProcessMock = new Mock<IArmaProcess>();
             
@@ -158,6 +158,9 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
             armaProcessMock
                 .Setup(x => x.IsStartingOrStarted)
                 .Returns(false);
+            armaProcessMock
+                .Setup(x => x.ProcessType)
+                .Returns(isServer ? ArmaProcessType.Server : ArmaProcessType.HeadlessClient);
             
             return armaProcessMock;
         }

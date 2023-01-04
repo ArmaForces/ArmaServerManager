@@ -19,7 +19,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         Result Start();
 
-        Result Shutdown();
+        Task<Result> Shutdown();
 
         public event Func<IArmaProcess, Task> OnProcessShutdown;
     }

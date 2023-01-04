@@ -29,7 +29,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
             _logger = logger;
         }
 
-        public IMod CreateModFromDirectory(string directoryPath)
+        public Mod CreateModFromDirectory(string directoryPath)
         {
             var directoryName = directoryPath.Split('\\').Last();
             var mod = new Mod();
@@ -52,7 +52,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
             return mod;
         }
 
-        public IMod TryEnsureModDirectory(IMod mod)
+        public Mod TryEnsureModDirectory(Mod mod)
         {
             if (mod.Exists(_fileSystem)) return mod;
             mod.Directory = TryFindModDirectory(mod, _modsPath)
@@ -66,7 +66,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
             return mod;
         }
 
-        public Result<string> TryFindModDirectory(IMod mod, string directoryToSearch)
+        public Result<string> TryFindModDirectory(Mod mod, string directoryToSearch)
             => TryFindModDirectoryByDirectory(mod, directoryToSearch)
                 .OnFailureCompensate(() => TryFindModDirectoryByWorkshopId(mod, directoryToSearch))
                 .OnFailureCompensate(() => TryFindModDirectoryByName(mod, directoryToSearch))
@@ -75,7 +75,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
                 .OnFailureCompensate(() => Result.Failure<string>($"Directory not found for {mod.ToShortString()}."))
                 .Bind(directory => AssertFoundDirectoryIsNotServerDirectory(mod, directory));
 
-        private Result<string> TryFindModDirectoryByDirectory(IMod mod, string directoryToSearch)
+        private Result<string> TryFindModDirectoryByDirectory(Mod mod, string directoryToSearch)
         {
             if (string.IsNullOrWhiteSpace(mod.Directory))
                 return Result.Failure<string>("Mod directory attribute is empty.");
@@ -86,7 +86,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
                 : Result.Failure<string>("Mod directory not found using its directory.");
         }
 
-        private Result<string> TryFindModDirectoryByWorkshopId(IMod mod, string directoryToSearch)
+        private Result<string> TryFindModDirectoryByWorkshopId(Mod mod, string directoryToSearch)
         {
             if (string.IsNullOrWhiteSpace(mod.WorkshopId.ToString()))
                 return Result.Failure<string>("Workshop ID attribute is empty.");
@@ -97,7 +97,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
                 : Result.Failure<string>("Mod directory not found using its workshopId.");
         }
 
-        private Result<string> TryFindModDirectoryByName(IMod mod, string directoryToSearch)
+        private Result<string> TryFindModDirectoryByName(Mod mod, string directoryToSearch)
         {
             if (string.IsNullOrWhiteSpace(mod.Name))
                 return Result.Failure<string>("Mod name attribute is empty.");
@@ -108,7 +108,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
                 : Result.Failure<string>("Mod directory not found using its name.");
         }
 
-        private Result<string> TryFindModDirectoryByNamePrefixedWithAtSign(IMod mod, string directoryToSearch)
+        private Result<string> TryFindModDirectoryByNamePrefixedWithAtSign(Mod mod, string directoryToSearch)
         {
             if (string.IsNullOrWhiteSpace(mod.Name))
                 return Result.Failure<string>("Mod name attribute is empty.");
@@ -124,7 +124,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
                 : Result.Failure<string>("Mod directory not found using its name with @ prefix.");
         }
 
-        private Result<string> TryFindCdlcDirectory(IMod maybeCdlc)
+        private Result<string> TryFindCdlcDirectory(Mod maybeCdlc)
         {
             if (!(maybeCdlc is Dlc cdlc))
                 return Result.Failure<string>("Mod is not a cDLC.");
@@ -151,7 +151,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
         /// <param name="foundDirectory">Directory path to mod.</param>
         /// <returns>Mod directory path.</returns>
         /// <exception cref="ModNotFoundException">Thrown when <paramref name="foundDirectory"/> equals to server directory.</exception>
-        private Result<string> AssertFoundDirectoryIsNotServerDirectory(IMod mod, string foundDirectory)
+        private Result<string> AssertFoundDirectoryIsNotServerDirectory(Mod mod, string foundDirectory)
         {
             if (foundDirectory != _serverPath)
             {

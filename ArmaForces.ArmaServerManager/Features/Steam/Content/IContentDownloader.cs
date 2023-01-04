@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Mods;
-using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content
@@ -18,8 +17,8 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         /// <param name="mods">Mods to download.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Download result for each mod.</returns>
-        Task<List<Result<IMod>>> DownloadOrUpdateMods(
-            IReadOnlyCollection<IMod> mods,
+        Task<List<Result<Mod>>> DownloadOrUpdateMods(
+            IReadOnlyCollection<Mod> mods,
             CancellationToken cancellationToken);
     }
 }

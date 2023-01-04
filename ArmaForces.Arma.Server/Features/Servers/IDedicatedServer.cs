@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
+using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using CSharpFunctionalExtensions;
 
@@ -13,7 +15,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
         
         int SteamQueryPort { get; }
         
-        IModset Modset { get; }
+        Modset Modset { get; }
 
         int HeadlessClientsConnected { get; }
 
@@ -26,6 +28,10 @@ namespace ArmaForces.Arma.Server.Features.Servers
         Result Start();
 
         Task<Result> Shutdown();
+
+        Result AddAndStartHeadlessClients(IEnumerable<IArmaProcess> headlessClients);
+
+        Task<Result> RemoveHeadlessClients(int headlessClientsToRemove);
 
         public event Func<IDedicatedServer, Task> OnServerShutdown;
 

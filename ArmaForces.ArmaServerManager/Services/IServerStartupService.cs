@@ -11,17 +11,19 @@ namespace ArmaForces.ArmaServerManager.Services
         /// TODO: create documentation
         /// </summary>
         /// <param name="modsetName"></param>
+        /// <param name="headlessClients"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Result> StartServer(string modsetName, CancellationToken cancellationToken);
+        Task<Result> StartServer(string modsetName, int headlessClients, CancellationToken cancellationToken);
 
         /// <summary>
         /// TODO: create documentation
         /// </summary>
         /// <param name="modset"></param>
+        /// <param name="headlessClients"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Result> StartServer(IModset modset, CancellationToken cancellationToken);
+        Task<Result> StartServer(Modset modset, int headlessClients, CancellationToken cancellationToken);
 
         /// <summary>
         /// TODO: create documentation

@@ -5,7 +5,7 @@ using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Features.Missions.Extensions
 {
-    public static class WebMissionsCollectionExtensions
+    internal static class WebMissionsCollectionExtensions
     {
         public static Result<WebMission> GetNearestMission(this IEnumerable<WebMission> missions)
         {

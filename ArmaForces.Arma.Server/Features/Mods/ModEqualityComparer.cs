@@ -2,9 +2,9 @@
 
 namespace ArmaForces.Arma.Server.Features.Mods
 {
-    public class ModEqualityComparer : IEqualityComparer<IMod>
+    public class ModEqualityComparer : IEqualityComparer<Mod>
     {
-        public bool Equals(IMod? x, IMod? y)
+        public bool Equals(Mod? x, Mod? y)
         {
             if (ReferenceEquals(x, y)) return true;
             if (x is null) return false;
@@ -12,7 +12,7 @@ namespace ArmaForces.Arma.Server.Features.Mods
             return x.GetType() == y.GetType() && x.Equals(y);
         }
 
-        public int GetHashCode(IMod obj)
+        public int GetHashCode(Mod obj)
         {
             return obj.GetHashCode();
         }

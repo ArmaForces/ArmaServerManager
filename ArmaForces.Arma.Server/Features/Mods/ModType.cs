@@ -1,5 +1,7 @@
-﻿namespace ArmaForces.Arma.Server.Features.Mods {
-    public enum ModType {
+﻿namespace ArmaForces.Arma.Server.Features.Mods
+{
+    public enum ModType
+    {
         /// <summary>
         /// Loaded only on server.
         /// </summary>

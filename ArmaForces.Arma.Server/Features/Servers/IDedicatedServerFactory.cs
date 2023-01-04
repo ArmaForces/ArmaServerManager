@@ -8,12 +8,12 @@ namespace ArmaForces.Arma.Server.Features.Servers
     {
         IDedicatedServer CreateDedicatedServer(
             int port,
-            IModset modset,
+            Modset modset,
             int numberOfHeadlessClients);
 
         IDedicatedServer CreateDedicatedServer(
             int port,
-            IModset modset,
+            Modset modset,
             IArmaProcess armaProcess,
             IEnumerable<IArmaProcess>? headlessProcesses = null);
     }

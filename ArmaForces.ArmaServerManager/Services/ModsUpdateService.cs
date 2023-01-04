@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Mods;
-using ArmaForces.ArmaServerManager.Providers;
+using ArmaForces.ArmaServerManager.Features.Modsets;
 using CSharpFunctionalExtensions;
 using Hangfire;
 
@@ -31,12 +31,12 @@ namespace ArmaForces.ArmaServerManager.Services
                 .Bind(x => UpdateModset(x, cancellationToken));
         }
 
-        public async Task<Result> UpdateModset(IModset modset, CancellationToken cancellationToken)
+        public async Task<Result> UpdateModset(Modset modset, CancellationToken cancellationToken)
         {
             return await _modsManager.PrepareModset(modset, cancellationToken);
         }
 
-        public async Task UpdateMods(IEnumerable<IMod> mods, CancellationToken cancellationToken)
+        public async Task UpdateMods(IEnumerable<Mod> mods, CancellationToken cancellationToken)
         {
             await _modsManager.UpdateMods(mods.ToList(), cancellationToken);
         }

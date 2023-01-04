@@ -1,15 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.ArmaServerManager.Features.Configuration;
-using ArmaForces.ArmaServerManager.Features.Hangfire;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Filters;
-using ArmaForces.ArmaServerManager.Features.Hangfire.Helpers;
+using ArmaForces.ArmaServerManager.Features.Jobs;
+using ArmaForces.ArmaServerManager.Features.Jobs.Filters;
+using ArmaForces.ArmaServerManager.Features.Jobs.Helpers;
+using ArmaForces.ArmaServerManager.Features.Jobs.Persistence;
 using ArmaForces.ArmaServerManager.Features.Missions.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection;
+using ArmaForces.ArmaServerManager.Features.Servers;
+using ArmaForces.ArmaServerManager.Features.Servers.Providers;
+using ArmaForces.ArmaServerManager.Features.Status;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Infrastructure.Converters;
-using ArmaForces.ArmaServerManager.Providers.Server;
+using ArmaForces.ArmaServerManager.Infrastructure.Documentation;
+using ArmaForces.ArmaServerManager.Infrastructure.Logging;
 using ArmaForces.ArmaServerManager.Services;
 using Hangfire;
 using Hangfire.LiteDB;
@@ -18,18 +24,45 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Interfaces;
+using Microsoft.OpenApi.Models;
 using Serilog;
+using HangfireJobStorage = Hangfire.JobStorage;
 
 namespace ArmaForces.ArmaServerManager
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             Configuration = configuration;
+            WebHostEnvironment = webHostEnvironment;
         }
+        
+        private OpenApiInfo OpenApiConfiguration { get; } = new OpenApiInfo()
+        {
+            Title = "ArmaForces ArmaServerManager API",
+            Description = "API for Arma 3 server management.",
+            Version = "v3",
+            Contact = new OpenApiContact
+            {
+                Name = "ArmaForces",
+                Url = new Uri("https://armaforces.com")
+            },
+            Extensions = new Dictionary<string, IOpenApiExtension>
+            {
+                {"x-logo", new OpenApiObject
+                {
+                    {"url", new OpenApiString("https://armaforces.com/img/favicon-192x192.png")},
+                    {"altText", new OpenApiString("ArmaForces logo")}
+                }}
+            }
+        };
 
         private IConfiguration Configuration { get; }
+        
+        private IWebHostEnvironment WebHostEnvironment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -61,6 +94,7 @@ namespace ArmaForces.ArmaServerManager
             .AddHangfireServer(ConfigureHangfireServer())
             .AddTransient<FailOnResultFailureAttribute>()
 
+            .AddSingleton(WebHostEnvironment)
             .AddHostedService<StartupService>()
 
             // Job services
@@ -72,6 +106,9 @@ namespace ArmaForces.ArmaServerManager
             // Arma Server
             .AddArmaServer()
             
+            // Documentation
+            .AddDocumentation(OpenApiConfiguration)
+            
             // Mods
             .AddMods()
 
@@ -79,14 +116,28 @@ namespace ArmaForces.ArmaServerManager
             .AddMissionsApiClient()
 
             // Server
-            .AddSingleton<IServerProvider, ServerProvider>()
+            .AddSingleton<ServerProviderFactory>()
+            .AddSingleton<IServerProvider>(x => x.GetRequiredService<ServerProviderFactory>()
+                .CreateServerProviderAsync(x).Result)
             .AddSingleton<IServerConfigurationLogic, ServerConfigurationLogic>()
+            .AddSingleton<IServerCommandLogic, ServerCommandLogic>()
+            .AddSingleton<IServerQueryLogic, ServerQueryLogic>()
+            
+            // Status
+            .AddSingleton<IStatusProvider, StatusProvider>()
 
             // Hangfire
-            .AddSingleton<IHangfireBackgroundJobClient, HangfireBackgroundJobClient>()
-            .AddSingleton<IHangfireJobStorage, HangfireJobStorage>()
-            .AddSingleton<IHangfireManager, HangfireManager>()
+            .AddSingleton<IJobsScheduler, JobsScheduler>()
+            .AddSingleton<IJobsService, JobsService>()
+            .AddSingleton<IHangfireBackgroundJobClientWrapper, HangfireBackgroundJobClientWrapper>()
+            .AddSingleton<IJobsRepository, JobsRepository>()
+            .AddSingleton<IJobsDataAccess, JobsDataAccess>()
             
+            .AddSingleton<IBackgroundJobClient, BackgroundJobClient>()
+            .AddSingleton(_ => HangfireJobStorage.Current.GetMonitoringApi())
+            .AddSingleton(_ => HangfireJobStorage.Current.GetConnection())
+            .AddSingleton(_ => HangfireDbContext.Instance(Configuration.GetConnectionString("HangfireConnection")))
+
             // Security
             .AddSingleton<IApiKeyProvider, ApiKeyProvider>();
         }
@@ -105,10 +156,14 @@ namespace ArmaForces.ArmaServerManager
                 app.UseHsts();
             }
 
-            app.UseSerilogRequestLogging();
+            app.UseSerilogRequestLogging(opt =>
+            {
+                opt.GetLevel = RequestLoggingUtilities.LogOnTraceUnlessErrorOrApiRequest();
+            });
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.AddDocumentation(OpenApiConfiguration);
 
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {

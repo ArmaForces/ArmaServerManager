@@ -8,7 +8,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
     {
         IServerBuilder OnPort(int port);
 
-        IServerBuilder WithModset(IModset modset);
+        IServerBuilder WithModset(Modset modset);
 
         IServerBuilder WithServerProcess(IArmaProcess armaProcess);
 

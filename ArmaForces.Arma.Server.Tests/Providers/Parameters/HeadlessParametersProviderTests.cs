@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
-using ArmaForces.Arma.Server.Providers.Parameters;
+using ArmaForces.Arma.Server.Features.Parameters.Providers;
 using ArmaForces.Arma.Server.Tests.Helpers;
 using AutoFixture;
 using FluentAssertions;

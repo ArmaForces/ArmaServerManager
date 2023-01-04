@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
+using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using AutoFixture;
@@ -15,7 +17,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
         {
         }
 
-        public TestDedicatedServer(IModset modset)
+        public TestDedicatedServer(Modset modset)
         {
             Modset = modset;
         }
@@ -30,7 +32,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
 
         public int SteamQueryPort => Port + 1;
 
-        public IModset Modset { get; set; } = ModsetHelpers.CreateEmptyModset(new Fixture());
+        public Modset Modset { get; set; } = ModsetHelpers.CreateEmptyModset(new Fixture());
 
         public int HeadlessClientsConnected { get; set; } = 0;
 
@@ -58,6 +60,12 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             IsServerStopped = true;
             return Result.Success();
         }
+
+        public Result AddAndStartHeadlessClients(IEnumerable<IArmaProcess> headlessClients)
+            => Result.Success();
+
+        public Task<Result> RemoveHeadlessClients(int headlessClientsToRemove)
+            => Task.FromResult(Result.Success());
 
         public event Func<IDedicatedServer, Task> OnServerShutdown = null!;
 

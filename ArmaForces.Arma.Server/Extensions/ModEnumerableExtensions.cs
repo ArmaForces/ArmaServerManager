@@ -6,7 +6,7 @@ namespace ArmaForces.Arma.Server.Extensions
 {
     public static class ModEnumerableExtensions
     {
-        public static List<string?> GetDirectories(this IEnumerable<IMod> mods)
+        public static List<string?> GetDirectories(this IEnumerable<Mod> mods)
             => mods.Select(x => x.Directory).ToList();
     }
 }
