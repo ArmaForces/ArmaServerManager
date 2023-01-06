@@ -20,10 +20,5 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for safe connection aborting.</param>
         /// <returns>Awaitable <see cref="Task" /></returns>
         Task EnsureConnected(CancellationToken cancellationToken);
-
-        /// <summary>
-        ///     Disconnects from Steam Servers.
-        /// </summary>
-        void Disconnect();
     }
 }
