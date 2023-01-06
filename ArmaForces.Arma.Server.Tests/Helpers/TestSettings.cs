@@ -17,8 +17,8 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
         public string? ServerDirectory { get; set; } = MockUnixSupport.Path("C:\\Arma");
         public string? ServerExecutable => MockUnixSupport.Path($"{ServerDirectory}\\{ServerExecutableName}");
         public string ServerExecutableName { get; set; } = "arma3.exe";
-        public string? SteamUser { get; set; }
-        public string? SteamPassword { get; set; }
+        public string? SteamUser { get; set; } = "TEST_USER";
+        public string? SteamPassword { get; set; } = "TEST_PASSWORD";
         
         public Result LoadSettings() => throw new System.NotImplementedException();
 
