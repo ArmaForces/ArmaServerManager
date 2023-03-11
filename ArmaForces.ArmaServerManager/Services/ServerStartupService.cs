@@ -9,6 +9,7 @@ using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using ArmaForces.ArmaServerManager.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Servers;
 using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging;
 
 namespace ArmaForces.ArmaServerManager.Services
 {
@@ -23,17 +24,20 @@ namespace ArmaForces.ArmaServerManager.Services
         private readonly IModsetProvider _modsetProvider;
         private readonly IServerCommandLogic _serverCommandLogic;
         private readonly IModsUpdateService _modsUpdateService;
+        private readonly ILogger<ServerStartupService> _logger;
 
         public ServerStartupService(
             IApiMissionsClient apiMissionsClient,
             IModsetProvider modsetProvider,
             IServerCommandLogic serverCommandLogic,
-            IModsUpdateService modsUpdateService)
+            IModsUpdateService modsUpdateService,
+            ILogger<ServerStartupService> logger)
         {
             _apiMissionsClient = apiMissionsClient;
             _modsetProvider = modsetProvider;
             _serverCommandLogic = serverCommandLogic;
             _modsUpdateService = modsUpdateService;
+            _logger = logger;
         }
 
         // TODO: Add port
@@ -65,7 +69,8 @@ namespace ArmaForces.ArmaServerManager.Services
                 false,
                 cancellationToken)
                 //.Bind(() => _modsUpdateService.UpdateModset(modset, cancellationToken))
-                .Bind(() => _serverCommandLogic.StartServer(Port, headlessClients, modset));
+                .Bind(() => _serverCommandLogic.StartServer(Port, headlessClients, modset))
+                .Tap(() => _logger.LogInformation("Successfully started server on {Port} port with {ModsetName} modset", Port, modset.Name));
         }
 
         public async Task<Result> ShutdownServer(
