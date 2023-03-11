@@ -67,6 +67,8 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             {
                 if (cancellationToken.IsCancellationRequested) CancelDownload();
                 
+                _logger.LogInformation("Downloading mod {Index} out of {Count}", results.Count + 1, workshopMods.Count);
+                
                 await DownloadOrUpdate(mod.AsContentItem(), cancellationToken)
                     .Bind(downloadedItem => UpdateModData(mod, downloadedItem))
                     .TapOnBoth(modUpdateResult => results.Add(modUpdateResult));
