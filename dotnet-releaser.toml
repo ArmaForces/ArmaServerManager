@@ -1,6 +1,6 @@
 # configuration file for dotnet-releaser
 [msbuild]
-project = "ArmaForces.ArmaServerManager.csproj"
+project = "ArmaForces.ArmaServerManager\\ArmaForces.ArmaServerManager.csproj"
 [github]
 user = "ArmaForces"
 repo = "ArmaServerManager"
