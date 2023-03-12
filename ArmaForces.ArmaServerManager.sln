@@ -11,6 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArmaForces.Arma.Server", "A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArmaForces.Arma.Server.Tests", "ArmaForces.Arma.Server.Tests\ArmaForces.Arma.Server.Tests.csproj", "{133F10D8-E2BA-479F-AEEC-5365698BA7F5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder1", "SolutionFolder1", "{A4DAB096-88DC-4A35-88DA-B1F406794B6B}"
+	ProjectSection(SolutionItems) = preProject
+		dotnet-releaser.toml = dotnet-releaser.toml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
