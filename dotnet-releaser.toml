@@ -4,6 +4,7 @@ project = "ArmaForces.ArmaServerManager/ArmaForces.ArmaServerManager.csproj"
 [github]
 user = "ArmaForces"
 repo = "ArmaServerManager"
+branches = ["master", "maintenance/dotnet-releaser"]
 [coveralls]
 publish = false
 [nuget]
