@@ -4,7 +4,6 @@ project = "ArmaForces.ArmaServerManager/ArmaForces.ArmaServerManager.csproj"
 [github]
 user = "ArmaForces"
 repo = "ArmaServerManager"
-branches = ["master", "maintenance/dotnet-releaser"]
 [changelog]
 owners = ["3Mydlo3"]
 exclude.labels = ["ignore changelog"]
