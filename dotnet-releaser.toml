@@ -1,0 +1,17 @@
+# configuration file for dotnet-releaser
+[msbuild]
+project = "ArmaForces.ArmaServerManager/ArmaForces.ArmaServerManager.csproj"
+[github]
+user = "ArmaForces"
+repo = "ArmaServerManager"
+[changelog]
+owners = ["3Mydlo3"]
+exclude.labels = ["ignore changelog"]
+[coveralls]
+publish = false
+[nuget]
+publish = false
+[brew]
+publish = false
+[scoop]
+publish = false
