@@ -7,6 +7,7 @@ namespace ArmaForces.Arma.Server.Features.Dlcs.Constants
         public const string Csla = "csla";
         public const string Gm = "gm";
         public const string Sog = "vn";
+        public const string Spe = "spe";
 
         /// <summary>
         /// Returns default directory name for given <paramref name="dlc"/>.
@@ -22,6 +23,7 @@ namespace ArmaForces.Arma.Server.Features.Dlcs.Constants
                 DlcAppId.Csla => Csla,
                 DlcAppId.Gm => Gm,
                 DlcAppId.Sog => Sog,
+                DlcAppId.Spe => Spe,
                 _ => throw new UnsupportedDlcException(dlc)
             };
         }
