@@ -27,12 +27,17 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         private readonly ISteamClient _steamClient;
         private readonly ILogger<ContentDownloader> _logger;
 
+        /// <inheritdoc />
+        /// <param name="settings">Application settings.</param>
+        /// <param name="steamClient">Client used for connection.</param>
+        /// <param name="logger">Logger</param>
+        // Used by DI
+        // ReSharper disable once UnusedMember.Global
         public ContentDownloader(
             ISettings settings,
             ISteamClient steamClient,
-            ILogger<ContentDownloader> contentDownloader)
-            : this(steamClient, settings.ModsDirectory!,
-                contentDownloader)
+            ILogger<ContentDownloader> logger)
+            : this(steamClient, settings.ModsDirectory!, logger)
         {
         }
 
@@ -50,6 +55,12 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             _modsDirectory = modsDirectory;
         }
 
+        /// <summary>
+        /// Downloads or updates given <paramref name="mods"/> collection.
+        /// </summary>
+        /// <param name="mods">Collection of mods to update.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<List<Result<Mod>>> DownloadOrUpdateMods(
             IReadOnlyCollection<Mod> mods,
             CancellationToken cancellationToken)
