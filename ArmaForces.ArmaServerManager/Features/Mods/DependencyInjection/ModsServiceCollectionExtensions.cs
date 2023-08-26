@@ -13,7 +13,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection
             return services
                 .AddSingleton<ModsCache>()
                 .AddSingleton<IModsCache, ModsCache>()
-                .AddSingleton<IModsManager, ModsManager>()
+                .AddScoped<IModsManager, ModsManager>()
                 .AddContent()
                 .AddSingleton<IWebModsetMapper, ModsCache>()
                 .AddModsetsApiClient()
@@ -22,10 +22,10 @@ namespace ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection
 
         private static IServiceCollection AddContent(this IServiceCollection services)
             => services
-                .AddSingleton<ISteamClient, SteamClient>()
-                .AddSingleton<IManifestDownloader, ManifestDownloader>()
-                .AddSingleton<IContentDownloader, ContentDownloader>()
-                .AddSingleton<IContentVerifier, ContentVerifier>()
-                .AddSingleton<IContentFileVerifier, ContentFileVerifier>();
+                .AddScoped<ISteamClient, SteamClient>()
+                .AddScoped<IManifestDownloader, ManifestDownloader>()
+                .AddScoped<IContentDownloader, ContentDownloader>()
+                .AddScoped<IContentVerifier, ContentVerifier>()
+                .AddScoped<IContentFileVerifier, ContentFileVerifier>();
     }
 }

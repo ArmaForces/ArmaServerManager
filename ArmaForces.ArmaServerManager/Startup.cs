@@ -98,10 +98,10 @@ namespace ArmaForces.ArmaServerManager
             .AddHostedService<StartupService>()
 
             // Job services
-            .AddSingleton<MaintenanceService>()
-            .AddSingleton<IMissionPreparationService, MissionPreparationService>()
-            .AddSingleton<IModsUpdateService, ModsUpdateService>()
-            .AddSingleton<IServerStartupService, ServerStartupService>()
+            .AddScoped<MaintenanceService>()
+            .AddScoped<IMissionPreparationService, MissionPreparationService>()
+            .AddScoped<IModsUpdateService, ModsUpdateService>()
+            .AddScoped<IServerStartupService, ServerStartupService>()
 
             // Arma Server
             .AddArmaServer()
