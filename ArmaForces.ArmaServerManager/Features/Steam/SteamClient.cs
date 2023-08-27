@@ -72,7 +72,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
         
         private void Disconnect()
         {
-            _logger.LogInformation("Disconnecting client {Guid} from Steam", _clientGuid);
+            if (!_isConnected)
+                _logger.LogInformation("Disconnecting client {Guid} from Steam", _clientGuid);
+            
             _bytexSteamClient.Shutdown();
             _isConnected = false;
         }
