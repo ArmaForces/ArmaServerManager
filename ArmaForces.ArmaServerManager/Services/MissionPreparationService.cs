@@ -50,7 +50,10 @@ namespace ArmaForces.ArmaServerManager.Services
             return await _apiMissionsClient
                 .GetUpcomingMissions()
                 .Bind(x => x.GetNearestMission())
-                .Bind(nearestMission => _serverStartupService.StartServer(nearestMission.Modlist, ServerStartRequestDto.DefaultHeadlessClients, cancellationToken));
+                .Bind(nearestMission => _serverStartupService.StartServer(nearestMission.Modlist, ServerStartRequestDto.DefaultHeadlessClients, cancellationToken))
+                .OnFailureCompensate(error => error.Contains(WebMissionsCollectionExtensions.NoNearestMissionError)
+                    ? Result.Success()
+                    : Result.Failure(error));
         }
 
         private async Task<Result<HashSet<Mod>>> GetModsListFromModsets(IReadOnlyCollection<string> modsetsNames)
