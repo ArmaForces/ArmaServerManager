@@ -15,6 +15,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
     {
         private readonly ILogger<SteamClient> _logger;
         private readonly BytexSteamClient _bytexSteamClient;
+        private readonly Guid _clientGuid = Guid.NewGuid();
+        
+        private bool _isConnected;
 
         /// <inheritdoc cref="ISteamClient" />
         /// <param name="settings">Settings containing steam user, password and mods directory.</param>
@@ -40,7 +43,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
         /// </exception>
         public async Task EnsureConnected(CancellationToken cancellationToken)
         {
-            _logger.LogDebug("Ensuring connected to Steam");
+            if (_isConnected) return;
+            
+            _logger.LogDebug("Ensuring connected to Steam with client {Guid}", _clientGuid);
             var connectCancellationTokenSource = new CancellationTokenSource();
             var connectTask = _bytexSteamClient.ConnectAsync(connectCancellationTokenSource.Token);
             var connectionTimeout = Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
@@ -59,16 +64,19 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
                 _logger.LogError("Invalid Steam credentials");
                 throw new InvalidCredentialException("Invalid Steam Credentials");
             }
+
+            _isConnected = true;
         }
 
-        // TODO: Consider 'using' when operating on SteamClient, probably limit it to job scope 
         public void Dispose() => Disconnect();
-
-        /// <inheritdoc />
-        public void Disconnect()
+        
+        private void Disconnect()
         {
-            _logger.LogDebug("Disconnecting from Steam");
+            if (!_isConnected)
+                _logger.LogInformation("Disconnecting client {Guid} from Steam", _clientGuid);
+            
             _bytexSteamClient.Shutdown();
+            _isConnected = false;
         }
     }
 }

@@ -6,6 +6,7 @@ using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using BytexDigital.Steam.ContentDelivery.Models;
 using BytexDigital.Steam.Core.Structs;
 using Microsoft.Extensions.Logging;
+using Polly;
 using SteamKit2;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam.Content
@@ -22,73 +23,55 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         }
 
         public async Task<Manifest> GetManifest(ContentItem contentItem, CancellationToken cancellationToken)
-            => await _steamClient.ContentClient.GetManifestAsync(
+        {
+            await _steamClient.EnsureConnected(cancellationToken);
+
+            var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(15));
+
+            return await _steamClient.ContentClient.GetManifestAsync(
                 appId: SteamConstants.ArmaAppId,
                 depotId: SteamConstants.ArmaWorkshopDepotId,
-                manifestId: await GetManifestId(contentItem, cancellationToken),
-                cancellationToken: cancellationToken);
-
-        /// <summary>
-        /// TODO: Do it better
-        /// </summary>
+                manifestId: await GetManifestId(contentItem, cancellationTokenSource.Token),
+                cancellationToken: cancellationTokenSource.Token);
+        }
+        
         private async Task<ManifestId> GetManifestId(ContentItem contentItem, CancellationToken cancellationToken)
         {
+            var asyncJobFailedPolicy = Policy<ulong>
+                .Handle<AsyncJobFailedException>()
+                .WaitAndRetryAsync(
+                    retryCount: SteamContentConstants.MaximumRetryCount,
+                    sleepDurationProvider: _ => TimeSpan.FromSeconds(5), 
+                    onRetry: (result, _, _) => LogManifestIdDownloadFailure(result.Exception, contentItem));
+
+            var taskCanceledPolicy = Policy<ulong>
+                .Handle<TaskCanceledException>()
+                .FallbackAsync(Task.FromCanceled<ulong>);
+
+            var policy = Policy.WrapAsync(asyncJobFailedPolicy, taskCanceledPolicy);
+
             _logger.LogDebug("Downloading ManifestId for item {ContentItemId}", contentItem.Id);
+            
+            var result = await policy.ExecuteAndCaptureAsync(async token =>
+                (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItem.Id, token)).hcontent_file,
+                cancellationToken);
 
-            var errors = 0;
-
-            // TODO: Use Polly
-            while (true)
-            {
-                try
-                {
-                    return (await _steamClient.ContentClient.GetPublishedFileDetailsAsync(contentItem.Id, cancellationToken))
-                        .hcontent_file;
-                }
-                catch (TaskCanceledException exception)
-                {
-                    errors++;
-                    LogManifestIdDownloadFailure(contentItem, exception, errors);
-
-                    if (errors >= SteamContentConstants.MaximumRetryCount)
-                    {
-                        throw CreateManifestDownloadException(errors, contentItem, exception);
-                    }
-
-                    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
-                }
-                catch (AsyncJobFailedException exception)
-                {
-                    errors++;
-                    LogManifestIdDownloadFailure(contentItem, exception, errors);
-
-                    if (errors >= SteamContentConstants.MaximumRetryCount)
-                    {
-                        throw CreateManifestDownloadException(errors, contentItem, exception);
-                    }
-
-                    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
-                }
-            }
+            return result.Outcome == OutcomeType.Successful
+                ? result.Result
+                : throw CreateManifestDownloadException(contentItem, result.FinalException);
         }
 
-        private void LogManifestIdDownloadFailure(
-            ContentItem contentItem,
-            Exception exception,
-            int errors)
+        private void LogManifestIdDownloadFailure(Exception exception, ContentItem contentItem)
             => _logger.LogTrace(
                 exception,
-                "Failed to download ManifestId for item {ContentItemId}. Errors = {Number}",
-                contentItem.Id,
-                errors);
+                "Failed to download ManifestId for item {ContentItemId}",
+                contentItem.Id);
 
-        private Exception CreateManifestDownloadException(
-            int errors,
-            ContentItem contentItem,
-            Exception? innerException = null)
+        private Exception CreateManifestDownloadException(ContentItem contentItem, Exception? innerException = null)
         {
             var newException = new Exception(
-                $"{errors} errors while attempting to download manifest for {contentItem.Id}",
+                $"Failed while attempting to download manifest for {contentItem.Id}",
                 innerException);
 
             if (innerException is null)
@@ -101,10 +84,10 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             else
             {
                 _logger.LogError(
-                    newException,
+                    innerException,
                     "Could not download ManifestId for item {ContentItemId}, error message {Message}",
                     contentItem.Id,
-                    innerException.Message);
+                    newException.Message);
             }
 
             return newException;

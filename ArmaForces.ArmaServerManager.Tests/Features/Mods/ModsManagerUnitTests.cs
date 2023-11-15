@@ -6,11 +6,11 @@ using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Tests.Helpers;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Mods;
-using ArmaForces.ArmaServerManager.Features.Steam;
 using ArmaForces.ArmaServerManager.Features.Steam.Content;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using AutoFixture;
 using CSharpFunctionalExtensions;
+using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
@@ -24,7 +24,6 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
         private readonly Mock<IModsCache> _modsCacheMock;
         private readonly Mock<IContentVerifier> _contentVerifierMock;
         private readonly Mock<IContentDownloader> _downloaderMock;
-        private readonly Mock<ISteamClient> _steamClientMock;
         private readonly ModsManager _modsManager;
 
         public ModsManagerUnitTests()
@@ -32,12 +31,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             _modsCacheMock = CreateModsCacheMock();
             _contentVerifierMock = CreateContentVerifierMock();
             _downloaderMock = CreateContentDownloaderMock();
-            _steamClientMock = CreateSteamClientMock();
             _modsManager = new ModsManager(
                 _downloaderMock.Object,
                 _contentVerifierMock.Object,
                 _modsCacheMock.Object,
-                _steamClientMock.Object,
                 new NullLogger<ModsManager>());
         }
 
@@ -203,17 +200,6 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             mock
                 .Setup(x => x.DownloadOrUpdateMods(It.IsAny<IReadOnlyCollection<Mod>>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new List<Result<Mod>>{Result.Failure<Mod>("Item could not be downloaded")}));
-
-            return mock;
-        }
-
-        private Mock<ISteamClient> CreateSteamClientMock()
-        {
-            var mock = new Mock<ISteamClient>();
-
-            mock
-                .Setup(x => x.EnsureConnected(It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
 
             return mock;
         }
