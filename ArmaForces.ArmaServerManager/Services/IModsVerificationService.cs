@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using CSharpFunctionalExtensions;
 
@@ -26,4 +27,12 @@ public interface IModsVerificationService
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Successful result if all mods were verified correctly.</returns>
     Task<Result> VerifyModset(string modsetName, CancellationToken cancellationToken);
+    
+    /// <summary>
+    /// Runs detailed verification of <paramref name="mods"/>.
+    /// </summary>
+    /// <param name="mods">List of mods to verify.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Successful result if all mods were verified correctly.</returns>
+    Task<Result> VerifyMods(IEnumerable<Mod> mods, CancellationToken cancellationToken);
 }
