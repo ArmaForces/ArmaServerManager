@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,8 @@ using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Steam.Content;
+using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
+using ArmaForces.ArmaServerManager.Features.Steam.RemoteStorage;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
@@ -19,22 +22,26 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         private readonly IContentDownloader _contentDownloader;
         private readonly IContentVerifier _contentVerifier;
         private readonly IModsCache _modsCache;
+        private readonly ISteamRemoteStorage _steamRemoteStorage;
         private readonly ILogger<ModsManager> _logger;
 
         /// <inheritdoc cref="ModsManager" />
         /// <param name="contentDownloader">Client for mods download and updating.</param>
         /// <param name="contentVerifier">Client for verifying whether mods are up to date and correct.</param>
         /// <param name="modsCache">Installed mods cache.</param>
+        /// <param name="steamRemoteStorage">Steam remote storage for quick access to mods metadata on Workshop.</param>
         /// <param name="logger">Logger.</param>
         public ModsManager(
             IContentDownloader contentDownloader,
             IContentVerifier contentVerifier,
             IModsCache modsCache,
+            ISteamRemoteStorage steamRemoteStorage,
             ILogger<ModsManager> logger)
         {
             _contentDownloader = contentDownloader;
             _contentVerifier = contentVerifier;
             _modsCache = modsCache;
+            _steamRemoteStorage = steamRemoteStorage;
             _logger = logger;
         }
 
@@ -65,6 +72,39 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 
         /// <inheritdoc />
         public async Task<Result<List<Mod>>> CheckModsUpdated(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken)
+        {
+            if (modsList.IsEmpty())
+            {
+                return Result.Success(new List<Mod>());
+            }
+            
+            var workshopMods = modsList
+                .Where(x => x.Source == ModSource.SteamWorkshop)
+                .ToList();
+
+            var workshopModIds = workshopMods
+                .Select(x => x.WorkshopId)
+                .Where(x => x.HasValue)
+                .Select(x => (ulong)x!.Value)
+                .ToList();
+
+            var publishedFileDetails = await _steamRemoteStorage.GetPublishedFileDetails(workshopModIds, cancellationToken);
+            
+            var modsToUpdate = _modsCache.Mods
+                .Join(publishedFileDetails.Value, mod => mod.WorkshopId, fileDetails => fileDetails.PublishedFileId,
+                    (mod, details) => new {mod, details})
+                .Where(x => x.mod.LastUpdatedAt < x.details.LastUpdatedAt)
+                .Select(x => x.mod)
+                .ToList();
+
+            var modsNotInCache = workshopMods
+                .Where(x => _modsCache.Mods.NotContains(x));
+            
+            return Result.Success(modsNotInCache.Concat(modsToUpdate).ToList());
+        }
+
+        /// <inheritdoc />
+        public async Task<Result<List<Mod>>> VerifyMods(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken)
         {
             if (modsList.IsEmpty())
             {

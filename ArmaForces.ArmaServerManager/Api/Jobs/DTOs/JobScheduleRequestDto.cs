@@ -12,7 +12,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs
         /// Time when job should be processed.
         /// Exact start time will depend on other jobs processing and enqueued at this time.
         /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty(Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public DateTime? ScheduleAt { get; set; }
     }
 }

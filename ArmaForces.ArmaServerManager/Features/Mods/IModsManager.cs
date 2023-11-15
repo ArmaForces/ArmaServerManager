@@ -5,11 +5,13 @@ using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using CSharpFunctionalExtensions;
 
-namespace ArmaForces.ArmaServerManager.Features.Mods {
+namespace ArmaForces.ArmaServerManager.Features.Mods
+{
     /// <summary>
     /// Prepares modset by downloading missing mods and updating outdated mods.
     /// </summary>
-    public interface IModsManager {
+    public interface IModsManager
+    {
         /// <inheritdoc cref="IModsManager"/>
         /// <param name="modset">Modset to prepare.</param>
         /// <param name="cancellationToken"></param>
@@ -27,6 +29,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
         /// Checks if all mods from given list are up to date.
         /// </summary>
         /// <param name="modsList">List of mods to check.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns><see cref="Result{T}"/> with outdated mods.</returns>
         Task<Result<List<Mod>>> CheckModsUpdated(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken);
 
@@ -42,5 +45,13 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
         /// </summary>
         /// <param name="cancellationToken"><see cref="CancellationToken"/> used for task cancellation.</param>
         Task UpdateAllMods(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Verifies all mods from given <paramref name="modsList"/>.
+        /// </summary>
+        /// <param name="modsList">List of mods to verify.</param>
+        /// <param name="cancellationToken">Cancellation Token</param>
+        /// <returns><see cref="Result{T}"/> with mods which failed verification.</returns>
+        Task<Result<List<Mod>>> VerifyMods(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Mods;
@@ -7,6 +7,9 @@ using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Services
 {
+    /// <summary>
+    /// Performs updates of installed mods.
+    /// </summary>
     public interface IModsUpdateService
     {
         Task<Result> UpdateModset(string modsetName, CancellationToken cancellationToken);

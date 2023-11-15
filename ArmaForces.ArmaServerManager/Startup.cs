@@ -101,6 +101,7 @@ namespace ArmaForces.ArmaServerManager
             .AddScoped<MaintenanceService>()
             .AddScoped<IMissionPreparationService, MissionPreparationService>()
             .AddScoped<IModsUpdateService, ModsUpdateService>()
+            .AddScoped<IModsVerificationService, ModsVerificationService>()
             .AddScoped<IServerStartupService, ServerStartupService>()
 
             // Arma Server
@@ -124,6 +125,7 @@ namespace ArmaForces.ArmaServerManager
             .AddSingleton<IServerQueryLogic, ServerQueryLogic>()
             
             // Status
+            .AddSingleton<IAppStatusStore, AppStatusStore>()
             .AddSingleton<IStatusProvider, StatusProvider>()
 
             // Hangfire
