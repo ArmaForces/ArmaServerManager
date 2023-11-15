@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Mods;
@@ -7,7 +9,10 @@ using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Services
 {
-    public class ModsVerificationService
+    /// <summary>
+    /// Service allowing mods verification.
+    /// </summary>
+    public class ModsVerificationService : IModsVerificationService
     {
         private readonly IModsManager _modsManager;
         private readonly IModsetProvider _modsetProvider;
@@ -18,13 +23,15 @@ namespace ArmaForces.ArmaServerManager.Services
             _modsetProvider = modsetProvider;
         }
 
+        /// <inheritdoc />
         public async Task<Result> VerifyModset(string modsetName, CancellationToken cancellationToken)
             => await _modsetProvider.GetModsetByName(modsetName)
                 .Bind(x => VerifyModset(x, cancellationToken));
 
-        private async Task<Result> VerifyModset(Modset modset, CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public async Task<Result> VerifyModset(Modset modset, CancellationToken cancellationToken)
         {
-            return await _modsManager.PrepareModset(modset, cancellationToken);
+            return await _modsManager.VerifyMods(modset.Mods.ToList(), cancellationToken);
         }
     }
 }

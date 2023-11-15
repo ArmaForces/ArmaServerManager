@@ -16,18 +16,23 @@ namespace ArmaForces.ArmaServerManager.Features.Status
 {
     internal class StatusProvider : IStatusProvider
     {
+        private readonly IAppStatusStore _appStatusStore;
         private readonly IJobsService _jobsService;
         private readonly IServerProvider _serverProvider;
 
-        public StatusProvider(IJobsService jobsService, IServerProvider serverProvider)
+        public StatusProvider(
+            IAppStatusStore appStatusStore,
+            IJobsService jobsService,
+            IServerProvider serverProvider)
         {
+            _appStatusStore = appStatusStore;
             _jobsService = jobsService;
             _serverProvider = serverProvider;
         }
 
         public async Task<Result<AppStatusDetails>> GetAppStatus(IEnumerable<AppStatusIncludes> include)
         {
-            var status = CreateSimpleAppStatus(GetCurrentJobDetails());
+            var status = _appStatusStore.StatusDetails ?? CreateSimpleAppStatus(GetCurrentJobDetails());
             
             var appStatusIncludesEnumerable = include as AppStatusIncludes[] ?? include.ToArray();
             if (appStatusIncludesEnumerable.Contains(AppStatusIncludes.Jobs))
@@ -93,6 +98,16 @@ namespace ArmaForces.ArmaServerManager.Features.Status
                 {
                     Status = AppStatus.UpdatingMods,
                     LongStatus = $"Updating mods for {currentJobDetails.GetParameterValue("modsetName")}"
+                },
+                nameof(ModsVerificationService.VerifyModset) => new AppStatusDetails
+                {
+                    Status = AppStatus.VerifyingMods,
+                    LongStatus = $"Verifying mods from {currentJobDetails.GetParameterValue("modsetName")}"
+                },
+                nameof(ModsVerificationService.VerifyMods) => new AppStatusDetails
+                {
+                    Status = AppStatus.VerifyingMods,
+                    LongStatus = $"Verifying mods with ids {currentJobDetails.GetParameterValue("modIds")}"
                 },
                 nameof(ServerStartupService.StartServerForMission) => new AppStatusDetails
                 {
