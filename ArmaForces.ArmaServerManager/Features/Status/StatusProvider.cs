@@ -104,11 +104,6 @@ namespace ArmaForces.ArmaServerManager.Features.Status
                     Status = AppStatus.VerifyingMods,
                     LongStatus = $"Verifying mods from {currentJobDetails.GetParameterValue("modsetName")}"
                 },
-                nameof(ModsVerificationService.VerifyMods) => new AppStatusDetails
-                {
-                    Status = AppStatus.VerifyingMods,
-                    LongStatus = $"Verifying mods with ids {currentJobDetails.GetParameterValue("modIds")}"
-                },
                 nameof(ServerStartupService.StartServerForMission) => new AppStatusDetails
                 {
                     Status = AppStatus.StartingServer,
