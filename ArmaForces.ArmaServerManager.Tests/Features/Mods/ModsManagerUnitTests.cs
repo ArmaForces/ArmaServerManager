@@ -8,6 +8,7 @@ using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Mods;
 using ArmaForces.ArmaServerManager.Features.Steam.Content;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
+using ArmaForces.ArmaServerManager.Features.Steam.RemoteStorage;
 using AutoFixture;
 using CSharpFunctionalExtensions;
 using FluentAssertions;
@@ -24,6 +25,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
         private readonly Mock<IModsCache> _modsCacheMock;
         private readonly Mock<IContentVerifier> _contentVerifierMock;
         private readonly Mock<IContentDownloader> _downloaderMock;
+        private readonly Mock<ISteamRemoteStorage> _steamRemoteStorageMock;
         private readonly ModsManager _modsManager;
 
         public ModsManagerUnitTests()
@@ -31,10 +33,12 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             _modsCacheMock = CreateModsCacheMock();
             _contentVerifierMock = CreateContentVerifierMock();
             _downloaderMock = CreateContentDownloaderMock();
+            _steamRemoteStorageMock = CreateSteamRemoteStorageMock();
             _modsManager = new ModsManager(
                 _downloaderMock.Object,
                 _contentVerifierMock.Object,
                 _modsCacheMock.Object,
+                _steamRemoteStorageMock.Object,
                 new NullLogger<ModsManager>());
         }
 
@@ -200,6 +204,17 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             mock
                 .Setup(x => x.DownloadOrUpdateMods(It.IsAny<IReadOnlyCollection<Mod>>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new List<Result<Mod>>{Result.Failure<Mod>("Item could not be downloaded")}));
+
+            return mock;
+        }
+        
+        private Mock<ISteamRemoteStorage> CreateSteamRemoteStorageMock()
+        {
+            var mock = new Mock<ISteamRemoteStorage>();
+            
+            mock
+                .Setup(x => x.GetPublishedFileDetails(It.IsAny<IReadOnlyCollection<ulong>>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new Result<PublishedFileDetails[]>()));
 
             return mock;
         }
