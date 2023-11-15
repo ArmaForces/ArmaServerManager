@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -88,14 +89,25 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
 
             var outdatedMods = modset.Mods
                 .Take(5)
+                .Select(x => {
+                    x.LastUpdatedAt = DateTime.Now.AddDays(-10);
+                    return x;
+                })
                 .ToList();
             var upToDateMods = modset.Mods
                 .Except(outdatedMods)
+                .Select(x => {
+                    x.LastUpdatedAt = DateTime.Now.AddDays(10);
+                    return x;
+                })
                 .ToList();
+
+            modset.Mods = outdatedMods.Concat(upToDateMods).ToHashSet();
             
-            AddModsToModsCache(modset.Mods.ToList());
             SetModsAsUpToDate(upToDateMods);
+            SetupPublishedFileDetails(modset.Mods);
             SetupContentDownloader(outdatedMods);
+            AddModsToModsCache(modset.Mods.ToList());
 
             await _modsManager.PrepareModset(modset, cancellationToken);
             
@@ -164,6 +176,24 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
                     .Returns(Task.FromResult(Result.Success(contentItem)));
             }
         }
+        
+        private void SetupPublishedFileDetails(ISet<Mod> mods)
+        {
+            var modsIds = mods.Select(x => (ulong)x.WorkshopId!);
+
+            var details = mods
+                .Select(x => new PublishedFileDetails
+                {
+                    Title = x.Name,
+                    PublishedFileId = x.WorkshopId!.Value,
+                    LastUpdatedAt = DateTime.Now
+                })
+                .ToArray();
+
+            _steamRemoteStorageMock
+                .Setup(x => x.GetPublishedFileDetails(modsIds, It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(Result.Success(details)));
+        }
 
         private void AddModsToModsCache(IReadOnlyCollection<Mod> mods)
         {
@@ -173,6 +203,11 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
                     .Setup(x => x.ModExists(mod))
                     .Returns(Task.FromResult(true));
             }
+
+            var modsInCache = _modsCacheMock.Object.Mods;
+            _modsCacheMock
+                .Setup(x => x.Mods)
+                .Returns(modsInCache.Concat(mods).ToList());
         }
 
         private Mock<IModsCache> CreateModsCacheMock()
@@ -182,6 +217,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             mock
                 .Setup(x => x.ModExists(It.IsAny<Mod>()))
                 .Returns(Task.FromResult(false));
+
+            mock
+                .Setup(x => x.Mods)
+                .Returns(new List<Mod>());
             
             return mock;
         }
@@ -214,7 +253,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             
             mock
                 .Setup(x => x.GetPublishedFileDetails(It.IsAny<IReadOnlyCollection<ulong>>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(new Result<PublishedFileDetails[]>()));
+                .Returns(Task.FromResult(Result.Success(Array.Empty<PublishedFileDetails>())));
 
             return mock;
         }
