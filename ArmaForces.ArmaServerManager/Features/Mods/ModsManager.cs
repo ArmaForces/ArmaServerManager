@@ -77,9 +77,12 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             {
                 return Result.Success(new List<Mod>());
             }
-
-            var workshopModIds = modsList
+            
+            var workshopMods = modsList
                 .Where(x => x.Source == ModSource.SteamWorkshop)
+                .ToList();
+
+            var workshopModIds = workshopMods
                 .Select(x => x.WorkshopId)
                 .Where(x => x.HasValue)
                 .Select(x => (ulong)x!.Value)
@@ -93,8 +96,11 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .Where(x => x.mod.LastUpdatedAt < x.details.LastUpdatedAt)
                 .Select(x => x.mod)
                 .ToList();
+
+            var modsNotInCache = workshopMods
+                .Where(x => _modsCache.Mods.NotContains(x));
             
-            return Result.Success(modsToUpdate);
+            return Result.Success(modsNotInCache.Concat(modsToUpdate).ToList());
         }
 
         /// <inheritdoc />
