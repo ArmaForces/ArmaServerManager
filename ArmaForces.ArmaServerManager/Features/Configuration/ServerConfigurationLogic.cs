@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Text.Json;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace ArmaForces.ArmaServerManager.Features.Configuration
 {
@@ -56,25 +55,17 @@ namespace ArmaForces.ArmaServerManager.Features.Configuration
 
             if (formFile.ContentType != "application/json")
                 return Result.Failure<string>("Configuration file must be in json format.");
-
+            
             using var stream = formFile.OpenReadStream();
-            using var streamReader = new StreamReader(stream);
-            using var jsonTextReader = new JsonTextReader(streamReader);
-            var jsonSerializer = new JsonSerializer();
-
             try
             {
-                while (jsonTextReader.Read())
-                {
-                    var d = jsonSerializer.Deserialize<JObject>(jsonTextReader);
-                }
+                JsonDocument.Parse(stream);
+                return Result.Success();
             }
-            catch
+            catch (JsonException exception)
             {
-                return Result.Failure("Json file is incorrect.");
+                return Result.Failure($"Failed to parse JSON file: {exception}");
             }
-
-            return Result.Success();
         }
 
         private async Task<Result> CopyToFile(string filePath, IFormFile formFile)

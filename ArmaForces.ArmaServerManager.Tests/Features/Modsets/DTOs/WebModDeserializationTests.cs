@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using ArmaForces.Arma.Server.Constants;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using AutoFixture;
 using FluentAssertions;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
@@ -26,9 +27,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
         public void Mod_Deserialize_Successfull()
         {
             var jsonDictionary = PrepareModDictionary();
-            var json = JsonConvert.SerializeObject(jsonDictionary);
+            var json = JsonSerializer.Serialize(jsonDictionary);
 
-            var mod = JsonConvert.DeserializeObject<WebMod>(json);
+            var mod = JsonSerializer.Deserialize<WebMod>(json, JsonOptions.Default);
 
             mod.Id.Should().Be(_modId);
             mod.Name.Should().Be(_modName);

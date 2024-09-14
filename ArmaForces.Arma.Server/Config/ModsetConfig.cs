@@ -5,7 +5,6 @@ using System.Text.Json;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace ArmaForces.Arma.Server.Config
@@ -70,7 +69,7 @@ namespace ArmaForces.Arma.Server.Config
             if (_fileSystem.File.Exists(ConfigJson))
             {
                 var modsetConfigModel =
-                    JsonConvert.DeserializeObject<ConfigSimpleModel>(_fileSystem.File.ReadAllText(ConfigJson));
+                    JsonSerializer.Deserialize<ConfigSimpleModel>(_fileSystem.File.ReadAllText(ConfigJson));
                 if (modsetConfigModel.Server?.Password != null)
                 {
                     return modsetConfigModel.Server.Password;
@@ -80,7 +79,7 @@ namespace ArmaForces.Arma.Server.Config
             if (!_fileSystem.File.Exists(_serverConfig.ConfigJson)) return string.Empty;
 
             var serverConfigModel =
-                JsonConvert.DeserializeObject<ConfigSimpleModel>(
+                JsonSerializer.Deserialize<ConfigSimpleModel>(
                     _fileSystem.File.ReadAllText(_serverConfig.ConfigJson));
 
             return serverConfigModel.Server?.Password ?? string.Empty;

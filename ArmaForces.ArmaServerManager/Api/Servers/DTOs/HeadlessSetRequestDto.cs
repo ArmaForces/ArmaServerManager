@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace ArmaForces.ArmaServerManager.Api.Servers.DTOs
 {
     /// <summary>
@@ -12,7 +11,6 @@ namespace ArmaForces.ArmaServerManager.Api.Servers.DTOs
         /// <summary>
         /// Number of headless clients that should be running.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public int Count { get; set; }
+        public required int Count { get; set; }
     }
 }

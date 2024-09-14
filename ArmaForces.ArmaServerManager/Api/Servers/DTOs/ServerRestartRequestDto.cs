@@ -1,5 +1,4 @@
 ﻿using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
-using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Api.Servers.DTOs
 {
@@ -13,7 +12,6 @@ namespace ArmaForces.ArmaServerManager.Api.Servers.DTOs
         /// Should restart of the server running at the job startup be forced.
         /// When restart is not forced, old server will not be shut down until all players leave the server.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool? ForceRestart { get; set; }
     }
 }

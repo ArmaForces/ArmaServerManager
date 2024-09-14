@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Extensions;
@@ -17,7 +18,6 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
@@ -133,7 +133,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             var cacheFilePath = $"{_settingsMock.ModsDirectory}\\{_settingsMock.ModsManagerCacheFileName}.json";
             ISet<Mod> mods = new HashSet<Mod>();
             mods.Add(_mod);
-            await _fileSystemMock.File.WriteAllTextAsync(cacheFilePath, JsonConvert.SerializeObject(mods));
+            await _fileSystemMock.File.WriteAllTextAsync(cacheFilePath, JsonSerializer.Serialize(mods));
 
             var modsCache = GetModsCache();
 
@@ -149,7 +149,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             var cacheFilePath = $"{_settingsMock.ModsDirectory}\\{_settingsMock.ModsManagerCacheFileName}.json";
             ISet<Mod> mods = new HashSet<Mod>();
             mods.Add(_mod);
-            await _fileSystemMock.File.WriteAllTextAsync(cacheFilePath, JsonConvert.SerializeObject(mods));
+            await _fileSystemMock.File.WriteAllTextAsync(cacheFilePath, JsonSerializer.Serialize(mods));
             _fileSystemMock.Directory.CreateDirectory(_mod.Directory);
 
             var modsCache = GetModsCache();

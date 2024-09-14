@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs
@@ -13,9 +12,8 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs
         /// Id of the job.
         /// Can be used to retrieve the job details later.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         [SwaggerSchema(Nullable = false)]
         [Required]
-        public string JobId { get; set; } = string.Empty;
+        public required string JobId { get; set; } = string.Empty;
     }
 }

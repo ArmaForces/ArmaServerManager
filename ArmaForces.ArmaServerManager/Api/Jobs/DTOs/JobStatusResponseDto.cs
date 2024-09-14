@@ -1,5 +1,4 @@
 ﻿using ArmaForces.ArmaServerManager.Features.Jobs.Models;
-using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs
 {
@@ -11,13 +10,11 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs
         /// <summary>
         /// Id of the job.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string JobId { get; set; } = string.Empty;
+        public required string JobId { get; set; } = string.Empty;
 
         /// <summary>
         /// Status of the job.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public JobStatus Status { get; set; }
+        public required JobStatus Status { get; set; }
     }
 }
