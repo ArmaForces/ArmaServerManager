@@ -32,9 +32,11 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             var incorrectFilesResult = await VerifyAllFiles(contentItem, cancellationToken);
 
             return incorrectFilesResult
-                    .Bind(x => x.Any()
-                        ? Result.Failure<ContentItem>("One or more files are either missing or require update.")
-                        : Result.Success(contentItem));
+                .OnFailure(() => LogFailedToVerifyItem(contentItem))
+                .OnFailureCompensate(() => new List<ManifestFile>())
+                .Bind(x => x.Any()
+                    ? Result.Failure<ContentItem>("One or more files are either missing or require update.")
+                    : Result.Success(contentItem));
         }
 
         private async Task<Result<List<ManifestFile>>> VerifyAllFiles(ContentItem contentItem, CancellationToken cancellationToken)
@@ -55,5 +57,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 
         private async Task<Result<Manifest>> GetManifest(ContentItem contentItem, CancellationToken cancellationToken)
             => await _manifestDownloader.GetManifest(contentItem, cancellationToken);
+
+        private void LogFailedToVerifyItem(ContentItem contentItem)
+            => _logger.LogWarning("Failed to verify whether content item {ContentItemId} is up to date. " +
+                                  "If the issue persists, double check whether the item is still on Workshop", contentItem.Id);
     }
 }
