@@ -111,7 +111,7 @@ namespace ArmaForces.ArmaServerManager.Features.Servers.Providers
             IEnumerable<IArmaProcess> headlessClients)
             => await _modsetProvider.GetModsetByName(serverProcess.Parameters.ModsetName)
                 .Map(modset => RecreateRunningServer(port, modset, serverProcess, headlessClients))
-                .OnFailure(error => _logger.LogError("Could not load server on port {Port} due to error {Error}", port, error));
+                .TapError(error => _logger.LogError("Could not load server on port {Port} due to error {Error}", port, error));
 
         private IDedicatedServer RecreateRunningServer(
             int port,

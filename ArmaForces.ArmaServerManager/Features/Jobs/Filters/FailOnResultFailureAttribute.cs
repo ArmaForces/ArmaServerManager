@@ -16,7 +16,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Filters
             var contextCandidateState = context.CandidateState as SucceededState;
             if (contextCandidateState?.Result is Result result)
             {
-                result.OnFailure(error => SetFailedState(context, error));
+                result.TapError(error => SetFailedState(context, error));
             }
         }
 

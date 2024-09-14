@@ -127,8 +127,8 @@ namespace ArmaForces.Arma.Server.Config
         {
             // Apply modset config on top of default config
             var modsetConfig = new ConfigurationBuilder()
-                .AddJsonStream(_fileSystem.FileStream.Create(_serverConfig.ConfigJson, FileMode.Open))
-                .AddJsonStream(_fileSystem.FileStream.Create(ConfigJson, FileMode.Open))
+                .AddJsonStream(_fileSystem.FileStream.New(_serverConfig.ConfigJson, FileMode.Open))
+                .AddJsonStream(_fileSystem.FileStream.New(ConfigJson, FileMode.Open))
                 .Build();
 
             ServerPassword = modsetConfig["server:password"] ?? string.Empty;

@@ -52,7 +52,7 @@ namespace ArmaForces.ArmaServerManager.Services
             return await _apiMissionsClient.GetUpcomingMissions()
                 .Bind(upcomingMissions => GetMissionWithTitle(missionTitle, upcomingMissions))
                 .Bind(x => StartServer(x.Modlist, ServerStartRequestDto.DefaultHeadlessClients, cancellationToken))
-                .OnFailure(error => Result.Failure($"Could not start server for mission {missionTitle}, error: {error}"));
+                .TapError(error => Result.Failure($"Could not start server for mission {missionTitle}, error: {error}"));
         }
 
         // TODO: Add port
