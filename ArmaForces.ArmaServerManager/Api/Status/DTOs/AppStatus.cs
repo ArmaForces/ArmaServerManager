@@ -17,6 +17,11 @@
         UpdatingMods,
         
         /// <summary>
+        /// Mods are being verified.
+        /// </summary>
+        VerifyingMods,
+        
+        /// <summary>
         /// Server is starting.
         /// </summary>
         StartingServer,

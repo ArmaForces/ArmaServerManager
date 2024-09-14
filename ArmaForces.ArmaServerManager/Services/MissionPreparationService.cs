@@ -20,19 +20,22 @@ namespace ArmaForces.ArmaServerManager.Services
         private readonly IWebModsetMapper _webModsetMapper;
         private readonly IServerStartupService _serverStartupService;
         private readonly IModsUpdateService _modsUpdateService;
+        private readonly IModsVerificationService _modsVerificationService;
 
         public MissionPreparationService(
             IApiMissionsClient apiMissionsClient,
             IApiModsetClient apiModsetClient,
             IWebModsetMapper webModsetMapper,
             IServerStartupService serverStartupService,
-            IModsUpdateService modsUpdateService)
+            IModsUpdateService modsUpdateService,
+            IModsVerificationService modsVerificationService)
         {
             _apiMissionsClient = apiMissionsClient;
             _apiModsetClient = apiModsetClient;
             _webModsetMapper = webModsetMapper;
             _serverStartupService = serverStartupService;
             _modsUpdateService = modsUpdateService;
+            _modsVerificationService = modsVerificationService;
         }
 
         /// <inheritdoc />
@@ -40,7 +43,7 @@ namespace ArmaForces.ArmaServerManager.Services
         {
             return await _apiMissionsClient.GetUpcomingMissionsModsetsNames()
                 .Bind(GetModsListFromModsets)
-                .Tap(x => _modsUpdateService.UpdateMods(x, cancellationToken))
+                .Tap(x => _modsVerificationService.VerifyMods(x, cancellationToken))
                 .Bind(_ => Result.Success());
         }
 
@@ -50,7 +53,10 @@ namespace ArmaForces.ArmaServerManager.Services
             return await _apiMissionsClient
                 .GetUpcomingMissions()
                 .Bind(x => x.GetNearestMission())
-                .Bind(nearestMission => _serverStartupService.StartServer(nearestMission.Modlist, ServerStartRequestDto.DefaultHeadlessClients, cancellationToken));
+                .Bind(nearestMission => _serverStartupService.StartServer(nearestMission.Modlist, ServerStartRequestDto.DefaultHeadlessClients, cancellationToken))
+                .OnFailureCompensate(error => error.Contains(WebMissionsCollectionExtensions.NoNearestMissionError)
+                    ? Result.Success()
+                    : Result.Failure(error));
         }
 
         private async Task<Result<HashSet<Mod>>> GetModsListFromModsets(IReadOnlyCollection<string> modsetsNames)

@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -37,10 +38,18 @@ namespace ArmaForces.ArmaServerManager.Infrastructure.Authentication
             }
 
             var apiKeySha256 = GetApiKeySha256(extractedApiKey);
+
+            var actionDetails = GetActionDetails(context.ActionDescriptor, context.ActionArguments);
             
-            GetLogger(context).LogInformation("Valid API Key {Key} used for action {Action}", apiKeySha256, "TODO");
+            GetLogger(context).LogInformation("Valid API Key {Key} used for route {Route}, executing action {Action}", apiKeySha256, context.ActionDescriptor.AttributeRouteInfo?.Template, actionDetails);
 
             await next();
+        }
+
+        private static string GetActionDetails(ActionDescriptor actionDescriptor, IDictionary<string, object?> actionArguments)
+        {
+            var parameters = string.Join(", ", actionArguments.Select(x => $"{x.Key}={x.Value}"));
+            return $"{actionDescriptor.AttributeRouteInfo?.Name}({parameters})";
         }
 
         private static IEnumerable<string> GetApiKeys(ActionContext context)
