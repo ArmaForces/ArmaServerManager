@@ -7,6 +7,8 @@ namespace ArmaForces.ArmaServerManager.Features.Missions.Extensions
 {
     internal static class WebMissionsCollectionExtensions
     {
+        public const string NoNearestMissionError = "No nearest mission found.";
+        
         public static Result<WebMission> GetNearestMission(this IEnumerable<WebMission> missions)
         {
             var nearestMission = missions
@@ -14,7 +16,7 @@ namespace ArmaForces.ArmaServerManager.Features.Missions.Extensions
                 .FirstOrDefault();
 
             return nearestMission is null
-                ? Result.Failure<WebMission>("No nearest mission found.")
+                ? Result.Failure<WebMission>(NoNearestMissionError)
                 : Result.Success(nearestMission);
         }
     }
