@@ -144,11 +144,13 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                             contentItem.Id,
                             os: SteamOs.Windows);
                 }
+                // This is an exception thrown randomly inside the library, not using our Cancellation Token
                 catch (TaskCanceledException)
                 {
                     errors += 1;
                 }
-                catch (SteamAppAccessTokenDeniedException exception)
+                catch (Exception exception)
+                    when (exception is SteamPublishedFileNotFoundException or SteamAppAccessTokenDeniedException)
                 {
                     _logger.LogError(exception, "Workshop item with id {Id} does not exist", contentItem.Id);
                     throw new WorkshopItemNotExistsException(contentItem.Id, exception);

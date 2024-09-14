@@ -32,6 +32,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             var incorrectFilesResult = await VerifyAllFiles(contentItem, cancellationToken);
 
             return incorrectFilesResult
+                    // TODO: Handle CancellationToken.Cancelled
                 .OnFailure(() => LogFailedToVerifyItem(contentItem))
                 .OnFailureCompensate(() => new List<ManifestFile>())
                 .Bind(x => x.Any()
