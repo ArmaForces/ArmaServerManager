@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Mods.DTOs;
@@ -93,14 +93,25 @@ namespace ArmaForces.ArmaServerManager.Api.Mods
         }
 
         /// <summary>Verify Modset</summary>
-        /// <remarks>Triggers or schedules verification of given modset. <b>Not implemented.</b></remarks>
+        /// <remarks>Triggers or schedules verification of given modset.</remarks>
         /// <param name="modsetName">Name of modset to verify.</param>
         /// <param name="jobScheduleRequestDto">Optional job schedule details.</param>
         [HttpPost("{modsetName}/verify", Name = nameof(VerifyModset))]
-        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public IActionResult VerifyModset(string modsetName, [FromBody] JobScheduleRequestDto jobScheduleRequestDto)
         {
-            throw new NotImplementedException("Modset verification is not implemented yet.");
+            var result = _jobsScheduler
+                .ScheduleJob<ServerStartupService>(
+                    x => x.ShutdownAllServers(false, CancellationToken.None),
+                    jobScheduleRequestDto.ScheduleAt)
+                .Bind(shutdownJobId => _jobsScheduler.ContinueJobWith<ModsVerificationService>(
+                    shutdownJobId,
+                    x => x.VerifyModset(modsetName, CancellationToken.None)));
+
+            return result.Match(
+                onSuccess: JobAccepted,
+                onFailure: TooEarly);
         }
     }
 }

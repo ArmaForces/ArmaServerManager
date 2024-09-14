@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -8,6 +9,7 @@ using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Mods;
 using ArmaForces.ArmaServerManager.Features.Steam.Content;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
+using ArmaForces.ArmaServerManager.Features.Steam.RemoteStorage;
 using AutoFixture;
 using CSharpFunctionalExtensions;
 using FluentAssertions;
@@ -24,6 +26,7 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
         private readonly Mock<IModsCache> _modsCacheMock;
         private readonly Mock<IContentVerifier> _contentVerifierMock;
         private readonly Mock<IContentDownloader> _downloaderMock;
+        private readonly Mock<ISteamRemoteStorage> _steamRemoteStorageMock;
         private readonly ModsManager _modsManager;
 
         public ModsManagerUnitTests()
@@ -31,10 +34,12 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             _modsCacheMock = CreateModsCacheMock();
             _contentVerifierMock = CreateContentVerifierMock();
             _downloaderMock = CreateContentDownloaderMock();
+            _steamRemoteStorageMock = CreateSteamRemoteStorageMock();
             _modsManager = new ModsManager(
                 _downloaderMock.Object,
                 _contentVerifierMock.Object,
                 _modsCacheMock.Object,
+                _steamRemoteStorageMock.Object,
                 new NullLogger<ModsManager>());
         }
 
@@ -84,14 +89,25 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
 
             var outdatedMods = modset.Mods
                 .Take(5)
+                .Select(x => {
+                    x.LastUpdatedAt = DateTime.Now.AddDays(-10);
+                    return x;
+                })
                 .ToList();
             var upToDateMods = modset.Mods
                 .Except(outdatedMods)
+                .Select(x => {
+                    x.LastUpdatedAt = DateTime.Now.AddDays(10);
+                    return x;
+                })
                 .ToList();
+
+            modset.Mods = outdatedMods.Concat(upToDateMods).ToHashSet();
             
-            AddModsToModsCache(modset.Mods.ToList());
             SetModsAsUpToDate(upToDateMods);
+            SetupPublishedFileDetails(modset.Mods);
             SetupContentDownloader(outdatedMods);
+            AddModsToModsCache(modset.Mods.ToList());
 
             await _modsManager.PrepareModset(modset, cancellationToken);
             
@@ -160,6 +176,24 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
                     .Returns(Task.FromResult(Result.Success(contentItem)));
             }
         }
+        
+        private void SetupPublishedFileDetails(ISet<Mod> mods)
+        {
+            var modsIds = mods.Select(x => (ulong)x.WorkshopId!);
+
+            var details = mods
+                .Select(x => new PublishedFileDetails
+                {
+                    Title = x.Name,
+                    PublishedFileId = x.WorkshopId!.Value,
+                    LastUpdatedAt = DateTime.Now
+                })
+                .ToArray();
+
+            _steamRemoteStorageMock
+                .Setup(x => x.GetPublishedFileDetails(modsIds, It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(Result.Success(details)));
+        }
 
         private void AddModsToModsCache(IReadOnlyCollection<Mod> mods)
         {
@@ -169,6 +203,11 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
                     .Setup(x => x.ModExists(mod))
                     .Returns(Task.FromResult(true));
             }
+
+            var modsInCache = _modsCacheMock.Object.Mods;
+            _modsCacheMock
+                .Setup(x => x.Mods)
+                .Returns(modsInCache.Concat(mods).ToList());
         }
 
         private Mock<IModsCache> CreateModsCacheMock()
@@ -178,6 +217,10 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             mock
                 .Setup(x => x.ModExists(It.IsAny<Mod>()))
                 .Returns(Task.FromResult(false));
+
+            mock
+                .Setup(x => x.Mods)
+                .Returns(new List<Mod>());
             
             return mock;
         }
@@ -200,6 +243,17 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Mods
             mock
                 .Setup(x => x.DownloadOrUpdateMods(It.IsAny<IReadOnlyCollection<Mod>>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new List<Result<Mod>>{Result.Failure<Mod>("Item could not be downloaded")}));
+
+            return mock;
+        }
+        
+        private Mock<ISteamRemoteStorage> CreateSteamRemoteStorageMock()
+        {
+            var mock = new Mock<ISteamRemoteStorage>();
+            
+            mock
+                .Setup(x => x.GetPublishedFileDetails(It.IsAny<IReadOnlyCollection<ulong>>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(Result.Success(Array.Empty<PublishedFileDetails>())));
 
             return mock;
         }
