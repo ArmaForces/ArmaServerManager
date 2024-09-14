@@ -118,7 +118,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
 
             return result.Match(
                 onSuccess: NoContent,
-                onFailure: error => (IActionResult) BadRequest(error));
+                onFailure: error => (IActionResult) NotFound(error));
         }
 
         /// <summary>Restart Server</summary>
@@ -127,6 +127,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         /// <param name="serverRestartRequestDto">Additional details.</param>
         [HttpPost("{port:int}/restart", Name = nameof(RestartServer))]
         [ProducesResponseType(typeof(int), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodesExtended.Status425TooEarly)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
@@ -134,7 +135,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         {
             var serverGetResult = _serverQueryLogic.GetServer(port);
 
-            if (serverGetResult.IsFailure) return BadRequest("Server is not running and cannot be restarted.");
+            if (serverGetResult.IsFailure) return NotFound("Server is not running and cannot be restarted.");
 
             var server = serverGetResult.Value;
             
