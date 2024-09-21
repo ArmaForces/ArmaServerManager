@@ -3,8 +3,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.ArmaServerManager.Features.Steam.Constants;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
+using BytexDigital.Steam.ContentDelivery.Exceptions;
 using BytexDigital.Steam.ContentDelivery.Models;
 using BytexDigital.Steam.Core.Structs;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Polly;
 using SteamKit2;
@@ -22,18 +24,26 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             _logger = logger;
         }
 
-        public async Task<Manifest> GetManifest(ContentItem contentItem, CancellationToken cancellationToken)
+        public async Task<Result<Manifest>> GetManifest(ContentItem contentItem, CancellationToken cancellationToken)
         {
             await _steamClient.EnsureConnected(cancellationToken);
 
             var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(15));
-
-            return await _steamClient.ContentClient.GetManifestAsync(
-                appId: SteamConstants.ArmaAppId,
-                depotId: SteamConstants.ArmaWorkshopDepotId,
-                manifestId: await GetManifestId(contentItem, cancellationTokenSource.Token),
-                cancellationToken: cancellationTokenSource.Token);
+            
+            try
+            {
+                return await _steamClient.ContentClient.GetManifestAsync(
+                    appId: SteamConstants.ArmaAppId,
+                    depotId: SteamConstants.ArmaWorkshopDepotId,
+                    manifestId: await GetManifestId(contentItem, cancellationTokenSource.Token),
+                    cancellationToken: cancellationTokenSource.Token);
+            }
+            catch (SteamManifestDownloadException manifestDownloadException)
+            {
+                var exception = CreateManifestDownloadException(contentItem, manifestDownloadException);
+                return Result.Failure<Manifest>(exception.ToString());
+            }
         }
         
         private async Task<ManifestId> GetManifestId(ContentItem contentItem, CancellationToken cancellationToken)
