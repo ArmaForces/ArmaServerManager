@@ -32,5 +32,9 @@ public enum ManagerErrorCode
     KeyNotFound,
     ServerNotFound,
     JobNotFound,
-    ArgumentError
+    ArgumentError,
+    ModNotFoundInCache,
+    ModAlreadyInCache,
+    ModDirectoryNotExists,
+    NoParameters
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using CSharpFunctionalExtensions;
@@ -23,7 +24,7 @@ namespace ArmaForces.ArmaServerManager.Extensions
         /// <param name="olderMod">Mod to be updated.</param>
         /// <param name="newerMod">Mod used as source for updated data.</param>
         /// <returns>New <see cref="Mod"/> with updated data.</returns>
-        public static Result<Mod> UpdateModData(this Mod olderMod, Mod newerMod)
+        public static Result<Mod, IError> UpdateModData(this Mod olderMod, Mod newerMod)
         {
             var mod = new Mod
             {
@@ -37,7 +38,7 @@ namespace ArmaForces.ArmaServerManager.Extensions
                 WorkshopId = newerMod.WorkshopId
             };
 
-            return Result.Success<Mod>(mod);
+            return mod;
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Parameters;
 using ArmaForces.Arma.Server.Features.Parameters.Extractors;
@@ -63,11 +64,12 @@ namespace ArmaForces.Arma.Server.Features.Processes
             return armaProcesses;
         }
 
-        private Result<IArmaProcess> CreateArmaProcess(
+        private Result<IArmaProcess, IError> CreateArmaProcess(
             Process armaServerProcess,
             ProcessParameters parameters)
         {
-            return Result.Success(_armaProcessFactory.CreateServerProcess(armaServerProcess, parameters));
+            return _armaProcessFactory.CreateServerProcess(armaServerProcess, parameters)
+                .ToResult();
         }
     }
 }
