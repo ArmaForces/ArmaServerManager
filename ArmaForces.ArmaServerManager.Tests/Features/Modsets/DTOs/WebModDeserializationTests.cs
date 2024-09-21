@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ArmaForces.Arma.Server.Constants;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using AutoFixture;
@@ -30,8 +32,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
             var json = JsonSerializer.Serialize(jsonDictionary);
 
             var mod = JsonSerializer.Deserialize<WebMod>(json, JsonOptions.Default);
+            mod.Should().NotBeNull();
 
-            mod.Id.Should().Be(_modId);
+            mod!.Id.Should().Be(_modId);
             mod.Name.Should().Be(_modName);
             mod.CreatedAt.GetType().Should().Be<DateTime>();
             mod.CreatedAt.Should().BeCloseTo(_modCreatedAt, TimeSpan.FromSeconds(1));
@@ -62,11 +65,24 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
                 {"name", _modName},
                 {"createdAt", _modCreatedAt.ToString(ApiDateTimeFormat)},
                 {"lastUpdatedAt", _modLastUpdatedAt.ToString(ApiDateTimeFormat)},
-                {"source", _modSource.ToString()},
-                {"type", _modType.ToString()},
+                {"source", ConvertEnumToString(_modSource)},
+                {"type", ConvertEnumToString(_modType)},
                 {"itemId", _workshopItemId},
                 {"directory", _directory!}
             };
+        }
+
+        private static string ConvertEnumToString<T>(T enumValue) where T : Enum
+        {
+            var enumType = typeof(T);
+            var enumName = Enum.GetName(enumType, enumValue) ?? enumValue.ToString();
+            var customName = enumType.GetField(enumName)?
+                .GetCustomAttributes(typeof(JsonStringEnumMemberNameAttribute), true)
+                .SingleOrDefault()?
+                .As<JsonStringEnumMemberNameAttribute>()?
+                .Name;
+            
+            return customName ?? enumName;
         }
     }
 }

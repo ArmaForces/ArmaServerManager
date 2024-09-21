@@ -1,22 +1,29 @@
-﻿using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using ArmaForces.Arma.Server.Features.Mods;
 
-namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs {
-    public enum WebModType {
-        [EnumMember(Value = "server_side")]
-        // TODO: Go back to it when .NET 9 comes out
-        [JsonStringEnumMemberName("server_side")]
-        ServerSide,
+namespace ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 
-        [EnumMember(Value = "required")]
-        Required,
+/// <summary>
+/// Describes type of the mod as reported by website.
+/// </summary>
+/// <seealso cref="ModType"/>
+public enum WebModType
+{
+    /// <inheritdoc cref="ModType.ServerSide"/>
+    /// <seealso cref="ModType.ServerSide"/>
+    [JsonStringEnumMemberName("server_side")]
+    ServerSide,
 
-        [EnumMember(Value = "optional")]
-        Optional,
+    /// <inheritdoc cref="ModType.Required"/>
+    /// <seealso cref="ModType.Required"/>
+    Required,
 
-        [EnumMember(Value = "client_side")]
-        // TODO: Go back to it when .NET 9 comes out
-        [JsonStringEnumMemberName("client_side")]
-        ClientSide
-    }
+    /// <inheritdoc cref="ModType.Optional"/>
+    /// <seealso cref="ModType.Optional"/>
+    Optional,
+
+    /// <inheritdoc cref="ModType.ClientSide"/>
+    /// <seealso cref="ModType.ClientSide"/>
+    [JsonStringEnumMemberName("client_side")]
+    ClientSide
 }
