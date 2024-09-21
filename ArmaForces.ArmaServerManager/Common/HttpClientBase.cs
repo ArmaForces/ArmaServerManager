@@ -34,7 +34,7 @@ namespace ArmaForces.ArmaServerManager.Common
                     ? httpResponseMessage.ReasonPhrase
                     : responseBody;
                 
-                return new Error($"GET request failed with error: {errorMessage}", httpResponseMessage.StatusCode);
+                return new Error(errorMessage ?? $"GET request {requestUrl} failed with error", httpResponseMessage.StatusCode);
             }
         }
     }
