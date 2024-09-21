@@ -2,6 +2,7 @@
 using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Jobs.Mappers;
+using ArmaForces.ArmaServerManager.Common.Errors;
 using ArmaForces.ArmaServerManager.Features.Jobs;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Extensions;
+using ArmaForces.ArmaServerManager.Common.Errors;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;

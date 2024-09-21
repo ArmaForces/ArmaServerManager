@@ -1,4 +1,4 @@
-﻿namespace ArmaForces.Arma.Server.Common.Errors;
+﻿namespace ArmaForces.ArmaServerManager.Common.Errors;
 
 /// <summary>
 /// Error codes possible within application.

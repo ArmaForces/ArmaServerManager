@@ -156,7 +156,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
             var bikeyFile = new BikeyFile(armaKeyPath, ArmaConstants.GameName);
 
             return !_fileSystem.File.Exists(bikeyFile.Path)
-                ? new Error($"{KeysConstants.ArmaKey} not found in Manager directory.", ManagerErrorCode.KeyNotFound)
+                ? new Error($"{KeysConstants.ArmaKey} not found in Manager directory.", ArmaErrorCode.KeyNotFound)
                 : _keysCopier.CopyKeys(_keysDirectory, bikeyFile.AsList());
         }
 

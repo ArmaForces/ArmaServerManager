@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Constants;
+using ArmaForces.ArmaServerManager.Common.Errors;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Common

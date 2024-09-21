@@ -7,6 +7,7 @@ using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Api.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Api.Status.DTOs;
+using ArmaForces.ArmaServerManager.Common.Errors;
 using ArmaForces.ArmaServerManager.Features.Missions;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using ArmaForces.ArmaServerManager.Features.Modsets;
@@ -103,7 +104,7 @@ namespace ArmaForces.ArmaServerManager.Services
         private static Result<WebMission, IError> GetMissionWithTitle(string missionTitle, IReadOnlyCollection<WebMission> upcomingMissions)
         {
             return upcomingMissions.SingleOrDefault(x => x.Title == missionTitle) ??
-                Result.Failure<WebMission, IError>(new Error ($"Mission {missionTitle} not found.", ManagerErrorCode.MissionNotFound));
+                Result.Failure<WebMission, IError>(ManagerErrors.MissionNotFound(missionTitle));
         }
     }
 }

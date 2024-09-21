@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Common.Errors;
+using ArmaForces.ArmaServerManager.Common.Errors;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Jobs.Helpers;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence;

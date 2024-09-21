@@ -7,35 +7,34 @@ namespace ArmaForces.Arma.Server.Common.Errors;
 /// <summary>
 /// Represents details of an error.
 /// </summary>
-public record Error: ICombine, IError
+public record Error: IError
 {
     public string Message { get; init; }
     public IErrorCode Code { get; init; }
-    public IError InnerError { get; init; }
+    public IError? InnerError { get; init; }
 
     /// <summary>
     /// Creates error instance.
     /// </summary>
     /// <param name="message">Message describing error details.</param>
     /// <param name="code">Code of the error.</param>
-    public Error(string message, ErrorCode code)
+    /// <param name="innerError">Optional inner error.</param>
+    public Error(string message, IErrorCode code, IError? innerError = null)
     {
         Message = message;
         Code = code;
+        InnerError = innerError;
     }
 
     public Error(string message, HttpStatusCode statusCode)
         : this(message, new ErrorCode(statusCode)) { }
-    
-    public Error(string message, ManagerErrorCode managerErrorCode)
-        : this(message, new ErrorCode(managerErrorCode)) { }
     
     /// <summary>
     /// 
     /// </summary>
     /// <param name="error"></param>
     /// <returns></returns>
-    // public static implicit operator UnitResult<Error>(Error error) => UnitResult.Failure(error);
+    public static implicit operator UnitResult<IError>(Error error) => UnitResult.Failure<IError>(error);
     
     /// <summary>
     /// 

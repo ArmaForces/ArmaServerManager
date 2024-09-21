@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Common.Errors;
+using ArmaForces.ArmaServerManager.Common.Errors;
 using CSharpFunctionalExtensions;
 using Hangfire;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using ArmaForces.Arma.Server.Common.Errors;
+using ArmaForces.ArmaServerManager.Common.Errors;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Constants;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Models;
 using CSharpFunctionalExtensions;
