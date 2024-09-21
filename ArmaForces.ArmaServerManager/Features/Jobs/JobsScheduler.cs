@@ -52,7 +52,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
 
             if (similarScheduledJob is not null)
                 return Result.Failure<int>($"Similar job is already scheduled at {similarScheduledJob.EnqueueAt}.")
-                    .OnFailure(_ => _logger.LogInformation("There is similar job scheduled at {DateTime}", dateTime));
+                    .TapError(_ => _logger.LogInformation("There is similar job scheduled at {DateTime}", dateTime));
 
             if (dateTime.IsCloseTo(DateTime.Now, _defaultPrecision))
             {
@@ -60,7 +60,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
 
                 if (queuedJobs.Any())
                     return Result.Failure<int>($"Similar job is already in queue.")
-                        .OnFailure(_ => _logger.LogInformation("There is similar job in queue already"));
+                        .TapError(_ => _logger.LogInformation("There is similar job in queue already"));
             }
 
             return _backgroundJobClientWrapper.Schedule(func, dateTime)
@@ -80,7 +80,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
 
             if (scheduledJobs.Any() || queuedJobs.Any())
                 return Result.Failure<int>("Similar job is already in queue.")
-                    .OnFailure(_ => _logger.LogDebug("There is similar job queued in less than {Precision}", _defaultPrecision));
+                    .TapError(_ => _logger.LogDebug("There is similar job queued in less than {Precision}", _defaultPrecision));
 
             return _backgroundJobClientWrapper.Enqueue(func)
                 .Tap(jobId => _logger.LogDebug("Enqueued job {JobId}", jobId));

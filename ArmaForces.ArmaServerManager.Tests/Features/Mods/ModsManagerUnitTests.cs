@@ -12,7 +12,6 @@ using ArmaForces.ArmaServerManager.Features.Steam.Content.DTOs;
 using ArmaForces.ArmaServerManager.Features.Steam.RemoteStorage;
 using AutoFixture;
 using CSharpFunctionalExtensions;
-using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;

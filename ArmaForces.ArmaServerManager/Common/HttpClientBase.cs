@@ -1,7 +1,8 @@
 ﻿using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Constants;
 using CSharpFunctionalExtensions;
-using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Common
 {
@@ -21,7 +22,8 @@ namespace ArmaForces.ArmaServerManager.Common
             if (httpResponseMessage.IsSuccessStatusCode)
             {
                 var responseBody = await httpResponseMessage.Content.ReadAsStringAsync();
-                return Result.Success(JsonConvert.DeserializeObject<T>(responseBody));
+                return JsonSerializer.Deserialize<T>(responseBody, JsonOptions.Default) ??
+                       Result.Failure<T>($"Failed to deserialize response: {responseBody}");
             }
             else
             {

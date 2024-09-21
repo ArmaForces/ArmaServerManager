@@ -118,7 +118,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .WithCancellation(cancellationToken))
             {
                 await _contentVerifier.ItemIsUpToDate(mod.AsContentItem(), cancellationToken)
-                    .OnFailure(() => modsRequireUpdate.Add(mod));
+                    .TapError(() => modsRequireUpdate.Add(mod));
             }
             
             return Result.Success(modsRequireUpdate.ToList());

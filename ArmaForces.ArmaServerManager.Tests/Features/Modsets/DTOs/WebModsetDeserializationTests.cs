@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using ArmaForces.Arma.Server.Constants;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using AutoFixture;
 using FluentAssertions;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
@@ -38,9 +39,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
         [Fact]
         public void Modset_DeserializeWithoutMods_Successfull()
         {
-            var json = JsonConvert.SerializeObject(_jsonDictionary);
+            var json = JsonSerializer.Serialize(_jsonDictionary);
 
-            var modset = JsonConvert.DeserializeObject<WebModset>(json);
+            var modset = JsonSerializer.Deserialize<WebModset>(json, JsonOptions.Default);
 
             modset.Id.Should().Be(_modsetId);
             modset.Name.Should().Be(_modsetName);
@@ -55,9 +56,9 @@ namespace ArmaForces.ArmaServerManager.Tests.Features.Modsets.DTOs
         {
             var modsList = CreateModsList();
             _jsonDictionary.Add("mods", modsList);
-            var json = JsonConvert.SerializeObject(_jsonDictionary);
+            var json = JsonSerializer.Serialize(_jsonDictionary);
 
-            var modset = JsonConvert.DeserializeObject<WebModset>(json);
+            var modset = JsonSerializer.Deserialize<WebModset>(json, JsonOptions.Default);
 
             modset.Mods.GetType().Should().Be<List<WebMod>>();
             modset.Mods.Count.Should().Be(1);

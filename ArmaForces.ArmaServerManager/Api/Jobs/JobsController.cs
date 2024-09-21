@@ -59,12 +59,10 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
         [ApiKey]
         public IActionResult DeleteJobs([FromBody] JobsDeleteRequestDto jobsDeleteRequestDto)
         {
-            return jobsDeleteRequestDto.DeleteFrom is not null && jobsDeleteRequestDto.DeleteTo is not null
-                ? _jobsService.DeleteJobs(jobsDeleteRequestDto.DeleteFrom.Value, jobsDeleteRequestDto.DeleteTo.Value)
-                    .Match(
+            return _jobsService.DeleteJobs(jobsDeleteRequestDto.DeleteFrom, jobsDeleteRequestDto.DeleteTo)
+                .Match(
                     onSuccess: NoContent,
-                    onFailure: error => (IActionResult) BadRequest(error))
-                : BadRequest($"Both {nameof(JobsDeleteRequestDto.DeleteFrom)} and {nameof(JobsDeleteRequestDto.DeleteTo)} must be specified.");
+                    onFailure: error => (IActionResult) BadRequest(error));
         }
 
         /// <summary>Get Job</summary>

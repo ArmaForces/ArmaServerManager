@@ -42,7 +42,7 @@ namespace ArmaForces.Arma.Server.Config {
             
             return GetOrCreateServerConfigDir()
                 .Tap(() => _logger.LogInformation("ServerConfig files copied"))
-                .OnFailure(error => _logger.LogError("ServerConfig files could not be copied: {Error}", error));
+                .TapError(error => _logger.LogError("ServerConfig files could not be copied: {Error}", error));
         }
 
         private void SetProperties() {

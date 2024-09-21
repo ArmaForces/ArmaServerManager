@@ -1,57 +1,34 @@
 ﻿using System;
-using Newtonsoft.Json;
 
 namespace ArmaForces.Arma.Server.Features.Servers.DTOs
 {
-    public class ServerStatus
+    public class ServerStatus(
+        ServerStatusEnum status = ServerStatusEnum.Stopped,
+        string? name = null,
+        string? modsetName = null,
+        string? mapName = null,
+        int? playersCount = null,
+        int? playersMaxCount = null,
+        int? port = null,
+        DateTimeOffset? startTime = null,
+        int? headlessClientsCount = null)
     {
-        public ServerStatus(
-            ServerStatusEnum serverStatusEnum = ServerStatusEnum.Stopped,
-            string? name = null,
-            string? modsetName = null,
-            string? mapName = null,
-            int? playersCount = null,
-            int? playersMaxCount = null,
-            int? port = null,
-            DateTimeOffset? startTime = null,
-            int? headlessClientsCount = null)
-        {
-            Status = serverStatusEnum;
-            Name = name;
-            ModsetName = modsetName;
-            Map = mapName;
-            Players = playersCount;
-            PlayersMax = playersMaxCount;
-            Port = port;
-            StartTime = startTime;
-            HeadlessClientsConnected = headlessClientsCount;
-        }
+        public ServerStatusEnum Status { get; init; } = status;
 
-        [JsonProperty(Required = Required.Always)]
-        public ServerStatusEnum Status { get; }
+        public string? Name { get; init; } = name;
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string? Name { get; }
+        public string? ModsetName { get; init; } = modsetName;
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string? ModsetName { get; }
+        public string? Map { get; init;  } = mapName;
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string? Map { get; }
+        public int? Players { get; init;  } = playersCount;
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? Players { get; }
+        public int? PlayersMax { get; init;  } = playersMaxCount;
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? PlayersMax { get; }
+        public int? Port {get; init;  } = port;
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? Port {get; }
-        
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public DateTimeOffset? StartTime { get; }
+        public DateTimeOffset? StartTime { get; init; } = startTime;
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? HeadlessClientsConnected { get; }
+        public int? HeadlessClientsConnected { get; init; } = headlessClientsCount;
     }
 }
