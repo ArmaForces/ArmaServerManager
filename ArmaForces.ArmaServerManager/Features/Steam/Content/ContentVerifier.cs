@@ -32,7 +32,6 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             var incorrectFilesResult = await VerifyAllFiles(contentItem, cancellationToken);
 
             return incorrectFilesResult
-                    // TODO: Handle CancellationToken.Cancelled
                 .OnFailure(() => LogFailedToVerifyItem(contentItem))
                 .OnFailureCompensate(() => new List<ManifestFile>())
                 .Bind(x => x.Any()
@@ -48,12 +47,16 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                 .Tap(_ => _logger.LogTrace("Searching redundant files for {Item}", contentItem.ToString()))
                 .Tap(x => _contentFileVerifier.RemoveRedundantFiles(contentItem.Directory!, x))
                 .Tap(_ => _logger.LogTrace("Searching outdated files for {Item}", contentItem.ToString()))
-                .Bind(manifest => IsAnyFileOutdated(contentItem, manifest));
+                .Bind(manifest => IsAnyFileOutdated(contentItem, manifest, cancellationToken));
         }
 
-        private Result<List<ManifestFile>> IsAnyFileOutdated(ContentItem contentItem, Manifest manifest)
+        private Result<List<ManifestFile>> IsAnyFileOutdated(
+            ContentItem contentItem,
+            Manifest manifest,
+            CancellationToken cancellationToken)
             => manifest.Files
-                .SkipWhile(manifestFile => _contentFileVerifier.FileIsUpToDate(contentItem.Directory!, manifestFile))
+                .SkipWhile(manifestFile => cancellationToken.IsCancellationRequested ||
+                                           _contentFileVerifier.FileIsUpToDate(contentItem.Directory!, manifestFile))
                 .ToList();
 
         private async Task<Result<Manifest>> GetManifest(ContentItem contentItem, CancellationToken cancellationToken)
