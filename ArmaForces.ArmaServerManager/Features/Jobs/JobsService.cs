@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence;
@@ -22,19 +23,19 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             _logger = logger;
         }
 
-        public Result DeleteJob(int jobId)
+        public UnitResult<IError> DeleteJob(int jobId)
             => _jobsRepository.GetJobDetails(jobId)
                 .Bind(CheckJobCanBeDeleted)
                 .Bind(() => _jobsRepository.DeleteJob(jobId));
 
-        public Result<JobDetails?> GetCurrentJob()
+        public Result<JobDetails?, IError> GetCurrentJob()
             => _jobsRepository.GetCurrentJob();
 
-        public Result<JobDetails> GetJobDetails(int jobId, bool includeHistory = false)
+        public Result<JobDetails, IError> GetJobDetails(int jobId, bool includeHistory = false)
             => _jobsRepository.GetJobDetails(jobId, includeHistory)
                 .Tap(_ => _logger.LogDebug("Successfully retrieved details for job {JobId}", jobId));
 
-        public Result<List<JobDetails>> GetJobs(
+        public Result<List<JobDetails>, IError> GetJobs(
             IEnumerable<int> jobIds,
             IEnumerable<JobStatus> statusFilter,
             bool includeHistory = false)
@@ -44,7 +45,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
             
             if (jobIdsList.Any() && statusSet.Any())
             {
-                return Result.Failure<List<JobDetails>>("Only one of jobIds and statusFilter can be specified.");
+                return new Error("Only one of jobIds and statusFilter can be specified.", ManagerErrorCode.ArgumentError);
             }
 
             return jobIdsList.Any()
@@ -52,7 +53,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
                 : GetJobs(statusSet, includeHistory);
         }
 
-        public Result<List<JobDetails>> GetQueuedJobs()
+        public Result<List<JobDetails>, IError> GetQueuedJobs()
             => GetJobs(new List<JobStatus>
             {
                 JobStatus.Scheduled,
@@ -60,29 +61,29 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
                 JobStatus.Enqueued
             });
 
-        public Result RequeueJob(int jobId)
+        public UnitResult<IError> RequeueJob(int jobId)
             => _jobsRepository.GetJobDetails(jobId)
                 .Bind(CheckJobCanBeRequeued)
                 .Bind(() => _jobsRepository.RequeueJob(jobId));
 
-        public Result DeleteJobs(DateTime deleteFrom, DateTime deleteTo)
+        public UnitResult<IError> DeleteJobs(DateTime deleteFrom, DateTime deleteTo)
             => GetQueuedJobs()
                 .Bind(jobs => jobs
                     .Where(job => job.ScheduledAt >= deleteFrom && job.ScheduledAt < deleteTo)
                     .Select(job => DeleteJob(job.Id))
                     .Combine());
 
-        private static Result CheckJobCanBeDeleted(JobDetails jobDetails)
+        private static UnitResult<IError> CheckJobCanBeDeleted(JobDetails jobDetails)
             => jobDetails.JobStatus == JobStatus.Deleted
-                ? Result.Failure("Cannot delete deleted job.")
-                : Result.Success();
+                ? new Error("Cannot delete deleted job.", ManagerErrorCode.JobDeletionFailed)
+                : UnitResult.Success<IError>();
 
-        private static Result CheckJobCanBeRequeued(JobDetails jobDetails)
+        private static UnitResult<IError> CheckJobCanBeRequeued(JobDetails jobDetails)
             => jobDetails.JobStatus == JobStatus.Enqueued
-                ? Result.Failure("Job is already enqueued")
-                : Result.Success();
+                ? new Error("Job is already enqueued", ManagerErrorCode.SimilarJobFound)
+                : UnitResult.Success<IError>();
 
-        private Result<List<JobDetails>> GetJobs(
+        private Result<List<JobDetails>, IError> GetJobs(
             IEnumerable<int> jobIds,
             bool includeHistory = false)
         {
@@ -91,7 +92,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs
                 .Map(x => x.ToList());
         }
 
-        private Result<List<JobDetails>> GetJobs(
+        private Result<List<JobDetails>, IError> GetJobs(
             IEnumerable<JobStatus> statusFilter,
             bool includeHistory = false)
         {

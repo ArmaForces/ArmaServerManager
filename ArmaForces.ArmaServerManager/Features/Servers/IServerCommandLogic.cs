@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Servers;
 using CSharpFunctionalExtensions;
@@ -18,7 +19,7 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
         /// <param name="force">Force shutdown even if players are on the server.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Success if server was shut down.</returns>
-        Task<Result> ShutdownServer(int port, bool force = false, CancellationToken? cancellationToken = null);
+        Task<UnitResult<IError>> ShutdownServer(int port, bool force = false, CancellationToken? cancellationToken = null);
 
         /// <summary>
         /// Attempts to shut down all running servers.
@@ -26,7 +27,7 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
         /// <param name="force">Force shutdown even if players are on the server.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Success if all servers were shut down.</returns>
-        Task<Result> ShutdownAllServers(bool force = false, CancellationToken? cancellationToken = null);
+        Task<UnitResult<IError>> ShutdownAllServers(bool force = false, CancellationToken? cancellationToken = null);
 
         /// <summary>
         /// Starts server with given parameters.
@@ -35,7 +36,7 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
         /// <param name="headlessClients">Number of Headless Clients for server.</param>
         /// <param name="modset">Modset which should be loaded on the server.</param>
         /// <returns>Successful result with started server reference if server is started.</returns>
-        Result<IDedicatedServer> StartServer(int port, int headlessClients, Modset modset);
+        Result<IDedicatedServer, IError> StartServer(int port, int headlessClients, Modset modset);
 
         /// <summary>
         /// Adds or removes headless clients for server on given <paramref name="port"/>. 
@@ -43,6 +44,6 @@ namespace ArmaForces.ArmaServerManager.Features.Servers
         /// <param name="port">Server port.</param>
         /// <param name="desiredHcCount">Desired number of headless clients.</param>
         /// <returns>Successful result if headless clients were started.</returns>
-        Task<Result> SetHeadlessClients(int port, int desiredHcCount);
+        Task<UnitResult<IError>> SetHeadlessClients(int port, int desiredHcCount);
     }
 }

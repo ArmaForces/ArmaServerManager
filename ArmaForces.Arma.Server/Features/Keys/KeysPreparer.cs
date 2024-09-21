@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Constants;
 using ArmaForces.Arma.Server.Extensions;
@@ -47,12 +48,12 @@ namespace ArmaForces.Arma.Server.Features.Keys
             _managerDirectory = settings.ManagerDirectory;
         }
 
-        public Result PrepareKeysForModset(Modset modset) 
+        public UnitResult<IError> PrepareKeysForModset(Modset modset) 
             => RemoveOldKeys()
                 .Bind(() => CopyNewKeys(modset))
                 .Bind(CopyArmaKey);
 
-        private Result RemoveOldKeys()
+        private UnitResult<IError> RemoveOldKeys()
         {
             var oldKeys = _keysFinder.GetKeysFromDirectory(_keysDirectory)
                 .Select(path => new BikeyFile(path))
@@ -63,7 +64,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
             return _keysCopier.DeleteKeys(oldKeys);
         }
 
-        private Result CopyNewKeys(Modset modset)
+        private UnitResult<IError> CopyNewKeys(Modset modset)
         {
             var clientLoadableMods = modset.ClientLoadableMods;
 
@@ -88,10 +89,10 @@ namespace ArmaForces.Arma.Server.Features.Keys
 
             LogKeysNotFound(modBikeysList);
 
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
 
-        private Result<ModBikeys> CopyKeysForMod(Mod mod)
+        private Result<ModBikeys, IError> CopyKeysForMod(Mod mod)
         {
             try
             {
@@ -103,7 +104,7 @@ namespace ArmaForces.Arma.Server.Features.Keys
                     mod);
 
                 return _keysCopier.CopyKeys(_keysDirectory, keysForMod.BikeyFiles)
-                    .Bind(() => Result.Success(keysForMod));
+                    .Map(() => keysForMod);
             }
             // TODO: Remove if does not occur anymore
             catch (ArgumentNullException exception)
@@ -149,13 +150,13 @@ namespace ArmaForces.Arma.Server.Features.Keys
         /// <summary>
         /// TODO: Do it better. Maybe download it from Depot and store somewhere.
         /// </summary>
-        private Result CopyArmaKey()
+        private UnitResult<IError> CopyArmaKey()
         {
             var armaKeyPath = _fileSystem.Path.Join(_managerDirectory, KeysConstants.ArmaKey);
             var bikeyFile = new BikeyFile(armaKeyPath, ArmaConstants.GameName);
 
             return !_fileSystem.File.Exists(bikeyFile.Path)
-                ? Result.Failure($"{KeysConstants.ArmaKey} not found in Manager directory.")
+                ? new Error($"{KeysConstants.ArmaKey} not found in Manager directory.", ManagerErrorCode.KeyNotFound)
                 : _keysCopier.CopyKeys(_keysDirectory, bikeyFile.AsList());
         }
 
@@ -173,12 +174,12 @@ namespace ArmaForces.Arma.Server.Features.Keys
             }
         }
 
-        private void LogKeysCopyError(Mod mod, string error)
+        private void LogKeysCopyError(Mod mod, IError error)
         {
             _logger.LogWarning(
                 "Copying keys for mod {Mod} failed with error: {Error}",
                 mod.ToShortString(),
-                error);
+                error.Message);
             
             _logger.LogTrace("Copying keys failed for mod {@Mod}", mod);
         }

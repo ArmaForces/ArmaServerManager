@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.ArmaServerManager.Features.Missions.DTOs;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
@@ -15,12 +16,12 @@ namespace ArmaForces.ArmaServerManager.Features.Missions
         /// Retrieves all upcoming missions counting from today.
         /// </summary>
         /// <returns><see cref="IEnumerable{T}" /> of <see cref="WebMission" /></returns>
-        Task<Result<List<WebMission>>> GetUpcomingMissions();
+        Task<Result<List<WebMission>, IError>> GetUpcomingMissions();
 
         /// <summary>
         /// Prepares <seealso cref="ISet{T}" /> of <see cref="WebModset" /> for all upcoming missions counting from today.
         /// </summary>
         /// <returns><seealso cref="ISet{T}" /> of <see cref="WebModset" /></returns>
-        Task<Result<HashSet<string>>> GetUpcomingMissionsModsetsNames();
+        Task<Result<HashSet<string>, IError>> GetUpcomingMissionsModsetsNames();
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
@@ -105,7 +106,7 @@ namespace ArmaForces.ArmaServerManager.Features.Servers.Providers
             _logger.LogDebug("Headless clients for server on port {Port} were shut down", port);
         }
 
-        private async Task<Result<IDedicatedServer>> TryRecreateServer(
+        private async Task<Result<IDedicatedServer, IError>> TryRecreateServer(
             int port,
             IArmaProcess serverProcess,
             IEnumerable<IArmaProcess> headlessClients)

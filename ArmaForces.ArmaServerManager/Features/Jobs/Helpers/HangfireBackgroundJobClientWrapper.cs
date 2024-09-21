@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using CSharpFunctionalExtensions;
 using Hangfire;
 
@@ -17,46 +18,46 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Helpers
             _backgroundJobClient = backgroundJobClient;
         }
 
-        public Result<int> ContinueWith<T>(int parentId, Expression<Func<T, Task>> methodCall)
+        public Result<int, IError> ContinueWith<T>(int parentId, Expression<Func<T, Task>> methodCall)
         {
             var result = _backgroundJobClient.ContinueJobWith(parentId.ToString(), methodCall);
             
             return result != string.Empty
                 ? TryParseJobId(result)
-                : Result.Failure<int>($"Continuation job creation failed for parent job {parentId}.");
+                : new Error($"Continuation job creation failed for parent job {parentId}.", ManagerErrorCode.JobContinuationCreationFailed);
         }
 
-        public Result Delete(int jobId)
+        public UnitResult<IError> Delete(int jobId)
             => _backgroundJobClient.Delete(jobId.ToString())
-                ? Result.Success()
-                : Result.Failure($"Could not delete job {jobId}. This could be caused by job state change, expiration or completion.");
+                ? UnitResult.Success<IError>()
+                : new Error($"Could not delete job {jobId}. This could be caused by job state change, expiration or completion.", ManagerErrorCode.JobDeletionFailed);
 
-        public Result<int> Enqueue<T>(Expression<Func<T, Task>> methodCall)
+        public Result<int, IError> Enqueue<T>(Expression<Func<T, Task>> methodCall)
         {
             var result = _backgroundJobClient.Enqueue(methodCall);
             
             return result != string.Empty
                 ? TryParseJobId(result)
-                : Result.Failure<int>("Failed to enqueue job.");
+                : new Error("Failed to enqueue job.", ManagerErrorCode.JobEnqueueFailed);
         }
 
-        public Result Requeue(int jobId)
+        public UnitResult<IError> Requeue(int jobId)
             => _backgroundJobClient.Requeue(jobId.ToString())
-                ? Result.Success()
-                : Result.Failure($"Could not requeue job {jobId}. This could be caused by job state change, expiration or completion.");
+                ? UnitResult.Success<IError>()
+                : new Error($"Could not requeue job {jobId}. This could be caused by job state change, expiration or completion.", ManagerErrorCode.JobEnqueueFailed);
 
-        public Result<int> Schedule<T>(Expression<Func<T, Task>> methodCall, DateTimeOffset dateTimeOffset)
+        public Result<int, IError> Schedule<T>(Expression<Func<T, Task>> methodCall, DateTimeOffset dateTimeOffset)
         {
             var result = _backgroundJobClient.Schedule(methodCall, dateTimeOffset);
 
             return result != string.Empty
                 ? TryParseJobId(result)
-                : Result.Failure<int>("Job schedule failed.");
+                : new Error("Job schedule failed.", ManagerErrorCode.JobScheduleFailed);
         }
 
-        private static Result<int> TryParseJobId(string jobId)
+        private static Result<int, IError> TryParseJobId(string jobId)
             => int.TryParse(jobId, out var intJobId)
                 ? intJobId
-                : Result.Failure<int>(JobIdParseError);
+                : new Error(JobIdParseError, ManagerErrorCode.ParseError);
     }
 }

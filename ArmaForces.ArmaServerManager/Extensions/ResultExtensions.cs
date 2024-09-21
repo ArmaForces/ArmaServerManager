@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.ArmaServerManager.Extensions
@@ -10,5 +12,8 @@ namespace ArmaForces.ArmaServerManager.Extensions
         {
             action(await taskResult);
         }
+
+        public static Result<T, IError> ToResult<T>(this T value)
+            => Result.Success<T, IError>(value);
     }
 }

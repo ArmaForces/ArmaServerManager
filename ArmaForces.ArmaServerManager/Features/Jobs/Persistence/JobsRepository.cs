@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.ArmaServerManager.Features.Jobs.Helpers;
 using ArmaForces.ArmaServerManager.Features.Jobs.Models;
 using ArmaForces.ArmaServerManager.Features.Jobs.Persistence.Extensions;
@@ -31,15 +32,15 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
             _monitoringApi = monitoringApi;
         }
 
-        public Result DeleteJob(int jobId)
+        public UnitResult<IError> DeleteJob(int jobId)
             => _backgroundJobClientWrapper.Delete(jobId);
 
-        public Result DeleteJobs(IEnumerable<int> jobIds)
+        public UnitResult<IError> DeleteJobs(IEnumerable<int> jobIds)
             => jobIds.Select(jobId => _backgroundJobClientWrapper.Delete(jobId)
-                    .OnFailureCompensate(_ => _backgroundJobClientWrapper.Delete(jobId)))
+                    .Compensate(_ => _backgroundJobClientWrapper.Delete(jobId)))
                 .Combine();
 
-        public Result<JobDetails?> GetCurrentJob()
+        public Result<JobDetails?, IError> GetCurrentJob()
         {
             // TODO: Handle manager process restart (it can cause job to be stuck in processing state for a while)
             var currentJobId = _monitoringApi.ProcessingJobs(0, 1)
@@ -49,29 +50,29 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
             // Disable Nullability warning as compiler cannot handle this case properly
 #pragma warning disable CS8619
             return currentJobId is null
-                ? Result.Success<JobDetails?>(null)
+                ? Result.Success<JobDetails?, IError>(null)
                 : GetJobDetails(int.Parse(currentJobId));
 #pragma warning restore CS8619
         }
 
-        public Result<JobDetails> GetJobDetails(int jobId, bool includeHistory = false)
+        public Result<JobDetails, IError> GetJobDetails(int jobId, bool includeHistory = false)
             => includeHistory
                 ? _jobsDataAccess.GetJob<JobDataModelWithHistory>(jobId)
                     .Map(CreateJobDetails)
                 : _jobsDataAccess.GetJob<JobDataModel>(jobId)
                     .Map(CreateJobDetails);
 
-        public Result<List<JobDetails>> GetJobs(IEnumerable<int> jobIds, bool includeHistory = false)
+        public Result<List<JobDetails>, IError> GetJobs(IEnumerable<int> jobIds, bool includeHistory = false)
             => includeHistory
                 ? GetJobs<JobDataModelWithHistory>(x => jobIds.Contains(x.Id))
                 : GetJobs<JobDataModel>(x => jobIds.Contains(x.Id));
 
-        public Result<List<JobDetails>> GetJobs(ISet<JobStatus> includeStatuses, bool includeHistory = false)
+        public Result<List<JobDetails>, IError> GetJobs(ISet<JobStatus> includeStatuses, bool includeHistory = false)
             => includeHistory
                 ? GetJobs<JobDataModelWithHistory>(x => includeStatuses.Contains(x.JobStatus))
                 : GetJobs<JobDataModel>(x => includeStatuses.Contains(x.JobStatus));
 
-        public Result RequeueJob(int jobId)
+        public UnitResult<IError> RequeueJob(int jobId)
             => _backgroundJobClientWrapper.Requeue(jobId);
 
         public IEnumerable<EnqueuedJobDto> GetSimilarQueuedJobs<T>(
@@ -89,7 +90,7 @@ namespace ArmaForces.ArmaServerManager.Features.Jobs.Persistence
             => GetScheduledJobs(from, count)
                 .Where(x => JobMatchesMethod(x.Job, func));
         
-        private Result<List<JobDetails>> GetJobs<T>(Expression<Func<T, bool>> filterExpression) where T : JobDataModel
+        private Result<List<JobDetails>, IError> GetJobs<T>(Expression<Func<T, bool>> filterExpression) where T : JobDataModel
             => _jobsDataAccess.GetJobs(filterExpression)
                 .Select(CreateJobDetails)
                 .ToList();

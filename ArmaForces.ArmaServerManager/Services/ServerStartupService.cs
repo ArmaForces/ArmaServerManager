@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Api.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Api.Status.DTOs;
@@ -47,7 +48,7 @@ namespace ArmaForces.ArmaServerManager.Services
         }
 
         // TODO: Add port
-        public async Task<Result> StartServerForMission(string missionTitle, CancellationToken cancellationToken)
+        public async Task<UnitResult<IError>> StartServerForMission(string missionTitle, CancellationToken cancellationToken)
         {
             return await _apiMissionsClient.GetUpcomingMissions()
                 .Bind(upcomingMissions => GetMissionWithTitle(missionTitle, upcomingMissions))
@@ -57,7 +58,7 @@ namespace ArmaForces.ArmaServerManager.Services
 
         // TODO: Add port
 
-        public async Task<Result> StartServer(
+        public async Task<UnitResult<IError>> StartServer(
             string modsetName,
             int headlessClients,
             CancellationToken cancellationToken)
@@ -68,34 +69,41 @@ namespace ArmaForces.ArmaServerManager.Services
 
         // TODO: Add port
 
-        public async Task<Result> StartServer(Modset modset, int headlessClients, CancellationToken cancellationToken)
+        public async Task<UnitResult<IError>> StartServer(Modset modset, int headlessClients, CancellationToken cancellationToken)
         {
             IDisposable? appStatusChanges = null;
-            
-            return await ShutdownServer(
-                Port,
-                false,
-                cancellationToken)
-                .Tap(() => appStatusChanges = _appStatusStore.SetAppStatus(AppStatus.UpdatingMods, $"Updating mods for server with '{modset.Name}' modset"))
-                .Bind(() => _modsUpdateService.UpdateModset(modset, cancellationToken))
-                .Tap(() => appStatusChanges?.Dispose())
-                .Bind(() => _serverCommandLogic.StartServer(Port, headlessClients, modset))
-                .Tap(() => _logger.LogInformation("Successfully started server on {Port} port with {ModsetName} modset", Port, modset.Name));
+
+            try
+            {
+                return await ShutdownServer(
+                        Port,
+                        false,
+                        cancellationToken)
+                    .Tap(() => appStatusChanges = _appStatusStore.SetAppStatus(AppStatus.UpdatingMods, $"Updating mods for server with '{modset.Name}' modset"))
+                    .Bind(() => _modsUpdateService.UpdateModset(modset, cancellationToken))
+                    .Tap(() => appStatusChanges?.Dispose())
+                    .Bind(() => _serverCommandLogic.StartServer(Port, headlessClients, modset))
+                    .Tap(() => _logger.LogInformation("Successfully started server on {Port} port with {ModsetName} modset", Port, modset.Name));
+            }
+            finally
+            {
+                appStatusChanges?.Dispose();
+            }
         }
 
-        public async Task<Result> ShutdownServer(
+        public async Task<UnitResult<IError>> ShutdownServer(
             int port,
             bool force = false,
             CancellationToken? cancellationToken = null)
             => await _serverCommandLogic.ShutdownServer(port, force, cancellationToken);
 
-        public async Task<Result> ShutdownAllServers(bool force = false, CancellationToken? cancellationToken = null)
+        public async Task<UnitResult<IError>> ShutdownAllServers(bool force = false, CancellationToken? cancellationToken = null)
             => await _serverCommandLogic.ShutdownAllServers(force, cancellationToken);
 
-        private static Result<WebMission> GetMissionWithTitle(string missionTitle, IReadOnlyCollection<WebMission> upcomingMissions)
+        private static Result<WebMission, IError> GetMissionWithTitle(string missionTitle, IReadOnlyCollection<WebMission> upcomingMissions)
         {
             return upcomingMissions.SingleOrDefault(x => x.Title == missionTitle) ??
-                Result.Failure<WebMission>($"Mission {missionTitle} not found.");
+                Result.Failure<WebMission, IError>(new Error ($"Mission {missionTitle} not found.", ManagerErrorCode.MissionNotFound));
         }
     }
 }

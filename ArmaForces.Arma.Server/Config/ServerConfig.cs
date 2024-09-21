@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using ArmaForces.Arma.Server.Common.Errors;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 
@@ -37,7 +38,7 @@ namespace ArmaForces.Arma.Server.Config {
         /// Handles preparation of all config files.
         /// </summary>
         /// <returns></returns>
-        public Result CopyConfigFiles() {
+        public UnitResult<IError> CopyConfigFiles() {
             _logger.LogDebug("Loading ServerConfig");
             
             return GetOrCreateServerConfigDir()
@@ -56,7 +57,7 @@ namespace ArmaForces.Arma.Server.Config {
         /// Prepares serverConfig directory with files.
         /// </summary>
         /// <returns>path to serverConfig</returns>
-        private Result GetOrCreateServerConfigDir() {
+        private UnitResult<IError> GetOrCreateServerConfigDir() {
             if (!_fileSystem.Directory.Exists(DirectoryPath)) {
                 _logger.LogDebug("Config directory {Directory} does not exists, creating", _settings.ServerConfigDirectory);
                 _fileSystem.Directory.CreateDirectory(DirectoryPath);
@@ -73,7 +74,7 @@ namespace ArmaForces.Arma.Server.Config {
                 _fileSystem.File.Copy(exampleFilePath, destFileName);
             }
 
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
@@ -46,7 +47,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         /// <inheritdoc />
-        public async Task<Result> PrepareModset(Modset modset, CancellationToken cancellationToken)
+        public async Task<UnitResult<IError>> PrepareModset(Modset modset, CancellationToken cancellationToken)
             => await CheckUpdatesAndDownloadMods(modset.ActiveMods, cancellationToken)
                 .Tap(() => _logger.LogInformation("Preparation of {ModsetName} modset finished", modset.Name));
 
@@ -61,21 +62,22 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 .Tap(() => _logger.LogInformation("Update of all mods finished"));
 
         /// <inheritdoc />
-        public Result<IEnumerable<Mod>> CheckModsExist(IEnumerable<Mod> modsList)
+        public Result<IEnumerable<Mod>, IError> CheckModsExist(IEnumerable<Mod> modsList)
         {
             var missingMods = modsList
                 .ToAsyncEnumerable()
                 .WhereAwait(async mod => !await _modsCache.ModExists(mod))
                 .ToEnumerable();
-            return Result.Success(missingMods);
+            
+            return missingMods.ToResult();
         }
 
         /// <inheritdoc />
-        public async Task<Result<List<Mod>>> CheckModsUpdated(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken)
+        public async Task<Result<List<Mod>, IError>> CheckModsUpdated(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken)
         {
             if (modsList.IsEmpty())
             {
-                return Result.Success(new List<Mod>());
+                return new List<Mod>();
             }
             
             var workshopMods = modsList
@@ -100,15 +102,16 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             var modsNotInCache = workshopMods
                 .Where(x => _modsCache.Mods.NotContains(x));
             
-            return Result.Success(modsNotInCache.Concat(modsToUpdate).ToList());
+            return modsNotInCache.Concat(modsToUpdate)
+                .ToList();
         }
 
         /// <inheritdoc />
-        public async Task<Result<List<Mod>>> VerifyMods(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken)
+        public async Task<Result<List<Mod>, IError>> VerifyMods(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken)
         {
             if (modsList.IsEmpty())
             {
-                return Result.Success(new List<Mod>());
+                return new List<Mod>();
             }
             
             var modsRequireUpdate = new ConcurrentBag<Mod>();
@@ -121,7 +124,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                     .TapError(() => modsRequireUpdate.Add(mod));
             }
             
-            return Result.Success(modsRequireUpdate.ToList());
+            return modsRequireUpdate.ToList();
         }
         
         /// <summary>
@@ -129,19 +132,19 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="modsToDownload">Mods to download.</param>
         /// <param name="cancellationToken"><see cref="CancellationToken" /> used for mods download safe cancelling.</param>
-        private async Task<Result> CheckUpdatesAndDownloadMods(IEnumerable<Mod> modsToDownload, CancellationToken cancellationToken)
+        private async Task<UnitResult<IError>> CheckUpdatesAndDownloadMods(IEnumerable<Mod> modsToDownload, CancellationToken cancellationToken)
         {
             return await CheckModsUpdated(modsToDownload.ToList(), cancellationToken)
                 .Bind(modsMissingOrOutdated => DownloadMods(modsMissingOrOutdated, cancellationToken));
         }
 
-        private async Task<Result> DownloadMods(
+        private async Task<UnitResult<IError>> DownloadMods(
             IReadOnlyCollection<Mod> modsToDownload,
             CancellationToken cancellationToken)
         {
             if (modsToDownload.IsEmpty())
             {
-                return Result.Success();
+                return UnitResult.Success<IError>();
             }
             
             var downloadResults = await _contentDownloader.DownloadOrUpdateMods(
@@ -155,7 +158,8 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
 
             await _modsCache.AddOrUpdateModsInCache(successfullyDownloadedMods);
 
-            return downloadResults.Combine();
+            return downloadResults.Combine()
+                .MapError(IError (x) => new Error(x, ManagerErrorCode.ModsDownloadFailed));
         }
     }
 }

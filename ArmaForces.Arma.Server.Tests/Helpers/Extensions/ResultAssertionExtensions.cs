@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using ArmaForces.Arma.Server.Common.Errors;
+using CSharpFunctionalExtensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 
@@ -6,7 +7,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers.Extensions
 {
     public static class ResultAssertionExtensions
     {
-        public static void ShouldBeSuccess(this Result result)
+        public static void ShouldBeSuccess<TError>(this UnitResult<TError> result)
         {
             using (new AssertionScope())
             {
@@ -19,12 +20,39 @@ namespace ArmaForces.Arma.Server.Tests.Helpers.Extensions
             }
         }
 
-        public static void ShouldBeSuccess<T>(this Result<T> result)
+        public static void ShouldBeFailure<TError>(this UnitResult<TError> result, TError expectedError)
+        {
+            using (new AssertionScope())
+            {
+                result.IsFailure.Should().BeTrue();
+
+                if (result.IsFailure)
+                {
+                    result.Error.Should().BeEquivalentTo(expectedError);
+                }
+            }
+        }
+        
+        public static void ShouldBeFailure<TError>(this UnitResult<TError> result, string expectedErrorMessage)
+            where TError: IError
+        {
+            using (new AssertionScope())
+            {
+                result.IsFailure.Should().BeTrue();
+
+                if (result.IsFailure)
+                {
+                    result.Error.Message.Should().BeEquivalentTo(expectedErrorMessage);
+                }
+            }
+        }
+
+        public static void ShouldBeSuccess<T, E>(this Result<T, E> result)
         {
             result.IsSuccess.Should().BeTrue();
         }
 
-        public static void ShouldBeSuccess<T>(this Result<T> result, T expectedValue)
+        public static void ShouldBeSuccess<T, E>(this Result<T, E> result, T expectedValue)
         {
             using (new AssertionScope())
             {
@@ -41,7 +69,8 @@ namespace ArmaForces.Arma.Server.Tests.Helpers.Extensions
             }
         }
 
-        public static void ShouldBeFailure(this Result result, string expectedErrorMessage)
+        public static void ShouldBeFailure<T, E>(this Result<T, E> result, string expectedErrorMessage)
+            where E : IError
         {
             using (new AssertionScope())
             {
@@ -49,12 +78,12 @@ namespace ArmaForces.Arma.Server.Tests.Helpers.Extensions
 
                 if (result.IsFailure)
                 {
-                    result.Error.Should().BeEquivalentTo(expectedErrorMessage);
+                    result.Error.Message.Should().BeEquivalentTo(expectedErrorMessage);
                 }
             }
         }
 
-        public static void ShouldBeFailure<T>(this Result<T> result, string expectedErrorMessage)
+        public static void ShouldBeFailure<T, E>(this Result<T, E> result, E expectedError)
         {
             using (new AssertionScope())
             {
@@ -62,7 +91,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers.Extensions
 
                 if (result.IsFailure)
                 {
-                    result.Error.Should().BeEquivalentTo(expectedErrorMessage);
+                    result.Error.Should().BeEquivalentTo(expectedError);
                 }
             }
         }

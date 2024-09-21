@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.ArmaServerManager.Api.Jobs.DTOs;
 using ArmaForces.ArmaServerManager.Api.Jobs.Mappers;
 using ArmaForces.ArmaServerManager.Features.Jobs;
@@ -42,7 +43,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
             return _jobsService.DeleteJob(jobId)
                 .Match(
                     onSuccess: NoContent,
-                    onFailure: error => error.Contains("not exist")
+                    onFailure: error => error.Code.Is(ManagerErrorCode.JobNotFound)
                         ? NotFound(error)
                         : (IActionResult) UnprocessableEntity(error));
         }
@@ -100,7 +101,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
                 .Map(JobsMapper.Map)
                 .Match(
                     onSuccess: Ok,
-                    onFailure: error => (IActionResult) Problem(error));
+                    onFailure: Failure);
 
         /// <summary>Get Queued Jobs</summary>
         /// <remarks>Returns enqueued, scheduled and awaiting jobs.</remarks>
@@ -112,7 +113,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
                 .Map(JobsMapper.Map)
                 .Match(
                     onSuccess: Ok,
-                    onFailure: error => (IActionResult) Problem(error));
+                    onFailure: Failure);
 
         /// <summary>Requeue Job</summary>
         /// <remarks>
@@ -130,7 +131,7 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs
             return _jobsService.RequeueJob(jobId)
                 .Match(
                     onSuccess: NoContent,
-                    onFailure: error => error.Contains("not exists")
+                    onFailure: error => error.Code.Is(ManagerErrorCode.JobNotFound)
                         ? NotFound()
                         : (IActionResult) UnprocessableEntity(error));
         }

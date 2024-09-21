@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO.Abstractions;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Keys.Models;
 using CSharpFunctionalExtensions;
@@ -18,7 +19,7 @@ namespace ArmaForces.Arma.Server.Features.Keys.IO
             _fileSystem = fileSystem ?? new FileSystem();
         }
 
-        public Result DeleteKeys(IReadOnlyCollection<BikeyFile> bikeyFiles)
+        public UnitResult<IError> DeleteKeys(IReadOnlyCollection<BikeyFile> bikeyFiles)
         {
             foreach (var bikeyFile in bikeyFiles)
             {
@@ -27,14 +28,14 @@ namespace ArmaForces.Arma.Server.Features.Keys.IO
                 _fileSystem.File.Delete(bikeyFile.Path);
             }
 
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
 
-        public Result CopyKeys(string targetDirectory, IReadOnlyCollection<BikeyFile> bikeyFiles)
+        public UnitResult<IError> CopyKeys(string targetDirectory, IReadOnlyCollection<BikeyFile> bikeyFiles)
         {
             if (bikeyFiles.IsEmpty())
             {
-                return Result.Failure("No keys found.");
+                return new Error("No keys found.", ManagerErrorCode.KeyNotFound);
             }
 
             foreach (var modBikey in bikeyFiles)
@@ -49,7 +50,7 @@ namespace ArmaForces.Arma.Server.Features.Keys.IO
                 }
             }
 
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
     }
 }
