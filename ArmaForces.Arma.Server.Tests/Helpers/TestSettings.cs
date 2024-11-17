@@ -19,6 +19,7 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
         public string ServerExecutableName { get; set; } = "arma3.exe";
         public string? SteamUser { get; set; } = "TEST_USER";
         public string? SteamPassword { get; set; } = "TEST_PASSWORD";
+        public string? WebhookUrl { get; set; }
         
         public Result LoadSettings() => throw new System.NotImplementedException();
 
