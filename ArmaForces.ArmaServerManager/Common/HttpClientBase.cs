@@ -24,7 +24,6 @@ namespace ArmaForces.ArmaServerManager.Common
             if (httpResponseMessage.IsSuccessStatusCode)
             {
                 var responseBody = await httpResponseMessage.Content.ReadAsStringAsync();
-                
                 return JsonSerializer.Deserialize<T>(responseBody, JsonOptions.Default) ??
                        Result.Failure<T, IError>(new Error($"Failed to deserialize response: {responseBody}", ManagerErrorCode.InternalServerError));
             }

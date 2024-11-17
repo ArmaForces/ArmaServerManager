@@ -28,7 +28,8 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
             ILogger<SteamClient> logger)
         {
             var steamCredentials = new SteamCredentials(settings.SteamUser, settings.SteamPassword);
-            _bytexSteamClient = new BytexSteamClient(steamCredentials);
+            var consoleAuthenticator = new ConsoleSteamAuthenticator("arma-server-manager", settings.ManagerDirectory);
+            _bytexSteamClient = new BytexSteamClient(steamCredentials, consoleAuthenticator);
             ContentClient = new SteamContentClient(_bytexSteamClient);
             _logger = logger;
         }

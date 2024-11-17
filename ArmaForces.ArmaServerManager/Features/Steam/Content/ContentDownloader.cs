@@ -138,11 +138,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
                     return contentItem.ItemType == ItemType.App
                         ? await _steamClient.ContentClient.GetAppDataAsync(
                             SteamConstants.ArmaServerAppId,
-                            SteamConstants.ArmaDepotId,
-                            os: SteamOs.Windows)
+                            SteamConstants.ArmaDepotId)
                         : await _steamClient.ContentClient.GetPublishedFileDataAsync(
-                            contentItem.Id,
-                            os: SteamOs.Windows);
+                            contentItem.Id);
                 }
                 // This is an exception thrown randomly inside the library, not using our Cancellation Token
                 catch (TaskCanceledException)
@@ -168,7 +166,9 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             _logger.LogDebug("Starting download of {ContentItem}", contentItem);
 
             var downloadDirectory = GetModDownloadDirectory(contentItem);
-            var downloadTask = contentDownloadHandler.DownloadToFolderAsync(downloadDirectory, cancellationToken);
+            await contentDownloadHandler.SetupAsync(downloadDirectory, _ => true, cancellationToken);
+            await contentDownloadHandler.VerifyAsync(cancellationToken);
+            var downloadTask = contentDownloadHandler.DownloadAsync(cancellationToken);
 
             return await HandleDownloadTask(
                 contentItem.Id,
