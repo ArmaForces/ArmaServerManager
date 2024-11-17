@@ -13,15 +13,17 @@ namespace ArmaForces.ArmaServerManager.Services
     public class StartupService : IHostedService
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IWebhookService _webhookService;
 
         /// <inheritdoc cref="StartupService"/>
-        public StartupService(IWebHostEnvironment webHostEnvironment)
+        public StartupService(IWebHostEnvironment webHostEnvironment, IWebhookService webhookService)
         {
             _webHostEnvironment = webHostEnvironment;
+            _webhookService = webhookService;
         }
 
         /// <inheritdoc />
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             if (_webHostEnvironment.IsProduction())
             {
@@ -29,7 +31,7 @@ namespace ArmaForces.ArmaServerManager.Services
                     Cron.Daily(4));
             }
 
-            return Task.CompletedTask;
+            await _webhookService.AnnounceStart();
         }
 
         /// <inheritdoc />

@@ -28,6 +28,7 @@ namespace ArmaForces.Arma.Server.Config
         public string ServerExecutableName { get; set; } = "arma3server_x64.exe";
         public string? SteamUser { get; set; }
         public string? SteamPassword { get; set; }
+        public string? WebhookUrl { get; set; }
 
         private readonly IFileSystem _fileSystem;
         private readonly IRegistryReader _registryReader;
@@ -64,7 +65,8 @@ namespace ArmaForces.Arma.Server.Config
                 .Tap(ObtainApiMissionsBaseUrl)
                 .Tap(ObtainApiModsetsBaseUrl)
                 .Tap(ObtainSteamUserName)
-                .Tap(ObtainSteamPassword);
+                .Tap(ObtainSteamPassword)
+                .Tap(ObtainWebhookUrl);
         }
 
         public Result ReloadSettings()
@@ -86,6 +88,7 @@ namespace ArmaForces.Arma.Server.Config
             ServerExecutableName = settings.ServerExecutableName;
             SteamUser = settings.SteamUser;
             SteamPassword = settings.SteamPassword;
+            WebhookUrl = settings.WebhookUrl;
 
             var json = JsonSerializer.Serialize(this, JsonOptions.Default);
             await _fileSystem.File.WriteAllTextAsync(SettingsJsonPath, json);
@@ -113,6 +116,8 @@ namespace ArmaForces.Arma.Server.Config
         private void ObtainSteamUserName() => SteamUser ??= _config["steamUserName"];
 
         private void ObtainSteamPassword() => SteamPassword ??= _config["steamPassword"];
+        
+        private void ObtainWebhookUrl() => WebhookUrl ??= _config["webhookUrl"];
 
         private Result GetServerPath()
         {
