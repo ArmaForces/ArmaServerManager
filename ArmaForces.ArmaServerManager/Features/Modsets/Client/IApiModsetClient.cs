@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
 
@@ -13,7 +14,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.Client {
         /// Retrieves all modsets available.
         /// </summary>
         /// <returns><see cref="List{T}"/> of <see cref="WebModset"/></returns>
-        Task<Result<List<WebModset>>> GetModsets();
+        Task<Result<List<WebModset>, IError>> GetModsets();
 
         /// <summary>
         /// Retrieves modset data from API by it's name.
@@ -21,7 +22,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.Client {
         /// <param name="name">Modset name.</param>
         /// <exception cref="HttpRequestException"></exception>
         /// <returns><seealso cref="WebModset"/></returns>
-        Task<Result<WebModset>> GetModsetDataByName(string name);
+        Task<Result<WebModset, IError>> GetModsetDataByName(string name);
 
         /// <summary>
         /// Retrieves data for given <see cref="WebModset"/> from API.
@@ -29,7 +30,7 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.Client {
         /// <param name="webModset"><see cref="WebModset"/> object.</param>
         /// <exception cref="HttpRequestException"></exception>
         /// <returns><seealso cref="WebModset"/></returns>
-        Task<Result<WebModset>> GetModsetDataByModset(WebModset webModset);
+        Task<Result<WebModset, IError>> GetModsetDataByModset(WebModset webModset);
 
         /// <summary>
         /// Retrieves modset data from API by it's ID.
@@ -37,6 +38,6 @@ namespace ArmaForces.ArmaServerManager.Features.Modsets.Client {
         /// <param name="id">Modset ID</param>
         /// <exception cref="HttpRequestException"></exception>
         /// <returns><seealso cref="WebModset"/></returns>
-        Task<Result<WebModset>> GetModsetDataById(string id);
+        Task<Result<WebModset, IError>> GetModsetDataById(string id);
     }
 }

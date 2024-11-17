@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Constants;
 using ArmaForces.Arma.Server.Extensions;
 using CSharpFunctionalExtensions;
@@ -12,14 +13,14 @@ namespace ArmaForces.Arma.Server.Features.Parameters.Extractors
 {
     internal class ParametersExtractor : IParametersExtractor
     {
-        public async Task<Result<ProcessParameters>> ExtractParameters(Process process)
+        public async Task<Result<ProcessParameters, IError>> ExtractParameters(Process process)
             => await ExtractParameters(process.GetCommandLine());
 
-        public async Task<Result<ProcessParameters>> ExtractParameters(string? commandLine)
+        public async Task<Result<ProcessParameters, IError>> ExtractParameters(string? commandLine)
         {
             if (commandLine is null)
             {
-                return Result.Failure<ProcessParameters>("Command line is null, not possible to extract parameters.");
+                return new Error("Command line is null, not possible to extract parameters.", ManagerErrorCode.NoParameters);
             }
 
             // TODO: Read mods too
@@ -39,7 +40,7 @@ namespace ArmaForces.Arma.Server.Features.Parameters.Extractors
                 GetLoadMissionToMemory(commandLine),
                 await GetConnectIpAddress(commandLine));
 
-            return Result.Success(serverParameters);
+            return serverParameters;
         }
 
         private static async Task<string> GetServerCfgPath(string commandLine)

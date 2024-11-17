@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers;
@@ -45,27 +46,27 @@ namespace ArmaForces.Arma.Server.Tests.Helpers
             return new ServerStatus();
         }
 
-        public Result Start()
+        public UnitResult<IError> Start()
         {
-            if (!IsServerStopped) return Result.Failure("Server already running.");
+            if (!IsServerStopped) return new Error("Server already running.", TestErrorCode.ServerAlreadyRunning);
 
             IsServerStopped = false;
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
 
-        public async Task<Result> Shutdown()
+        public async Task<UnitResult<IError>> Shutdown()
         {
-            if (IsServerStopped) return Result.Failure("Server not running.");
+            if (IsServerStopped) return new Error("Server not running.", ManagerErrorCode.ServerStopped);
 
             IsServerStopped = true;
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
 
-        public Result AddAndStartHeadlessClients(IEnumerable<IArmaProcess> headlessClients)
-            => Result.Success();
+        public UnitResult<IError> AddAndStartHeadlessClients(IEnumerable<IArmaProcess> headlessClients)
+            => UnitResult.Success<IError>();
 
-        public Task<Result> RemoveHeadlessClients(int headlessClientsToRemove)
-            => Task.FromResult(Result.Success());
+        public Task<UnitResult<IError>> RemoveHeadlessClients(int headlessClientsToRemove)
+            => Task.FromResult(UnitResult.Success<IError>());
 
         public event Func<IDedicatedServer, Task> OnServerShutdown = null!;
 

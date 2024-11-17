@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text.Json;
+using ArmaForces.Arma.Server.Common.Errors;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -46,7 +47,7 @@ namespace ArmaForces.Arma.Server.Config
             SetProperties();
         }
 
-        public Result CopyConfigFiles()
+        public UnitResult<IError> CopyConfigFiles()
         {
             return _serverConfig.CopyConfigFiles()
                 .Bind(GetOrCreateModsetConfigDir)
@@ -89,7 +90,7 @@ namespace ArmaForces.Arma.Server.Config
         /// Prepares config directory and files for current modset
         /// </summary>
         /// <returns>path to modsetConfig</returns>
-        private Result GetOrCreateModsetConfigDir()
+        private UnitResult<IError> GetOrCreateModsetConfigDir()
         {
             // Check for directory if present
             if (!_fileSystem.Directory.Exists(DirectoryPath))
@@ -98,11 +99,11 @@ namespace ArmaForces.Arma.Server.Config
             }
 
             return _fileSystem.File.Exists(ConfigJson)
-                ? Result.Success()
+                ? UnitResult.Success<IError>()
                 : CreateConfigJson();
         }
 
-        private Result CreateConfigJson()
+        private UnitResult<IError> CreateConfigJson()
         {
             // Set hostName according to pattern
             var sampleServer = new Dictionary<string, string>();
@@ -116,13 +117,13 @@ namespace ArmaForces.Arma.Server.Config
                 var serializedJson = JsonSerializer.Serialize(sampleJSON, serializerOptions);
                 file.Write(serializedJson);
             }
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
 
         /// <summary>
         /// Prepares modset cfg files for server to load.
         /// </summary>
-        private Result PrepareModsetConfig()
+        private UnitResult<IError> PrepareModsetConfig()
         {
             // Apply modset config on top of default config
             var modsetConfig = new ConfigurationBuilder()
@@ -135,7 +136,7 @@ namespace ArmaForces.Arma.Server.Config
             CreateConfigFiles(_serverConfig.BasicCfg, BasicCfg, modsetConfig);
             CreateConfigFiles(_serverConfig.ServerCfg, ServerCfg, modsetConfig);
 
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
 
         private void CreateConfigFiles(

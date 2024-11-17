@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Parameters;
 using CSharpFunctionalExtensions;
 
@@ -17,9 +18,9 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         DateTimeOffset? StartTime { get; }
 
-        Result Start();
+        UnitResult<IError> Start();
 
-        Task<Result> Shutdown();
+        Task<UnitResult<IError>> Shutdown();
 
         public event Func<IArmaProcess, Task> OnProcessShutdown;
     }

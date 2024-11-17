@@ -1,4 +1,4 @@
-﻿using ArmaForces.ArmaServerManager.Features.Modsets;
+using ArmaForces.ArmaServerManager.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Modsets.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Steam;
 using ArmaForces.ArmaServerManager.Features.Steam.Content;

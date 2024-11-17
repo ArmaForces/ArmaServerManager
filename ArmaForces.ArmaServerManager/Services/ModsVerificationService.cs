@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Mods;
@@ -25,18 +26,18 @@ namespace ArmaForces.ArmaServerManager.Services
         }
 
         /// <inheritdoc />
-        public async Task<Result> VerifyModset(string modsetName, CancellationToken cancellationToken)
+        public async Task<UnitResult<IError>> VerifyModset(string modsetName, CancellationToken cancellationToken)
             => await _modsetProvider.GetModsetByName(modsetName)
                 .Bind(x => VerifyModset(x, cancellationToken));
 
         /// <inheritdoc />
-        public async Task<Result> VerifyModset(Modset modset, CancellationToken cancellationToken)
+        public async Task<UnitResult<IError>> VerifyModset(Modset modset, CancellationToken cancellationToken)
         {
             return await _modsManager.VerifyMods(modset.Mods.ToList(), cancellationToken);
         }
         
         /// <inheritdoc />
-        public async Task<Result> VerifyMods(IEnumerable<Mod> mods, CancellationToken cancellationToken)
+        public async Task<UnitResult<IError>> VerifyMods(IEnumerable<Mod> mods, CancellationToken cancellationToken)
         {
             return await _modsManager.VerifyMods(mods.ToList(), cancellationToken);
         }
