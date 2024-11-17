@@ -4,6 +4,8 @@ using ArmaForces.Arma.Server.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.Discord;
 
 namespace ArmaForces.ArmaServerManager.Infrastructure.Logging
 {
@@ -21,6 +23,7 @@ namespace ArmaForces.ArmaServerManager.Infrastructure.Logging
             .ReadFrom.Services(services)
             .Enrich.FromLogContext()
             .WriteTo.Console(outputTemplate: OutputTemplate)
+            .AddDiscordSinkIfConfigured(services)
             .WriteTo.File(GetFileLogsPath(services),
                 rollingInterval: RollingInterval.Day,
                 rollOnFileSizeLimit: true,
@@ -31,6 +34,20 @@ namespace ArmaForces.ArmaServerManager.Infrastructure.Logging
             var settings = services.GetRequiredService<ISettings>();
             
             return Path.Join(settings.ManagerDirectory, LogsDirectoryName, LogFileName);
+        }
+
+        private static LoggerConfiguration AddDiscordSinkIfConfigured(this LoggerConfiguration loggerConfiguration, IServiceProvider services)
+        {
+            var settings = services.GetRequiredService<ISettings>();
+            if (settings.WebhookUrl == null) return loggerConfiguration;
+            
+            var webhookUrlSplit = settings.WebhookUrl.Split('/');
+            var webhookToken = webhookUrlSplit[-1];
+            var webhookIdParsed = ulong.TryParse(webhookUrlSplit[-2], out var webhookId);
+            if (!webhookIdParsed) return loggerConfiguration;
+
+            return loggerConfiguration
+                .WriteTo.Discord(webhookId, webhookToken, restrictedToMinimumLevel: LogEventLevel.Error);
         }
     }
 }
