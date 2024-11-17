@@ -5,13 +5,13 @@ using System.Net;
 using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Infrastructure.Authentication
 {
@@ -73,7 +73,7 @@ namespace ArmaForces.ArmaServerManager.Infrastructure.Authentication
             => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(extractedApiKey)));
 
         private static string CreateErrorContent(string errorMessage)
-            => JsonConvert.SerializeObject(new ErrorContent {ErrorMessage = errorMessage});
+            => JsonSerializer.Serialize(new ErrorContent {ErrorMessage = errorMessage});
 
         private class ErrorContent
         {

@@ -32,7 +32,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             var incorrectFilesResult = await VerifyAllFiles(contentItem, cancellationToken);
 
             return incorrectFilesResult
-                .OnFailure(() => LogFailedToVerifyItem(contentItem))
+                .TapError(() => LogFailedToVerifyItem(contentItem))
                 .OnFailureCompensate(() => new List<ManifestFile>())
                 .Bind(x => x.Any()
                     ? Result.Failure<ContentItem>("One or more files are either missing or require update.")

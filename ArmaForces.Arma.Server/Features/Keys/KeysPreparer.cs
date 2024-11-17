@@ -77,8 +77,8 @@ namespace ArmaForces.Arma.Server.Features.Keys
             {
                 CopyKeysForMod(mod)
                     .Tap(modBikeys => modBikeysList.Add(modBikeys))
-                    .OnFailure(error => LogKeysCopyError(mod, error))
-                    .OnFailure(_ => modBikeysList.Add(new ModBikeys(mod)));
+                    .TapError(error => LogKeysCopyError(mod, error))
+                    .TapError(_ => modBikeysList.Add(new ModBikeys(mod)));
             }
 
             _logger.LogInformation(

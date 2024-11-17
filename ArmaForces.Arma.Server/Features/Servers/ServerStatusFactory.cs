@@ -20,16 +20,18 @@ namespace ArmaForces.Arma.Server.Features.Servers
             var ipEndPoint = new IPEndPoint(IPAddress.Loopback, dedicatedServer.SteamQueryPort);
             var serverInfo = await A2SInfo.GetServerInfoAsync(ipEndPoint, cancellationToken, _logger);
 
-            return new ServerStatus(
-                GetServerStatusEnum(dedicatedServer, serverInfo),
-                serverInfo?.Name,
-                dedicatedServer?.Modset.Name,
-                serverInfo?.Map,
-                serverInfo?.Players,
-                serverInfo?.MaxPlayers,
-                dedicatedServer?.Port,
-                dedicatedServer?.StartTime,
-                dedicatedServer?.HeadlessClientsConnected);
+            return new ServerStatus
+            {
+                Status = GetServerStatusEnum(dedicatedServer, serverInfo),
+                Name = serverInfo?.Name,
+                ModsetName = dedicatedServer.Modset.Name,
+                Map = serverInfo?.Map,
+                Players = serverInfo?.Players,
+                PlayersMax = serverInfo?.MaxPlayers,
+                Port = dedicatedServer?.Port,
+                StartTime = dedicatedServer?.StartTime,
+                HeadlessClientsConnected = dedicatedServer?.HeadlessClientsConnected
+            };
         }
 
         private static ServerStatusEnum GetServerStatusEnum(IDedicatedServer? dedicatedServer, A2SInfo? serverInfo)

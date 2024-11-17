@@ -27,7 +27,7 @@ namespace ArmaForces.ArmaServerManager.Features.Missions
         {
             return await GetUpcomingMissions()
                 .Bind(GetMissionModsets)
-                .OnFailure(error => Result.Failure<ISet<string>>($"Upcoming missions modsets names could not be retrieved, error: {error}"));
+                .TapError(error => Result.Failure<ISet<string>>($"Upcoming missions modsets names could not be retrieved, error: {error}"));
         }
 
         private Result<HashSet<string>> GetMissionModsets(IReadOnlyCollection<WebMission> missions)

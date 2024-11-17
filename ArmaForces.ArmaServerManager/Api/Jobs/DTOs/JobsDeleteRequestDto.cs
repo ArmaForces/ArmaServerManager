@@ -1,5 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs
 {
@@ -11,13 +10,11 @@ namespace ArmaForces.ArmaServerManager.Api.Jobs.DTOs
         /// <summary>
         /// TODO:
         /// </summary>
-        [JsonProperty("deleteFrom", Required = Required.Always)]
-        public DateTime? DeleteFrom { get; init; }
+        public required DateTime DeleteFrom { get; init; }
         
         /// <summary>
         /// TODO:
         /// </summary>
-        [JsonProperty("deleteTo", Required = Required.Always)]
-        public DateTime? DeleteTo { get; init; }
+        public required DateTime DeleteTo { get; init; }
     }
 }

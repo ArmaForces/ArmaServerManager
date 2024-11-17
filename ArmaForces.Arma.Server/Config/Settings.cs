@@ -1,11 +1,12 @@
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Text.Json;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Constants;
 using ArmaForces.Arma.Server.Exceptions;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 
 namespace ArmaForces.Arma.Server.Config
 {
@@ -50,7 +51,7 @@ namespace ArmaForces.Arma.Server.Config
         public static Settings LoadSettings(IServiceProvider serviceProvider)
         {
             var json = File.ReadAllTextAsync(SettingsJsonPath).Result;
-            return JsonConvert.DeserializeObject<Settings>(json);
+            return JsonSerializer.Deserialize<Settings>(json);
         }
 
         public Result LoadSettings()
@@ -86,7 +87,7 @@ namespace ArmaForces.Arma.Server.Config
             SteamUser = settings.SteamUser;
             SteamPassword = settings.SteamPassword;
 
-            var json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            var json = JsonSerializer.Serialize(this, JsonOptions.Default);
             await _fileSystem.File.WriteAllTextAsync(SettingsJsonPath, json);
 
             return Result.Success();

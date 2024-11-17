@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Config;
+using ArmaForces.Arma.Server.Constants;
 using ArmaForces.Arma.Server.Features.Dlcs;
 using ArmaForces.Arma.Server.Features.Dlcs.Constants;
 using ArmaForces.Arma.Server.Features.Mods;
@@ -10,14 +13,11 @@ using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
-using Newtonsoft.Json;
 
 namespace ArmaForces.ArmaServerManager.Features.Mods
 {
     internal class ModsCache : IModsCache, IWebModsetMapper
     {
-        private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings{Formatting = Formatting.Indented};
-        
         private readonly IModDirectoryFinder _modDirectoryFinder;
         private readonly IFileSystem _fileSystem;
         private readonly string _cacheFilePath;
@@ -217,11 +217,22 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
                 return Result.Failure<ISet<Mod>>("Cache file does not exist.");
 
             var jsonString = await _fileSystem.File.ReadAllTextAsync(_cacheFilePath);
-            var mods = JsonConvert.DeserializeObject<IEnumerable<Mod>>(jsonString)?
-                .ToHashSet() ?? new HashSet<Mod>();
+            var mods = TryLoadCacheFromJson(jsonString)?.ToHashSet() ?? new HashSet<Mod>();
             var cachedMods = FilterOutNonExistingMods(mods);
 
             return Result.Success(cachedMods);
+        }
+
+        private static IEnumerable<Mod>? TryLoadCacheFromJson(string jsonString)
+        {
+            try
+            {
+                return JsonSerializer.Deserialize<IEnumerable<Mod>>(jsonString, JsonOptions.Default);
+            }
+            catch (JsonException)
+            {
+                return JsonSerializer.Deserialize<IEnumerable<Mod>>(jsonString, JsonOptions.Legacy);
+            }
         }
 
         /// <summary>
@@ -254,7 +265,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             _fileSystem.Directory.CreateDirectory(_modsPath);
             
             await _fileSystem.File.WriteAllTextAsync(_cacheFilePath,
-                JsonConvert.SerializeObject(_mods, _serializerSettings));
+                JsonSerializer.Serialize(_mods, JsonOptions.Default));
         }
     }
 }
