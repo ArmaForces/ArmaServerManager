@@ -113,7 +113,7 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
             if (contentItem.ItemType == ItemType.App)
                 throw new NotImplementedException("Downloading Arma 3 Server is not supported yet.");
             
-            var downloadHandler = await GetDownloadHandler(contentItem);
+            var downloadHandler = await GetDownloadHandler(contentItem, cancellationToken);
 
             var downloadResult = await Download(
                 contentItem,
@@ -128,23 +128,28 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
         /// <summary>
         /// TODO: Do it better
         /// </summary>
-        private async Task<IDownloadHandler> GetDownloadHandler(ContentItem contentItem)
+        private async Task<IDownloadHandler> GetDownloadHandler(ContentItem contentItem, CancellationToken cancellationToken)
         {
             var errors = 0;
             while (errors < 10)
             {
                 try
                 {
+                    _logger.LogTrace("Opening download handler for item {Id}", contentItem.Id);
+                    
                     return contentItem.ItemType == ItemType.App
                         ? await _steamClient.ContentClient.GetAppDataAsync(
                             SteamConstants.ArmaServerAppId,
-                            SteamConstants.ArmaDepotId)
+                            SteamConstants.ArmaDepotId,
+                            cancellationToken: cancellationToken)
                         : await _steamClient.ContentClient.GetPublishedFileDataAsync(
-                            contentItem.Id);
+                            contentItem.Id,
+                            cancellationToken: cancellationToken);
                 }
                 // This is an exception thrown randomly inside the library, not using our Cancellation Token
-                catch (TaskCanceledException)
+                catch (TaskCanceledException exception)
                 {
+                    _logger.LogWarning(exception, "Download handler cancelled");
                     errors += 1;
                 }
                 catch (Exception exception)
