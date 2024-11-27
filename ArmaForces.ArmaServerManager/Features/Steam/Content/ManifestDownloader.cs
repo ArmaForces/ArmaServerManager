@@ -57,7 +57,12 @@ namespace ArmaForces.ArmaServerManager.Features.Steam.Content
 
             var taskCanceledPolicy = Policy<ulong>
                 .Handle<TaskCanceledException>()
-                .FallbackAsync(Task.FromCanceled<ulong>);
+                .FallbackAsync(
+                    fallbackAction: Task.FromCanceled<ulong>,
+                    onFallbackAsync: x => {
+                        LogManifestIdDownloadFailure(x.Exception, contentItem);
+                        return Task.CompletedTask;
+                    });
 
             var policy = Policy.WrapAsync(asyncJobFailedPolicy, taskCanceledPolicy);
 
