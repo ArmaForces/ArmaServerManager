@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +6,7 @@ using ArmaForces.Arma.Server.Config;
 using BytexDigital.Steam.ContentDelivery;
 using BytexDigital.Steam.Core;
 using Microsoft.Extensions.Logging;
+using AuthenticationException = SteamKit2.Authentication.AuthenticationException;
 using BytexSteamClient = BytexDigital.Steam.Core.SteamClient;
 
 namespace ArmaForces.ArmaServerManager.Features.Steam
@@ -54,16 +55,22 @@ namespace ArmaForces.ArmaServerManager.Features.Steam
 
             if (cancellationToken.IsCancellationRequested)
             {
-                connectCancellationTokenSource.Cancel();
+                await connectCancellationTokenSource.CancelAsync();
                 _logger.LogError("Could not ensure connection to Steam in 10 seconds");
                 throw new OperationCanceledException(cancellationToken);
             }
 
             if (connectTask.Status == TaskStatus.WaitingForActivation)
             {
-                connectCancellationTokenSource.Cancel();
+                await connectCancellationTokenSource.CancelAsync();
                 _logger.LogError("Invalid Steam credentials");
                 throw new InvalidCredentialException("Invalid Steam Credentials");
+            }
+
+            if (connectTask.Status == TaskStatus.Faulted)
+            {
+                _logger.LogError(connectTask.Exception, "Could not ensure connection to Steam in 10 seconds");
+                throw connectTask.Exception ?? throw new AuthenticationException("Failed connecting to Steam");
             }
 
             _isConnected = true;
