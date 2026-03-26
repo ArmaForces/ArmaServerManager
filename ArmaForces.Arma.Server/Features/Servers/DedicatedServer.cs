@@ -5,8 +5,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Exceptions;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Keys;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
@@ -75,7 +77,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         public void Dispose() => Task.Run(Shutdown);
 
-        public Result Start()
+        public UnitResult<IError> Start()
         {
             if (!IsServerStopped) throw new ServerRunningException();
             if (_serverWasStarted) throw new InvalidOperationException("Cannot start a previously stopped server.");
@@ -91,7 +93,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
                     .Combine());
         }
 
-        public async Task<Result> Shutdown()
+        public async Task<UnitResult<IError>> Shutdown()
         {
             return await _serverProcess.Shutdown()
                 .Tap(() => _logger.LogInformation("Server shutdown completed on port {Port}", Port))
@@ -102,15 +104,15 @@ namespace ArmaForces.Arma.Server.Features.Servers
         public async Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken) 
             => await _serverStatusFactory.GetServerStatus(this, cancellationToken);
 
-        public Result AddAndStartHeadlessClients(IEnumerable<IArmaProcess> headlessClients)
+        public UnitResult<IError> AddAndStartHeadlessClients(IEnumerable<IArmaProcess> headlessClients)
             => IsServerStopped && _serverWasStarted
-                ? Result.Failure("The server has been shut down.")
+                ? new Error("The server has been shut down.", ManagerErrorCode.ServerStopped)
                 : AddAndStartHeadlessClientsInternal(headlessClients).Combine();
 
-        public async Task<Result> RemoveHeadlessClients(int headlessClientsToRemove)
+        public async Task<UnitResult<IError>> RemoveHeadlessClients(int headlessClientsToRemove)
         {
             if (IsServerStopped && _serverWasStarted)
-                return Result.Failure("The server has been shut down.");
+                return new Error("The server has been shut down.", ManagerErrorCode.ServerStopped);
             
             var poppedClients = new IArmaProcess[headlessClientsToRemove];
             _headlessProcesses.TryPopRange(poppedClients, startIndex: 0, headlessClientsToRemove);
@@ -118,7 +120,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
             return await ShutdownHeadlessClients(poppedClients);
         }
 
-        private IEnumerable<Result> AddAndStartHeadlessClientsInternal(IEnumerable<IArmaProcess> headlessClients)
+        private IEnumerable<UnitResult<IError>> AddAndStartHeadlessClientsInternal(IEnumerable<IArmaProcess> headlessClients)
         {
             foreach (var headlessClient in headlessClients
                          .Where(x => x.ProcessType == ArmaProcessType.HeadlessClient))
@@ -168,7 +170,7 @@ namespace ArmaForces.Arma.Server.Features.Servers
             if (OnServerRestarted != null) await OnServerRestarted.Invoke(this);
         }
 
-        private async Task<Result> ShutdownHeadlessClients(IEnumerable<IArmaProcess> headlessProcesses)
+        private async Task<UnitResult<IError>> ShutdownHeadlessClients(IEnumerable<IArmaProcess> headlessProcesses)
         {
             return await headlessProcesses
                 .AsParallel()
@@ -177,11 +179,11 @@ namespace ArmaForces.Arma.Server.Features.Servers
                 .Tap(() => _logger.LogDebug("Headless clients shutdown completed"));
         }
 
-        private async Task<Result> InvokeOnServerShutdown()
+        private async Task<UnitResult<IError>> InvokeOnServerShutdown()
         {
             _logger.LogDebug("Invoking OnServerShutdown event on port {Port}", Port);
             if (OnServerShutdown != null) await OnServerShutdown.Invoke(this);
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
     }
 }

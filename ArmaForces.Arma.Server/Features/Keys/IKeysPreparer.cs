@@ -1,10 +1,11 @@
-﻿using ArmaForces.Arma.Server.Features.Modsets;
+﻿using ArmaForces.Arma.Server.Common.Errors;
+using ArmaForces.Arma.Server.Features.Modsets;
 using CSharpFunctionalExtensions;
 
 namespace ArmaForces.Arma.Server.Features.Keys
 {
     public interface IKeysPreparer
     {
-        Result PrepareKeysForModset(Modset modset);
+        UnitResult<IError> PrepareKeysForModset(Modset modset);
     }
 }

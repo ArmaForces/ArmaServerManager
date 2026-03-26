@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Exceptions;
 using ArmaForces.Arma.Server.Features.Keys;
@@ -42,7 +43,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
 
             _modsetConfigMock
                 .Setup(x => x.CopyConfigFiles())
-                .Returns(Result.Success);
+                .Returns(UnitResult.Success<IError>);
         }
 
         [Fact]
@@ -116,7 +117,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
             var armaProcessMock = new Mock<IArmaProcess>();
             armaProcessMock
                 .Setup(x => x.Start())
-                .Returns(Result.Success);
+                .Returns(UnitResult.Success<IError>());
             armaProcessMock
                 .Setup(x => x.IsStopped)
                 .Returns(false);
@@ -151,7 +152,7 @@ namespace ArmaForces.Arma.Server.Tests.Features.Servers
             
             armaProcessMock
                 .Setup(x => x.Start())
-                .Returns(Result.Success);
+                .Returns(UnitResult.Success<IError>());
             armaProcessMock
                 .Setup(x => x.IsStopped)
                 .Returns(true);

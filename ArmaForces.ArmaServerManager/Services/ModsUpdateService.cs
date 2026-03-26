@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Mods;
@@ -25,13 +26,13 @@ namespace ArmaForces.ArmaServerManager.Services
             _modsetProvider = modsetProvider;
         }
 
-        public async Task<Result> UpdateModset(string modsetName, CancellationToken cancellationToken)
+        public async Task<UnitResult<IError>> UpdateModset(string modsetName, CancellationToken cancellationToken)
         {
             return await _modsetProvider.GetModsetByName(modsetName)
                 .Bind(x => UpdateModset(x, cancellationToken));
         }
 
-        public async Task<Result> UpdateModset(Modset modset, CancellationToken cancellationToken)
+        public async Task<UnitResult<IError>> UpdateModset(Modset modset, CancellationToken cancellationToken)
         {
             return await _modsManager.PrepareModset(modset, cancellationToken);
         }

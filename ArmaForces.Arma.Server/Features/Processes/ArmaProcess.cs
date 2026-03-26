@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Parameters;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
@@ -57,9 +58,9 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
         public event Func<IArmaProcess, Task>? OnProcessShutdown;
 
-        public Result Start()
+        public UnitResult<IError> Start()
         {
-            if (!IsStopped) return Result.Success();
+            if (!IsStopped) return UnitResult.Success<IError>();
 
             try
             {
@@ -75,7 +76,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Arma 3 process could not be started");
-                return Result.Failure("Arma 3 process could not be started.");
+                return new Error("Arma 3 process could not be started.", ManagerErrorCode.ProcessStartFailed);
             }
 
             _process!.EnableRaisingEvents = true;
@@ -83,15 +84,15 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
             _logger.LogInformation("Starting Arma 3 {ProcessType}", ProcessType);
 
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
 
-        public async Task<Result> Shutdown()
+        public async Task<UnitResult<IError>> Shutdown()
         {
             if (IsStopped || _process is null)
             {
                 _logger.LogInformation("Process not running");
-                return Result.Failure("Process could not be shut down because it's not running.");
+                return new Error("Process could not be shut down because it's not running.", ManagerErrorCode.ProcessNotRunning);
             }
 
             _logger.LogDebug("Shutting down the {ProcessType}: {ProcessName}", ProcessType, _process.ProcessName);
@@ -109,7 +110,7 @@ namespace ArmaForces.Arma.Server.Features.Processes
 
             _logger.LogInformation("Server successfully shut down");
 
-            return Result.Success();
+            return UnitResult.Success<IError>();
         }
 
         private void InvokeOnProcessShutdown()

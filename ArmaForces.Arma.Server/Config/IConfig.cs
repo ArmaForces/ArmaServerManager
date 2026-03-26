@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using ArmaForces.Arma.Server.Common.Errors;
+using CSharpFunctionalExtensions;
 
 namespace ArmaForces.Arma.Server.Config {
     public interface IConfig {
@@ -26,6 +27,6 @@ namespace ArmaForces.Arma.Server.Config {
         /// Copies and fills config files.
         /// </summary>
         /// <returns>Result</returns>
-        Result CopyConfigFiles();
+        UnitResult<IError> CopyConfigFiles();
     }
 }

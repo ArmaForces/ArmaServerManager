@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using CSharpFunctionalExtensions;
@@ -16,14 +17,14 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// <param name="modset">Modset to prepare.</param>
         /// <param name="cancellationToken"></param>
         /// <returns><see cref="Result.Success"/> if all mods from <see cref="ArmaForces.Arma.Server.Features.Modsets.Modset"/> are downloaded and up to date.</returns>
-        Task<Result> PrepareModset(Modset modset, CancellationToken cancellationToken);
+        Task<UnitResult<IError>> PrepareModset(Modset modset, CancellationToken cancellationToken);
 
         /// <summary>
         /// Checks if all mods from given list exist.
         /// </summary>
         /// <param name="modsList">List of mods to check.</param>
         /// <returns><see cref="Result{T}"/> with missing mods.</returns>
-        Result<IEnumerable<Mod>> CheckModsExist(IEnumerable<Mod> modsList);
+        Result<IEnumerable<Mod>, IError> CheckModsExist(IEnumerable<Mod> modsList);
 
         /// <summary>
         /// Checks if all mods from given list are up to date.
@@ -31,7 +32,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// <param name="modsList">List of mods to check.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns><see cref="Result{T}"/> with outdated mods.</returns>
-        Task<Result<List<Mod>>> CheckModsUpdated(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken);
+        Task<Result<List<Mod>, IError>> CheckModsUpdated(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates given <paramref name="mods"/>.
@@ -52,6 +53,6 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// <param name="modsList">List of mods to verify.</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns><see cref="Result{T}"/> with mods which failed verification.</returns>
-        Task<Result<List<Mod>>> VerifyMods(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken);
+        Task<Result<List<Mod>, IError>> VerifyMods(IReadOnlyCollection<Mod> modsList, CancellationToken cancellationToken);
     }
 }

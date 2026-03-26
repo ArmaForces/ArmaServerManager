@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
 using CSharpFunctionalExtensions;
@@ -18,7 +19,7 @@ public interface IModsVerificationService
     /// <param name="modset">Modset with mods to verify.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Successful result if all mods were verified correctly.</returns>
-    Task<Result> VerifyModset(Modset modset, CancellationToken cancellationToken);
+    Task<UnitResult<IError>> VerifyModset(Modset modset, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves modset with given <paramref name="modsetName"/> and runs a detailed verification.
@@ -26,7 +27,7 @@ public interface IModsVerificationService
     /// <param name="modsetName">Name of the modset to retrieve and verify.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Successful result if all mods were verified correctly.</returns>
-    Task<Result> VerifyModset(string modsetName, CancellationToken cancellationToken);
+    Task<UnitResult<IError>> VerifyModset(string modsetName, CancellationToken cancellationToken);
     
     /// <summary>
     /// Runs detailed verification of <paramref name="mods"/>.
@@ -34,5 +35,5 @@ public interface IModsVerificationService
     /// <param name="mods">List of mods to verify.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Successful result if all mods were verified correctly.</returns>
-    Task<Result> VerifyMods(IEnumerable<Mod> mods, CancellationToken cancellationToken);
+    Task<UnitResult<IError>> VerifyMods(IEnumerable<Mod> mods, CancellationToken cancellationToken);
 }

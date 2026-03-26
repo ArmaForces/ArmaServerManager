@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Modsets;
 using ArmaForces.Arma.Server.Features.Processes;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
@@ -25,13 +26,13 @@ namespace ArmaForces.Arma.Server.Features.Servers
 
         Task<ServerStatus> GetServerStatusAsync(CancellationToken cancellationToken);
 
-        Result Start();
+        UnitResult<IError> Start();
 
-        Task<Result> Shutdown();
+        Task<UnitResult<IError>> Shutdown();
 
-        Result AddAndStartHeadlessClients(IEnumerable<IArmaProcess> headlessClients);
+        UnitResult<IError> AddAndStartHeadlessClients(IEnumerable<IArmaProcess> headlessClients);
 
-        Task<Result> RemoveHeadlessClients(int headlessClientsToRemove);
+        Task<UnitResult<IError>> RemoveHeadlessClients(int headlessClientsToRemove);
 
         public event Func<IDedicatedServer, Task> OnServerShutdown;
 

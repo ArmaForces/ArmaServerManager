@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Features.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Api.Servers.DTOs;
 using ArmaForces.ArmaServerManager.Common;
 using ArmaForces.ArmaServerManager.Features.Jobs;
+using ArmaForces.ArmaServerManager.Features.Modsets;
 using ArmaForces.ArmaServerManager.Features.Servers;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Services;
@@ -25,16 +27,19 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         private readonly IJobsScheduler _jobsScheduler;
         private readonly IServerQueryLogic _serverQueryLogic;
         private readonly IServerCommandLogic _serverCommandLogic;
+        private readonly IModsetProvider _modsetProvider;
 
         /// <inheritdoc />
         public ServersController(
             IJobsScheduler jobsScheduler,
             IServerQueryLogic serverQueryLogic,
-            IServerCommandLogic serverCommandLogic)
+            IServerCommandLogic serverCommandLogic,
+            IModsetProvider modsetProvider)
         {
             _jobsScheduler = jobsScheduler;
             _serverQueryLogic = serverQueryLogic;
             _serverCommandLogic = serverCommandLogic;
+            _modsetProvider = modsetProvider;
         }
 
         /// <summary>Get Servers Status</summary>
@@ -74,8 +79,8 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
-        public IActionResult StartServer([FromBody] ServerStartRequestDto startRequestDto)
-            => StartServer(startRequestDto.Port, startRequestDto);
+        public async Task<IActionResult> StartServer([FromBody] ServerStartRequestDto startRequestDto)
+            => await StartServer(startRequestDto.Port, startRequestDto);
 
         /// <summary>StartServer</summary>
         /// <remarks>Starts server on given <paramref name="port"/>.</remarks>
@@ -84,21 +89,24 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
         [ProducesResponseType(typeof(string), StatusCodesExtended.Status425TooEarly)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [ApiKey]
-        public IActionResult StartServer(int port, [FromBody] ServerStartRequestDto serverStartRequestDto)
+        public async Task<IActionResult> StartServer(int port, [FromBody] ServerStartRequestDto serverStartRequestDto)
         {
-            var result = _jobsScheduler.ScheduleJob<ServerStartupService>(
+            var result = await _modsetProvider.GetModsetByName(serverStartRequestDto.ModsetName)
+                .Bind(_ => _jobsScheduler.ScheduleJob<ServerStartupService>(
                     x => x.ShutdownServer(
                         port,
                         serverStartRequestDto.ForceRestart ?? false,
                         CancellationToken.None),
-                    serverStartRequestDto.ScheduleAt)
+                    serverStartRequestDto.ScheduleAt))
                 .Bind(shutdownJobId => _jobsScheduler.ContinueJobWith<ServerStartupService>(
                     shutdownJobId,
                     x => x.StartServer(serverStartRequestDto.ModsetName, serverStartRequestDto.HeadlessClients, CancellationToken.None)));
             
             return result.Match(
                 onSuccess: JobAccepted,
-                onFailure: TooEarly);
+                onFailure: error => error.Code.Is(HttpStatusCode.NotFound)
+                    ? ModsetNotFound(error)
+                    : TooEarly(error));
         }
 
         /// <summary>Set Headless Clients</summary>
@@ -159,7 +167,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
 
         /// <summary>Shutdown Server</summary>
         /// <remarks>Shutdowns server on given <paramref name="port"/>.</remarks>
-        /// <param name="port">Port of the server to shutdown.</param>
+        /// <param name="port">Port of the server to shut down.</param>
         [HttpPost("{port:int}/shutdown", Name = nameof(ShutdownServer))]
         [ProducesResponseType(typeof(int), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
@@ -175,7 +183,7 @@ namespace ArmaForces.ArmaServerManager.Api.Servers
 
             return serverShutdownJob.IsSuccess
                 ? Accepted()
-                : Problem(serverShutdownJob.Error);
+                : Failure(serverShutdownJob.Error);
         }
     }
 }

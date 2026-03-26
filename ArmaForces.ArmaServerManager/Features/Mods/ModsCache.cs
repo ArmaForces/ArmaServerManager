@@ -4,12 +4,15 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Config;
 using ArmaForces.Arma.Server.Constants;
+using ArmaForces.Arma.Server.Extensions;
 using ArmaForces.Arma.Server.Features.Dlcs;
 using ArmaForces.Arma.Server.Features.Dlcs.Constants;
 using ArmaForces.Arma.Server.Features.Mods;
 using ArmaForces.Arma.Server.Features.Modsets;
+using ArmaForces.ArmaServerManager.Common.Errors;
 using ArmaForces.ArmaServerManager.Extensions;
 using ArmaForces.ArmaServerManager.Features.Modsets.DTOs;
 using CSharpFunctionalExtensions;
@@ -41,7 +44,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             // Blocking on asynchronous code as it's only done once at app startup
             _mods = LoadCache()
                 .Result
-                .OnFailureCompensate(x => BuildCacheFromModsDirectory())
+                .OnFailureCompensate(_ => BuildCacheFromModsDirectory())
                 .Value;
             
             SaveCache().Wait();
@@ -56,9 +59,9 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
             var result = await GetModInCache(mod)
                 .Bind(
                     x => x.Exists(_fileSystem)
-                        ? Result.Success(x)
-                        : Result.Failure<Mod>("Mod's directory doesn't exist."))
-                .OnFailureCompensate(error => TryFindModInModsDirectory(mod))
+                        ? x.ToResult()
+                        : new Error("Mod's directory doesn't exist.", ManagerErrorCode.ModDirectoryNotExists))
+                .OnFailureCompensate(_ => TryFindModInModsDirectory(mod))
                 .Bind(AddOrUpdateModInCache)
                 .Tap(SaveCache);
 
@@ -86,11 +89,11 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         }
 
         /// <inheritdoc />
-        public async Task<Result<List<Mod>>> AddOrUpdateModsInCache(IReadOnlyCollection<Mod> mods)
+        public async Task<Result<List<Mod>, IError>> AddOrUpdateModsInCache(IReadOnlyCollection<Mod> mods)
         {
             return await mods.Select(AddOrUpdateModInCache)
                 .Combine()
-                .Bind(x => Result.Success(x.ToList()))
+                .Map(x => x.ToList())
                 .Tap(async _ => await SaveCache());
         }
 
@@ -99,13 +102,13 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="mod">Mod to retrieve from cache.</param>
         /// <returns>Successful <see cref="Result"/> if mod was retrieved from cache, failure if it doesn't exist.</returns>
-        private Result<Mod> GetModInCache(Mod mod)
+        private Result<Mod, IError> GetModInCache(Mod mod)
         {
             var modInCache = _mods.SingleOrDefault(x => x.Equals(mod));
 
             return modInCache is null
-                ? Result.Failure<Mod>("Mod doesn't exist in cache.")
-                : Result.Success(modInCache);
+                ? new Error("Mod doesn't exist in cache.", ManagerErrorCode.ModNotFoundInCache)
+                : modInCache;
         }
 
         /// <summary>
@@ -114,7 +117,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="mod">Mod data to update corresponding mod in cache.</param>
         /// <returns>Successful <see cref="Result"/> if mod data was updated properly, failure if <see cref="Mod"/> doesn't exist in cache.</returns>
-        private Result<Mod> UpdateModInCache(Mod mod)
+        private Result<Mod, IError> UpdateModInCache(Mod mod)
         {
             return RemoveModFromCache(mod)
                 .Bind(modInCache => modInCache.UpdateModData(mod))
@@ -126,13 +129,13 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="mod">Mod to be added to cache.</param>
         /// <returns>Successful <see cref="Result"/> if mod was added to cache, failure if it already exists.</returns>
-        private Result<Mod> AddModToCache(Mod mod)
+        private Result<Mod, IError> AddModToCache(Mod mod)
         {
             var result = _mods.Add(mod);
 
             return result
-                ? Result.Success(mod)
-                : Result.Failure<Mod>("Mod already exists in cache.");
+                ? mod
+                : new Error("Mod already exists in cache.", ManagerErrorCode.ModAlreadyInCache);
         }
 
         /// <summary>
@@ -140,13 +143,13 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="mod">Mod to remove from cache.</param>
         /// <returns>Successful <see cref="Result"/> if mod was removed from cache, failure if it doesn't exist in cache.</returns>
-        private Result<Mod> RemoveModFromCache(Mod mod)
+        private Result<Mod, IError> RemoveModFromCache(Mod mod)
         {
             var result = _mods.Remove(mod);
 
             return result
-                ? Result.Success(mod)
-                : Result.Failure<Mod>("Mod couldn't be removed from cache as it doesn't exist.");
+                ? mod
+                : new Error("Mod couldn't be removed from cache as it doesn't exist.", ManagerErrorCode.ModNotFoundInCache);
         }
 
         /// <summary>
@@ -185,7 +188,7 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// Tries to add <paramref name="mod"/> to cache and if it already exists, updates it.
         /// </summary>
         /// <returns>Always successful <see cref="Result"/>.</returns>
-        private Result<Mod> AddOrUpdateModInCache(Mod mod)
+        private Result<Mod, IError> AddOrUpdateModInCache(Mod mod)
         {
             return AddModToCache(mod)
                 .OnFailureCompensate(_ => UpdateModInCache(mod));
@@ -197,13 +200,13 @@ namespace ArmaForces.ArmaServerManager.Features.Mods
         /// </summary>
         /// <param name="mod">The non-cached mod to look for in mods directory.</param>
         /// <returns>Successful <see cref="Result"/> if mod was found in the mods directory, failure if it couldn't be found.</returns>
-        private Result<Mod> TryFindModInModsDirectory(Mod mod)
+        private Result<Mod, IError> TryFindModInModsDirectory(Mod mod)
         {
             mod = _modDirectoryFinder.TryEnsureModDirectory(mod);
 
             return mod.Directory is null
-                ? Result.Failure<Mod>("Mod directory could not be found.")
-                : Result.Success(mod);
+                ? new Error("Mod directory could not be found.", ManagerErrorCode.ModDirectoryNotExists)
+                : mod;
         }
 
         /// <summary>

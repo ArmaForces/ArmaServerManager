@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using ArmaForces.Arma.Server.Common.Errors;
 using ArmaForces.Arma.Server.Features.Mods;
 using CSharpFunctionalExtensions;
 
@@ -23,6 +24,6 @@ namespace ArmaForces.ArmaServerManager.Features.Mods {
         /// Adds <paramref name="mods"/> to mods cache or updates them if they already exists.
         /// </summary>
         /// <param name="mods">List of mods to be added or updated.</param>
-        Task<Result<List<Mod>>> AddOrUpdateModsInCache(IReadOnlyCollection<Mod> mods);
+        Task<Result<List<Mod>, IError>> AddOrUpdateModsInCache(IReadOnlyCollection<Mod> mods);
     }
 }
