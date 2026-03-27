@@ -12,6 +12,7 @@ using ArmaForces.ArmaServerManager.Features.Mods.DependencyInjection;
 using ArmaForces.ArmaServerManager.Features.Servers;
 using ArmaForces.ArmaServerManager.Features.Servers.Providers;
 using ArmaForces.ArmaServerManager.Features.Status;
+using ArmaForces.ArmaServerManager.Features.Webhooks;
 using ArmaForces.ArmaServerManager.Infrastructure.Authentication;
 using ArmaForces.ArmaServerManager.Infrastructure.Converters;
 using ArmaForces.ArmaServerManager.Infrastructure.Documentation;
@@ -127,6 +128,10 @@ namespace ArmaForces.ArmaServerManager
             // Status
             .AddSingleton<IAppStatusStore, AppStatusStore>()
             .AddSingleton<IStatusProvider, StatusProvider>()
+            
+            // Webhooks
+            .AddSingleton<IWebhookService, WebhookService>()
+            .AddWebhookClient()
 
             // Hangfire
             .AddSingleton<IJobsScheduler, JobsScheduler>()

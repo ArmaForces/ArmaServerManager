@@ -69,6 +69,11 @@ namespace ArmaForces.Arma.Server.Config {
         string? SteamPassword { get; }
 
         /// <summary>
+        /// URL for sending webhook notifications.
+        /// </summary>
+        string? WebhookUrl { get; }
+
+        /// <summary>
         /// Loads settings from configuration.
         /// </summary>
         /// <returns>Result</returns>

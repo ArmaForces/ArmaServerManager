@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ArmaForces.Arma.Server.Constants;
@@ -19,21 +20,38 @@ namespace ArmaForces.ArmaServerManager.Common
         {
             var httpResponseMessage = await _httpClient.GetAsync(requestUrl);
             
+            var responseBody = await httpResponseMessage.Content.ReadAsStringAsync();
+            
             if (httpResponseMessage.IsSuccessStatusCode)
             {
-                var responseBody = await httpResponseMessage.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<T>(responseBody, JsonOptions.Default) ??
                        Result.Failure<T>($"Failed to deserialize response: {responseBody}");
             }
-            else
-            {
-                var responseBody = await httpResponseMessage.Content.ReadAsStringAsync();
-                var error = string.IsNullOrWhiteSpace(responseBody)
-                    ? httpResponseMessage.ReasonPhrase
-                    : responseBody;
+
+            var error = string.IsNullOrWhiteSpace(responseBody)
+                ? httpResponseMessage.ReasonPhrase
+                : responseBody;
                 
-                return Result.Failure<T>(error);
+            return Result.Failure<T>(error);
+        }
+
+        protected async Task<Result> HttpPostAsync<T>(string? requestUrl, T content)
+        {
+            var stringContent = new StringContent(JsonSerializer.Serialize(content, JsonSerializerOptions.Web), Encoding.UTF8, "application/json");
+            var httpResponseMessage = await _httpClient.PostAsync(requestUrl, stringContent);
+            
+            var responseBody = await httpResponseMessage.Content.ReadAsStringAsync();
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                return Result.Success();
             }
+
+            var error = string.IsNullOrWhiteSpace(responseBody)
+                ? httpResponseMessage.ReasonPhrase
+                : responseBody;
+            
+            return Result.Failure(error);
         }
     }
 }
